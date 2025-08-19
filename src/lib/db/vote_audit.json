@@ -68,5 +68,19 @@
         "old_party_id": "krf",
         "new_party_id": "mdg",
         "ts": "2025-08-19T13:21:33.380Z"
+    },
+    {
+        "audit_id": "1755610203895-voter_test_user",
+        "user_id": "voter_test_user",
+        "old_party_id": "mdg",
+        "new_party_id": "frp",
+        "ts": "2025-08-19T13:30:03.895Z"
+    },
+    {
+        "audit_id": "1755610505560-voter_test_user",
+        "user_id": "voter_test_user",
+        "old_party_id": "frp",
+        "new_party_id": "sv",
+        "ts": "2025-08-19T13:35:05.560Z"
     }
 ]
