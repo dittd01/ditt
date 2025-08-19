@@ -81,17 +81,20 @@ export default function ElectionPage() {
         // Sync with authoritative state from server
         setElectionTopic(currentTopic => {
             if (!currentTopic) return null;
+            const serverCounts = result.currentCounts || {};
             let total = 0;
-            for(const pId in result.currentCounts) {
-                total += result.currentCounts[pId];
+            for(const pId in serverCounts) {
+                total += serverCounts[pId];
             }
             return {
                 ...currentTopic,
-                votes: result.currentCounts,
+                votes: serverCounts,
                 totalVotes: total,
             }
         });
-        setVotedFor(result.newPartyId);
+        if (result.newPartyId) {
+            setVotedFor(result.newPartyId);
+        }
         toast({
             title: result.unchanged ? 'Vote Confirmed' : 'Vote Changed!',
             description: `Your anonymous vote for "${partyDetails.find(p => p.id === result.newPartyId)?.name}" has been recorded.`,

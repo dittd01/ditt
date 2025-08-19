@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 import type { Topic } from '@/lib/types';
 import { parties } from '@/lib/election-data';
@@ -32,16 +33,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export function ElectionChart({ topic }: ElectionChartProps) {
   const { votes, totalVotes } = topic;
 
-  const chartData = parties
-    .map(party => ({
-      id: party.id,
-      name: party.name,
-      abbreviation: party.abbreviation,
-      votes: votes[party.id] || 0,
-      percentage: totalVotes > 0 ? ((votes[party.id] || 0) / totalVotes) * 100 : 0,
-      fill: party.color,
-    }))
-    .sort((a, b) => b.votes - a.votes);
+  const chartData = useMemo(() => {
+    return parties
+      .map(party => ({
+        id: party.id,
+        name: party.name,
+        abbreviation: party.abbreviation,
+        votes: votes[party.id] || 0,
+        percentage: totalVotes > 0 ? ((votes[party.id] || 0) / totalVotes) * 100 : 0,
+        fill: party.color,
+      }))
+      .sort((a, b) => b.votes - a.votes);
+  }, [votes, totalVotes]);
 
   return (
     <div className="relative aspect-video w-full">
