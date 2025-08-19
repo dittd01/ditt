@@ -10,15 +10,34 @@ function HomePageContent() {
   const selectedSubCategory = searchParams.get('sub');
 
   const filteredTopics = allTopics.filter((topic) => {
-    if (!selectedCategory || selectedCategory === 'all') {
-       if (selectedSubCategory) {
-         return topic.subcategoryId === selectedSubCategory;
-       }
-       return true;
+    const category = selectedCategory || 'all';
+
+    if (category === 'all') {
+      // If a subcategory is selected (from any category), filter by it
+      if (selectedSubCategory) {
+        return topic.subcategoryId === selectedSubCategory;
+      }
+      // Otherwise, show all topics
+      return true;
     }
-    if (selectedCategory && topic.categoryId !== selectedCategory) return false;
-    if (selectedSubCategory && topic.subcategoryId !== selectedSubCategory) return false;
+
+    // Filter by main category
+    if (topic.categoryId !== category) {
+      return false;
+    }
+
+    // If a subcategory is also selected, filter by it as well
+    if (selectedSubCategory) {
+      return topic.subcategoryId === selectedSubCategory;
+    }
+    
+    // Otherwise, show all topics for the selected main category
     return true;
+  }).sort((a, b) => {
+     if (selectedCategory === 'all' || !selectedCategory) {
+       return b.totalVotes - a.totalVotes;
+     }
+     return 0; // Or other sorting for categories
   });
 
   return (
