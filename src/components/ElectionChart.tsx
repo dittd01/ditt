@@ -29,31 +29,6 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-const CustomizedLabel = (props: any) => {
-    const { x, y, width, index } = props;
-    // The data for the bar is available in the payload property
-    const voteCount = props.payload.votes;
-    const percentage = props.payload.percentage;
-    const barSize = 25; // Matching the approximate size for vertical alignment.
-
-    if (width < 60) { 
-        return null;
-    }
-    
-    return (
-        <text 
-            x={x + width + 5} 
-            y={y + barSize / 2}
-            fill="hsl(var(--foreground))"
-            className="text-sm font-medium"
-            textAnchor="start" 
-            dominantBaseline="middle"
-        >
-            {`${percentage.toFixed(1)}% (${voteCount.toLocaleString()})`}
-        </text>
-    );
-};
-
 
 export function ElectionChart({ topic }: ElectionChartProps) {
   const { votes, totalVotes } = topic;
@@ -90,8 +65,18 @@ export function ElectionChart({ topic }: ElectionChartProps) {
           />
           <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<CustomTooltip />} />
           <Bar dataKey="votes" radius={[4, 4, 4, 4]}>
-             <LabelList
-                content={CustomizedLabel}
+            <LabelList
+              dataKey="votes"
+              position="right"
+              offset={10}
+              className="text-sm font-medium"
+              formatter={(value: number, entry: any, index: number) => {
+                const dataPoint = chartData[index];
+                if (!dataPoint || typeof dataPoint.percentage !== 'number' || typeof dataPoint.votes !== 'number') return '';
+                if (dataPoint.votes === 0) return ''; // Do not show label for 0 votes
+                return `${dataPoint.percentage.toFixed(1)}% (${dataPoint.votes.toLocaleString()})`;
+              }}
+              style={{ fill: 'hsl(var(--foreground))' }}
             />
           </Bar>
         </BarChart>
