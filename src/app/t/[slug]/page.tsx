@@ -87,14 +87,14 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
         newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
         localStorage.setItem(`votes_for_${topic.id}_${selectedOption}`, newVotes[selectedOption].toString());
 
-        if (previousVote) {
-          // If there was a previous vote for a different option, remove it
-          if (previousVote !== selectedOption && newVotes[previousVote] > 0) {
+        // If there was a previous vote for a different option, remove it
+        if (previousVote && previousVote !== selectedOption) {
+          if (newVotes[previousVote] > 0) {
             newVotes[previousVote] = newVotes[previousVote] - 1;
             localStorage.setItem(`votes_for_${topic.id}_${previousVote}`, newVotes[previousVote].toString());
           }
-        } else {
-          // If it's a completely new vote for this topic, increment total
+        } else if (!previousVote) {
+          // Only increment total votes if this is the first time voting
           newTotalVotes += 1;
         }
 

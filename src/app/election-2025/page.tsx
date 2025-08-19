@@ -66,16 +66,19 @@ export default function ElectionPage() {
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
+        // Add vote to the new party
         newVotes[partyId] = (newVotes[partyId] || 0) + 1;
         localStorage.setItem(`votes_for_${electionTopic.id}_${partyId}`, newVotes[partyId].toString());
         
-        if (previousVote) {
-            if(previousVote !== partyId && newVotes[previousVote] > 0) {
+        // If there was a previous vote for a different party, remove it
+        if (previousVote && previousVote !== partyId) {
+            if(newVotes[previousVote] > 0) {
               newVotes[previousVote] = newVotes[previousVote] - 1;
               localStorage.setItem(`votes_for_${electionTopic.id}_${previousVote}`, newVotes[previousVote].toString());
             }
-        } else {
-            newTotalVotes += 1;
+        } else if (!previousVote) {
+          // Only increment total votes if this is the first time voting
+          newTotalVotes += 1;
         }
 
         return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
