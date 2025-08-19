@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 import type { Topic } from '@/lib/types';
 import { parties } from '@/lib/election-data';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type ElectionChartProps = {
   topic: Topic;
@@ -32,6 +33,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export function ElectionChart({ topic }: ElectionChartProps) {
   const { votes, totalVotes } = topic;
+  const isMobile = useIsMobile();
 
   const chartData = useMemo(() => {
     return parties
@@ -45,6 +47,8 @@ export function ElectionChart({ topic }: ElectionChartProps) {
       }))
       .sort((a, b) => b.votes - a.votes);
   }, [votes, totalVotes]);
+
+  const tickFontSize = isMobile ? '0.75rem' : '1.0rem';
 
   return (
     <div className="relative aspect-video w-full">
@@ -61,12 +65,15 @@ export function ElectionChart({ topic }: ElectionChartProps) {
             textAnchor="end"
             height={50}
             interval={0}
-            tick={{ fill: 'hsl(var(--foreground))', fontSize: '0.8rem' }}
+            tick={{ fill: 'hsl(var(--foreground))', fontSize: tickFontSize }}
+            // Styling for the X-axis ticks (party abbreviations)
           />
           <YAxis
+            // Formatter for Y-axis ticks, showing values in thousands with a 'k' suffix
             tickFormatter={(value) => `${value / 1000}k`}
             width={40}
-            tick={{ fill: 'hsl(var(--foreground))', fontSize: '0.8rem' }}
+            tick={{ fill: 'hsl(var(--foreground))', fontSize: tickFontSize }}
+            // Styling for the Y-axis ticks (vote counts)
             axisLine={false}
             tickLine={false}
           />
