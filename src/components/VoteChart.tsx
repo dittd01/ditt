@@ -25,17 +25,15 @@ const CustomLabel = (props: any) => {
   const { x, y, width, height, value } = props;
   const dataPoint = props.payload;
 
-  if (!dataPoint || value === undefined || value === null || !width || !height || height < 15 || value === 0) {
+  if (!dataPoint || value === undefined || value === null || !width || !height || value === 0) {
     return null;
   }
-
-  const total = Object.keys(dataPoint)
-    .filter(key => key !== 'date' && typeof dataPoint[key] === 'number')
-    .reduce((acc, key) => acc + (dataPoint[key] || 0), 0);
   
+  const total = dataPoint.total;
   const percentage = total > 0 ? (value / total) * 100 : 0;
 
-  if (percentage < 5) return null;
+  // Don't render label if the bar is too small
+  if (percentage < 5 || height < 15) return null;
 
   return (
     <g>
