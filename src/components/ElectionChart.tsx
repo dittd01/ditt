@@ -85,7 +85,7 @@ export function ElectionChart({ topic }: ElectionChartProps) {
               position="top"
               offset={isMobile ? 10 : 5}
               angle={isMobile ? -90 : 0}
-              textAnchor={isMobile ? 'end' : 'middle'}
+              textAnchor={isMobile ? 'middle' : 'middle'}
               className="text-[10px] md:text-[14px] font-medium"
               formatter={(value: number) => {
                 return `${value.toFixed(1)}%`;
