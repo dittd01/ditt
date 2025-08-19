@@ -10,7 +10,7 @@ function HomePageContent() {
   const selectedSubCategory = searchParams.get('sub');
 
   const filteredTopics = allTopics.filter((topic) => {
-    if (!selectedCategory || selectedCategory === 'elections_governance') {
+    if (!selectedCategory || selectedCategory === 'all') {
        if (selectedSubCategory) {
          return topic.subcategoryId === selectedSubCategory;
        }

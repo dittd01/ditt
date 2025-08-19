@@ -18,7 +18,8 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const selectedCategoryId = searchParams.get('cat') || categories[0]?.id;
+  const allCategories = [{ id: 'all', label: 'All', subcategories: [] }, ...categories];
+  const selectedCategoryId = searchParams.get('cat') || 'all';
   const selectedSubcategoryId = searchParams.get('sub');
 
   const [isSticky, setIsSticky] = useState(false);
@@ -29,7 +30,7 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
   const handleSelectCategory = useCallback(
     (categoryId: string | null) => {
       const current = new URLSearchParams(Array.from(searchParams.entries()));
-      if (categoryId) {
+      if (categoryId && categoryId !== 'all') {
         current.set('cat', categoryId);
       } else {
         current.delete('cat');
@@ -79,27 +80,50 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
       let totalWidth = 0;
       const newHidden: Category[] = [];
       const children = Array.from(navRef.current.children) as HTMLElement[];
-
+      const visibleCategories = allCategories.filter(c => !hiddenCategories.some(h => h.id === c.id));
+      
+      let currentVisibleWidth = 0;
       for (const child of children) {
-        if (child.dataset.role === 'category-button') {
-          totalWidth += child.offsetWidth;
-          if (totalWidth > navWidth - 80) { // 80px buffer for "More" button
-            const catId = child.dataset.categoryId;
-            const category = categories.find(c => c.id === catId);
-            if (category) {
-              newHidden.push(category);
-            }
+          if (child.dataset.role === 'category-button') {
+              currentVisibleWidth += child.offsetWidth;
           }
-        }
       }
-      setHiddenCategories(newHidden);
+
+      if (currentVisibleWidth > navWidth - 80) { // Needs hiding
+          totalWidth = currentVisibleWidth;
+          for (let i = visibleCategories.length - 1; i >= 0; i--) {
+              const cat = visibleCategories[i];
+              const child = children.find(c => c.dataset.categoryId === cat.id);
+              if (child) {
+                  totalWidth -= child.offsetWidth;
+                  newHidden.unshift(cat);
+                  if (totalWidth <= navWidth - 80) break;
+              }
+          }
+          setHiddenCategories(prev => [...prev, ...newHidden]);
+      } else { // Needs showing
+          if(hiddenCategories.length > 0) {
+              const nextToShow = hiddenCategories[0];
+              const tempButton = document.createElement('button');
+              tempButton.innerText = nextToShow.label;
+              tempButton.className = (children[0] as HTMLElement).className;
+              tempButton.style.visibility = 'hidden';
+              document.body.appendChild(tempButton);
+              const nextWidth = tempButton.offsetWidth;
+              document.body.removeChild(tempButton);
+
+              if (currentVisibleWidth + nextWidth < navWidth - 80) {
+                   setHiddenCategories(prev => prev.slice(1));
+              }
+          }
+      }
     };
 
     calculateHidden();
-    window.addEventListener('resize', calculateHidden);
-    return () => window.removeEventListener('resize', calculateHidden);
-  }, [categories]);
-  
+    const debouncedCalculate = () => setTimeout(calculateHidden, 100);
+    window.addEventListener('resize', debouncedCalculate);
+    return () => window.removeEventListener('resize', debouncedCalculate);
+  }, [allCategories, hiddenCategories]);
 
   return (
     <>
@@ -113,7 +137,7 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
         <div className="container mx-auto px-4">
           {/* Main Categories */}
           <div ref={navRef} className="relative flex items-center border-b no-scrollbar overflow-x-auto">
-            {categories.map((cat) => (
+            {allCategories.map((cat) => (
                !hiddenCategories.find(h => h.id === cat.id) && (
                 <button
                   key={cat.id}
@@ -152,7 +176,7 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
               )}
           </div>
           {/* Sub Categories */}
-          {selectedCategoryData && (
+          {selectedCategoryData && selectedCategoryData.id !== 'all' && (
             <div className="flex items-center py-2 no-scrollbar overflow-x-auto">
               <button
                 onClick={() => handleSelectSubcategory(null)}
