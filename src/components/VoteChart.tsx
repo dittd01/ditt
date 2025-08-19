@@ -25,7 +25,7 @@ const CustomLabel = (props: any) => {
   const { x, y, width, height, value } = props;
   const dataPoint = props.payload;
 
-  if (!dataPoint || value === undefined || value === null) {
+  if (!dataPoint || value === undefined || value === null || !width || !height) {
     return null;
   }
 
@@ -41,7 +41,7 @@ const CustomLabel = (props: any) => {
 
   return (
     <g>
-      <text x={x + width / 2} y={y + height / 2} fill="#fff" textAnchor="middle" dominantBaseline="middle" className="text-xs font-medium">
+      <text x={x + width / 2} y={y + height / 2} fill="#FFFFFF" textAnchor="middle" dominantBaseline="middle" className="text-xs font-medium">
         {`${percentage.toFixed(0)}% (${(value / 1000).toFixed(0)}k)`}
       </text>
     </g>
