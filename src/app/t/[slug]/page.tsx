@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, use } from 'react';
@@ -6,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { mockTopics } from '@/lib/data';
 import type { Topic } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -17,7 +18,7 @@ import { VoteChart } from '@/components/VoteChart';
 import { SuggestionForm } from '@/components/SuggestionForm';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-export default function TopicPage({ params }: { params: Promise<{ slug: string }> }) {
+export default function TopicPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
   const { toast } = useToast();
   const { slug } = use(params);
