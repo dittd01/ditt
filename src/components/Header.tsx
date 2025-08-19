@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -67,7 +68,11 @@ export function Header() {
             <span className="font-bold">Valg匿名</span>
           </Link>
         </div>
-        <div className="flex flex-1 items-center justify-end space-x-2">
+        <div className="flex flex-1 items-center justify-end space-x-4">
+          <Button variant="ghost" asChild>
+            <Link href="/about">About</Link>
+          </Button>
+
           {voterId ? (
             <div className="flex items-center gap-4">
               <span className="text-sm text-muted-foreground hidden md:inline">
