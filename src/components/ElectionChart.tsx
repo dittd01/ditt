@@ -30,10 +30,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const CustomizedLabel = (props: any) => {
-    const { x, y, width, index, barSize } = props;
+    const { x, y, width, index } = props;
     // The data for the bar is available in the payload property
     const voteCount = props.payload.votes;
     const percentage = props.payload.percentage;
+    const barSize = 25; // Matching the approximate size for vertical alignment.
 
     if (width < 60) { 
         return null;
@@ -90,7 +91,7 @@ export function ElectionChart({ topic }: ElectionChartProps) {
           <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<CustomTooltip />} />
           <Bar dataKey="votes" radius={[4, 4, 4, 4]}>
              <LabelList
-                content={<CustomizedLabel barSize={25} />}
+                content={<CustomizedLabel />}
             />
           </Bar>
         </BarChart>
