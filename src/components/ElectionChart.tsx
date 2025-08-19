@@ -1,9 +1,8 @@
 
 'use client';
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 import type { Topic } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { parties } from '@/lib/election-data';
 
 type ElectionChartProps = {
@@ -30,6 +29,31 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
+const CustomizedLabel = (props: any) => {
+    const { x, y, width, height, value } = props;
+    const { payload } = props; // The full data object for the bar
+    const voteCount = payload.votes;
+    const percentage = payload.percentage;
+
+    if (width < 40) { // Don't render label if the bar is too small
+        return null;
+    }
+    
+    return (
+        <text 
+            x={x + width + 5} 
+            y={y + height / 2} 
+            fill="hsl(var(--foreground))"
+            className="text-sm font-medium"
+            textAnchor="start" 
+            dominantBaseline="middle"
+        >
+            {`${percentage.toFixed(1)}% (${voteCount.toLocaleString()})`}
+        </text>
+    );
+};
+
+
 export function ElectionChart({ topic }: ElectionChartProps) {
   const { votes, totalVotes, options } = topic;
 
@@ -49,7 +73,7 @@ export function ElectionChart({ topic }: ElectionChartProps) {
         <BarChart
           data={chartData}
           layout="vertical"
-          margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
+          margin={{ top: 5, right: 100, left: 5, bottom: 5 }} // Increased right margin for labels
         >
           <CartesianGrid strokeDasharray="3 3" horizontal={false} />
           <XAxis type="number" hide />
@@ -64,16 +88,7 @@ export function ElectionChart({ topic }: ElectionChartProps) {
           <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<CustomTooltip />} />
           <Bar dataKey="votes" radius={[0, 4, 4, 0]}>
              <LabelList
-              dataKey="percentage"
-              position="right"
-              formatter={(value: number, entry: any) => {
-                const voteCount = entry.votes;
-                const percentage = entry.percentage;
-                if (typeof percentage !== 'number' || typeof voteCount !== 'number') return '';
-                return `${percentage.toFixed(1)}% (${voteCount.toLocaleString()})`;
-              }}
-              fill="hsl(var(--foreground))"
-              className="text-sm font-medium"
+                content={<CustomizedLabel />}
             />
           </Bar>
         </BarChart>
