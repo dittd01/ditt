@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -23,6 +24,11 @@ type VoteChartProps = {
 const CustomLabel = (props: any) => {
   const { x, y, width, height, value, dataKey } = props;
   const dataPoint = props.payload;
+
+  if (!dataPoint) {
+    return null;
+  }
+
   const total = Object.keys(dataPoint)
     .filter(key => key !== 'date')
     .reduce((acc, key) => acc + (dataPoint[key] || 0), 0);
@@ -52,7 +58,7 @@ export function VoteChart({ topic }: VoteChartProps) {
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
           <CardTitle>Vote History</CardTitle>
           <div className="flex gap-1 bg-muted p-1 rounded-md w-full sm:w-auto">
-            {['1H', '1D', '1W', '1M'].map((tf) => (
+            {['1H', '1D', 'W', '1M'].map((tf) => (
               <Button
                 key={tf}
                 size="sm"
