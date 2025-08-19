@@ -19,7 +19,7 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
   const searchParams = useSearchParams();
 
   const allCategories = [{ id: 'all', label: 'All', subcategories: [] }, ...categories];
-  const selectedCategoryId = searchParams.get('cat') || 'all';
+  const selectedCategoryId = searchParams.get('cat') || (pathname === '/election-2025' ? 'election_2025' : 'all');
   const selectedSubcategoryId = searchParams.get('sub');
 
   const [isSticky, setIsSticky] = useState(false);
@@ -29,6 +29,10 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
 
   const handleSelectCategory = useCallback(
     (categoryId: string | null) => {
+       if (categoryId === 'election_2025') {
+        router.push('/election-2025');
+        return;
+      }
       const current = new URLSearchParams(Array.from(searchParams.entries()));
       if (categoryId && categoryId !== 'all') {
         current.set('cat', categoryId);
@@ -38,9 +42,9 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
       current.delete('sub'); // Reset subcategory when main category changes
       const search = current.toString();
       const query = search ? `?${search}` : '';
-      router.push(`${pathname}${query}`);
+      router.push(`/${query}`);
     },
-    [searchParams, pathname, router]
+    [searchParams, router]
   );
 
   const handleSelectSubcategory = useCallback(
@@ -53,17 +57,15 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
       }
       const search = current.toString();
       const query = search ? `?${search}` : '';
-      router.push(`${pathname}${query}`);
+      router.push(`/${query}`);
     },
-    [searchParams, pathname, router]
+    [searchParams, router]
   );
 
   const selectedCategoryData = categories.find((c) => c.id === selectedCategoryId);
 
   // Observer for sticky nav
   useEffect(() => {
-    // The sentinel is a 1px high div at the top of the component.
-    // When it scrolls out of view, the IntersectionObserver fires.
     const observer = new IntersectionObserver(
       ([e]) => setIsSticky(e.intersectionRatio < 1),
       { threshold: [1] }
@@ -175,7 +177,7 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
               )}
           </div>
           {/* Sub Categories */}
-          {selectedCategoryData && selectedCategoryData.id !== 'all' && (
+          {selectedCategoryData && selectedCategoryData.id !== 'all' && selectedCategoryData.id !== 'election_2025' && (
             <div className="flex items-center py-2 no-scrollbar overflow-x-auto">
               <button
                 onClick={() => handleSelectSubcategory(null)}

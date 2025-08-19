@@ -12,8 +12,10 @@ export function TopicCard({ topic }: { topic: Topic }) {
     return (voteCount / topic.totalVotes) * 100
   }
 
+  const link = topic.voteType === 'election' ? '/election-2025' : `/t/${topic.slug}`;
+
   return (
-    <Link href={`/t/${topic.slug}`} className="group block">
+    <Link href={link} className="group block">
       <Card className="h-full flex flex-col transition-all duration-200 ease-in-out group-hover:shadow-xl group-hover:-translate-y-1">
         <CardHeader className="p-0">
           <div className="aspect-video relative">
@@ -28,17 +30,19 @@ export function TopicCard({ topic }: { topic: Topic }) {
         </CardHeader>
         <CardContent className="flex-grow p-6 space-y-4">
           <CardTitle className="text-lg font-semibold leading-snug">{topic.question}</CardTitle>
-          <div className="space-y-4 pt-2">
-            {topic.options.map((option) => (
-              <div key={option.id}>
-                <div className="flex justify-between mb-1 text-sm">
-                  <span className="text-muted-foreground">{option.label}</span>
-                  <span className="font-medium">{getPercentage(option.id).toFixed(1)}%</span>
+          {topic.options.length > 0 && (
+            <div className="space-y-4 pt-2">
+              {topic.options.map((option) => (
+                <div key={option.id}>
+                  <div className="flex justify-between mb-1 text-sm">
+                    <span className="text-muted-foreground">{option.label}</span>
+                    <span className="font-medium">{getPercentage(option.id).toFixed(1)}%</span>
+                  </div>
+                  <Progress value={getPercentage(option.id)} className="h-2" />
                 </div>
-                <Progress value={getPercentage(option.id)} className="h-2" />
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
         <CardFooter>
           <div className="flex items-center text-sm text-muted-foreground">
