@@ -20,6 +20,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 export default function TopicPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
   const { toast } = useToast();
+  const { slug } = params;
 
   const [topic, setTopic] = useState<Topic | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -29,7 +30,7 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
 
   useEffect(() => {
     setIsClient(true);
-    const foundTopic = mockTopics.find((t) => t.slug === params.slug);
+    const foundTopic = mockTopics.find((t) => t.slug === slug);
     setTopic(foundTopic || null);
 
     if (foundTopic) {
@@ -40,7 +41,7 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
         setVotedOn(previousVote);
       }
     }
-  }, [params.slug]);
+  }, [slug]);
 
   if (!isClient) {
     return null; // or a loading skeleton
