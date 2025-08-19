@@ -52,7 +52,7 @@ export function ElectionChart({ topic }: ElectionChartProps) {
         <BarChart
           data={chartData}
           margin={{ top: 30, right: 10, left: 10, bottom: 40 }} 
-          barCategoryGap="20%"
+          barCategoryGap="10%"
         >
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis
@@ -61,12 +61,12 @@ export function ElectionChart({ topic }: ElectionChartProps) {
             textAnchor="end"
             height={50}
             interval={0}
-            tick={{ fill: 'hsl(var(--foreground))', fontSize: '0.75rem' }}
+            tick={{ fill: 'hsl(var(--foreground))', fontSize: '0.8rem' }}
           />
           <YAxis
             tickFormatter={(value) => `${value / 1000}k`}
             width={40}
-            tick={{ fill: 'hsl(var(--foreground))', fontSize: '0.75rem' }}
+            tick={{ fill: 'hsl(var(--foreground))', fontSize: '0.8rem' }}
             axisLine={false}
             tickLine={false}
           />
@@ -76,7 +76,7 @@ export function ElectionChart({ topic }: ElectionChartProps) {
               dataKey="percentage"
               position="top"
               offset={5}
-              className="text-xs md:text-[14px] font-medium"
+              className="text-[10px] md:text-[14px] font-medium"
               formatter={(value: number) => {
                 return `${value.toFixed(1)}%`;
               }}
