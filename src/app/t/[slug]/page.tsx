@@ -56,6 +56,7 @@ export default function TopicPage() {
         if (currentVoterId) {
             const previousVote = localStorage.getItem(`voted_on_${foundTopic.id}`);
             setVotedOn(previousVote);
+            setSelectedOption(previousVote);
         }
     } else {
         setTopic(null);
