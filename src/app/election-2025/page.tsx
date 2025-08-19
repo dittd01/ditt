@@ -61,6 +61,8 @@ export default function ElectionPage() {
         return; // Do nothing if there's no topic or voting for the same party again
     }
     
+    const previouslyVotedFor = votedFor;
+
     setElectionTopic(currentTopic => {
         if (!currentTopic) return null;
 
@@ -68,8 +70,8 @@ export default function ElectionPage() {
         let newTotalVotes = currentTopic.totalVotes;
 
         // If user is changing their vote from a previous one
-        if (votedFor) {
-            newVotes[votedFor] = (newVotes[votedFor] || 1) - 1; // Decrement old
+        if (previouslyVotedFor) {
+            newVotes[previouslyVotedFor] = (newVotes[previouslyVotedFor] || 1) - 1; // Decrement old
             newVotes[partyId] = (newVotes[partyId] || 0) + 1;  // Increment new
             // Total votes remain the same
         } else {
@@ -96,17 +98,11 @@ export default function ElectionPage() {
   };
   
   const handleRevote = () => {
+    setVotedFor(null);
     toast({
-      title: 'Re-authentication required',
-      description: 'For security, you must log in again to change your vote.',
+      title: 'Cast a new vote',
+      description: 'You may now select a different party.',
     });
-    localStorage.removeItem('anonymousVoterId');
-    Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('voted_on_')) {
-            localStorage.removeItem(key);
-        }
-    });
-    router.push('/login');
   };
 
   if (!isClient || !electionTopic) {
@@ -146,10 +142,10 @@ export default function ElectionPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">To prevent coercion, you can change your vote at any time during the voting period. This will require you to re-authenticate.</p>
+              <p className="text-sm text-muted-foreground mb-4">You can change your vote at any time during the voting period.</p>
               <Button className="w-full" onClick={handleRevote}>
                   <RefreshCw className="mr-2 h-4 w-4" />
-                  Change Your Vote (Revote)
+                  Change Your Vote
               </Button>
             </CardContent>
         </Card>
