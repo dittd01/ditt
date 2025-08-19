@@ -1,16 +1,64 @@
+
 'use client';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useState, useEffect } from 'react';
 import { TopicCard } from '@/components/TopicCard';
-import { allTopics } from '@/lib/data';
+import { allTopics as initialTopics } from '@/lib/data';
+import type { Topic } from '@/lib/types';
 
 function HomePageContent() {
   const searchParams = useSearchParams();
+  const [topics, setTopics] = useState<Topic[]>(initialTopics);
+
+  // This effect will re-sync the state with localStorage when the page becomes visible
+  // This is a simple way to reflect vote changes from other pages
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        setTopics(prevTopics => {
+          return prevTopics.map(topic => {
+            const newVotes: Record<string, number> = {};
+            let newTotalVotes = 0;
+            
+            topic.options.forEach(option => {
+              const storedVotes = localStorage.getItem(`votes_for_${topic.id}_${option.id}`);
+              const currentVotes = storedVotes ? parseInt(storedVotes, 10) : topic.votes[option.id] || 0;
+              newVotes[option.id] = currentVotes;
+              newTotalVotes += currentVotes;
+            });
+
+            // For election topic, we need to handle it differently
+            if (topic.voteType === 'election') {
+                let electionTotal = 0;
+                topic.options.forEach(option => {
+                    const storedVotes = localStorage.getItem(`votes_for_${topic.id}_${option.id}`);
+                    const currentVotes = storedVotes ? parseInt(storedVotes, 10) : topic.votes[option.id] || 0;
+                    newVotes[option.id] = currentVotes;
+                    electionTotal += currentVotes;
+                });
+                return { ...topic, votes: newVotes, totalVotes: electionTotal };
+            }
+
+            return { ...topic, votes: newVotes, totalVotes: newTotalVotes };
+          });
+        });
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Initial sync
+    handleVisibilityChange();
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   const selectedCategory = searchParams.get('cat');
   const selectedSubCategory = searchParams.get('sub');
 
-  const filteredTopics = allTopics.filter((topic) => {
-    // The 'election_2025' topic should not appear on the main grid
+  const filteredTopics = topics.filter((topic) => {
     if (topic.categoryId === 'election_2025') {
       return false;
     }
@@ -18,31 +66,26 @@ function HomePageContent() {
     const category = selectedCategory || 'all';
 
     if (category === 'all') {
-      // If a subcategory is selected (from any category), filter by it
       if (selectedSubCategory) {
         return topic.subcategoryId === selectedSubCategory;
       }
-      // Otherwise, show all topics
       return true;
     }
 
-    // Filter by main category
     if (topic.categoryId !== category) {
       return false;
     }
 
-    // If a subcategory is also selected, filter by it as well
     if (selectedSubCategory) {
       return topic.subcategoryId === selectedSubCategory;
     }
     
-    // Otherwise, show all topics for the selected main category
     return true;
   }).sort((a, b) => {
      if (selectedCategory === 'all' || !selectedCategory) {
        return b.totalVotes - a.totalVotes;
      }
-     return 0; // Or other sorting for categories
+     return 0;
   });
 
   return (

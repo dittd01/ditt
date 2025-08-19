@@ -1,16 +1,16 @@
 
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { allTopics } from '@/lib/data';
 import type { Topic } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, CheckCircle, Info, RefreshCw } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Info, RefreshCw, Loader2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { VoteChart } from '@/components/VoteChart';
@@ -20,9 +20,10 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 export default function TopicPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { slug } = use(params);
+  const { slug } = params;
 
   const [topic, setTopic] = useState<Topic | null>(null);
+  const [loading, setLoading] = useState(true);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [voterId, setVoterId] = useState<string | null>(null);
   const [votedOn, setVotedOn] = useState<string | null>(null);
@@ -30,27 +31,38 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
 
   useEffect(() => {
     setIsClient(true);
+    setLoading(true);
+    
     const foundTopic = allTopics.find((t) => t.slug === slug);
-    setTopic(foundTopic || null);
-
+    
     if (foundTopic) {
-      const currentVoterId = localStorage.getItem('anonymousVoterId');
-      setVoterId(currentVoterId);
-      if (currentVoterId) {
-        const previousVote = localStorage.getItem(`voted_on_${foundTopic.id}`);
-        setVotedOn(previousVote);
-      }
+        // Initialize votes from localStorage or fallback to initial data
+        const newVotes: Record<string, number> = {};
+        let newTotalVotes = 0;
+        
+        foundTopic.options.forEach(option => {
+            const storedVotes = localStorage.getItem(`votes_for_${foundTopic.id}_${option.id}`);
+            const currentVotes = storedVotes ? parseInt(storedVotes, 10) : foundTopic.votes[option.id] || 0;
+            newVotes[option.id] = currentVotes;
+            newTotalVotes += currentVotes;
+        });
+
+        const initialTopicState = { ...foundTopic, votes: newVotes, totalVotes: newTotalVotes };
+        setTopic(initialTopicState);
+
+        const currentVoterId = localStorage.getItem('anonymousVoterId');
+        setVoterId(currentVoterId);
+
+        if (currentVoterId) {
+            const previousVote = localStorage.getItem(`voted_on_${foundTopic.id}`);
+            setVotedOn(previousVote);
+        }
+    } else {
+        setTopic(null);
     }
+    
+    setLoading(false);
   }, [slug]);
-
-  if (!isClient) {
-    // Render a loading state or skeleton here to avoid flash of "not found"
-    return null; 
-  }
-
-  if (!topic) {
-    return <div className="container mx-auto px-4 py-8 text-center">Topic not found.</div>;
-  }
 
   const handleVote = () => {
     if (!voterId) {
@@ -62,7 +74,33 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
       router.push('/login');
       return;
     }
-    if (selectedOption) {
+    if (selectedOption && topic) {
+      const previousVote = localStorage.getItem(`voted_on_${topic.id}`);
+
+      setTopic(currentTopic => {
+        if (!currentTopic) return null;
+
+        const newVotes = { ...currentTopic.votes };
+        let newTotalVotes = currentTopic.totalVotes;
+
+        // Add vote to new option
+        newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
+        localStorage.setItem(`votes_for_${topic.id}_${selectedOption}`, newVotes[selectedOption].toString());
+
+        if (previousVote) {
+          // If there was a previous vote for a different option, remove it
+          if (previousVote !== selectedOption && newVotes[previousVote] > 0) {
+            newVotes[previousVote] = newVotes[previousVote] - 1;
+            localStorage.setItem(`votes_for_${topic.id}_${previousVote}`, newVotes[previousVote].toString());
+          }
+        } else {
+          // If it's a completely new vote for this topic, increment total
+          newTotalVotes += 1;
+        }
+
+        return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
+      });
+      
       localStorage.setItem(`voted_on_${topic.id}`, selectedOption);
       setVotedOn(selectedOption);
       toast({
@@ -73,14 +111,13 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
       });
     }
   };
-
+  
   const handleRevote = () => {
     toast({
       title: 'Re-authentication required',
       description: 'For security, you must log in again to change your vote.',
     });
     localStorage.removeItem('anonymousVoterId');
-    // Also remove any vote records for this user
     Object.keys(localStorage).forEach(key => {
         if (key.startsWith('voted_on_')) {
             localStorage.removeItem(key);
@@ -90,10 +127,22 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
   };
 
   const getPercentage = (optionId: string) => {
-    if (topic.totalVotes === 0) return 0;
+    if (!topic || topic.totalVotes === 0) return 0;
     const voteCount = topic.votes[optionId] || 0;
     return (voteCount / topic.totalVotes) * 100;
   };
+  
+  if (!isClient || loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!topic) {
+    return <div className="container mx-auto px-4 py-8 text-center">Topic not found.</div>;
+  }
 
   return (
     <div className="container mx-auto px-4 py-4 md:py-8">

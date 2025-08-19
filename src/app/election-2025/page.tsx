@@ -6,7 +6,7 @@ import { PartyCard } from '@/components/PartyCard';
 import { electionTopic as initialElectionTopic, parties } from '@/lib/election-data';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle, RefreshCw } from 'lucide-react';
+import { ArrowLeft, CheckCircle, RefreshCw, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { ElectionChart } from '@/components/ElectionChart';
@@ -17,11 +17,26 @@ export default function ElectionPage() {
   const { toast } = useToast();
   const [voterId, setVoterId] = useState<string | null>(null);
   const [votedFor, setVotedFor] = useState<string | null>(null);
+  const [electionTopic, setElectionTopic] = useState<Topic | null>(null);
   const [isClient, setIsClient] = useState(false);
-  const [electionTopic, setElectionTopic] = useState<Topic>(initialElectionTopic);
 
   useEffect(() => {
     setIsClient(true);
+    
+    // Initialize votes from localStorage or fallback to initial data
+    const newVotes: Record<string, number> = {};
+    let newTotalVotes = 0;
+    
+    initialElectionTopic.options.forEach(option => {
+        const storedVotes = localStorage.getItem(`votes_for_${initialElectionTopic.id}_${option.id}`);
+        const currentVotes = storedVotes ? parseInt(storedVotes, 10) : initialElectionTopic.votes[option.id] || 0;
+        newVotes[option.id] = currentVotes;
+        newTotalVotes += currentVotes;
+    });
+
+    const initialTopicState = { ...initialElectionTopic, votes: newVotes, totalVotes: newTotalVotes };
+    setElectionTopic(initialTopicState);
+
     const currentVoterId = localStorage.getItem('anonymousVoterId');
     setVoterId(currentVoterId);
     if (currentVoterId) {
@@ -41,22 +56,25 @@ export default function ElectionPage() {
       return;
     }
 
+    if (!electionTopic) return;
+
     const previousVote = localStorage.getItem(`voted_on_${electionTopic.id}`);
     
     setElectionTopic(currentTopic => {
+        if (!currentTopic) return null;
+
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
-        // Add one vote to the new party
         newVotes[partyId] = (newVotes[partyId] || 0) + 1;
-
+        localStorage.setItem(`votes_for_${electionTopic.id}_${partyId}`, newVotes[partyId].toString());
+        
         if (previousVote) {
-            // If there was a previous vote, remove one from the old party
-            if(newVotes[previousVote] > 0) {
+            if(previousVote !== partyId && newVotes[previousVote] > 0) {
               newVotes[previousVote] = newVotes[previousVote] - 1;
+              localStorage.setItem(`votes_for_${electionTopic.id}_${previousVote}`, newVotes[previousVote].toString());
             }
         } else {
-            // If it's a new vote, increment total votes
             newTotalVotes += 1;
         }
 
@@ -86,8 +104,12 @@ export default function ElectionPage() {
     router.push('/login');
   };
 
-  if (!isClient) {
-    return null; // Or a loading skeleton
+  if (!isClient || !electionTopic) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
