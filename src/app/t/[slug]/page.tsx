@@ -83,20 +83,24 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
-        // Add vote to new option
-        newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
-        localStorage.setItem(`votes_for_${topic.id}_${selectedOption}`, newVotes[selectedOption].toString());
-
-        // If there was a previous vote for a different option, remove it
-        if (previousVote && previousVote !== selectedOption) {
-          if (newVotes[previousVote] > 0) {
-            newVotes[previousVote] = newVotes[previousVote] - 1;
-            localStorage.setItem(`votes_for_${topic.id}_${previousVote}`, newVotes[previousVote].toString());
-          }
-        } else if (!previousVote) {
-          // Only increment total votes if this is the first time voting
-          newTotalVotes += 1;
+        // If user is casting a new vote (no previous vote)
+        if (!previousVote) {
+            newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
+            newTotalVotes += 1;
+        } 
+        // If user is changing their vote
+        else if (previousVote !== selectedOption) {
+            newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
+            if (newVotes[previousVote] > 0) {
+                newVotes[previousVote] -= 1;
+            }
         }
+        // If user clicks the same option again, do nothing.
+
+        // Update localStorage for each option's votes
+        Object.keys(newVotes).forEach(oid => {
+          localStorage.setItem(`votes_for_${topic.id}_${oid}`, newVotes[oid].toString());
+        });
 
         return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
       });

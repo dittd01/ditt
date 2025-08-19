@@ -66,20 +66,24 @@ export default function ElectionPage() {
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
-        // Add vote to the new party
-        newVotes[partyId] = (newVotes[partyId] || 0) + 1;
-        localStorage.setItem(`votes_for_${electionTopic.id}_${partyId}`, newVotes[partyId].toString());
-        
-        // If there was a previous vote for a different party, remove it
-        if (previousVote && previousVote !== partyId) {
-            if(newVotes[previousVote] > 0) {
-              newVotes[previousVote] = newVotes[previousVote] - 1;
-              localStorage.setItem(`votes_for_${electionTopic.id}_${previousVote}`, newVotes[previousVote].toString());
-            }
-        } else if (!previousVote) {
-          // Only increment total votes if this is the first time voting
+        // If user is casting a new vote (no previous vote)
+        if (!previousVote) {
+          newVotes[partyId] = (newVotes[partyId] || 0) + 1;
           newTotalVotes += 1;
+        } 
+        // If user is changing their vote
+        else if (previousVote !== partyId) {
+          newVotes[partyId] = (newVotes[partyId] || 0) + 1;
+          if (newVotes[previousVote] > 0) {
+            newVotes[previousVote] -= 1;
+          }
         }
+        // If user clicks the same party again, do nothing.
+
+        // Update localStorage for each party's votes
+        Object.keys(newVotes).forEach(pid => {
+          localStorage.setItem(`votes_for_${electionTopic.id}_${pid}`, newVotes[pid].toString());
+        });
 
         return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
     });
