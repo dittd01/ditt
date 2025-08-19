@@ -4,19 +4,42 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Vote } from 'lucide-react';
+import { Vote, LogOut } from 'lucide-react';
 
 export function Header() {
   const [voterId, setVoterId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    setVoterId(localStorage.getItem('anonymousVoterId'));
+    const handleStorageChange = () => {
+      setVoterId(localStorage.getItem('anonymousVoterId'));
+    };
+    
+    // Check on initial load
+    handleStorageChange();
+
+    // Listen for changes to localStorage from other tabs
+    window.addEventListener('storage', handleStorageChange);
+
+    // Listen for a custom event that we can dispatch after login/logout
+    window.addEventListener('authChange', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('authChange', handleStorageChange);
+    };
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('anonymousVoterId');
+    // Also remove any vote records for this user
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('voted_on_')) {
+            localStorage.removeItem(key);
+        }
+    });
     setVoterId(null);
+    window.dispatchEvent(new Event('authChange'));
     router.push('/');
     router.refresh();
   };
@@ -37,6 +60,7 @@ export function Header() {
                 ID: {voterId.substring(0, 15)}...
               </span>
               <Button variant="outline" onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </Button>
             </div>

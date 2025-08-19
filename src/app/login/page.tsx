@@ -34,6 +34,7 @@ export default function LoginPage() {
         if (typeof window !== 'undefined') {
           const anonymousId = `voter_test_user`;
           localStorage.setItem('anonymousVoterId', anonymousId);
+          window.dispatchEvent(new Event('authChange'));
         }
         router.push('/');
         router.refresh();
