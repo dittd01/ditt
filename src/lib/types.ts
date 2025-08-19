@@ -36,3 +36,13 @@ export type Category = {
   label: string;
   subcategories: Subcategory[];
 };
+
+export interface Party {
+    id: string;
+    name: string;
+    abbreviation: string;
+    color: string;
+    textColor?: string;
+    imageUrl: string;
+    aiHint: string;
+}
