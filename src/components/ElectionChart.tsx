@@ -30,24 +30,21 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const CustomizedLabel = (props: any) => {
-    const { x, y, width, height, payload } = props;
-    if (!payload) return null;
-    
+    const { x, y, width, value, payload } = props;
     const voteCount = payload.votes;
     const percentage = payload.percentage;
 
-    if (width < 40 || typeof percentage === 'undefined' || typeof voteCount === 'undefined') { // Don't render label if the bar is too small
+    if (width < 60) { 
         return null;
     }
     
     return (
         <text 
-            x={x + width + 5} 
-            y={y + height / 2} 
+            x={x + width + 10} 
+            y={y + 12}
             fill="hsl(var(--foreground))"
             className="text-sm font-medium"
             textAnchor="start" 
-            dominantBaseline="middle"
         >
             {`${percentage.toFixed(1)}% (${voteCount.toLocaleString()})`}
         </text>
@@ -75,7 +72,8 @@ export function ElectionChart({ topic }: ElectionChartProps) {
         <BarChart
           data={chartData}
           layout="vertical"
-          margin={{ top: 5, right: 100, left: 5, bottom: 5 }} // Increased right margin for labels
+          margin={{ top: 5, right: 120, left: 5, bottom: 5 }} 
+          barCategoryGap="20%"
         >
           <CartesianGrid strokeDasharray="3 3" horizontal={false} />
           <XAxis type="number" hide />
@@ -88,9 +86,8 @@ export function ElectionChart({ topic }: ElectionChartProps) {
             tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
           />
           <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<CustomTooltip />} />
-          <Bar dataKey="votes" radius={[0, 4, 4, 0]}>
+          <Bar dataKey="votes" radius={[4, 4, 4, 4]}>
              <LabelList
-                dataKey="votes"
                 content={<CustomizedLabel />}
             />
           </Bar>
