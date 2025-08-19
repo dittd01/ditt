@@ -1,0 +1,197 @@
+'use client';
+
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import type { Category, Subcategory } from '@/lib/types';
+import { ChevronDown, MoreHorizontal } from 'lucide-react';
+import { Button } from './ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
+
+function CategoryNavContent({ categories }: { categories: Category[] }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const selectedCategoryId = searchParams.get('cat') || categories[0]?.id;
+  const selectedSubcategoryId = searchParams.get('sub');
+
+  const [isSticky, setIsSticky] = useState(false);
+  const [hiddenCategories, setHiddenCategories] = useState<Category[]>([]);
+  const navRef = useRef<HTMLDivElement>(null);
+  const sentinalRef = useRef<HTMLDivElement>(null);
+
+  const handleSelectCategory = useCallback(
+    (categoryId: string | null) => {
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      if (categoryId) {
+        current.set('cat', categoryId);
+      } else {
+        current.delete('cat');
+      }
+      current.delete('sub'); // Reset subcategory when main category changes
+      const search = current.toString();
+      const query = search ? `?${search}` : '';
+      router.push(`${pathname}${query}`);
+    },
+    [searchParams, pathname, router]
+  );
+
+  const handleSelectSubcategory = useCallback(
+    (subcategoryId: string | null) => {
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      if (subcategoryId) {
+        current.set('sub', subcategoryId);
+      } else {
+        current.delete('sub');
+      }
+      const search = current.toString();
+      const query = search ? `?${search}` : '';
+      router.push(`${pathname}${query}`);
+    },
+    [searchParams, pathname, router]
+  );
+
+  const selectedCategoryData = categories.find((c) => c.id === selectedCategoryId);
+
+  // Observer for sticky nav
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([e]) => setIsSticky(e.intersectionRatio < 1),
+      { threshold: [1] }
+    );
+    if (sentinalRef.current) {
+      observer.observe(sentinalRef.current);
+    }
+    return () => observer.disconnect();
+  }, []);
+
+  // Recalculate hidden categories on resize
+  useEffect(() => {
+    const calculateHidden = () => {
+      if (!navRef.current) return;
+      const navWidth = navRef.current.offsetWidth;
+      let totalWidth = 0;
+      const newHidden: Category[] = [];
+      const children = Array.from(navRef.current.children) as HTMLElement[];
+
+      for (const child of children) {
+        if (child.dataset.role === 'category-button') {
+          totalWidth += child.offsetWidth;
+          if (totalWidth > navWidth - 80) { // 80px buffer for "More" button
+            const catId = child.dataset.categoryId;
+            const category = categories.find(c => c.id === catId);
+            if (category) {
+              newHidden.push(category);
+            }
+          }
+        }
+      }
+      setHiddenCategories(newHidden);
+    };
+
+    calculateHidden();
+    window.addEventListener('resize', calculateHidden);
+    return () => window.removeEventListener('resize', calculateHidden);
+  }, [categories]);
+  
+
+  return (
+    <>
+      <div ref={sentinalRef} className="h-px"></div>
+      <div
+        className={cn(
+          'sticky top-0 z-40 bg-background/80 backdrop-blur-sm',
+          isSticky && 'shadow-sm'
+        )}
+      >
+        <div className="container mx-auto px-4">
+          {/* Main Categories */}
+          <div ref={navRef} className="relative flex items-center border-b no-scrollbar overflow-x-auto">
+            {categories.map((cat) => (
+               !hiddenCategories.find(h => h.id === cat.id) && (
+                <button
+                  key={cat.id}
+                  data-role="category-button"
+                  data-category-id={cat.id}
+                  onClick={() => handleSelectCategory(cat.id)}
+                  className={cn(
+                    'whitespace-nowrap px-3 py-3 text-sm font-medium relative',
+                    selectedCategoryId === cat.id
+                      ? 'text-primary'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {cat.label}
+                  {selectedCategoryId === cat.id && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></span>
+                  )}
+                </button>
+              )
+            ))}
+             {hiddenCategories.length > 0 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center gap-1 ml-auto">
+                      More <ChevronDown className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {hiddenCategories.map((cat) => (
+                      <DropdownMenuItem key={cat.id} onClick={() => handleSelectCategory(cat.id)}>
+                        {cat.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+          </div>
+          {/* Sub Categories */}
+          {selectedCategoryData && (
+            <div className="flex items-center py-2 no-scrollbar overflow-x-auto">
+              <button
+                onClick={() => handleSelectSubcategory(null)}
+                className={cn(
+                  'rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
+                  !selectedSubcategoryId
+                    ? 'bg-primary/10 text-primary'
+                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                )}
+              >
+                All
+              </button>
+              <div className="h-4 w-px bg-border mx-2"></div>
+              {selectedCategoryData.subcategories.map((sub) => (
+                <button
+                  key={sub.id}
+                  onClick={() => handleSelectSubcategory(sub.id)}
+                  className={cn(
+                    'whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium transition-colors mr-2',
+                    selectedSubcategoryId === sub.id
+                      ? 'bg-primary/10 text-primary'
+                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                  )}
+                >
+                  {sub.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+export function CategoryNav({ categories }: { categories: Category[] }) {
+  return (
+    <Suspense fallback={<div className="h-[97px] bg-background"></div>}>
+      <CategoryNavContent categories={categories} />
+    </Suspense>
+  )
+}

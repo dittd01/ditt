@@ -19,4 +19,20 @@ export type Topic = {
   votes: Record<string, number>;
   totalVotes: number;
   history: VoteHistory[];
+  categoryId: string;
+  subcategoryId: string;
+  status: 'live' | 'closed' | 'draft';
+  voteType: 'yesno' | 'multi' | 'ranked';
+};
+
+export type Subcategory = {
+  id: string;
+  label: string;
+  categoryId: string;
+};
+
+export type Category = {
+  id: string;
+  label: string;
+  subcategories: Subcategory[];
 };

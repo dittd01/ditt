@@ -8,7 +8,8 @@ import { Users } from 'lucide-react'
 export function TopicCard({ topic }: { topic: Topic }) {
   const getPercentage = (optionId: string) => {
     if (topic.totalVotes === 0) return 0
-    return (topic.votes[optionId] / topic.totalVotes) * 100
+    const voteCount = topic.votes[optionId] || 0;
+    return (voteCount / topic.totalVotes) * 100
   }
 
   return (
@@ -21,11 +22,7 @@ export function TopicCard({ topic }: { topic: Topic }) {
               alt={topic.question}
               fill
               className="rounded-t-lg object-cover"
-              data-ai-hint={
-                topic.slug === 'oslo-car-free-zone' ? 'oslo city' :
-                topic.slug === 'daylight-savings-time' ? 'clock time' :
-                'voting technology'
-              }
+              data-ai-hint="technology policy"
             />
           </div>
         </CardHeader>

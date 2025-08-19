@@ -4,7 +4,7 @@
 import { useState, useEffect, use } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { mockTopics } from '@/lib/data';
+import { allTopics } from '@/lib/data';
 import type { Topic } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,7 +31,7 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
 
   useEffect(() => {
     setIsClient(true);
-    const foundTopic = mockTopics.find((t) => t.slug === slug);
+    const foundTopic = allTopics.find((t) => t.slug === slug);
     setTopic(foundTopic || null);
 
     if (foundTopic) {
@@ -91,7 +91,8 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
 
   const getPercentage = (optionId: string) => {
     if (topic.totalVotes === 0) return 0;
-    return (topic.votes[optionId] / topic.totalVotes) * 100;
+    const voteCount = topic.votes[optionId] || 0;
+    return (voteCount / topic.totalVotes) * 100;
   };
 
   return (
@@ -111,11 +112,7 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
                   alt={topic.question}
                   fill
                   className="rounded-lg object-cover"
-                   data-ai-hint={
-                    topic.slug === 'oslo-car-free-zone' ? 'oslo city' :
-                    topic.slug === 'daylight-savings-time' ? 'clock time' :
-                    'voting technology'
-                  }
+                   data-ai-hint="technology policy"
                 />
               </div>
               <h1 className="text-2xl md:text-3xl font-bold font-headline">{topic.question}</h1>

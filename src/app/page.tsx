@@ -1,25 +1,41 @@
+'use client';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { TopicCard } from '@/components/TopicCard';
-import { mockTopics } from '@/lib/data';
+import { CategoryNav } from '@/components/CategoryNav';
+import { allTopics, categories } from '@/lib/data';
 
-export default function Home() {
+function HomePageContent() {
+  const searchParams = useSearchParams();
+  const selectedCategory = searchParams.get('cat');
+  const selectedSubCategory = searchParams.get('sub');
+
+  const filteredTopics = allTopics.filter((topic) => {
+    if (!selectedCategory) return true;
+    if (selectedCategory && topic.categoryId !== selectedCategory) return false;
+    if (selectedSubCategory && topic.subcategoryId !== selectedSubCategory) return false;
+    return true;
+  });
+
   return (
     <div className="bg-background">
-      <section className="container mx-auto px-4 py-8 sm:py-12">
-        <div className="text-center mb-10 md:mb-16">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight font-headline">
-            Current Public Polls
-          </h1>
-          <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-            Your anonymous voice matters. Participate in polls shaping our community.
-          </p>
-        </div>
-
+      <CategoryNav categories={categories} />
+      <main className="container mx-auto px-4 py-8 sm:py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {mockTopics.map((topic) => (
+          {filteredTopics.map((topic) => (
             <TopicCard key={topic.id} topic={topic} />
           ))}
         </div>
-      </section>
+      </main>
     </div>
+  );
+}
+
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomePageContent />
+    </Suspense>
   );
 }
