@@ -50,7 +50,7 @@ export function ElectionChart({ topic }: ElectionChartProps) {
         <BarChart
           data={chartData}
           layout="vertical"
-          margin={{ top: 5, right: 120, left: 5, bottom: 5 }} 
+          margin={{ top: 5, right: 50, left: 5, bottom: 5 }} 
           barCategoryGap="20%"
         >
           <CartesianGrid strokeDasharray="3 3" horizontal={false} />
@@ -66,15 +66,13 @@ export function ElectionChart({ topic }: ElectionChartProps) {
           <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<CustomTooltip />} />
           <Bar dataKey="votes" radius={[4, 4, 4, 4]}>
             <LabelList
-              dataKey="votes"
+              dataKey="percentage"
               position="right"
-              offset={10}
+              offset={5}
               className="text-sm font-medium"
-              formatter={(value: number, entry: any, index: number) => {
-                const dataPoint = chartData[index];
-                if (!dataPoint || typeof dataPoint.percentage !== 'number' || typeof dataPoint.votes !== 'number') return '';
-                if (dataPoint.votes === 0) return ''; // Do not show label for 0 votes
-                return `${dataPoint.percentage.toFixed(1)}% (${dataPoint.votes.toLocaleString()})`;
+              formatter={(value: number) => {
+                if (value === 0) return '';
+                return `${value.toFixed(1)}%`;
               }}
               style={{ fill: 'hsl(var(--foreground))' }}
             />
