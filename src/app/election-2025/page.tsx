@@ -1,14 +1,16 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { PartyCard } from '@/components/PartyCard';
-import { electionTopic, parties } from '@/lib/election-data';
+import { electionTopic as initialElectionTopic, parties } from '@/lib/election-data';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CheckCircle, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { ElectionChart } from '@/components/ElectionChart';
+import type { Topic } from '@/lib/types';
 
 export default function ElectionPage() {
   const router = useRouter();
@@ -16,13 +18,14 @@ export default function ElectionPage() {
   const [voterId, setVoterId] = useState<string | null>(null);
   const [votedFor, setVotedFor] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const [electionTopic, setElectionTopic] = useState<Topic>(initialElectionTopic);
 
   useEffect(() => {
     setIsClient(true);
     const currentVoterId = localStorage.getItem('anonymousVoterId');
     setVoterId(currentVoterId);
     if (currentVoterId) {
-      const previousVote = localStorage.getItem(`voted_on_${electionTopic.id}`);
+      const previousVote = localStorage.getItem(`voted_on_${initialElectionTopic.id}`);
       setVotedFor(previousVote);
     }
   }, []);
@@ -37,6 +40,29 @@ export default function ElectionPage() {
       router.push('/login');
       return;
     }
+
+    const previousVote = localStorage.getItem(`voted_on_${electionTopic.id}`);
+    
+    setElectionTopic(currentTopic => {
+        const newVotes = { ...currentTopic.votes };
+        let newTotalVotes = currentTopic.totalVotes;
+
+        // Add one vote to the new party
+        newVotes[partyId] = (newVotes[partyId] || 0) + 1;
+
+        if (previousVote) {
+            // If there was a previous vote, remove one from the old party
+            if(newVotes[previousVote] > 0) {
+              newVotes[previousVote] = newVotes[previousVote] - 1;
+            }
+        } else {
+            // If it's a new vote, increment total votes
+            newTotalVotes += 1;
+        }
+
+        return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
+    });
+
     localStorage.setItem(`voted_on_${electionTopic.id}`, partyId);
     setVotedFor(partyId);
     const party = parties.find(p => p.id === partyId);
