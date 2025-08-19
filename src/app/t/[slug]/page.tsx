@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { allTopics } from '@/lib/data';
 import type { Topic } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, CheckCircle, Info, RefreshCw } from 'lucide-react';
@@ -44,7 +44,8 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
   }, [slug]);
 
   if (!isClient) {
-    return null; // or a loading skeleton
+    // Render a loading state or skeleton here to avoid flash of "not found"
+    return null; 
   }
 
   if (!topic) {
