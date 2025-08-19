@@ -54,7 +54,7 @@ export function ElectionChart({ topic }: ElectionChartProps) {
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="abbreviation"
-            angle={-45}
+            angle={-90}
             textAnchor="end"
             height={50}
             interval={0}
