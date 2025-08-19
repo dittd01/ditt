@@ -23,11 +23,13 @@ export default function ElectionPage() {
   useEffect(() => {
     setIsClient(true);
     
+    // Initialize state from localStorage
     const newVotes: Record<string, number> = {};
     let newTotalVotes = 0;
     
     initialElectionTopic.options.forEach(option => {
         const storedVotes = localStorage.getItem(`votes_for_${initialElectionTopic.id}_${option.id}`);
+        // Use stored votes if they exist, otherwise fall back to initial data
         const currentVotes = storedVotes ? parseInt(storedVotes, 10) : initialElectionTopic.votes[option.id] || 0;
         newVotes[option.id] = currentVotes;
         newTotalVotes += currentVotes;
@@ -55,12 +57,8 @@ export default function ElectionPage() {
       return;
     }
 
-    if (!electionTopic) return;
-
-    const previousVote = localStorage.getItem(`voted_on_${electionTopic.id}`);
-
-    if (previousVote === partyId) {
-      return; // Do nothing if voting for the same party again
+    if (!electionTopic || votedFor === partyId) {
+        return; // Do nothing if there's no topic or voting for the same party again
     }
     
     setElectionTopic(currentTopic => {
@@ -69,15 +67,15 @@ export default function ElectionPage() {
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
-        // If user is changing their vote
-        if (previousVote) {
-            newVotes[previousVote] = (newVotes[previousVote] || 1) - 1;
-            newVotes[partyId] = (newVotes[partyId] || 0) + 1;
-            // Total votes remain the same when changing a vote
+        // If user is changing their vote from a previous one
+        if (votedFor) {
+            newVotes[votedFor] = (newVotes[votedFor] || 1) - 1; // Decrement old
+            newVotes[partyId] = (newVotes[partyId] || 0) + 1;  // Increment new
+            // Total votes remain the same
         } else {
           // If user is casting a new vote
           newVotes[partyId] = (newVotes[partyId] || 0) + 1;
-          newTotalVotes += 1;
+          newTotalVotes += 1; // Total votes increases only on a new vote
         }
 
         // Update localStorage for each party's votes

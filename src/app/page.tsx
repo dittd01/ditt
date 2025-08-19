@@ -8,47 +8,36 @@ import type { Topic } from '@/lib/types';
 
 function HomePageContent() {
   const searchParams = useSearchParams();
-  const [topics, setTopics] = useState<Topic[]>(initialTopics);
+  const [topics, setTopics] = useState<Topic[]>([]);
 
-  // This effect will re-sync the state with localStorage when the page becomes visible
-  // This is a simple way to reflect vote changes from other pages
+  // This effect syncs the state with localStorage on initial load and when the page becomes visible
   useEffect(() => {
+    const syncTopicsWithLocalStorage = () => {
+      const updatedTopics = initialTopics.map(topic => {
+        const newVotes: Record<string, number> = {};
+        let newTotalVotes = 0;
+        
+        topic.options.forEach(option => {
+          const storedVotes = localStorage.getItem(`votes_for_${topic.id}_${option.id}`);
+          const currentVotes = storedVotes ? parseInt(storedVotes, 10) : topic.votes[option.id] || 0;
+          newVotes[option.id] = currentVotes;
+          newTotalVotes += currentVotes;
+        });
+        
+        return { ...topic, votes: newVotes, totalVotes: newTotalVotes };
+      });
+      setTopics(updatedTopics);
+    };
+    
+    syncTopicsWithLocalStorage(); // Initial sync
+    
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        setTopics(prevTopics => {
-          return prevTopics.map(topic => {
-            const newVotes: Record<string, number> = {};
-            let newTotalVotes = 0;
-            
-            topic.options.forEach(option => {
-              const storedVotes = localStorage.getItem(`votes_for_${topic.id}_${option.id}`);
-              const currentVotes = storedVotes ? parseInt(storedVotes, 10) : topic.votes[option.id] || 0;
-              newVotes[option.id] = currentVotes;
-              newTotalVotes += currentVotes;
-            });
-
-            // For election topic, we need to handle it differently
-            if (topic.voteType === 'election') {
-                let electionTotal = 0;
-                topic.options.forEach(option => {
-                    const storedVotes = localStorage.getItem(`votes_for_${topic.id}_${option.id}`);
-                    const currentVotes = storedVotes ? parseInt(storedVotes, 10) : topic.votes[option.id] || 0;
-                    newVotes[option.id] = currentVotes;
-                    electionTotal += currentVotes;
-                });
-                return { ...topic, votes: newVotes, totalVotes: electionTotal };
-            }
-
-            return { ...topic, votes: newVotes, totalVotes: newTotalVotes };
-          });
-        });
+        syncTopicsWithLocalStorage();
       }
     };
     
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // Initial sync
-    handleVisibilityChange();
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);

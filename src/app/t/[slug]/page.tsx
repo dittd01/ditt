@@ -36,6 +36,7 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
     const foundTopic = allTopics.find((t) => t.slug === slug);
     
     if (foundTopic) {
+        // Initialize state from localStorage
         const newVotes: Record<string, number> = {};
         let newTotalVotes = 0;
         
@@ -73,23 +74,20 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
       router.push('/login');
       return;
     }
-    if (selectedOption && topic) {
-      const previousVote = localStorage.getItem(`voted_on_${topic.id}`);
+    if (!selectedOption || !topic || votedOn === selectedOption) {
+      return; // Do nothing if no option is selected, no topic, or voting for the same option
+    }
 
-      if (previousVote === selectedOption) {
-        return; // Do nothing if voting for the same option again
-      }
-
-      setTopic(currentTopic => {
+    setTopic(currentTopic => {
         if (!currentTopic) return null;
 
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
         // If user is changing their vote
-        if (previousVote) {
-            newVotes[previousVote] = (newVotes[previousVote] || 1) - 1;
-            newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
+        if (votedOn) {
+            newVotes[votedOn] = (newVotes[votedOn] || 1) - 1; // Decrement old
+            newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1; // Increment new
             // Total votes remain the same
         } 
         // If user is casting a new vote
@@ -104,17 +102,16 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
         });
 
         return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
-      });
+    });
       
-      localStorage.setItem(`voted_on_${topic.id}`, selectedOption);
-      setVotedOn(selectedOption);
-      toast({
+    localStorage.setItem(`voted_on_${topic.id}`, selectedOption);
+    setVotedOn(selectedOption);
+    toast({
         title: 'Vote Cast!',
         description: `Your anonymous vote for "${
           topic.options.find((o) => o.id === selectedOption)?.label
         }" has been recorded.`,
-      });
-    }
+    });
   };
   
   const handleRevote = () => {
