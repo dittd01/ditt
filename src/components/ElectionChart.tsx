@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import type { Topic } from '@/lib/types';
 import { parties } from '@/lib/election-data';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 type ElectionChartProps = {
   topic: Topic;
@@ -51,7 +52,7 @@ export function ElectionChart({ topic }: ElectionChartProps) {
   const tickFontSize = isMobile ? '0.75rem' : '1.0rem';
 
   return (
-    <div className="relative aspect-video w-full">
+    <div className={cn("relative w-full", isMobile ? "h-[400px]" : "aspect-video")}>
       <ResponsiveContainer>
         <BarChart
           data={chartData}
