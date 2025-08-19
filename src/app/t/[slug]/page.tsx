@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, CheckCircle, Info, RefreshCw } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
@@ -49,7 +48,7 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
   }
 
   if (!topic) {
-    return <div className="text-center py-20">Topic not found.</div>;
+    return <div className="container mx-auto px-4 py-8 text-center">Topic not found.</div>;
   }
 
   const handleVote = () => {
