@@ -13,25 +13,35 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ShieldCheck, Loader2 } from 'lucide-react';
+import { ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function LoginPage() {
   const router = useRouter();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate API call to BankID
+    setError(null);
+    
+    // Simulate API call 
     setTimeout(() => {
-      // On success, generate anonymous ID
-      if (typeof window !== 'undefined') {
-        const anonymousId = `voter_${Math.random().toString(36).substring(2, 15)}`;
-        localStorage.setItem('anonymousVoterId', anonymousId);
+      if (username === 'test' && password === 'password') {
+        if (typeof window !== 'undefined') {
+          const anonymousId = `voter_test_user`;
+          localStorage.setItem('anonymousVoterId', anonymousId);
+        }
+        router.push('/');
+        router.refresh();
+      } else {
+        setError('Invalid credentials. Use "test" and "password" to log in.');
+        setLoading(false);
       }
-      router.push('/');
-      router.refresh();
-    }, 1500);
+    }, 1000);
   };
 
   return (
@@ -42,23 +52,30 @@ export default function LoginPage() {
             <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit mb-4">
               <ShieldCheck className="h-10 w-10 text-primary" />
             </div>
-            <CardTitle className="text-2xl font-headline">BankID Authentication</CardTitle>
-            <CardDescription>Log in securely with BankID to cast your anonymous vote.</CardDescription>
+            <CardTitle className="text-2xl font-headline">Test Login</CardTitle>
+            <CardDescription>Use `test` and `password` to log in.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {error && (
+               <Alert variant="destructive">
+                 <AlertCircle className="h-4 w-4" />
+                 <AlertTitle>Login Failed</AlertTitle>
+                 <AlertDescription>{error}</AlertDescription>
+               </Alert>
+            )}
             <div className="space-y-2">
-              <Label htmlFor="fødselsnummer">Fødselsnummer (11 digits)</Label>
-              <Input id="fødselsnummer" type="tel" placeholder="12345678901" required pattern="\d{11}" />
+              <Label htmlFor="username">Username</Label>
+              <Input id="username" type="text" placeholder="test" required value={username} onChange={(e) => setUsername(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">BankID Password</Label>
-              <Input id="password" type="password" required placeholder="••••••••" />
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" required placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {loading ? 'Authenticating...' : 'Log In with BankID'}
+              {loading ? 'Authenticating...' : 'Log In'}
             </Button>
           </CardFooter>
         </form>
