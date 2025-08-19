@@ -30,9 +30,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const CustomizedLabel = (props: any) => {
-    const { x, y, width, value, payload } = props;
-    const voteCount = payload.votes;
-    const percentage = payload.percentage;
+    const { x, y, width } = props;
+    // The data for the bar is in the payload property
+    const voteCount = props.payload.votes;
+    const percentage = props.payload.percentage;
 
     if (width < 60) { 
         return null;
