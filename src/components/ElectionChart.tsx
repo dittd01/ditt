@@ -11,8 +11,7 @@ type ElectionChartProps = {
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
-    const partyId = payload[0].payload.id;
-    const party = parties.find(p => p.id === partyId);
+    const party = parties.find(p => p.abbreviation === label);
     const percentage = payload[0].payload.percentage;
 
     return (
@@ -49,29 +48,34 @@ export function ElectionChart({ topic }: ElectionChartProps) {
       <ResponsiveContainer>
         <BarChart
           data={chartData}
-          layout="vertical"
-          margin={{ top: 5, right: 50, left: 5, bottom: 5 }} 
+          margin={{ top: 30, right: 10, left: 10, bottom: 40 }} 
           barCategoryGap="20%"
         >
-          <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-          <XAxis type="number" hide />
-          <YAxis
-            type="category"
+          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+          <XAxis
             dataKey="abbreviation"
+            angle={-45}
+            textAnchor="end"
+            height={50}
+            interval={0}
+            tick={{ fill: 'hsl(var(--foreground))', fontSize: '0.75rem' }}
+          />
+          <YAxis
+            tickFormatter={(value) => `${value / 1000}k`}
             width={40}
-            tickLine={false}
+            tick={{ fill: 'hsl(var(--foreground))', fontSize: '0.75rem' }}
             axisLine={false}
-            tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
+            tickLine={false}
           />
           <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<CustomTooltip />} />
-          <Bar dataKey="votes" radius={[4, 4, 4, 4]}>
+          <Bar dataKey="votes" radius={[4, 4, 0, 0]}>
             <LabelList
               dataKey="percentage"
-              position="right"
+              position="top"
               offset={5}
-              className="text-sm font-medium"
+              className="text-xs md:text-sm font-medium"
               formatter={(value: number) => {
-                if (value === 0) return '';
+                if (value < 1) return '';
                 return `${value.toFixed(1)}%`;
               }}
               style={{ fill: 'hsl(var(--foreground))' }}
