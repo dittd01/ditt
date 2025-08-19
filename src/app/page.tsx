@@ -10,6 +10,11 @@ function HomePageContent() {
   const selectedSubCategory = searchParams.get('sub');
 
   const filteredTopics = allTopics.filter((topic) => {
+    // The 'election_2025' topic should not appear on the main grid
+    if (topic.categoryId === 'election_2025') {
+      return false;
+    }
+
     const category = selectedCategory || 'all';
 
     if (category === 'all') {
