@@ -3,6 +3,8 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { Header } from '@/components/Header';
 import { Toaster } from '@/components/ui/toaster';
+import { CategoryNav } from '@/components/CategoryNav';
+import { categories } from '@/lib/data';
 
 export const metadata: Metadata = {
   title: 'Valg匿名 - Anonymous Voting',
@@ -24,6 +26,7 @@ export default function RootLayout({
       <body className={cn('min-h-screen bg-background font-sans antialiased')}>
         <div className="relative flex min-h-screen flex-col">
           <Header />
+          <CategoryNav categories={categories} />
           <div className="flex-1">{children}</div>
         </div>
         <Toaster />
