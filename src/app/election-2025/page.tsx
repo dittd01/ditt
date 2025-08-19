@@ -23,7 +23,6 @@ export default function ElectionPage() {
   useEffect(() => {
     setIsClient(true);
     
-    // Initialize votes from localStorage or fallback to initial data
     const newVotes: Record<string, number> = {};
     let newTotalVotes = 0;
     
@@ -59,6 +58,11 @@ export default function ElectionPage() {
     if (!electionTopic) return;
 
     const previousVote = localStorage.getItem(`voted_on_${electionTopic.id}`);
+
+    // If user clicks the same party again, do nothing.
+    if (previousVote === partyId) {
+      return;
+    }
     
     setElectionTopic(currentTopic => {
         if (!currentTopic) return null;
@@ -66,19 +70,18 @@ export default function ElectionPage() {
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
-        // If user is casting a new vote (no previous vote)
-        if (!previousVote) {
-          newVotes[partyId] = (newVotes[partyId] || 0) + 1;
-          newTotalVotes += 1;
-        } 
         // If user is changing their vote
-        else if (previousVote !== partyId) {
-          newVotes[partyId] = (newVotes[partyId] || 0) + 1;
+        if (previousVote) {
           if (newVotes[previousVote] > 0) {
             newVotes[previousVote] -= 1;
           }
+          newVotes[partyId] = (newVotes[partyId] || 0) + 1;
+        } 
+        // If user is casting a new vote (no previous vote)
+        else {
+          newVotes[partyId] = (newVotes[partyId] || 0) + 1;
+          newTotalVotes += 1;
         }
-        // If user clicks the same party again, do nothing.
 
         // Update localStorage for each party's votes
         Object.keys(newVotes).forEach(pid => {

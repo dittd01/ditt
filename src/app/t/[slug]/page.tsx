@@ -36,7 +36,6 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
     const foundTopic = allTopics.find((t) => t.slug === slug);
     
     if (foundTopic) {
-        // Initialize votes from localStorage or fallback to initial data
         const newVotes: Record<string, number> = {};
         let newTotalVotes = 0;
         
@@ -77,25 +76,29 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
     if (selectedOption && topic) {
       const previousVote = localStorage.getItem(`voted_on_${topic.id}`);
 
+      // If user clicks the same option again, do nothing.
+      if (previousVote === selectedOption) {
+        return;
+      }
+
       setTopic(currentTopic => {
         if (!currentTopic) return null;
 
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
-        // If user is casting a new vote (no previous vote)
-        if (!previousVote) {
-            newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
-            newTotalVotes += 1;
-        } 
         // If user is changing their vote
-        else if (previousVote !== selectedOption) {
-            newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
+        if (previousVote) {
             if (newVotes[previousVote] > 0) {
                 newVotes[previousVote] -= 1;
             }
+            newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
+        } 
+        // If user is casting a new vote (no previous vote)
+        else {
+            newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
+            newTotalVotes += 1;
         }
-        // If user clicks the same option again, do nothing.
 
         // Update localStorage for each option's votes
         Object.keys(newVotes).forEach(oid => {
