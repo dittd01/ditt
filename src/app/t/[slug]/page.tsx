@@ -100,7 +100,7 @@ export default function TopicPage() {
 
         // Update localStorage for each option's votes
         Object.keys(newVotes).forEach(oid => {
-          localStorage.setItem(`votes_for_${topic.id}_${oid}`, newVotes[oid].toString());
+          localStorage.setItem(`votes_for_${currentTopic.id}_${oid}`, newVotes[oid].toString());
         });
 
         return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };

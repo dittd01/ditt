@@ -54,19 +54,19 @@ export default function ElectionPage() {
       router.push('/login');
       return;
     }
-
+  
     if (!electionTopic || votedFor === partyId) {
         return;
     }
     
     const previouslyVotedFor = votedFor;
-
+  
     setElectionTopic(currentTopic => {
         if (!currentTopic) return null;
-
+  
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
-
+  
         // Increment the new vote
         newVotes[partyId] = (newVotes[partyId] || 0) + 1;
         
@@ -77,15 +77,15 @@ export default function ElectionPage() {
             // Only increase total votes for a new voter, not a vote changer
             newTotalVotes += 1;
         }
-
+  
         // Update localStorage for each party's votes
         Object.keys(newVotes).forEach(pid => {
-          localStorage.setItem(`votes_for_${electionTopic.id}_${pid}`, newVotes[pid].toString());
+          localStorage.setItem(`votes_for_${currentTopic.id}_${pid}`, newVotes[pid].toString());
         });
-
+  
         return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
     });
-
+  
     localStorage.setItem(`voted_on_${electionTopic.id}`, partyId);
     setVotedFor(partyId);
     const party = parties.find(p => p.id === partyId);
