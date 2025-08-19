@@ -23,13 +23,11 @@ export default function ElectionPage() {
   useEffect(() => {
     setIsClient(true);
     
-    // Initialize state from localStorage
     const newVotes: Record<string, number> = {};
     let newTotalVotes = 0;
     
     initialElectionTopic.options.forEach(option => {
         const storedVotes = localStorage.getItem(`votes_for_${initialElectionTopic.id}_${option.id}`);
-        // Use stored votes if they exist, otherwise fall back to initial data
         const currentVotes = storedVotes ? parseInt(storedVotes, 10) : initialElectionTopic.votes[option.id] || 0;
         newVotes[option.id] = currentVotes;
         newTotalVotes += currentVotes;
@@ -58,7 +56,7 @@ export default function ElectionPage() {
     }
 
     if (!electionTopic || votedFor === partyId) {
-        return; // Do nothing if there's no topic or voting for the same party again
+        return;
     }
     
     const previouslyVotedFor = votedFor;
@@ -69,15 +67,15 @@ export default function ElectionPage() {
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
-        // If user is changing their vote from a previous one
+        // Increment the new vote
+        newVotes[partyId] = (newVotes[partyId] || 0) + 1;
+        
+        // If user is changing their vote, decrement the old one
         if (previouslyVotedFor) {
-            newVotes[previouslyVotedFor] = (newVotes[previouslyVotedFor] || 1) - 1; // Decrement old
-            newVotes[partyId] = (newVotes[partyId] || 0) + 1;  // Increment new
-            // Total votes remain the same
+            newVotes[previouslyVotedFor] = (newVotes[previouslyVotedFor] || 1) - 1;
         } else {
-          // If user is casting a new vote
-          newVotes[partyId] = (newVotes[partyId] || 0) + 1;
-          newTotalVotes += 1; // Total votes increases only on a new vote
+            // Only increase total votes for a new voter, not a vote changer
+            newTotalVotes += 1;
         }
 
         // Update localStorage for each party's votes

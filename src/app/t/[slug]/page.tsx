@@ -37,7 +37,6 @@ export default function TopicPage() {
     const foundTopic = allTopics.find((t) => t.slug === slug);
     
     if (foundTopic) {
-        // Initialize state from localStorage
         const newVotes: Record<string, number> = {};
         let newTotalVotes = 0;
         
@@ -76,7 +75,7 @@ export default function TopicPage() {
       return;
     }
     if (!selectedOption || !topic || votedOn === selectedOption) {
-      return; // Do nothing if no option is selected, no topic, or voting for the same option
+      return;
     }
 
     const previouslyVotedOn = votedOn;
@@ -87,15 +86,14 @@ export default function TopicPage() {
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
-        // If user is changing their vote
+        // Increment the new vote
+        newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
+
+        // If user is changing their vote, decrement the old one
         if (previouslyVotedOn) {
-            newVotes[previouslyVotedOn] = (newVotes[previouslyVotedOn] || 1) - 1; // Decrement old
-            newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1; // Increment new
-            // Total votes remain the same
-        } 
-        // If user is casting a new vote
-        else {
-            newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
+            newVotes[previouslyVotedOn] = (newVotes[previouslyVotedOn] || 1) - 1;
+        } else {
+          // Only increase total votes for a new voter, not a vote changer
             newTotalVotes += 1;
         }
 
