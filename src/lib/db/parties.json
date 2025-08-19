@@ -1,0 +1,21 @@
+
+{
+    "rodt": { "id": "rodt", "name": "Rødt", "vote_count": 45102 },
+    "sv": { "id": "sv", "name": "Sosialistisk Venstreparti", "vote_count": 92340 },
+    "ap": { "id": "ap", "name": "Arbeiderpartiet", "vote_count": 280104 },
+    "sp": { "id": "sp", "name": "Senterpartiet", "vote_count": 150234 },
+    "mdg": { "id": "mdg", "name": "Miljøpartiet De Grønne", "vote_count": 50233 },
+    "krf": { "id": "krf", "name": "Kristelig Folkeparti", "vote_count": 60349 },
+    "v": { "id": "v", "name": "Venstre", "vote_count": 88123 },
+    "h": { "id": "h", "name": "Høyre", "vote_count": 250102 },
+    "frp": { "id": "frp", "name": "Fremskrittspartiet", "vote_count": 130234 },
+    "fp": { "id": "fp", "name": "Folkets Parti", "vote_count": 10234 },
+    "dni": { "id": "dni", "name": "Demokratene i Norge", "vote_count": 5234 },
+    "gp": { "id": "gp", "name": "Generasjonspartiet", "vote_count": 2103 },
+    "pp": { "id": "pp", "name": "Pensjonistpartiet", "vote_count": 15234 },
+    "pirat": { "id": "pirat", "name": "Piratpartiet", "vote_count": 3123 },
+    "kon": { "id": "kon", "name": "Konservativt", "vote_count": 8234 },
+    "inp": { "id": "inp", "name": "Industri- og Næringspartiet", "vote_count": 20123 },
+    "vip": { "id": "vip", "name": "Verdipartiet", "vote_count": 1123 },
+    "nd": { "id": "nd", "name": "Norgesdemokratene", "vote_count": 4123 }
+}
