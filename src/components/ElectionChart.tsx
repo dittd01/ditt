@@ -30,8 +30,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const CustomizedLabel = (props: any) => {
-    const { x, y, width, index } = props;
-    // The data for the bar is in the payload property
+    const { x, y, width, index, barSize } = props;
+    // The data for the bar is available in the payload property
     const voteCount = props.payload.votes;
     const percentage = props.payload.percentage;
 
@@ -42,7 +42,7 @@ const CustomizedLabel = (props: any) => {
     return (
         <text 
             x={x + width + 5} 
-            y={y + props.barSize / 2}
+            y={y + barSize / 2}
             fill="hsl(var(--foreground))"
             className="text-sm font-medium"
             textAnchor="start" 
@@ -90,7 +90,7 @@ export function ElectionChart({ topic }: ElectionChartProps) {
           <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<CustomTooltip />} />
           <Bar dataKey="votes" radius={[4, 4, 4, 4]}>
              <LabelList
-                content={<CustomizedLabel />}
+                content={<CustomizedLabel barSize={25} />}
             />
           </Bar>
         </BarChart>
