@@ -59,9 +59,8 @@ export default function ElectionPage() {
 
     const previousVote = localStorage.getItem(`voted_on_${electionTopic.id}`);
 
-    // If user clicks the same party again, do nothing.
     if (previousVote === partyId) {
-      return;
+      return; // Do nothing if voting for the same party again
     }
     
     setElectionTopic(currentTopic => {
@@ -72,13 +71,11 @@ export default function ElectionPage() {
 
         // If user is changing their vote
         if (previousVote) {
-          if (newVotes[previousVote] > 0) {
-            newVotes[previousVote] -= 1;
-          }
-          newVotes[partyId] = (newVotes[partyId] || 0) + 1;
-        } 
-        // If user is casting a new vote (no previous vote)
-        else {
+            newVotes[previousVote] = (newVotes[previousVote] || 1) - 1;
+            newVotes[partyId] = (newVotes[partyId] || 0) + 1;
+            // Total votes remain the same when changing a vote
+        } else {
+          // If user is casting a new vote
           newVotes[partyId] = (newVotes[partyId] || 0) + 1;
           newTotalVotes += 1;
         }

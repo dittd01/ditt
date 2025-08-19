@@ -76,9 +76,8 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
     if (selectedOption && topic) {
       const previousVote = localStorage.getItem(`voted_on_${topic.id}`);
 
-      // If user clicks the same option again, do nothing.
       if (previousVote === selectedOption) {
-        return;
+        return; // Do nothing if voting for the same option again
       }
 
       setTopic(currentTopic => {
@@ -89,12 +88,11 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
 
         // If user is changing their vote
         if (previousVote) {
-            if (newVotes[previousVote] > 0) {
-                newVotes[previousVote] -= 1;
-            }
+            newVotes[previousVote] = (newVotes[previousVote] || 1) - 1;
             newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
+            // Total votes remain the same
         } 
-        // If user is casting a new vote (no previous vote)
+        // If user is casting a new vote
         else {
             newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
             newTotalVotes += 1;
