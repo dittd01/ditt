@@ -56,15 +56,16 @@ const CustomizedLabel = (props: any) => {
 
 
 export function ElectionChart({ topic }: ElectionChartProps) {
-  const { votes, totalVotes, options } = topic;
+  const { votes, totalVotes } = topic;
 
-  const chartData = options
-    .map(option => ({
-      id: option.id,
-      name: option.label,
-      votes: votes[option.id] || 0,
-      percentage: totalVotes > 0 ? ((votes[option.id] || 0) / totalVotes) * 100 : 0,
-      fill: option.color,
+  const chartData = parties
+    .map(party => ({
+      id: party.id,
+      name: party.name,
+      abbreviation: party.abbreviation,
+      votes: votes[party.id] || 0,
+      percentage: totalVotes > 0 ? ((votes[party.id] || 0) / totalVotes) * 100 : 0,
+      fill: party.color,
     }))
     .sort((a, b) => b.votes - a.votes);
 
@@ -80,7 +81,7 @@ export function ElectionChart({ topic }: ElectionChartProps) {
           <XAxis type="number" hide />
           <YAxis
             type="category"
-            dataKey="name"
+            dataKey="abbreviation"
             width={40}
             tickLine={false}
             axisLine={false}
@@ -89,6 +90,7 @@ export function ElectionChart({ topic }: ElectionChartProps) {
           <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<CustomTooltip />} />
           <Bar dataKey="votes" radius={[0, 4, 4, 0]}>
              <LabelList
+                dataKey="votes"
                 content={<CustomizedLabel />}
             />
           </Bar>
