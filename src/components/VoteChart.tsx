@@ -22,17 +22,17 @@ type VoteChartProps = {
 };
 
 const CustomLabel = (props: any) => {
-  const { x, y, width, height, value, dataKey } = props;
+  const { x, y, width, height, value } = props;
   const dataPoint = props.payload;
 
-  if (!dataPoint) {
+  if (!dataPoint || value === undefined || value === null) {
     return null;
   }
 
   const total = Object.keys(dataPoint)
-    .filter(key => key !== 'date')
+    .filter(key => key !== 'date' && typeof dataPoint[key] === 'number')
     .reduce((acc, key) => acc + (dataPoint[key] || 0), 0);
-  
+
   if (height < 20 || !value) {
     return null;
   }
