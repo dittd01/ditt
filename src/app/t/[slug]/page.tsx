@@ -17,10 +17,11 @@ import { VoteChart } from '@/components/VoteChart';
 import { SuggestionForm } from '@/components/SuggestionForm';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-export default function TopicPage({ params }: { params: { slug: string } }) {
+export default function TopicPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { slug } = params;
+  const params = useParams();
+  const slug = params.slug as string;
 
   const [topic, setTopic] = useState<Topic | null>(null);
   const [loading, setLoading] = useState(true);
