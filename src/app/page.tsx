@@ -1,6 +1,6 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { TopicCard } from '@/components/TopicCard';
 import { allTopics } from '@/lib/data';
 
@@ -36,9 +36,15 @@ function HomePageContent() {
 
 
 export default function Home() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <HomePageContent />
+      {isClient ? <HomePageContent /> : null}
     </Suspense>
   );
 }
