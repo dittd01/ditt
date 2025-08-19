@@ -25,24 +25,22 @@ const CustomLabel = (props: any) => {
   const { x, y, width, height, value } = props;
   const dataPoint = props.payload;
 
-  if (!dataPoint || value === undefined || value === null || !width || !height) {
+  if (!dataPoint || value === undefined || value === null || !width || !height || height < 15 || value === 0) {
     return null;
   }
 
   const total = Object.keys(dataPoint)
     .filter(key => key !== 'date' && typeof dataPoint[key] === 'number')
     .reduce((acc, key) => acc + (dataPoint[key] || 0), 0);
-
-  if (height < 20 || !value) {
-    return null;
-  }
-
+  
   const percentage = total > 0 ? (value / total) * 100 : 0;
+
+  if (percentage < 5) return null;
 
   return (
     <g>
       <text x={x + width / 2} y={y + height / 2} fill="#FFFFFF" textAnchor="middle" dominantBaseline="middle" className="text-xs font-medium">
-        {`${percentage.toFixed(0)}% (${(value / 1000).toFixed(0)}k)`}
+        {`${percentage.toFixed(0)}%`}
       </text>
     </g>
   );
@@ -51,6 +49,15 @@ const CustomLabel = (props: any) => {
 
 export function VoteChart({ topic }: VoteChartProps) {
   const [timeframe, setTimeframe] = useState('1W');
+
+  const chartData = topic.history.map(hist => {
+    const total = topic.options.reduce((acc, opt) => acc + (Number(hist[opt.id]) || 0), 0);
+    const data: {[key: string]: any} = { date: hist.date, total };
+    topic.options.forEach(opt => {
+        data[opt.id] = hist[opt.id]
+    });
+    return data;
+  });
 
   return (
     <Card>
@@ -75,7 +82,7 @@ export function VoteChart({ topic }: VoteChartProps) {
       <CardContent>
         <div className="h-[300px] w-full">
           <ResponsiveContainer>
-            <BarChart data={topic.history}>
+            <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis
                 dataKey="date"
@@ -97,6 +104,12 @@ export function VoteChart({ topic }: VoteChartProps) {
                   backgroundColor: 'hsl(var(--background))',
                   borderColor: 'hsl(var(--border))',
                   borderRadius: 'var(--radius)',
+                }}
+                 formatter={(value: number, name, props) => {
+                  const { payload } = props;
+                  const total = payload.total;
+                  const percentage = total > 0 ? (value / total) * 100 : 0;
+                  return `${value.toLocaleString()} votes (${percentage.toFixed(1)}%)`;
                 }}
               />
               <Legend />
