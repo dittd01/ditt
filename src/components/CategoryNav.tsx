@@ -62,6 +62,8 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
 
   // Observer for sticky nav
   useEffect(() => {
+    // The sentinel is a 1px high div at the top of the component.
+    // When it scrolls out of view, the IntersectionObserver fires.
     const observer = new IntersectionObserver(
       ([e]) => setIsSticky(e.intersectionRatio < 1),
       { threshold: [1] }
@@ -79,11 +81,10 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
       const navWidth = navRef.current.offsetWidth;
       let totalWidth = 0;
       const newHidden: Category[] = [];
-      const children = Array.from(navRef.current.children) as HTMLElement[];
       const visibleCategories = allCategories.filter(c => !hiddenCategories.some(h => h.id === c.id));
       
       let currentVisibleWidth = 0;
-      for (const child of children) {
+      for (const child of Array.from(navRef.current.children) as HTMLElement[]) {
           if (child.dataset.role === 'category-button') {
               currentVisibleWidth += child.offsetWidth;
           }
@@ -93,7 +94,7 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
           totalWidth = currentVisibleWidth;
           for (let i = visibleCategories.length - 1; i >= 0; i--) {
               const cat = visibleCategories[i];
-              const child = children.find(c => c.dataset.categoryId === cat.id);
+              const child = Array.from(navRef.current.children).find(c => (c as HTMLElement).dataset.categoryId === cat.id) as HTMLElement;
               if (child) {
                   totalWidth -= child.offsetWidth;
                   newHidden.unshift(cat);
@@ -106,7 +107,7 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
               const nextToShow = hiddenCategories[0];
               const tempButton = document.createElement('button');
               tempButton.innerText = nextToShow.label;
-              tempButton.className = (children[0] as HTMLElement).className;
+              tempButton.className = (Array.from(navRef.current.children)[0] as HTMLElement).className;
               tempButton.style.visibility = 'hidden';
               document.body.appendChild(tempButton);
               const nextWidth = tempButton.offsetWidth;
@@ -130,15 +131,14 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
       <div ref={sentinalRef} className="h-px"></div>
       <div
         className={cn(
-          'sticky top-0 z-40 bg-background/80 backdrop-blur-sm',
+          'sticky top-14 z-40 bg-background/80 backdrop-blur-sm', // top-14 to stick below header
           isSticky && 'shadow-sm'
         )}
       >
         <div className="container mx-auto px-4">
           {/* Main Categories */}
           <div ref={navRef} className="relative flex items-center border-b no-scrollbar overflow-x-auto">
-            {allCategories.map((cat) => (
-               !hiddenCategories.find(h => h.id === cat.id) && (
+            {allCategories.filter(cat => !hiddenCategories.some(h => h.id === cat.id)).map((cat) => (
                 <button
                   key={cat.id}
                   data-role="category-button"
@@ -156,7 +156,6 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
                     <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></span>
                   )}
                 </button>
-              )
             ))}
              {hiddenCategories.length > 0 && (
                 <DropdownMenu>
