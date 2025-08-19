@@ -73,9 +73,8 @@ export function ElectionChart({ topic }: ElectionChartProps) {
               dataKey="percentage"
               position="top"
               offset={5}
-              className="text-xs md:text-sm font-medium"
+              className="text-[10px] sm:text-xs md:text-sm font-medium"
               formatter={(value: number) => {
-                if (value < 1) return '';
                 return `${value.toFixed(1)}%`;
               }}
               style={{ fill: 'hsl(var(--foreground))' }}
