@@ -4,8 +4,10 @@ import { electionTopic } from './election-data';
 function generateSlug(text: string): string {
   return text
     .toLowerCase()
-    .replace(/ /g, '-')
-    .replace(/[^\w-]+/g, '');
+    // Replace sequences of non-alphanumeric characters with a single dash
+    .replace(/[^a-z0-9]+/g, '-')
+    // Remove leading or trailing dashes
+    .replace(/^-+|-+$/g, '');
 }
 
 const categoryData: Omit<Category, 'subcategories' | 'id'>[] = [
