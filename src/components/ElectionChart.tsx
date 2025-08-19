@@ -30,7 +30,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const CustomizedLabel = (props: any) => {
-    const { x, y, width } = props;
+    const { x, y, width, index } = props;
     // The data for the bar is in the payload property
     const voteCount = props.payload.votes;
     const percentage = props.payload.percentage;
@@ -41,11 +41,12 @@ const CustomizedLabel = (props: any) => {
     
     return (
         <text 
-            x={x + width + 10} 
-            y={y + 12}
+            x={x + width + 5} 
+            y={y + props.barSize / 2}
             fill="hsl(var(--foreground))"
             className="text-sm font-medium"
             textAnchor="start" 
+            dominantBaseline="middle"
         >
             {`${percentage.toFixed(1)}% (${voteCount.toLocaleString()})`}
         </text>
