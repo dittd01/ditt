@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  LabelList,
 } from 'recharts';
 import type { Topic } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 type VoteChartProps = {
   topic: Topic;
 };
+
+const CustomLabel = (props: any) => {
+  const { x, y, width, height, value, dataKey } = props;
+  const dataPoint = props.payload;
+  const total = Object.keys(dataPoint)
+    .filter(key => key !== 'date')
+    .reduce((acc, key) => acc + (dataPoint[key] || 0), 0);
+  
+  if (height < 20 || !value) {
+    return null;
+  }
+
+  const percentage = total > 0 ? (value / total) * 100 : 0;
+
+  return (
+    <g>
+      <text x={x + width / 2} y={y + height / 2} fill="#fff" textAnchor="middle" dominantBaseline="middle" className="text-xs font-medium">
+        {`${percentage.toFixed(0)}% (${(value / 1000).toFixed(0)}k)`}
+      </text>
+    </g>
+  );
+};
+
 
 export function VoteChart({ topic }: VoteChartProps) {
   const [timeframe, setTimeframe] = useState('1W');
@@ -78,7 +102,9 @@ export function VoteChart({ topic }: VoteChartProps) {
                   fill={option.color}
                   stackId="a"
                   radius={[4, 4, 0, 0]}
-                />
+                >
+                    <LabelList dataKey={option.id} content={<CustomLabel />} />
+                </Bar>
               ))}
             </BarChart>
           </ResponsiveContainer>
