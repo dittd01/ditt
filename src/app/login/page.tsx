@@ -34,6 +34,7 @@ export default function LoginPage() {
         if (typeof window !== 'undefined') {
           const anonymousId = `voter_test_user`;
           localStorage.setItem('anonymousVoterId', anonymousId);
+          localStorage.removeItem('lastSeenTimestamp'); // Clear last seen timestamp on new login
           window.dispatchEvent(new Event('authChange'));
         }
         router.push('/');

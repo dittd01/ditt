@@ -6,11 +6,39 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Vote, LogOut } from 'lucide-react';
 
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+
 export function Header() {
   const [voterId, setVoterId] = useState<string | null>(null);
   const router = useRouter();
 
+  const handleLogout = () => {
+    localStorage.removeItem('anonymousVoterId');
+    localStorage.removeItem('lastSeenTimestamp');
+    // Also remove any vote records for this user
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('voted_on_')) {
+            localStorage.removeItem(key);
+        }
+    });
+    setVoterId(null);
+    window.dispatchEvent(new Event('authChange'));
+    router.push('/');
+    router.refresh();
+  };
+
   useEffect(() => {
+    const lastSeenTimestamp = localStorage.getItem('lastSeenTimestamp');
+    if (lastSeenTimestamp) {
+      const timeSinceLastSeen = Date.now() - parseInt(lastSeenTimestamp, 10);
+      if (timeSinceLastSeen > SESSION_TIMEOUT) {
+        handleLogout();
+        return;
+      }
+    }
+    // If the user is active, clear the last seen timestamp
+    localStorage.removeItem('lastSeenTimestamp');
+
     const handleStorageChange = () => {
       setVoterId(localStorage.getItem('anonymousVoterId'));
     };
@@ -29,20 +57,6 @@ export function Header() {
       window.removeEventListener('authChange', handleStorageChange);
     };
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('anonymousVoterId');
-    // Also remove any vote records for this user
-    Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('voted_on_')) {
-            localStorage.removeItem(key);
-        }
-    });
-    setVoterId(null);
-    window.dispatchEvent(new Event('authChange'));
-    router.push('/');
-    router.refresh();
-  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
