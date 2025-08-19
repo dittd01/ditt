@@ -66,7 +66,11 @@ export function ElectionChart({ topic }: ElectionChartProps) {
              <LabelList
               dataKey="percentage"
               position="right"
-              formatter={(value: number) => `${value.toFixed(1)}%`}
+              formatter={(value: number, _, props) => {
+                const { payload } = props;
+                const voteCount = payload.votes;
+                return `${value.toFixed(1)}% (${voteCount.toLocaleString()})`;
+              }}
               fill="hsl(var(--foreground))"
               className="text-sm font-medium"
             />
