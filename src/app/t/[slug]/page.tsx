@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { mockTopics } from '@/lib/data';
@@ -17,10 +17,10 @@ import { VoteChart } from '@/components/VoteChart';
 import { SuggestionForm } from '@/components/SuggestionForm';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-export default function TopicPage({ params }: { params: { slug: string } }) {
+export default function TopicPage({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { slug } = params;
+  const { slug } = use(params);
 
   const [topic, setTopic] = useState<Topic | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
