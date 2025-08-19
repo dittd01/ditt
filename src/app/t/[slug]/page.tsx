@@ -95,8 +95,8 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Button variant="ghost" onClick={() => router.back()} className="mb-4">
+    <div className="container mx-auto px-4 py-4 md:py-8">
+      <Button variant="ghost" onClick={() => router.back()} className="mb-4 -ml-4">
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back to Polls
       </Button>
@@ -104,13 +104,13 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           <Card>
-            <CardHeader>
+            <CardHeader className="p-4 md:p-6">
               <div className="aspect-video relative mb-4">
                 <Image
                   src={topic.imageUrl}
                   alt={topic.question}
                   fill
-                  className="rounded-t-lg object-cover"
+                  className="rounded-lg object-cover"
                    data-ai-hint={
                     topic.slug === 'oslo-car-free-zone' ? 'oslo city' :
                     topic.slug === 'daylight-savings-time' ? 'clock time' :
@@ -157,7 +157,7 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
                     <Label
                       key={option.id}
                       htmlFor={option.id}
-                      className="flex items-center space-x-4 border p-4 rounded-md cursor-pointer hover:bg-accent/50 has-[input:checked]:bg-accent/80 has-[input:checked]:border-primary"
+                      className="flex items-center space-x-4 border p-4 rounded-md cursor-pointer hover:bg-accent/50 has-[input:checked]:bg-accent/80 has-[input:checked]:border-primary text-base"
                     >
                       <RadioGroupItem value={option.id} id={option.id} />
                       <span className="font-medium">{option.label}</span>
@@ -166,7 +166,7 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
                 </RadioGroup>
               </CardContent>
               <CardFooter>
-                <Button onClick={handleVote} disabled={!selectedOption} className="w-full">
+                <Button onClick={handleVote} disabled={!selectedOption} className="w-full h-12 text-lg">
                   Submit Vote
                 </Button>
               </CardFooter>

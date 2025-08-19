@@ -82,4 +82,12 @@
   body {
     @apply bg-background text-foreground;
   }
+  html {
+    @apply text-base;
+  }
+  @screen md {
+    html {
+      @apply text-[15px];
+    }
+  }
 }
