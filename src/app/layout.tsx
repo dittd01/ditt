@@ -7,7 +7,7 @@ import { CategoryNav } from '@/components/CategoryNav';
 import { categories } from '@/lib/data';
 
 export const metadata: Metadata = {
-  title: 'Valg匿名 - Anonymous Voting',
+  title: 'Ditt Demokrati - Anonymous Voting',
   description: 'A secure and anonymous voting platform built with Next.js and Firebase.',
 };
 

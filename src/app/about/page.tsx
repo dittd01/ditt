@@ -20,14 +20,14 @@ export default function AboutPage() {
           <div className="flex items-center gap-4 mb-4">
             <Vote className="h-10 w-10 text-primary" />
             <div>
-              <CardTitle className="text-3xl font-headline">About Valg匿名</CardTitle>
+              <CardTitle className="text-3xl font-headline">About Ditt Demokrati</CardTitle>
               <CardDescription>Anonymous Voting & Public Sentiment Platform</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6 text-muted-foreground">
           <p>
-            Welcome to <strong>Valg匿名</strong> (Anonymous Vote), a conceptual platform designed to explore public opinion on a wide range of topics relevant to Norwegian society. Our goal is to provide a space for anonymous participation in non-binding polls, offering a snapshot of public sentiment on key issues.
+            Welcome to <strong>Ditt Demokrati</strong> (Your Democracy), a conceptual platform designed to explore public opinion on a wide range of topics relevant to Norwegian society. Our goal is to provide a space for anonymous participation in non-binding polls, offering a snapshot of public sentiment on key issues.
           </p>
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-foreground">How It Works</h3>
