@@ -91,7 +91,7 @@ export function ElectionChart({ topic }: ElectionChartProps) {
           <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<CustomTooltip />} />
           <Bar dataKey="votes" radius={[4, 4, 4, 4]}>
              <LabelList
-                content={<CustomizedLabel />}
+                content={CustomizedLabel}
             />
           </Bar>
         </BarChart>
