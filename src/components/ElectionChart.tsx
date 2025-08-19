@@ -38,7 +38,7 @@ export function ElectionChart({ topic }: ElectionChartProps) {
       id: option.id,
       name: option.label,
       votes: votes[option.id] || 0,
-      percentage: totalVotes > 0 ? (votes[option.id] / totalVotes) * 100 : 0,
+      percentage: totalVotes > 0 ? ((votes[option.id] || 0) / totalVotes) * 100 : 0,
       fill: option.color,
     }))
     .sort((a, b) => b.votes - a.votes);
