@@ -30,11 +30,13 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const CustomizedLabel = (props: any) => {
-    const { x, y, width, height } = props;
-    const voteCount = props.votes;
-    const percentage = props.percentage;
+    const { x, y, width, height, payload } = props;
+    if (!payload) return null;
+    
+    const voteCount = payload.votes;
+    const percentage = payload.percentage;
 
-    if (width < 40) { // Don't render label if the bar is too small
+    if (width < 40 || typeof percentage === 'undefined' || typeof voteCount === 'undefined') { // Don't render label if the bar is too small
         return null;
     }
     
