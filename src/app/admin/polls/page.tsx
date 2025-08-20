@@ -22,8 +22,17 @@ import {
 import { allTopics, categories } from '@/lib/data';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 
 export default function PollsPage() {
+  const { toast } = useToast();
+
+  const handleAction = (action: string, pollTitle: string) => {
+    toast({
+      title: `Action: ${action}`,
+      description: `Triggered "${action}" for poll: ${pollTitle}`,
+    });
+  };
 
   const getCategoryInfo = (categoryId: string, subcategoryId: string) => {
     const category = categories.find(c => c.id === categoryId);
@@ -117,9 +126,9 @@ export default function PollsPage() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                                <DropdownMenuItem>{poll.status === 'Active' ? 'Archive' : 'Activate'}</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleAction('Edit', poll.title)}>Edit</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleAction('Duplicate', poll.title)}>Duplicate</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleAction(poll.status === 'Active' ? 'Archive' : 'Activate', poll.title)}>{poll.status === 'Active' ? 'Archive' : 'Activate'}</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </TableCell>
