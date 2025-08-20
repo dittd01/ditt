@@ -39,9 +39,24 @@ export function DebateSection({ topicId }: DebateSectionProps) {
   }
 
   const handleSubmit = (values: { text: string }) => {
-    console.log(`New argument for '${showComposer}' side:`, values.text);
-    // Here we will eventually add logic to save the argument to Firestore
-    // and optimistically update the UI.
+    if (!showComposer) return;
+
+    // This is an optimistic update. In a real app, this would be replaced
+    // with a call to a server action/API route that saves to Firestore.
+    const newArgument: Argument = {
+      id: `arg_${Date.now()}`,
+      topicId: topicId,
+      parentId: null,
+      side: showComposer,
+      author: { name: 'New User', avatarUrl: 'https://placehold.co/40x40.png?text=NU' },
+      text: values.text,
+      upvotes: 1,
+      downvotes: 0,
+      replyCount: 0,
+      createdAt: new Date().toISOString(),
+    };
+
+    setDebateArgs(currentArgs => [newArgument, ...currentArgs]);
     setShowComposer(null);
   };
 
