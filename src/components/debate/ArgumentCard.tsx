@@ -17,6 +17,11 @@ export function ArgumentCard({ argument, onCounter }: ArgumentCardProps) {
   const netVotes = argument.upvotes - argument.downvotes;
   const createdAt = new Date(argument.createdAt);
 
+  // Prevent rendering if author is missing, which is the cause of the bug
+  if (!argument.author?.name) {
+    return null;
+  }
+
   return (
     <Card className="bg-card/50">
       <CardHeader className="flex flex-row items-start gap-3 p-4">
