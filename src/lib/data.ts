@@ -39,7 +39,7 @@ const subCategoryData = [
     // Elections & Governance
     { id: "electoral_system", label: "Electoral System", categoryId: "elections-governance", topic: "Adopt ranked‑choice voting for national elections?", imageUrl: 'https://images.unsplash.com/photo-1563242031-b32328615b34?q=80&w=1740&auto=format&fit=crop', aiHint: 'voting ballot' },
     { id: "direct_democracy", label: "Direct Democracy", categoryId: "elections-governance", topic: "Introduce national citizens’ initiative (50k signatures)?", imageUrl: 'https://images.unsplash.com/photo-1517524206127-48bbd363f59ce?q=80&w=1740&auto=format&fit=crop', aiHint: 'crowd protest' },
-    { id: "party_finance", label: "Party Finance", categoryId: "elections-governance", topic: "Ban private donations above NOK 100k?", imageUrl: 'https://images.unsplash.com/photo-1581090393663-89a7a3b93479?q=80&w=1740&auto=format&fit=crop', aiHint: 'money cash' },
+    { id: "party_finance", label: "Party Finance", categoryId: "elections-governance", topic: "Ban private donations above NOK 100k?", imageUrl: 'https://images.unsplash.com/photo-1589947841029-28a5d378bbb6?q=80&w=1740&auto=format&fit=crop', aiHint: 'money cash' },
     { id: "municipal_reform", label: "Municipal Reform", categoryId: "elections-governance", topic: "Merge municipalities with <5k residents?", imageUrl: 'https://images.unsplash.com/photo-1534204990089-b6b5d95erc13?q=80&w=1740&auto=format&fit=crop', aiHint: 'norway map' },
     // Taxation
     { id: "wealth_tax", label: "Wealth Tax", categoryId: "taxation", topic: "Raise wealth‑tax threshold to NOK 10m?", imageUrl: 'https://images.unsplash.com/photo-1604594849382-6397c1404107?q=80&w=1740&auto=format&fit=crop', aiHint: 'luxury yacht' },
