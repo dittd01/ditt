@@ -21,9 +21,17 @@ export function DebateSection({ topicId }: DebateSectionProps) {
 
   useEffect(() => {
     setLoading(true);
-    // In a real app, this would be a Firestore query
-    const fetchedArguments = getArgumentsForTopic(topicId);
-    setDebateArgs(fetchedArguments);
+    const localStorageKey = `debate_args_${topicId}`;
+    const savedArgs = localStorage.getItem(localStorageKey);
+    let initialArgs: Argument[];
+
+    if (savedArgs) {
+      initialArgs = JSON.parse(savedArgs);
+    } else {
+      initialArgs = getArgumentsForTopic(topicId);
+    }
+    
+    setDebateArgs(initialArgs);
     setLoading(false);
   }, [topicId]);
 
@@ -41,8 +49,6 @@ export function DebateSection({ topicId }: DebateSectionProps) {
   const handleSubmit = (values: { text: string }) => {
     if (!showComposer) return;
 
-    // This is an optimistic update. In a real app, this would be replaced
-    // with a call to a server action/API route that saves to Firestore.
     const newArgument: Argument = {
       id: `arg_${Date.now()}`,
       topicId: topicId,
@@ -56,7 +62,12 @@ export function DebateSection({ topicId }: DebateSectionProps) {
       createdAt: new Date().toISOString(),
     };
 
-    setDebateArgs(currentArgs => [newArgument, ...currentArgs]);
+    const updatedArgs = [newArgument, ...debateArgs];
+    setDebateArgs(updatedArgs);
+    
+    const localStorageKey = `debate_args_${topicId}`;
+    localStorage.setItem(localStorageKey, JSON.stringify(updatedArgs));
+
     setShowComposer(null);
   };
 
@@ -99,7 +110,7 @@ export function DebateSection({ topicId }: DebateSectionProps) {
             {/* Arguments For Column */}
             <div className="space-y-4">
                 <div className="flex justify-between items-center pb-2 border-b-2 border-green-500">
-                    <h3 className="text-xl font-semibold text-green-700">Arguments <span className="block">For</span></h3>
+                    <h3 className="text-xl font-semibold text-green-700">Arguments <span className="block font-normal">For</span></h3>
                     <div className="flex">
                         <Button variant="ghost" size="sm" className="text-green-700 hover:text-green-700 hover:bg-green-100" onClick={() => handleAddArgument('for')}>
                             <PlusCircle className="mr-2 h-4 w-4"/>
@@ -119,7 +130,7 @@ export function DebateSection({ topicId }: DebateSectionProps) {
             {/* Arguments Against Column */}
             <div className="space-y-4">
                  <div className="flex justify-between items-center pb-2 border-b-2 border-red-500">
-                    <h3 className="text-xl font-semibold text-red-700">Arguments <span className="block">Against</span></h3>
+                    <h3 className="text-xl font-semibold text-red-700">Arguments <span className="block font-normal">Against</span></h3>
                      <div className="flex">
                         <Button variant="ghost" size="sm" className="text-red-700 hover:text-red-700 hover:bg-red-100" onClick={() => handleAddArgument('against')}>
                             <PlusCircle className="mr-2 h-4 w-4"/>
