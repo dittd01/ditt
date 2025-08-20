@@ -20,6 +20,8 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { allTopics, categories } from '@/lib/data';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function PollsPage() {
 
@@ -59,6 +61,34 @@ export default function PollsPage() {
           Create Poll
         </Button>
       </PageHeader>
+      
+      <div className="flex flex-wrap items-center gap-4">
+          <Input placeholder="Search by title..." className="w-full sm:w-auto sm:flex-1" />
+          <Select>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="live">Live</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
+          </Select>
+          <Select>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                   {categories.filter(c => c.id !== 'election_2025').map(category => (
+                        <SelectItem key={category.id} value={category.id}>{category.label}</SelectItem>
+                    ))}
+              </SelectContent>
+          </Select>
+          <Button>Apply</Button>
+      </div>
+
 
       <Table>
         <TableHeader>
