@@ -100,10 +100,12 @@ export function DebateSection({ topicId }: DebateSectionProps) {
             <div className="space-y-4">
                 <div className="flex justify-between items-center pb-2 border-b-2 border-green-500">
                     <h3 className="text-xl font-semibold text-green-700">Arguments For</h3>
-                    <Button variant="ghost" size="sm" className="text-green-700 hover:text-green-700 hover:bg-green-100" onClick={() => handleAddArgument('for')}>
-                        <PlusCircle className="mr-2 h-4 w-4"/>
-                        Add Argument
-                    </Button>
+                    <div className="flex">
+                        <Button variant="ghost" size="sm" className="text-green-700 hover:text-green-700 hover:bg-green-100" onClick={() => handleAddArgument('for')}>
+                            <PlusCircle className="mr-2 h-4 w-4"/>
+                            Add Argument
+                        </Button>
+                    </div>
                 </div>
                  {showComposer === 'for' && <ArgumentComposer onCancel={handleCancel} onSubmit={handleSubmit} />}
                 <div className="space-y-4">
@@ -118,10 +120,12 @@ export function DebateSection({ topicId }: DebateSectionProps) {
             <div className="space-y-4">
                  <div className="flex justify-between items-center pb-2 border-b-2 border-red-500">
                     <h3 className="text-xl font-semibold text-red-700">Arguments Against</h3>
-                     <Button variant="ghost" size="sm" className="text-red-700 hover:text-red-700 hover:bg-red-100" onClick={() => handleAddArgument('against')}>
-                        <PlusCircle className="mr-2 h-4 w-4"/>
-                        Add Argument
-                    </Button>
+                     <div className="flex">
+                        <Button variant="ghost" size="sm" className="text-red-700 hover:text-red-700 hover:bg-red-100" onClick={() => handleAddArgument('against')}>
+                            <PlusCircle className="mr-2 h-4 w-4"/>
+                            Add Argument
+                        </Button>
+                    </div>
                 </div>
                  {showComposer === 'against' && <ArgumentComposer onCancel={handleCancel} onSubmit={handleSubmit} />}
                  <div className="space-y-4">
