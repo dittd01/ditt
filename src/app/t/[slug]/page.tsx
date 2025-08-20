@@ -22,6 +22,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { LiveResults } from '@/components/LiveResults';
 import { RelatedTopics } from '@/components/RelatedTopics';
 import { trackEvent } from '@/lib/analytics';
+import { DebateSection } from '@/components/debate/DebateSection';
 
 const VoteChart = dynamic(() => import('@/components/VoteChart').then(mod => mod.VoteChart), {
   ssr: false,
@@ -247,6 +248,18 @@ export default function TopicPage() {
               </div>
               <h1 className="text-2xl md:text-3xl font-bold font-headline">{topic.question}</h1>
             </CardHeader>
+             <CardContent>
+                 <Accordion type="single" collapsible className="w-full" defaultValue="description">
+                     <AccordionItem value="description">
+                        <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border-b-0">
+                            <Info className="h-5 w-5" /> Topic Details
+                        </AccordionTrigger>
+                        <AccordionContent className="p-4 pt-0">
+                            <p className="text-base text-muted-foreground">{topic.description}</p>
+                        </AccordionContent>
+                    </AccordionItem>
+                 </Accordion>
+             </CardContent>
           </Card>
           
            <div className="lg:hidden">
@@ -255,25 +268,9 @@ export default function TopicPage() {
            
            {votedOn && <LiveResults topic={topic} />}
            
+           <DebateSection topicId={topic.id} />
+           
            <Accordion type="single" collapsible className="w-full space-y-4">
-                <AccordionItem value="discussion">
-                    <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
-                        <MessageSquare className="h-5 w-5" /> Discussion
-                    </AccordionTrigger>
-                    <AccordionContent className="p-6 border border-t-0 rounded-b-lg">
-                        <p className="text-base text-muted-foreground">Discussion and comments will be available here.</p>
-                    </AccordionContent>
-                </AccordionItem>
-                
-                <AccordionItem value="description">
-                    <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
-                        <Info className="h-5 w-5" /> Topic Description
-                    </AccordionTrigger>
-                    <AccordionContent className="p-6 border border-t-0 rounded-b-lg">
-                        <p className="text-base text-muted-foreground">{topic.description}</p>
-                    </AccordionContent>
-                </AccordionItem>
-
                 <AccordionItem value="sources">
                     <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
                         <FileText className="h-5 w-5" /> Sources & Context
@@ -318,5 +315,3 @@ export default function TopicPage() {
     </div>
   );
 }
-
-    

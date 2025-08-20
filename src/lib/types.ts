@@ -54,4 +54,19 @@ export interface Party {
     aiHint: string;
 }
 
+export interface Argument {
+    id: string;
+    topicId: string;
+    parentId: string | null;
+    side: 'for' | 'against';
+    author: {
+        name: string;
+        avatarUrl?: string;
+    };
+    text: string;
+    upvotes: number;
+    downvotes: number;
+    replyCount: number;
+    createdAt: string; // ISO 8601 string
+}
     

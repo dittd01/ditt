@@ -1,8 +1,8 @@
 
-import type { Topic, Category, VoteHistory } from './types';
+import type { Topic, Category, VoteHistory, Argument } from './types';
 import { electionTopic } from './election-data';
 import type { LucideIcon } from 'lucide-react';
-import { subDays, subMonths, subYears, format } from 'date-fns';
+import { subDays, subHours, subMonths, subYears, format } from 'date-fns';
 
 function generateSlug(text: string): string {
   return text
@@ -230,4 +230,73 @@ export function getRelatedTopics(currentTopicId: string, subcategoryId: string):
       topic.voteType !== 'election' // Exclude the main election poll
     )
     .slice(0, 3);
+}
+
+
+// Mock data for the debate system
+export const mockArguments: Argument[] = [
+    {
+        id: 'arg_1',
+        topicId: '1',
+        parentId: null,
+        side: 'for',
+        author: { name: 'EconPro', avatarUrl: 'https://placehold.co/40x40.png?text=EP' },
+        text: 'Raising the threshold to NOK 10m shields small business owners and farmers from a tax on their working capital, encouraging investment and job creation.',
+        upvotes: 128,
+        downvotes: 12,
+        replyCount: 1,
+        createdAt: subDays(new Date(), 2).toISOString(),
+    },
+    {
+        id: 'arg_2',
+        topicId: '1',
+        parentId: null,
+        side: 'against',
+        author: { name: 'FairTax', avatarUrl: 'https://placehold.co/40x40.png?text=FT' },
+        text: 'This is a massive tax cut for the wealthy. The current threshold is already generous. This change would increase inequality and starve public services of needed funds.',
+        upvotes: 95,
+        downvotes: 34,
+        replyCount: 2,
+        createdAt: subDays(new Date(), 1).toISOString(),
+    },
+    {
+        id: 'arg_3',
+        topicId: '1',
+        parentId: 'arg_2',
+        side: 'for', // This is a counter-argument to 'against', so it is effectively 'for' the main topic
+        author: { name: 'Analyst_A', avatarUrl: 'https://placehold.co/40x40.png?text=AA' },
+        text: 'The term "wealthy" is misleading. Many affected are asset-rich but cash-poor. Their "wealth" is tied up in machinery or property that generates income for others, not liquid assets.',
+        upvotes: 45,
+        downvotes: 5,
+        replyCount: 0,
+        createdAt: subHours(new Date(), 18).toISOString(),
+    },
+     {
+        id: 'arg_4',
+        topicId: '1',
+        parentId: 'arg_2',
+        side: 'against',
+        author: { name: 'SocialDemocrat', avatarUrl: 'https://placehold.co/40x40.png?text=SD' },
+        text: 'But the "lost funds" are significant. Estimates show this could cost the state billions annually, which could have funded hundreds of new teachers or nurses.',
+        upvotes: 62,
+        downvotes: 15,
+        replyCount: 0,
+        createdAt: subHours(new Date(), 10).toISOString(),
+    },
+      {
+        id: 'arg_5',
+        topicId: '1',
+        parentId: 'arg_1',
+        side: 'against',
+        author: { name: 'TaxJustice', avatarUrl: 'https://placehold.co/40x40.png?text=TJ' },
+        text: 'There are better ways to protect working capital, like targeted exemptions. A blanket increase is a blunt instrument that primarily benefits passive financial wealth.',
+        upvotes: 33,
+        downvotes: 8,
+        replyCount: 0,
+        createdAt: subHours(new Date(), 5).toISOString(),
+    },
+];
+
+export const getArgumentsForTopic = (topicId: string): Argument[] => {
+    return mockArguments.filter(arg => arg.topicId === topicId);
 }
