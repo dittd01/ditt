@@ -5,13 +5,29 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Vote, LogOut, Shield, Lock } from 'lucide-react';
+import { Vote, LogOut, Shield, User, Settings } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
 export function Header() {
   const [voterId, setVoterId] = useState<string | null>(null);
   const router = useRouter();
+
+  // In a real app, this would come from an auth context/hook
+  const user = {
+    username: 'testuser',
+    photoUrl: 'https://placehold.co/256x256.png',
+    initials: 'TU',
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('anonymousVoterId');
@@ -75,24 +91,54 @@ export function Header() {
            <Button variant="ghost" asChild className="hidden sm:inline-flex">
             <Link href="/privacy">Privacy</Link>
           </Button>
-          <Button variant="ghost" asChild className="hidden sm:inline-flex">
-            <Link href="/admin" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" /> Admin
-            </Link>
-          </Button>
 
           <div className="w-px h-6 bg-border mx-2 hidden sm:block"></div>
 
           {voterId ? (
-            <div className="flex items-center gap-2 sm:gap-4">
-              <span className="text-sm text-muted-foreground hidden md:inline">
-                ID: {voterId.substring(0, 15)}...
-              </span>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="mr-0 sm:mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Logout</span>
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.photoUrl} alt={`@${user.username}`} />
+                    <AvatarFallback>{user.initials}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">@{user.username}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {voterId.substring(0,15)}...
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                   <Link href={`/u/${user.username}`}>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                   <Link href="/settings/profile">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                   <Link href="/admin">
+                    <Shield className="mr-2 h-4 w-4" />
+                    <span>Admin</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <Button asChild size="sm">
               <Link href="/login">BankID Login</Link>
