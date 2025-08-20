@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronDown, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Topic } from '@/lib/types';
+import type { Topic, Category, Subcategory } from '@/lib/types';
 import { categories } from '@/lib/data';
 import { Skeleton } from './ui/skeleton';
 import { Icon } from './Icon';
@@ -25,15 +25,27 @@ interface VoteCardProps {
   hasVoted: boolean;
 }
 
+const getCategory = (categoryId: string): Category | undefined => {
+    return categories.find(c => c.id === categoryId);
+}
+
+const getSubcategory = (category: Category | undefined, subcategoryId: string): Subcategory | undefined => {
+    return category?.subcategories.find(s => s.id === subcategoryId);
+}
+
 const getCategoryIconName = (categoryId: string): string | null => {
-    const category = categories.find(c => c.id === categoryId);
+    const category = getCategory(categoryId);
     return category?.icon || null;
 }
+
 
 export function VoteCard({ topic, hasVoted }: VoteCardProps) {
   const iconName = getCategoryIconName(topic.categoryId);
   const link = topic.voteType === 'election' ? '/election-2025' : `/t/${topic.slug}`;
   const cardRef = useRef<HTMLDivElement>(null);
+  
+  const category = getCategory(topic.categoryId);
+  const subcategory = getSubcategory(category, topic.subcategoryId);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -65,6 +77,11 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
         <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
           {iconName && <Icon name={iconName} className="h-6 w-6 shrink-0 text-muted-foreground" />}
           <div className="flex-1">
+            {category && subcategory && topic.voteType !== 'election' && (
+                 <div className="text-xs text-muted-foreground font-medium mb-1">
+                    {category.label} &middot; {subcategory.label}
+                 </div>
+            )}
             <Link href={link} className="group" onClick={handleCardClick}>
               <CardTitle className="text-lg font-semibold leading-snug line-clamp-3 group-hover:underline">
                 {topic.question}
@@ -119,6 +136,7 @@ VoteCard.Skeleton = function VoteCardSkeleton() {
             <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
                 <Skeleton className="h-6 w-6 rounded-md" />
                 <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-1/2" />
                     <Skeleton className="h-5 w-4/5" />
                     <Skeleton className="h-5 w-2/5" />
                 </div>
