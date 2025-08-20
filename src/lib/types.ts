@@ -23,7 +23,7 @@ export type Topic = {
   categoryId: string;
   subcategoryId: string;
   status: 'live' | 'closed' | 'draft';
-  voteType: 'yesno' | 'multi' | 'ranked' | 'election';
+  voteType: 'yesno' | 'multi' | 'ranked' | 'election' | 'likert' | 'quadratic';
 };
 
 export type Subcategory = {

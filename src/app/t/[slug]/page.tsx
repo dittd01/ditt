@@ -16,6 +16,9 @@ import { useToast } from '@/hooks/use-toast';
 import { VoteChart } from '@/components/VoteChart';
 import { SuggestionForm } from '@/components/SuggestionForm';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { LikertScale } from '@/components/LikertScale';
+import { RankedChoice } from '@/components/RankedChoice';
+import { QuadraticVote } from '@/components/QuadraticVote';
 
 export default function TopicPage() {
   const router = useRouter();
@@ -87,18 +90,14 @@ export default function TopicPage() {
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
-        // Increment the new vote
         newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
 
-        // If user is changing their vote, decrement the old one
         if (previouslyVotedOn) {
             newVotes[previouslyVotedOn] = (newVotes[previouslyVotedOn] || 1) - 1;
         } else {
-          // Only increase total votes for a new voter, not a vote changer
             newTotalVotes += 1;
         }
 
-        // Update localStorage for each option's votes
         Object.keys(newVotes).forEach(oid => {
           localStorage.setItem(`votes_for_${currentTopic.id}_${oid}`, newVotes[oid].toString());
         });
@@ -131,6 +130,70 @@ export default function TopicPage() {
     return (voteCount / topic.totalVotes) * 100;
   };
   
+  const renderVoteComponent = () => {
+    if (!topic) return null;
+
+    if (votedOn) {
+      return (
+        <Card className="bg-primary/5 border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle className="text-primary" />
+              You have voted
+            </CardTitle>
+            <CardDescription>
+              You voted for: <strong>{topic.options.find((o) => o.id === votedOn)?.label || votedOn}</strong>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">You can change your vote at any time during the voting period.</p>
+            <Button className="w-full" onClick={handleRevote}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Change Your Vote
+            </Button>
+          </CardContent>
+        </Card>
+      );
+    }
+    
+    switch (topic.voteType) {
+        case 'likert':
+            return <LikertScale topic={topic} onVote={handleVote} />;
+        case 'ranked':
+            return <RankedChoice topic={topic} onVote={handleVote} />;
+        case 'quadratic':
+             return <QuadraticVote topic={topic} />;
+        case 'yesno':
+        default:
+            return (
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Cast Your Anonymous Vote</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <RadioGroup onValueChange={setSelectedOption} value={selectedOption || ''} className="gap-4">
+                        {topic.options.map((option) => (
+                            <Label
+                            key={option.id}
+                            htmlFor={option.id}
+                            className="flex items-center space-x-4 border p-4 rounded-md cursor-pointer hover:bg-accent/50 has-[input:checked]:bg-accent/80 has-[input:checked]:border-primary text-base"
+                            >
+                            <RadioGroupItem value={option.id} id={option.id} />
+                            <span className="font-medium">{option.label}</span>
+                            </Label>
+                        ))}
+                        </RadioGroup>
+                    </CardContent>
+                    <CardFooter>
+                        <Button onClick={handleVote} disabled={!selectedOption} className="w-full h-12 text-lg">
+                        Submit Vote
+                        </Button>
+                    </CardFooter>
+                </Card>
+            );
+    }
+  };
+
   if (!isClient || loading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
@@ -172,51 +235,8 @@ export default function TopicPage() {
         </div>
 
         <div className="space-y-8">
-          {votedOn ? (
-            <Card className="bg-primary/5 border-primary/20">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="text-primary" />
-                  You have voted
-                </CardTitle>
-                <CardDescription>
-                  You voted for: <strong>{topic.options.find((o) => o.id === votedOn)?.label}</strong>
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">You can change your vote at any time during the voting period.</p>
-                <Button className="w-full" onClick={handleRevote}>
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Change Your Vote
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Cast Your Anonymous Vote</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <RadioGroup onValueChange={setSelectedOption} value={selectedOption || ''} className="gap-4">
-                  {topic.options.map((option) => (
-                    <Label
-                      key={option.id}
-                      htmlFor={option.id}
-                      className="flex items-center space-x-4 border p-4 rounded-md cursor-pointer hover:bg-accent/50 has-[input:checked]:bg-accent/80 has-[input:checked]:border-primary text-base"
-                    >
-                      <RadioGroupItem value={option.id} id={option.id} />
-                      <span className="font-medium">{option.label}</span>
-                    </Label>
-                  ))}
-                </RadioGroup>
-              </CardContent>
-              <CardFooter>
-                <Button onClick={handleVote} disabled={!selectedOption} className="w-full h-12 text-lg">
-                  Submit Vote
-                </Button>
-              </CardFooter>
-            </Card>
-          )}
+          
+          {renderVoteComponent()}
 
           <Card>
              <CardHeader>
