@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -28,22 +29,22 @@ export function Header() {
     initials: 'TU',
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('anonymousVoterId');
-    localStorage.removeItem('lastSeenTimestamp');
-    // Also remove any vote records for this user
-    Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('voted_on_')) {
-            localStorage.removeItem(key);
-        }
-    });
-    setVoterId(null);
-    window.dispatchEvent(new Event('authChange'));
-    router.push('/');
-    router.refresh();
-  };
-
   useEffect(() => {
+    const handleLogout = () => {
+      localStorage.removeItem('anonymousVoterId');
+      localStorage.removeItem('lastSeenTimestamp');
+      // Also remove any vote records for this user
+      Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('voted_on_')) {
+              localStorage.removeItem(key);
+          }
+      });
+      setVoterId(null);
+      window.dispatchEvent(new Event('authChange'));
+      router.push('/');
+      router.refresh();
+    };
+
     const lastSeenTimestamp = localStorage.getItem('lastSeenTimestamp');
     if (lastSeenTimestamp) {
       const timeSinceLastSeen = Date.now() - parseInt(lastSeenTimestamp, 10);
@@ -72,7 +73,17 @@ export function Header() {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('authChange', handleStorageChange);
     };
-  }, []);
+  }, [router]);
+
+  const handleLogoutClick = () => {
+      localStorage.removeItem('anonymousVoterId');
+      localStorage.removeItem('lastSeenTimestamp');
+      setVoterId(null);
+      window.dispatchEvent(new Event('authChange'));
+      router.push('/');
+      router.refresh();
+  }
+
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -108,7 +119,7 @@ export function Header() {
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">@{user.username}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {voterId.substring(0,15)}...
+                      Voter ID: {voterId.substring(0,15)}...
                     </p>
                   </div>
                 </DropdownMenuLabel>
@@ -132,7 +143,7 @@ export function Header() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
+                <DropdownMenuItem onClick={handleLogoutClick}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
