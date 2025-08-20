@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, CheckCircle, Info, RefreshCw, Loader2, BarChart, FileText, History, MessageSquare, ListTree, PieChart, Sun } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Info, RefreshCw, Loader2, BarChart, FileText, History, MessageSquare, ListTree, Sun } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SuggestionForm } from '@/components/SuggestionForm';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -65,15 +65,24 @@ export default function TopicPage() {
         const initialTopicState = { ...foundTopic, votes: newVotes, totalVotes: newTotalVotes };
         setTopic(initialTopicState);
 
+        const baseArgs = getArgumentsForTopic(foundTopic.id);
         const localStorageKey = `debate_args_${foundTopic.id}`;
-        const savedArgs = localStorage.getItem(localStorageKey);
-        let initialArgs: Argument[];
-        if (savedArgs) {
-          initialArgs = JSON.parse(savedArgs);
+        const savedArgsJSON = localStorage.getItem(localStorageKey);
+        
+        if (savedArgsJSON) {
+          const savedArgs: Argument[] = JSON.parse(savedArgsJSON);
+          const combinedArgs = [...baseArgs];
+          const baseArgIds = new Set(baseArgs.map(a => a.id));
+          // Add any user-added arguments from local storage that aren't in the base set
+          savedArgs.forEach(savedArg => {
+            if (!baseArgIds.has(savedArg.id)) {
+              combinedArgs.push(savedArg);
+            }
+          });
+          setDebateArgs(combinedArgs);
         } else {
-          initialArgs = getArgumentsForTopic(foundTopic.id);
+          setDebateArgs(baseArgs);
         }
-        setDebateArgs(initialArgs);
 
         const currentVoterId = localStorage.getItem('anonymousVoterId');
         setVoterId(currentVoterId);
