@@ -7,6 +7,7 @@ import type { Topic } from '@/lib/types';
 import { Card, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Lightbulb } from 'lucide-react';
+import { trackEvent } from '@/lib/analytics';
 
 interface RelatedTopicsProps {
   topicId: string;
@@ -20,6 +21,13 @@ export function RelatedTopics({ topicId, subcategoryId }: RelatedTopicsProps) {
     return null;
   }
 
+  const handleRelatedClick = (destinationTopicId: string) => {
+    trackEvent('related_click', {
+      sourceTopicId: topicId,
+      destinationTopicId,
+    });
+  };
+
   return (
     <div className="space-y-4">
         <h2 className="text-xl font-bold flex items-center gap-2">
@@ -31,12 +39,12 @@ export function RelatedTopics({ topicId, subcategoryId }: RelatedTopicsProps) {
                 <Card key={topic.id} className="flex flex-col justify-between">
                     <CardHeader>
                         <CardTitle className="text-base font-medium line-clamp-3">
-                           <Link href={`/t/${topic.slug}`}>{topic.question}</Link>
+                           <Link href={`/t/${topic.slug}`} onClick={() => handleRelatedClick(topic.id)}>{topic.question}</Link>
                         </CardTitle>
                     </CardHeader>
                     <CardFooter>
                         <Button asChild variant="secondary" size="sm" className="w-full">
-                           <Link href={`/t/${topic.slug}`}>View Topic</Link>
+                           <Link href={`/t/${topic.slug}`} onClick={() => handleRelatedClick(topic.id)}>View Topic</Link>
                         </Button>
                     </CardFooter>
                 </Card>

@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
+import { trackEvent } from '@/lib/analytics';
 
 const MAX_VISIBLE_CATEGORIES = 7;
 
@@ -25,7 +26,7 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
   const [visibleCategories, setVisibleCategories] = useState<Category[]>([]);
   const [dropdownCategories, setDropdownCategories] = useState<Category[]>([]);
 
-  const allCategories = [{ id: 'all', label: 'All', subcategories: [] }, ...categories];
+  const allCategories = [{ id: 'all', label: 'All', subcategories: [], icon: '' }, ...categories];
   const selectedCategoryId = searchParams.get('cat') || (pathname === '/election-2025' ? 'election_2025' : 'all');
 
   useEffect(() => {
@@ -51,6 +52,10 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
 
   const handleSelectCategory = useCallback(
     (categoryId: string | null) => {
+      if (!categoryId) return;
+      
+      trackEvent('filter_click', { category: categoryId });
+      
       if (pathname.startsWith('/t/')) {
         router.push('/');
         return;

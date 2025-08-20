@@ -15,6 +15,8 @@ import type { Topic } from '@/lib/types';
 import { categories } from '@/lib/data';
 import { Skeleton } from './ui/skeleton';
 import { Icon } from './Icon';
+import { trackEvent } from '@/lib/analytics';
+import { useEffect, useRef } from 'react';
 
 
 interface VoteCardProps {
@@ -30,14 +32,39 @@ const getCategoryIconName = (categoryId: string): string | null => {
 export function VoteCard({ topic, hasVoted }: VoteCardProps) {
   const iconName = getCategoryIconName(topic.categoryId);
   const link = topic.voteType === 'election' ? '/election-2025' : `/t/${topic.slug}`;
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          trackEvent('view_card', { topicId: topic.id, category: topic.categoryId });
+          observer.disconnect(); // Track only once per page load
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [topic.id, topic.categoryId]);
+  
+  const handleCardClick = () => {
+    trackEvent('open_card', { topicId: topic.id, from: 'homepage' });
+  };
 
   return (
-    <Card className="flex h-full flex-col">
+    <Card ref={cardRef} className="flex h-full flex-col">
         <Collapsible>
             <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
                 {iconName && <Icon name={iconName} className="h-6 w-6 shrink-0 text-muted-foreground" />}
                 <div className="flex-1">
-                     <Link href={link} className="group">
+                     <Link href={link} className="group" onClick={handleCardClick}>
                         <CardTitle className="text-lg font-semibold leading-snug line-clamp-2 group-hover:underline">
                             {topic.question}
                         </CardTitle>
@@ -63,7 +90,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
                 </div>
             </CardContent>
             <CardFooter>
-                 <Button asChild className="w-full h-11 text-base">
+                 <Button asChild className="w-full h-11 text-base" onClick={handleCardClick}>
                     <Link href={link}>
                         {hasVoted ? 'Change Vote' : 'Vote Now'}
                     </Link>

@@ -21,6 +21,7 @@ import { QuadraticVote } from '@/components/QuadraticVote';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { LiveResults } from '@/components/LiveResults';
 import { RelatedTopics } from '@/components/RelatedTopics';
+import { trackEvent } from '@/lib/analytics';
 
 const VoteChart = dynamic(() => import('@/components/VoteChart').then(mod => mod.VoteChart), {
   ssr: false,
@@ -94,6 +95,14 @@ export default function TopicPage() {
     }
 
     const previouslyVotedOn = votedOn;
+
+    // Fire analytics event
+    if (previouslyVotedOn) {
+        trackEvent('vote_changed', { topicId: topic.id, from: previouslyVotedOn, to: currentVote });
+    } else {
+        trackEvent('vote_cast', { topicId: topic.id, choice: currentVote });
+    }
+
 
     setTopic(currentTopic => {
         if (!currentTopic) return null;
