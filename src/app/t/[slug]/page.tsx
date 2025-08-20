@@ -138,21 +138,20 @@ export default function TopicPage() {
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
-        // Increment the new vote
-        newVotes[currentVote] = (newVotes[currentVote] || 0) + 1;
-        if(currentVote !== 'abstain') {
-            if(!previouslyVotedOn || (previouslyVotedOn && previouslyVotedOn === 'abstain')) {
-                newTotalVotes += 1;
-            }
-        }
-        
         // Decrement the old vote if there was one
         if (previouslyVotedOn) {
             newVotes[previouslyVotedOn] = Math.max(0, (newVotes[previouslyVotedOn] || 1) - 1);
-            // If the previous vote was not abstain, and the new one is, decrement total.
-            if(previouslyVotedOn !== 'abstain' && currentVote === 'abstain') {
+            // If the previous vote was not 'abstain', it was part of the total.
+            if (previouslyVotedOn !== 'abstain') {
                 newTotalVotes = Math.max(0, newTotalVotes - 1);
             }
+        }
+
+        // Increment the new vote
+        newVotes[currentVote] = (newVotes[currentVote] || 0) + 1;
+        // If the new vote is not 'abstain', add it to the total.
+        if (currentVote !== 'abstain') {
+            newTotalVotes += 1;
         }
         
         // Save all vote counts to local storage
@@ -372,3 +371,5 @@ export default function TopicPage() {
     </div>
   );
 }
+
+    
