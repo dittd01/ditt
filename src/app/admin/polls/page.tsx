@@ -38,13 +38,22 @@ interface PollRowData {
 }
 
 type SortDescriptor = {
-    key: keyof Omit<PollRowData, 'id' | 'subcategory' | 'categoryId'>;
+    key: keyof Omit<PollRowData, 'id' | 'categoryId'>;
     direction: 'ascending' | 'descending';
 }
 
 const getCategoryInfo = (categoryId: string, subcategoryId: string) => {
     const category = categories.find(c => c.id === categoryId);
     if (!category) return { cat: 'N/A', sub: 'N/A', catId: 'N/A' };
+    
+    // For election, there's no subcategory
+    if (categoryId === 'election_2025') {
+        return {
+            cat: category.label,
+            sub: 'N/A',
+            catId: category.id,
+        }
+    }
     
     const subcategory = category.subcategories.find(s => s.id === subcategoryId);
     return {
@@ -169,7 +178,7 @@ export default function PollsPage() {
               </SelectTrigger>
               <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                   {categories.filter(c => c.id !== 'election_2025').map(category => (
+                   {categories.map(category => (
                         <SelectItem key={category.id} value={category.id}>{category.label}</SelectItem>
                     ))}
               </SelectContent>
@@ -181,7 +190,8 @@ export default function PollsPage() {
         <TableHeader>
             <TableRow>
                 <SortableHeader sortKey="category">Category</SortableHeader>
-                <SortableHeader sortKey="title" className="w-[40%]">Subcategory / Title</SortableHeader>
+                <SortableHeader sortKey="subcategory">Subcategory</SortableHeader>
+                <SortableHeader sortKey="title" className="w-[40%]">Title</SortableHeader>
                 <SortableHeader sortKey="status">Status</SortableHeader>
                 <SortableHeader sortKey="votes">Total Votes</SortableHeader>
                 <SortableHeader sortKey="updated">Last Updated</SortableHeader>
@@ -192,10 +202,8 @@ export default function PollsPage() {
             {sortedAndFilteredPolls.map((poll) => (
                  <TableRow key={poll.id}>
                     <TableCell>{poll.category}</TableCell>
-                    <TableCell className="font-medium">
-                        {poll.subcategory !== 'N/A' && <span className="text-muted-foreground">{poll.subcategory} / </span>}
-                        {poll.title}
-                    </TableCell>
+                    <TableCell>{poll.subcategory}</TableCell>
+                    <TableCell className="font-medium">{poll.title}</TableCell>
                     <TableCell><Badge variant={poll.status === 'Live' ? 'default' : 'secondary'}>{poll.status}</Badge></TableCell>
                     <TableCell>{poll.votes.toLocaleString()}</TableCell>
                     <TableCell>{poll.updated}</TableCell>
