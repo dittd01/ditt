@@ -116,6 +116,7 @@ const subCategoryData = [
     { id: "fisheries", label: "Fisheries", categoryId: "agriculture-fisheries-rural", topic: "Ban bottom trawling in sensitive areas?", imageUrl: 'https://images.pexels.com/photos/2227776/pexels-photo-2227776.jpeg', aiHint: 'fishing boat', voteType: 'yesno' },
     { id: "animal_welfare", label: "Animal Welfare", categoryId: "agriculture-fisheries-rural", topic: "Phase out fur farming?", imageUrl: 'https://images.pexels.com/photos/1084425/pexels-photo-1084425.jpeg', aiHint: 'fox animal', voteType: 'yesno' },
     { id: "rural_services", label: "Rural Services", categoryId: "agriculture-fisheries-rural", topic: "Tax incentives for rural doctors and teachers?", imageUrl: 'https://images.pexels.com/photos/226589/pexels-photo-226589.jpeg', aiHint: 'rural landscape', voteType: 'yesno' },
+    { id: "foreign_fishing", label: "Foreign Fishing", categoryId: "agriculture-fisheries-rural", topic: "Foreign fishing boats should be banned from Norwegian waters.", imageUrl: 'https://images.pexels.com/photos/163065/trawler-fishing-boat-fishing-fish-163065.jpeg', aiHint: 'fishing trawler', voteType: 'yesno' },
     // Culture, Media & Sports
     { id: "culture_funding", label: "Culture Funding", categoryId: "culture-media-sports", topic: "Increase regional arts funding by 20%?", imageUrl: 'https://images.pexels.com/photos/1389429/pexels-photo-1389429.jpeg', aiHint: 'music concert', voteType: 'yesno' },
     { id: "media_policy", label: "Media", categoryId: "culture-media-sports", topic: "Expand public broadcaster budget?", imageUrl: 'https://images.pexels.com/photos/764835/pexels-photo-764835.jpeg', aiHint: 'retro tv', voteType: 'yesno' },
@@ -372,8 +373,79 @@ const createArgsForTopic = (topicId: string): Argument[] => {
 const argumentsForTopic3 = createArgsForTopic('3');
 const argumentsForTopic5 = createArgsForTopic('5');
 
-export const mockArguments: Argument[] = [...argumentsForTopic3, ...argumentsForTopic5];
+const allMockArguments: Argument[] = [...argumentsForTopic3, ...argumentsForTopic5];
+
+// Ensure unique IDs across all arguments, including replies
+const generateUniqueArguments = () => {
+  let uniqueIdCounter = 1;
+  const idMap = new Map<string, string>();
+  const generatedArgs: Argument[] = [];
+
+  // Re-map IDs for a specific topic's arguments
+  const processTopicArgs = (topicId: string, forStatements: string[], againstStatements: string[]) => {
+      const users = Array.from({ length: 100 }, (_, i) => {
+          const name = norwegianNames[i % norwegianNames.length];
+          const suffix = Math.floor(10 + Math.random() * 90);
+          return {
+              username: `${name.toLowerCase()}${suffix}`,
+              avatarUrl: `https://placehold.co/40x40.png?text=${name.substring(0, 1)}${suffix.toString().substring(0,1)}`,
+          };
+      });
+      const arguers = users.slice(0, 30);
+      const voters = users.slice(30);
+
+      const topicArgs: Argument[] = [];
+
+      // Create root-level arguments
+      forStatements.forEach((statement, i) => {
+          const author = arguers[i % arguers.length];
+          const newId = `arg-${uniqueIdCounter++}`;
+          topicArgs.push({
+              id: newId, topicId, parentId: 'root', side: 'for', author, text: statement,
+              upvotes: Math.floor(Math.random() * 50), downvotes: Math.floor(Math.random() * 20), replyCount: 0,
+              createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
+          });
+      });
+      againstStatements.forEach((statement, i) => {
+          const author = arguers[i % arguers.length];
+          const newId = `arg-${uniqueIdCounter++}`;
+          topicArgs.push({
+              id: newId, topicId, parentId: 'root', side: 'against', author, text: statement,
+              upvotes: Math.floor(Math.random() * 50), downvotes: Math.floor(Math.random() * 20), replyCount: 0,
+              createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
+          });
+      });
+
+      // Create replies
+      const originalArgsCount = topicArgs.length;
+      for (let i = 0; i < 20; i++) { // Create 20 replies
+          if (topicArgs.length === 0) break;
+          const parentArg = topicArgs[Math.floor(Math.random() * topicArgs.length)];
+          const author = arguers[Math.floor(Math.random() * arguers.length)];
+          const replySide = parentArg.side === 'for' ? 'against' : 'for';
+          const newId = `arg-${uniqueIdCounter++}`;
+          
+          topicArgs.push({
+              id: newId, topicId, parentId: parentArg.id, side: replySide, author,
+              text: `This is a reply to a previous argument about "${parentArg.text.substring(0, 20)}...". I believe...`,
+              upvotes: Math.floor(Math.random() * 15), downvotes: Math.floor(Math.random() * 5), replyCount: 0,
+              createdAt: subHours(new Date(parentArg.createdAt), Math.floor(Math.random() * -48)).toISOString(),
+          });
+          parentArg.replyCount++;
+      }
+      
+      generatedArgs.push(...topicArgs);
+  };
+
+  processTopicArgs('3', forStatementsByTopic['3'], againstStatementsByTopic['3']);
+  processTopicArgs('5', forStatementsByTopic['5'], againstStatementsByTopic['5']);
+
+  return generatedArgs;
+};
+
+export const mockArguments: Argument[] = generateUniqueArguments();
 
 export const getArgumentsForTopic = (topicId: string): Argument[] => {
-    return mockArguments.filter(arg => arg.topicId === topicId);
+  return mockArguments.filter(arg => arg.topicId === topicId);
 };
+

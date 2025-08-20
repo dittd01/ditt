@@ -30,6 +30,12 @@ const mockUser = {
   createdAt: new Date(),
   suggestions: [
     {
+      id: 5,
+      text: 'Foreign fishing boats should be banned from Norwegian waters.',
+      verdict: 'Approved',
+      reason: 'Clear, single-issue question.',
+    },
+    {
       id: 1,
       text: 'Should all public transport be free in major cities?',
       verdict: 'Approved',
