@@ -116,7 +116,7 @@ const subCategoryData = [
     { id: "fisheries", label: "Fisheries", categoryId: "agriculture-fisheries-rural", topic: "Ban bottom trawling in sensitive areas?", imageUrl: 'https://images.pexels.com/photos/2227776/pexels-photo-2227776.jpeg', aiHint: 'fishing boat', voteType: 'yesno' },
     { id: "animal_welfare", label: "Animal Welfare", categoryId: "agriculture-fisheries-rural", topic: "Phase out fur farming?", imageUrl: 'https://images.pexels.com/photos/1084425/pexels-photo-1084425.jpeg', aiHint: 'fox animal', voteType: 'yesno' },
     { id: "rural_services", label: "Rural Services", categoryId: "agriculture-fisheries-rural", topic: "Tax incentives for rural doctors and teachers?", imageUrl: 'https://images.pexels.com/photos/226589/pexels-photo-226589.jpeg', aiHint: 'rural landscape', voteType: 'yesno' },
-    { id: "foreign_fishing", label: "Foreign Fishing", categoryId: "agriculture-fisheries-rural", topic: "Foreign fishing boats should be banned from Norwegian waters.", imageUrl: 'https://images.pexels.com/photos/163065/trawler-fishing-boat-fishing-fish-163065.jpeg', aiHint: 'fishing trawler', voteType: 'yesno' },
+    { id: "foreign_fishing", label: "Foreign Fishing", categoryId: "agriculture-fisheries-rural", topic: "Foreign fishing boats should be banned from Norwegian waters.", imageUrl: 'https://images.unsplash.com/photo-1655523539874-e6c9aa4b5edd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxmaXNoaW5nJTIwYm9hdHxlbnwwfHx8fDE3NTU3MTc3NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', aiHint: 'fishing trawler', voteType: 'yesno' },
     // Culture, Media & Sports
     { id: "culture_funding", label: "Culture Funding", categoryId: "culture-media-sports", topic: "Increase regional arts funding by 20%?", imageUrl: 'https://images.pexels.com/photos/1389429/pexels-photo-1389429.jpeg', aiHint: 'music concert', voteType: 'yesno' },
     { id: "media_policy", label: "Media", categoryId: "culture-media-sports", topic: "Expand public broadcaster budget?", imageUrl: 'https://images.pexels.com/photos/764835/pexels-photo-764835.jpeg', aiHint: 'retro tv', voteType: 'yesno' },
@@ -448,5 +448,6 @@ export const mockArguments: Argument[] = generateUniqueArguments();
 export const getArgumentsForTopic = (topicId: string): Argument[] => {
   return mockArguments.filter(arg => arg.topicId === topicId);
 };
+
 
 
