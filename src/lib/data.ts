@@ -1,10 +1,7 @@
 
 import type { Topic, Category } from './types';
 import { electionTopic } from './election-data';
-import {
-    Landmark, Scale, Banknote, Building2, UserCheck, Stethoscope, School, Leaf, Train, Home,
-    Gavel, BrainCircuit, Users, Shield, Tractor, Film, type LucideIcon
-} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 function generateSlug(text: string): string {
   return text
@@ -15,23 +12,23 @@ function generateSlug(text: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-const categoryData: Omit<Category, 'subcategories' | 'id' | 'icon'>[] = [
-  { label: 'Elections & Governance', icon: Landmark },
-  { label: 'Taxation', icon: Scale },
-  { label: 'Budget & Public Finance', icon: Banknote },
-  { label: 'Economy & Business', icon: Building2 },
-  { label: 'Labor & Welfare', icon: UserCheck },
-  { label: 'Health', icon: Stethoscope },
-  { label: 'Education & Research', icon: School },
-  { label: 'Environment & Energy', icon: Leaf },
-  { label: 'Infrastructure & Transport', icon: Train },
-  { label: 'Housing & Urban Development', icon: Home },
-  { label: 'Justice, Rights & Public Safety', icon: Gavel },
-  { label: 'Digital, Data & AI', icon: BrainCircuit },
-  { label: 'Immigration & Integration', icon: Users },
-  { label: 'Defense & Foreign Affairs', icon: Shield },
-  { label: 'Agriculture, Fisheries & Rural', icon: Tractor },
-  { label: 'Culture, Media & Sports', icon: Film },
+const categoryData: { label: string; icon: string }[] = [
+  { label: 'Elections & Governance', icon: 'Landmark' },
+  { label: 'Taxation', icon: 'Scale' },
+  { label: 'Budget & Public Finance', icon: 'Banknote' },
+  { label: 'Economy & Business', icon: 'Building2' },
+  { label: 'Labor & Welfare', icon: 'UserCheck' },
+  { label: 'Health', icon: 'Stethoscope' },
+  { label: 'Education & Research', icon: 'School' },
+  { label: 'Environment & Energy', icon: 'Leaf' },
+  { label: 'Infrastructure & Transport', icon: 'Train' },
+  { label: 'Housing & Urban Development', icon: 'Home' },
+  { label: 'Justice, Rights & Public Safety', icon: 'Gavel' },
+  { label: 'Digital, Data & AI', icon: 'BrainCircuit' },
+  { label: 'Immigration & Integration', icon: 'Users' },
+  { label: 'Defense & Foreign Affairs', icon: 'Shield' },
+  { label: 'Agriculture, Fisheries & Rural', icon: 'Tractor' },
+  { label: 'Culture, Media & Sports', icon: 'Film' },
 ];
 
 const categoryDataWithIds = categoryData.map(cat => ({
@@ -185,7 +182,7 @@ export const allTopics: Topic[] = [electionTopic, ...standardTopics];
 
 
 export const categories: Category[] = [
-    { id: 'election_2025', label: 'Election 2025', icon: Landmark, subcategories: [] },
+    { id: 'election_2025', label: 'Election 2025', icon: 'Landmark', subcategories: [] },
     ...categoryDataWithIds.map(cat => ({
         ...cat,
         subcategories: subCategoryData

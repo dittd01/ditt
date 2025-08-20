@@ -38,7 +38,7 @@ export type Subcategory = {
 export type Category = {
   id: string;
   label: string;
-  icon: LucideIcon;
+  icon: string;
   subcategories: Subcategory[];
 };
 

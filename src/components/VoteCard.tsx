@@ -9,31 +9,33 @@ import {
 } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronDown, Users, type LucideIcon } from 'lucide-react';
+import { ChevronDown, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Topic } from '@/lib/types';
 import { categories } from '@/lib/data';
 import { Skeleton } from './ui/skeleton';
+import { Icon } from './Icon';
+
 
 interface VoteCardProps {
   topic: Topic;
   hasVoted: boolean;
 }
 
-const getCategoryIcon = (categoryId: string): LucideIcon | null => {
+const getCategoryIconName = (categoryId: string): string | null => {
     const category = categories.find(c => c.id === categoryId);
     return category?.icon || null;
 }
 
 export function VoteCard({ topic, hasVoted }: VoteCardProps) {
-  const Icon = getCategoryIcon(topic.categoryId);
+  const iconName = getCategoryIconName(topic.categoryId);
   const link = topic.voteType === 'election' ? '/election-2025' : `/t/${topic.slug}`;
 
   return (
     <Card className="flex h-full flex-col">
         <Collapsible>
             <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
-                {Icon && <Icon className="h-6 w-6 shrink-0 text-muted-foreground" />}
+                {iconName && <Icon name={iconName} className="h-6 w-6 shrink-0 text-muted-foreground" />}
                 <div className="flex-1">
                      <Link href={link} className="group">
                         <CardTitle className="text-lg font-semibold leading-snug line-clamp-2 group-hover:underline">
