@@ -52,10 +52,6 @@ function HomePageContent() {
   const searchQuery = searchParams.get('q');
 
   const filteredTopics = topics.filter((topic) => {
-    if (topic.categoryId === 'election_2025') {
-      return true;
-    }
-    
     // Search filter
     if (searchQuery) {
         const query = searchQuery.toLowerCase();
@@ -66,27 +62,35 @@ function HomePageContent() {
     const category = selectedCategory || 'all';
 
     if (category === 'all') {
+      // "All" category shows everything, optionally filtered by subcategory
       if (selectedSubCategory) {
         return topic.subcategoryId === selectedSubCategory;
       }
       return true;
     }
-
+    
+    // For any other category, it must match
     if (topic.categoryId !== category) {
       return false;
     }
 
+    // If a category is selected, further filter by subcategory if present
     if (selectedSubCategory) {
       return topic.subcategoryId === selectedSubCategory;
     }
     
     return true;
   }).sort((a, b) => {
+     // Always keep "Election 2025" card first if it's present
      if (a.voteType === 'election') return -1;
      if (b.voteType === 'election') return 1;
+
+     // For the "All" view, sort by total votes
      if (selectedCategory === 'all' || !selectedCategory) {
        return b.totalVotes - a.totalVotes;
      }
+
+     // Otherwise, maintain default order within categories
      return 0;
   });
 
