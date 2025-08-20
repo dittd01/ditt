@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,7 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, ArrowUpDown } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -27,13 +27,31 @@ import { useToast } from '@/hooks/use-toast';
 import type { Topic } from '@/lib/types';
 
 interface PollRowData {
+    id: string;
     title: string;
     category: string;
     subcategory: string;
     categoryId: string;
     status: string;
-    votes: string;
+    votes: number;
     updated: string;
+}
+
+type SortDescriptor = {
+    key: keyof Omit<PollRowData, 'id' | 'subcategory' | 'categoryId'>;
+    direction: 'ascending' | 'descending';
+}
+
+const getCategoryInfo = (categoryId: string, subcategoryId: string) => {
+    const category = categories.find(c => c.id === categoryId);
+    if (!category) return { cat: 'N/A', sub: 'N/A', catId: 'N/A' };
+    
+    const subcategory = category.subcategories.find(s => s.id === subcategoryId);
+    return {
+        cat: category.label,
+        sub: subcategory?.label || 'N/A',
+        catId: category.id
+    }
 }
 
 export default function PollsPage() {
@@ -42,44 +60,43 @@ export default function PollsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [filteredPolls, setFilteredPolls] = useState<PollRowData[]>([]);
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({ key: 'votes', direction: 'descending' });
 
   const polls = useMemo(() => {
-    const getCategoryInfo = (categoryId: string, subcategoryId: string) => {
-        const category = categories.find(c => c.id === categoryId);
-        if (!category) return { cat: 'N/A', sub: 'N/A', catId: 'N/A' };
-        
-        const subcategory = category.subcategories.find(s => s.id === subcategoryId);
-        return {
-          cat: category.label,
-          sub: subcategory?.label || 'N/A',
-          catId: category.id
-        }
-    }
     return allTopics.map((topic): PollRowData => {
         const { cat, sub, catId } = getCategoryInfo(topic.categoryId, topic.subcategoryId);
         return {
+            id: topic.id,
             title: topic.question,
             category: cat,
             subcategory: sub,
             categoryId: catId,
             status: topic.status.charAt(0).toUpperCase() + topic.status.slice(1),
-            votes: topic.totalVotes.toLocaleString(),
-            // In a real app, this would come from the data
+            votes: topic.totalVotes,
             updated: new Date().toISOString().split('T')[0] 
         }
     });
   }, []);
   
-  useEffect(() => {
-    const results = polls.filter(poll => {
+  const sortedAndFilteredPolls = useMemo(() => {
+    let filteredPolls = polls.filter(poll => {
       const searchMatch = poll.title.toLowerCase().includes(searchTerm.toLowerCase());
       const statusMatch = statusFilter === 'all' || poll.status.toLowerCase() === statusFilter;
       const categoryMatch = categoryFilter === 'all' || poll.categoryId === categoryFilter;
       return searchMatch && statusMatch && categoryMatch;
     });
-    setFilteredPolls(results);
-  }, [searchTerm, statusFilter, categoryFilter, polls]);
+
+    return filteredPolls.sort((a, b) => {
+        let first = a[sortDescriptor.key];
+        let second = b[sortDescriptor.key];
+        let cmp = (parseInt(first as string) || first) < (parseInt(second as string) || second) ? -1 : 1;
+
+        if (sortDescriptor.direction === 'descending') {
+            cmp *= -1;
+        }
+        return cmp;
+    });
+  }, [searchTerm, statusFilter, categoryFilter, polls, sortDescriptor]);
 
   const handleAction = (action: string, pollTitle: string) => {
     toast({
@@ -87,6 +104,28 @@ export default function PollsPage() {
       description: `Triggered "${action}" for poll: ${pollTitle}`,
     });
   };
+
+  const handleSortChange = (key: SortDescriptor['key']) => {
+    if (sortDescriptor.key === key) {
+      setSortDescriptor({
+        key,
+        direction: sortDescriptor.direction === 'ascending' ? 'descending' : 'ascending',
+      });
+    } else {
+      setSortDescriptor({ key, direction: 'ascending' });
+    }
+  };
+  
+  const SortableHeader = ({ sortKey, children }: { sortKey: SortDescriptor['key'], children: React.ReactNode}) => (
+    <TableHead>
+        <Button variant="ghost" onClick={() => handleSortChange(sortKey)} className="-ml-4 h-8">
+            {children}
+            {sortDescriptor.key === sortKey && (
+                 <ArrowUpDown className={`ml-2 h-4 w-4 transition-transform ${sortDescriptor.direction === 'descending' ? 'rotate-180' : ''}`} />
+            )}
+        </Button>
+    </TableHead>
+  );
 
   return (
     <div className="space-y-8">
@@ -135,21 +174,21 @@ export default function PollsPage() {
       <Table>
         <TableHeader>
             <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Total Votes</TableHead>
-                <TableHead>Last Updated</TableHead>
+                <SortableHeader sortKey="title">Title</SortableHeader>
+                <SortableHeader sortKey="category">Category</SortableHeader>
+                <SortableHeader sortKey="status">Status</SortableHeader>
+                <SortableHeader sortKey="votes">Total Votes</SortableHeader>
+                <SortableHeader sortKey="updated">Last Updated</SortableHeader>
                 <TableHead className="w-[50px]"></TableHead>
             </TableRow>
         </TableHeader>
         <TableBody>
-            {filteredPolls.map((poll, i) => (
-                 <TableRow key={i}>
+            {sortedAndFilteredPolls.map((poll) => (
+                 <TableRow key={poll.id}>
                     <TableCell className="font-medium">{poll.title}</TableCell>
                     <TableCell>{poll.category}{poll.subcategory !== 'N/A' ? ` / ${poll.subcategory}`: ''}</TableCell>
                     <TableCell><Badge variant={poll.status === 'Live' ? 'default' : 'secondary'}>{poll.status}</Badge></TableCell>
-                    <TableCell>{poll.votes}</TableCell>
+                    <TableCell>{poll.votes.toLocaleString()}</TableCell>
                     <TableCell>{poll.updated}</TableCell>
                     <TableCell>
                          <DropdownMenu>
