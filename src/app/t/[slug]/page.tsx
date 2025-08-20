@@ -4,21 +4,27 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter, useParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { allTopics } from '@/lib/data';
 import type { Topic } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, CheckCircle, Info, RefreshCw, Loader2 } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
+import { ArrowLeft, CheckCircle, Info, RefreshCw, Loader2, BarChart, FileText, History } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { VoteChart } from '@/components/VoteChart';
 import { SuggestionForm } from '@/components/SuggestionForm';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { LikertScale } from '@/components/LikertScale';
 import { RankedChoice } from '@/components/RankedChoice';
 import { QuadraticVote } from '@/components/QuadraticVote';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { LiveResults } from '@/components/LiveResults';
+
+const VoteChart = dynamic(() => import('@/components/VoteChart').then(mod => mod.VoteChart), {
+  ssr: false,
+  loading: () => <div className="h-[300px] w-full flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+});
 
 export default function TopicPage() {
   const router = useRouter();
@@ -59,7 +65,6 @@ export default function TopicPage() {
         if (currentVoterId) {
             const previousVote = localStorage.getItem(`voted_on_${foundTopic.id}`);
             setVotedOn(previousVote);
-            // For yes/no, pre-select the radio button
             if (foundTopic.voteType === 'yesno') {
                 setSelectedOption(previousVote);
             }
@@ -89,27 +94,19 @@ export default function TopicPage() {
 
     const previouslyVotedOn = votedOn;
 
-    // Optimistic UI Update
     setTopic(currentTopic => {
         if (!currentTopic) return null;
 
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
-        // Increment new vote
         newVotes[currentVote] = (newVotes[currentVote] || 0) + 1;
 
         if (previouslyVotedOn) {
-            // Decrement old vote if it exists
             newVotes[previouslyVotedOn] = Math.max(0, (newVotes[previouslyVotedOn] || 1) - 1);
         } else {
-            // If it's a new vote, increment total voters
             newTotalVotes += 1;
         }
-
-        // The UI is now updated optimistically.
-        // In a real app, you'd now send the request to the server.
-        // For this demo, we'll just write to localStorage.
         
         Object.keys(newVotes).forEach(oid => {
           localStorage.setItem(`votes_for_${currentTopic.id}_${oid}`, newVotes[oid].toString());
@@ -121,7 +118,6 @@ export default function TopicPage() {
     localStorage.setItem(`voted_on_${topic.id}`, currentVote);
     setVotedOn(currentVote);
 
-    // Show success toast
     toast({
         title: previouslyVotedOn ? 'Vote Changed!' : 'Vote Cast!',
         description: `Your anonymous vote for "${
@@ -132,17 +128,11 @@ export default function TopicPage() {
   
   const handleRevote = () => {
     setVotedOn(null);
-    setSelectedOption(null); // Clear radio selection
+    setSelectedOption(null);
      toast({
       title: 'Cast a new vote',
       description: 'You may now select a different option.',
     });
-  };
-
-  const getPercentage = (optionId: string) => {
-    if (!topic || topic.totalVotes === 0) return 0;
-    const voteCount = topic.votes[optionId] || 0;
-    return (voteCount / topic.totalVotes) * 100;
   };
   
   const renderVoteComponent = () => {
@@ -237,45 +227,60 @@ export default function TopicPage() {
                   src={topic.imageUrl}
                   alt={topic.question}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="rounded-lg object-cover"
-                   data-ai-hint={topic.aiHint}
+                  data-ai-hint={topic.aiHint}
+                  priority
                 />
               </div>
               <h1 className="text-2xl md:text-3xl font-bold font-headline">{topic.question}</h1>
-              <p className="text-muted-foreground pt-2">{topic.description}</p>
             </CardHeader>
           </Card>
           
            <div className="lg:hidden">
              {renderVoteComponent()}
            </div>
-          
-           {renderVoteComponent()}
-           <Card>
-             <CardHeader>
-                <CardTitle>Live Results</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                 {topic.options.map((option) => (
-                  <div key={option.id}>
-                    <div className="flex justify-between mb-1 text-sm">
-                      <span className="text-muted-foreground">{option.label}</span>
-                      <span className="font-medium">{getPercentage(option.id).toFixed(1)}%</span>
-                    </div>
-                    <Progress value={getPercentage(option.id)} className="h-2" />
-                  </div>
-                ))}
-                <p className="text-sm text-center text-muted-foreground pt-2">{topic.totalVotes.toLocaleString()} total votes</p>
-              </CardContent>
-          </Card>
+           
+           <div className="hidden lg:block">
+             {renderVoteComponent()}
+           </div>
 
-          <VoteChart topic={topic} />
+           {votedOn && <LiveResults topic={topic} />}
+           
+           <Accordion type="single" collapsible className="w-full space-y-4">
+                <AccordionItem value="description">
+                    <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
+                        <Info className="h-5 w-5" /> Topic Description
+                    </AccordionTrigger>
+                    <AccordionContent className="p-6 border border-t-0 rounded-b-lg">
+                        <p className="text-base text-muted-foreground">{topic.description}</p>
+                    </AccordionContent>
+                </AccordionItem>
 
+                <AccordionItem value="sources">
+                    <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
+                        <FileText className="h-5 w-5" /> Sources & Context
+                    </AccordionTrigger>
+                    <AccordionContent className="p-6 border border-t-0 rounded-b-lg">
+                        <p className="text-base text-muted-foreground">Sources and external links will be available here.</p>
+                    </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="history">
+                    <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
+                        <History className="h-5 w-5" /> Vote History
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-0">
+                         <VoteChart topic={topic} />
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
         </div>
 
-        <div className="space-y-8 hidden lg:block">
-          
-          
+        <div className="space-y-8 lg:sticky lg:top-24 self-start">
+           <div className="hidden lg:block">
+             {renderVoteComponent()}
+           </div>
 
           {voterId ? (
             <SuggestionForm />
@@ -288,7 +293,6 @@ export default function TopicPage() {
               </AlertDescription>
             </Alert>
           )}
-
         </div>
       </div>
     </div>
