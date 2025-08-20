@@ -236,13 +236,6 @@ export default function TopicPage() {
             </CardHeader>
           </Card>
 
-          <VoteChart topic={topic} />
-        </div>
-
-        <div className="space-y-8">
-          
-          {renderVoteComponent()}
-
           <Card>
              <CardHeader>
                 <CardTitle>Live Results</CardTitle>
@@ -260,6 +253,13 @@ export default function TopicPage() {
                 <p className="text-sm text-center text-muted-foreground pt-2">{topic.totalVotes.toLocaleString()} total votes</p>
               </CardContent>
           </Card>
+
+          <VoteChart topic={topic} />
+        </div>
+
+        <div className="space-y-8">
+          
+          {renderVoteComponent()}
 
           {voterId ? (
             <SuggestionForm />
