@@ -232,71 +232,148 @@ export function getRelatedTopics(currentTopicId: string, subcategoryId: string):
     .slice(0, 3);
 }
 
-
-// Mock data for the debate system
-export const mockArguments: Argument[] = [
-    {
-        id: 'arg_1',
-        topicId: '1',
-        parentId: null,
-        side: 'for',
-        author: { name: 'EconPro', avatarUrl: 'https://placehold.co/40x40.png?text=EP' },
-        text: 'Raising the threshold to NOK 10m shields small business owners and farmers from a tax on their working capital, encouraging investment and job creation.',
-        upvotes: 128,
-        downvotes: 12,
-        replyCount: 1,
-        createdAt: subDays(new Date(), 2).toISOString(),
-    },
-    {
-        id: 'arg_2',
-        topicId: '1',
-        parentId: null,
-        side: 'against',
-        author: { name: 'FairTax', avatarUrl: 'https://placehold.co/40x40.png?text=FT' },
-        text: 'This is a massive tax cut for the wealthy. The current threshold is already generous. This change would increase inequality and starve public services of needed funds.',
-        upvotes: 95,
-        downvotes: 34,
-        replyCount: 2,
-        createdAt: subDays(new Date(), 1).toISOString(),
-    },
-    {
-        id: 'arg_3',
-        topicId: '1',
-        parentId: 'arg_2',
-        side: 'for', // This is a counter-argument to 'against', so it is effectively 'for' the main topic
-        author: { name: 'Analyst_A', avatarUrl: 'https://placehold.co/40x40.png?text=AA' },
-        text: 'The term "wealthy" is misleading. Many affected are asset-rich but cash-poor. Their "wealth" is tied up in machinery or property that generates income for others, not liquid assets.',
-        upvotes: 45,
-        downvotes: 5,
-        replyCount: 0,
-        createdAt: subHours(new Date(), 18).toISOString(),
-    },
-     {
-        id: 'arg_4',
-        topicId: '1',
-        parentId: 'arg_2',
-        side: 'against',
-        author: { name: 'SocialDemocrat', avatarUrl: 'https://placehold.co/40x40.png?text=SD' },
-        text: 'But the "lost funds" are significant. Estimates show this could cost the state billions annually, which could have funded hundreds of new teachers or nurses.',
-        upvotes: 62,
-        downvotes: 15,
-        replyCount: 0,
-        createdAt: subHours(new Date(), 10).toISOString(),
-    },
-      {
-        id: 'arg_5',
-        topicId: '1',
-        parentId: 'arg_1',
-        side: 'against',
-        author: { name: 'TaxJustice', avatarUrl: 'https://placehold.co/40x40.png?text=TJ' },
-        text: 'There are better ways to protect working capital, like targeted exemptions. A blanket increase is a blunt instrument that primarily benefits passive financial wealth.',
-        upvotes: 33,
-        downvotes: 8,
-        replyCount: 0,
-        createdAt: subHours(new Date(), 5).toISOString(),
-    },
+// MOCK DATA GENERATION
+const norwegianNames = [
+  'Anne', 'Per', 'Ingrid', 'Lars', 'Kari', 'Ole', 'Sigrid', 'Torbjorn', 'Marit', 'Hans',
+  'Solveig', 'Knut', 'Astrid', 'Jan', 'Berit', 'Arne', 'Liv', 'Svein', 'Gerd', 'Erik',
+  'Randi', 'Geir', 'Hilde', 'Bjorn', 'Nina', 'Morten', 'Tone', 'Terje', 'Heidi', 'Kjell'
 ];
 
+const users = Array.from({ length: 100 }, (_, i) => {
+  const name = norwegianNames[i % norwegianNames.length];
+  const suffix = Math.floor(10 + Math.random() * 90);
+  return {
+    id: `user_${i + 1}`,
+    username: `${name}${suffix}`,
+    role: i < 30 ? 'arguer' : 'voter',
+    avatarUrl: `https://placehold.co/40x40.png?text=${name.substring(0, 1)}${suffix.toString().substring(0,1)}`,
+  };
+});
+
+const arguers = users.filter(u => u.role === 'arguer');
+const voters = users.filter(u => u.role === 'voter');
+
+const forStatements = [
+    "Raising the threshold protects family businesses and farms from being taxed on essential equipment and assets.",
+    "A higher threshold encourages entrepreneurs to reinvest their capital in Norway instead of moving it abroad.",
+    "The current wealth tax is effectively a double tax on already-taxed income; this change mitigates that unfairness.",
+    "It simplifies the tax system for thousands of people with illiquid assets like property or shares in small companies.",
+    "This adjustment is necessary to keep Norwegian capital competitive with other European countries that have lower or no wealth tax.",
+    "By reducing the tax burden on working capital, we stimulate job creation and economic growth.",
+    "The state's revenue loss is minimal compared to the economic benefit of retaining investment capital within the country.",
+    "This is a modernization of the tax code, recognizing that most 'wealth' for small business owners is not liquid cash.",
+    "It prevents the forced sale of assets or businesses simply to pay an annual tax bill, ensuring stability.",
+    "A higher threshold allows more individuals to build a financial buffer, increasing overall economic resilience.",
+    "The tax disproportionately affects retirees whose property values have increased but whose incomes have not.",
+    "Focusing wealth tax on the truly super-rich makes the system more efficient and targeted.",
+    "This change would reduce the administrative burden on both taxpayers and the tax authority.",
+    "Less tax on capital means more money available for innovation and new technology development.",
+    "It's a matter of principle: people should not be taxed year after year on assets they have already paid tax on."
+];
+
+const againstStatements = [
+    "This is a significant tax cut for the wealthiest, increasing the gap between rich and poor.",
+    "It would reduce public revenue by billions, forcing cuts to schools, healthcare, and infrastructure.",
+    "The current threshold is already high enough to protect average citizens; this only benefits the top 1%.",
+    "Wealth concentration is a major social problem, and this change would make it worse.",
+    "The wealth tax is a vital tool for redistribution and ensuring the richest contribute their fair share.",
+    "Claims that capital will flee are exaggerated; Norway remains an attractive place to invest regardless.",
+    "This argument ignores the fact that wealth generates returns; a small tax on large fortunes is reasonable.",
+    "It sends the wrong signal at a time when many are struggling with the cost of living.",
+    "Public services, which benefit everyone, are a better use of this money than giving a tax break to the rich.",
+    "The 'working capital' argument is a red herring; exemptions for business assets already exist.",
+    "This change would further entrench generational wealth and reduce social mobility.",
+    "A strong wealth tax ensures that untaxed capital gains on assets like property contribute to society.",
+    "It undermines the progressive nature of the Norwegian tax system.",
+    "The majority of the population, who would not benefit from this change, would have to bear the cost through reduced services.",
+    "This is a step backward in our collective effort to build a more egalitarian society."
+];
+
+const generatedArguments: Argument[] = [];
+let argIdCounter = 1;
+
+for (let i = 0; i < arguers.length; i++) {
+    const arguer = arguers[i];
+    const isFor = i < 15;
+    const text = isFor ? forStatements[i] : againstStatements[i - 15];
+
+    generatedArguments.push({
+        id: `arg_${argIdCounter++}`,
+        topicId: '1', // "Raise wealth-tax threshold to NOK 10m?"
+        parentId: null,
+        side: isFor ? 'for' : 'against',
+        author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
+        text: text,
+        upvotes: 0,
+        downvotes: 0,
+        replyCount: 0,
+        createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
+    });
+}
+
+// Simulate votes from the "voters"
+voters.forEach(voter => {
+    const votedOn = new Set<string>();
+    for (let i = 0; i < 3; i++) {
+        let randomArgIndex = Math.floor(Math.random() * generatedArguments.length);
+        // Ensure we don't vote on the same argument twice
+        while (votedOn.has(generatedArguments[randomArgIndex].id)) {
+            randomArgIndex = Math.floor(Math.random() * generatedArguments.length);
+        }
+        
+        const argument = generatedArguments[randomArgIndex];
+        votedOn.add(argument.id);
+        
+        if (Math.random() > 0.3) { // 70% chance to upvote
+            argument.upvotes += 1;
+        } else {
+            argument.downvotes += 1;
+        }
+    }
+});
+
+
+export const mockArguments: Argument[] = generatedArguments;
+
 export const getArgumentsForTopic = (topicId: string): Argument[] => {
-    return mockArguments.filter(arg => arg.topicId === topicId);
+    // In a real app, this would be a fetch call. Here, we filter the mock data.
+    // We add a few replies for demonstration purposes.
+    const topicArgs = mockArguments.filter(arg => arg.topicId === topicId);
+    
+    // Add a few replies to the most upvoted arguments
+    if (topicArgs.length > 5) {
+      topicArgs.sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
+      
+      const reply1: Argument = {
+        id: `arg_${++argIdCounter}`,
+        topicId: topicId,
+        parentId: topicArgs[0].id,
+        side: topicArgs[0].side,
+        author: { name: 'DebateLord', avatarUrl: 'https://placehold.co/40x40.png?text=DL' },
+        text: "This is a very insightful point. It completely changes how I see the issue.",
+        upvotes: 15,
+        downvotes: 1,
+        replyCount: 0,
+        createdAt: new Date().toISOString(),
+      };
+      topicArgs[0].replyCount += 1;
+      
+      const reply2: Argument = {
+        id: `arg_${++argIdCounter}`,
+        topicId: topicId,
+        parentId: topicArgs[1].id,
+        side: topicArgs[1].side,
+        author: { name: 'Skeptic', avatarUrl: 'https://placehold.co/40x40.png?text=SK' },
+        text: "I disagree. The data from SSB shows a different picture entirely.",
+        upvotes: 8,
+        downvotes: 4,
+        replyCount: 0,
+        createdAt: new Date().toISOString(),
+      };
+      topicArgs[1].replyCount += 1;
+      
+      return [...topicArgs, reply1, reply2];
+    }
+    
+    return topicArgs;
 }
