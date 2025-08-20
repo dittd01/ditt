@@ -45,17 +45,18 @@ export function Header() {
       router.refresh();
     };
 
-    const lastSeenTimestamp = localStorage.getItem('lastSeenTimestamp');
-    if (lastSeenTimestamp) {
-      const timeSinceLastSeen = Date.now() - parseInt(lastSeenTimestamp, 10);
-      if (timeSinceLastSeen > SESSION_TIMEOUT) {
-        handleLogout();
-        return;
-      }
+    const checkSession = () => {
+        const lastSeenTimestamp = localStorage.getItem('lastSeenTimestamp');
+        if (lastSeenTimestamp) {
+            const timeSinceLastSeen = Date.now() - parseInt(lastSeenTimestamp, 10);
+            if (timeSinceLastSeen > SESSION_TIMEOUT) {
+                handleLogout();
+                return;
+            }
+        }
     }
-    // If the user is active, clear the last seen timestamp
-    localStorage.removeItem('lastSeenTimestamp');
-
+    checkSession();
+    
     const handleStorageChange = () => {
       setVoterId(localStorage.getItem('anonymousVoterId'));
     };
@@ -88,13 +89,13 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        <div className="mr-4 flex">
+        <div className="flex-1 flex">
           <Link href="/" className="flex items-center space-x-2">
             <Vote className="h-6 w-6 text-primary" />
             <span className="font-bold sm:inline-block">Ditt Demokrati</span>
           </Link>
         </div>
-        <div className="flex flex-1 items-center justify-end space-x-1 sm:space-x-2">
+        <div className="flex items-center justify-end space-x-1 sm:space-x-2">
            <Button variant="ghost" asChild className="hidden sm:inline-flex">
             <Link href="/about">About</Link>
           </Button>
