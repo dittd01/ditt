@@ -5,6 +5,7 @@ import { Header } from '@/components/Header';
 import { Toaster } from '@/components/ui/toaster';
 import { CategoryNav } from '@/components/CategoryNav';
 import { categories } from '@/lib/data';
+import { SubCategoryNav } from '@/components/SubCategoryNav';
 
 export const metadata: Metadata = {
   title: 'Ditt Demokrati - Anonymous Voting',
@@ -38,6 +39,7 @@ export default function RootLayout({
         <div className="relative flex min-h-screen flex-col">
           <Header />
           <CategoryNav categories={categories} />
+          <SubCategoryNav />
           <div className="flex-1">{children}</div>
         </div>
         <Toaster />
