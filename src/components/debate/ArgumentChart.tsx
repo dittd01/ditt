@@ -83,7 +83,6 @@ export function ArgumentChart({ args }: ArgumentChartProps) {
               dataKey="uv"
             />
             <Tooltip content={<CustomTooltip />} />
-            <Legend iconSize={10} width={120} height={140} layout="vertical" verticalAlign="middle" wrapperStyle={{ right: 0 }} />
           </RadialBarChart>
         </ResponsiveContainer>
       </CardContent>
