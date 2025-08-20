@@ -50,7 +50,7 @@ const CustomLabel = (props: any) => {
 
 
 export function VoteChart({ topic }: VoteChartProps) {
-  const [timeframe, setTimeframe] = useState('1Y');
+  const [timeframe, setTimeframe] = useState('All');
 
   const chartData = useMemo(() => {
     const now = new Date();
@@ -94,7 +94,7 @@ export function VoteChart({ topic }: VoteChartProps) {
 
   return (
     <Card>
-       <Tabs defaultValue="count">
+       <Tabs defaultValue="percentage">
         <CardHeader>
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
             <CardTitle>Vote History</CardTitle>
@@ -207,7 +207,7 @@ export function VoteChart({ topic }: VoteChartProps) {
                                     dataKey={`${option.id}_percent`}
                                     name={option.label}
                                     stroke={option.color}
-                                    strokeWidth={0.5}
+                                    strokeWidth={0.25}
                                     dot={{ r: 1, fill: option.color }}
                                     activeDot={{ r: 2 }}
                                 />
