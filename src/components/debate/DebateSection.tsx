@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -33,8 +34,8 @@ export function DebateSection({ topicId, initialArgs, onArgsChange }: DebateSect
     onArgsChange(debateArgs);
   }, [debateArgs, onArgsChange]);
 
-  const topLevelFor = debateArgs.filter(a => a.parentId === null && a.side === 'for').sort((a,b) => b.upvotes - a.upvotes);
-  const topLevelAgainst = debateArgs.filter(a => a.parentId === null && a.side === 'against').sort((a,b) => b.upvotes - a.upvotes);
+  const topLevelFor = debateArgs.filter(a => a.parentId === 'root' && a.side === 'for').sort((a,b) => b.upvotes - a.upvotes);
+  const topLevelAgainst = debateArgs.filter(a => a.parentId === 'root' && a.side === 'against').sort((a,b) => b.upvotes - a.upvotes);
 
   const handleAddArgument = (side: 'for' | 'against') => {
     setReplyingToId(null);
@@ -52,10 +53,22 @@ export function DebateSection({ topicId, initialArgs, onArgsChange }: DebateSect
   }
 
   const handleSubmit = (values: { text: string }) => {
-    const parentId = replyingToId;
-    const side = parentId ? debateArgs.find(a => a.id === parentId)?.side : showComposer;
+    const isTopLevel = !replyingToId;
+    const parentId = isTopLevel ? 'root' : replyingToId;
+    
+    // Determine the side of the new argument
+    let side: 'for' | 'against';
+    if (isTopLevel) {
+        // If it's a new top-level argument, its side is determined by the composer button clicked.
+        if (!showComposer) return; // Should not happen
+        side = showComposer;
+    } else {
+        // If it's a reply, its side is the opposite of its parent's.
+        const parentArg = debateArgs.find(a => a.id === parentId);
+        if (!parentArg) return; // Should not happen
+        side = parentArg.side === 'for' ? 'against' : 'for';
+    }
 
-    if (!side) return;
 
     const newArgument: Argument = {
       id: `arg_${Date.now()}`,
@@ -72,7 +85,7 @@ export function DebateSection({ topicId, initialArgs, onArgsChange }: DebateSect
 
     const updatedArgs = [...debateArgs];
     
-    if (parentId) {
+    if (!isTopLevel && parentId) {
         const parentArgIndex = updatedArgs.findIndex(a => a.id === parentId);
         if (parentArgIndex > -1) {
             updatedArgs[parentArgIndex].replyCount += 1;

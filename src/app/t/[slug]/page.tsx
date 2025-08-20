@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -64,28 +65,11 @@ export default function TopicPage() {
 
         const initialTopicState = { ...foundTopic, votes: newVotes, totalVotes: newTotalVotes };
         setTopic(initialTopicState);
-
-        const baseArgs = getArgumentsForTopic(foundTopic.id);
-        const localStorageKey = `debate_args_${foundTopic.id}`;
-        const savedArgsJSON = localStorage.getItem(localStorageKey);
         
-        let combinedArgs = [...baseArgs];
-        if (savedArgsJSON) {
-          try {
-            const savedArgs: Argument[] = JSON.parse(savedArgsJSON);
-            const baseArgIds = new Set(baseArgs.map(a => a.id));
-            // Add any user-added arguments from local storage that aren't in the base set
-            savedArgs.forEach(savedArg => {
-              if (!baseArgIds.has(savedArg.id)) {
-                combinedArgs.push(savedArg);
-              }
-            });
-          } catch(e) {
-            console.error("Failed to parse saved arguments from local storage", e);
-            localStorage.removeItem(localStorageKey); // Clear corrupted data
-          }
-        }
-        setDebateArgs(combinedArgs);
+        // Simplified data loading
+        const baseArgs = getArgumentsForTopic(foundTopic.id);
+        setDebateArgs(baseArgs);
+
 
         const currentVoterId = localStorage.getItem('anonymousVoterId');
         setVoterId(currentVoterId);

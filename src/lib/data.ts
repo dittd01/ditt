@@ -240,52 +240,54 @@ const norwegianNames = [
   'Randi', 'Geir', 'Hilde', 'Bjorn', 'Nina', 'Morten', 'Tone', 'Terje', 'Heidi', 'Kjell'
 ];
 
-const users = Array.from({ length: 100 }, (_, i) => {
-  const name = norwegianNames[i % norwegianNames.length];
-  const suffix = Math.floor(10 + Math.random() * 90);
-  return {
-    id: `user_${i + 1}`,
-    username: `${name.toLowerCase()}${suffix}`,
-    role: i < 30 ? 'arguer' : 'voter',
-    avatarUrl: `https://placehold.co/40x40.png?text=${name.substring(0, 1)}${suffix.toString().substring(0,1)}`,
-  };
-});
-
-const arguers = users.filter(u => u.role === 'arguer');
-const voters = users.filter(u => u.role === 'voter');
-
 const forStatementsByTopic: Record<string, string[]> = {
-    '5': [
-        "Raising the threshold protects family businesses and farms from being taxed on essential equipment and assets.", "A higher threshold encourages entrepreneurs to reinvest their capital in Norway instead of moving it abroad.", "The current wealth tax is effectively a double tax on already-taxed income; this change mitigates that unfairness.", "It simplifies the tax system for thousands of people with illiquid assets like property or shares in small companies.", "This adjustment is necessary to keep Norwegian capital competitive with other European countries that have lower or no wealth tax.", "By reducing the tax burden on working capital, we stimulate job creation and economic growth.", "The state's revenue loss is minimal compared to the economic benefit of retaining investment capital within the country.", "This is a modernization of the tax code, recognizing that most 'wealth' for small business owners is not liquid cash.", "It prevents the forced sale of assets or businesses simply to pay an annual tax bill, ensuring stability.", "A higher threshold allows more individuals to build a financial buffer, increasing overall economic resilience.", "The tax disproportionately affects retirees whose property values have increased but whose incomes have not.", "Focusing wealth tax on the truly super-rich makes the system more efficient and targeted.", "This change would reduce the administrative burden on both taxpayers and the tax authority.", "Less tax on capital means more money available for innovation and new technology development.", "It's a matter of principle: people should not be taxed year after year on assets they have already paid tax on."
-    ],
-    '3': [
+    '3': [ // Ban private donations
         "Banning large donations reduces the risk of 'cash for access' and political corruption.", "It levels the playing field, so that political influence isn't tied to wealth.", "This encourages parties to seek broader support from many small donors instead of a few large ones.", "Large, undisclosed donations create public distrust in the political system.", "A ban prevents wealthy special interests from dominating political discourse.", "It helps maintain the principle of 'one person, one vote' by limiting financial influence.", "This would force parties to be more transparent about their funding sources.", "Capping donations can lead to more grassroots engagement and volunteering.", "It reduces the pressure on politicians to cater to the demands of their biggest donors.", "This policy would help to restore faith in democracy and political integrity.", "It limits the ability of foreign entities or individuals to influence domestic politics.", "A cap makes politics more accessible for candidates who don't have wealthy networks.", "It's a simple, effective measure to curb the power of money in politics.", "This would shift focus from fundraising to policy and public debate.", "Other democracies have similar caps, and it works to improve fairness."
+    ],
+    '5': [ // Raise wealth tax threshold
+        "Raising the threshold protects family businesses and farms from being taxed on essential equipment and assets.", "A higher threshold encourages entrepreneurs to reinvest their capital in Norway instead of moving it abroad.", "The current wealth tax is effectively a double tax on already-taxed income; this change mitigates that unfairness.", "It simplifies the tax system for thousands of people with illiquid assets like property or shares in small companies.", "This adjustment is necessary to keep Norwegian capital competitive with other European countries that have lower or no wealth tax.", "By reducing the tax burden on working capital, we stimulate job creation and economic growth.", "The state's revenue loss is minimal compared to the economic benefit of retaining investment capital within the country.", "This is a modernization of the tax code, recognizing that most 'wealth' for small business owners is not liquid cash.", "It prevents the forced sale of assets or businesses simply to pay an annual tax bill, ensuring stability.", "A higher threshold allows more individuals to build a financial buffer, increasing overall economic resilience.", "The tax disproportionately affects retirees whose property values have increased but whose incomes have not.", "Focusing wealth tax on the truly super-rich makes the system more efficient and targeted.", "This change would reduce the administrative burden on both taxpayers and the tax authority.", "Less tax on capital means more money available for innovation and new technology development.", "It's a matter of principle: people should not be taxed year after year on assets they have already paid tax on."
     ]
 };
 
 const againstStatementsByTopic: Record<string, string[]> = {
-    '5': [
-        "This is a significant tax cut for the wealthiest, increasing the gap between rich and poor.", "It would reduce public revenue by billions, forcing cuts to schools, healthcare, and infrastructure.", "The current threshold is already high enough to protect average citizens; this only benefits the top 1%.", "Wealth concentration is a major social problem, and this change would make it worse.", "The wealth tax is a vital tool for redistribution and ensuring the richest contribute their fair share.", "Claims that capital will flee are exaggerated; Norway remains an attractive place to invest regardless.", "This argument ignores the fact that wealth generates returns; a small tax on large fortunes is reasonable.", "It sends the wrong signal at a time when many are struggling with the cost of living.", "Public services, which benefit everyone, are a better use of this money than giving a tax break to the rich.", "The 'working capital' argument is a red herring; exemptions for business assets already exist.", "This change would further entrench generational wealth and reduce social mobility.", "A strong wealth tax ensures that untaxed capital gains on assets like property contribute to society.", "It undermines the progressive nature of the Norwegian tax system.", "The majority of the population, who would not benefit from this change, would have to bear the cost through reduced services.", "This is a step backward in our collective effort to build a more egalitarian society."
-    ],
-    '3': [
+    '3': [ // Ban private donations
         "Banning donations is a restriction on free speech and the right to support a cause.", "Parties need significant funding to run campaigns and communicate with voters effectively.", "A cap could drive donations underground to less transparent 'dark money' groups.", "Wealthy individuals should be free to support the political causes they believe in.", "This could lead to parties becoming more dependent on state funding, reducing their independence.", "It's not the government's role to decide how much an individual can support a political party.", "A ban might not solve the problem, as influence can be wielded in other ways (e.g., media ownership).", "This penalizes parties that rely on a few large donors but have legitimate public support.", "Defining what constitutes a 'donation' can be complex and lead to legal loopholes.", "It could inadvertently give more power to unions or other organizations that can mobilize members.", "Transparency reports on donations are a better solution than an outright ban.", "A cap could weaken political parties and make them less effective.", "This is an overreach of state power into the voluntary association of citizens.", "If donations are public, voters can decide for themselves if a politician is 'bought'.", "It could lead to a system where only the independently wealthy can afford to run for office."
+    ],
+    '5': [ // Raise wealth tax threshold
+        "This is a significant tax cut for the wealthiest, increasing the gap between rich and poor.", "It would reduce public revenue by billions, forcing cuts to schools, healthcare, and infrastructure.", "The current threshold is already high enough to protect average citizens; this only benefits the top 1%.", "Wealth concentration is a major social problem, and this change would make it worse.", "The wealth tax is a vital tool for redistribution and ensuring the richest contribute their fair share.", "Claims that capital will flee are exaggerated; Norway remains an attractive place to invest regardless.", "This argument ignores the fact that wealth generates returns; a small tax on large fortunes is reasonable.", "It sends the wrong signal at a time when many are struggling with the cost of living.", "Public services, which benefit everyone, are a better use of this money than giving a tax break to the rich.", "The 'working capital' argument is a red herring; exemptions for business assets already exist.", "This change would further entrench generational wealth and reduce social mobility.", "A strong wealth tax ensures that untaxed capital gains on assets like property contribute to society.", "It undermines the progressive nature of the Norwegian tax system.", "The majority of the population, who would not benefit from this change, would have to bear the cost through reduced services.", "This is a step backward in our collective effort to build a more egalitarian society."
     ]
 };
 
 let argIdCounter = 1;
-const generatedArguments: Argument[] = [];
 
-// Generate arguments for all topics that have statements defined
-Object.keys(forStatementsByTopic).forEach(topicId => {
+const createArgsForTopic = (topicId: string): Argument[] => {
+    const users = Array.from({ length: 100 }, (_, i) => {
+        const name = norwegianNames[i % norwegianNames.length];
+        const suffix = Math.floor(10 + Math.random() * 90);
+        return {
+            id: `user_${topicId}_${i + 1}`,
+            username: `${name.toLowerCase()}${suffix}`,
+            role: i < 30 ? 'arguer' : 'voter',
+            avatarUrl: `https://placehold.co/40x40.png?text=${name.substring(0, 1)}${suffix.toString().substring(0,1)}`,
+        };
+    });
+
+    const arguers = users.filter(u => u.role === 'arguer');
+    const voters = users.filter(u => u.role === 'voter');
+    const forArguers = arguers.slice(0, 15);
+    const againstArguers = arguers.slice(15, 30);
+
     const forStatements = forStatementsByTopic[topicId] || [];
     const againstStatements = againstStatementsByTopic[topicId] || [];
+    
+    const topicArguments: Argument[] = [];
 
     forStatements.forEach((statement, i) => {
-        const arguer = arguers[i % 15];
-        generatedArguments.push({
+        const arguer = forArguers[i % forArguers.length];
+        topicArguments.push({
             id: `arg_${topicId}_${argIdCounter++}`,
             topicId: topicId,
-            parentId: null,
+            parentId: 'root',
             side: 'for',
             author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
             text: statement,
@@ -295,11 +297,11 @@ Object.keys(forStatementsByTopic).forEach(topicId => {
     });
 
     againstStatements.forEach((statement, i) => {
-        const arguer = arguers[15 + (i % 15)];
-        generatedArguments.push({
+        const arguer = againstArguers[i % againstArguers.length];
+        topicArguments.push({
             id: `arg_${topicId}_${argIdCounter++}`,
             topicId: topicId,
-            parentId: null,
+            parentId: 'root',
             side: 'against',
             author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
             text: statement,
@@ -307,63 +309,70 @@ Object.keys(forStatementsByTopic).forEach(topicId => {
             createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
         });
     });
-});
 
-// Simulate votes
-voters.forEach(voter => {
-    const votedOn = new Set<string>();
-    const numVotes = Math.floor(Math.random() * 10) + 3; // Vote on 3 to 12 arguments
-    for (let i = 0; i < numVotes; i++) {
-        if (generatedArguments.length === 0) break;
-        let randomArgIndex = Math.floor(Math.random() * generatedArguments.length);
-        let retries = 0;
-        while (votedOn.has(generatedArguments[randomArgIndex].id) && retries < 10) {
-            randomArgIndex = Math.floor(Math.random() * generatedArguments.length);
-            retries++;
+    // Simulate votes
+    voters.forEach(voter => {
+        const votedOn = new Set<string>();
+        const numVotes = Math.floor(Math.random() * 10) + 3; // Vote on 3 to 12 arguments
+        for (let i = 0; i < numVotes; i++) {
+            if (topicArguments.length === 0) break;
+            let randomArgIndex = Math.floor(Math.random() * topicArguments.length);
+            let retries = 0;
+            while (votedOn.has(topicArguments[randomArgIndex].id) && retries < 10) {
+                randomArgIndex = Math.floor(Math.random() * topicArguments.length);
+                retries++;
+            }
+            if(retries >= 10) continue;
+
+            const argument = topicArguments[randomArgIndex];
+            votedOn.add(argument.id);
+            if (Math.random() > 0.3) {
+                argument.upvotes += 1;
+            } else {
+                argument.downvotes += 1;
+            }
         }
-        if(retries >= 10) continue;
+    });
 
-        const argument = generatedArguments[randomArgIndex];
-        votedOn.add(argument.id);
-        if (Math.random() > 0.3) {
-            argument.upvotes += 1;
-        } else {
-            argument.downvotes += 1;
+    // Simulate replies
+    const addReplies = (count: number) => {
+        const originalArgsCount = topicArguments.length;
+        for (let i = 0; i < count; i++) {
+            const potentialParents = topicArguments.slice(0, originalArgsCount).filter(a => a.replyCount < 2);
+            if (potentialParents.length === 0) break;
+            
+            const parent = potentialParents[Math.floor(Math.random() * potentialParents.length)];
+            const arguer = arguers[Math.floor(Math.random() * arguers.length)];
+            const replySide = parent.side === 'for' ? 'against' : 'for';
+            
+            const reply: Argument = {
+                 id: `arg_reply_${topicId}_${argIdCounter++}`,
+                 topicId: parent.topicId,
+                 parentId: parent.id,
+                 side: replySide,
+                 author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
+                 text: `This is a reply to "${parent.text.substring(0, 20)}...". I think you are mistaken because...`,
+                 upvotes: Math.floor(Math.random() * 10),
+                 downvotes: Math.floor(Math.random() * 5),
+                 replyCount: 0,
+                 createdAt: subHours(new Date(parent.createdAt), Math.floor(Math.random() * -24)).toISOString(),
+            };
+            
+            const parentInArray = topicArguments.find(a => a.id === parent.id);
+            if(parentInArray) {
+                 parentInArray.replyCount++;
+                 topicArguments.push(reply);
+            }
         }
-    }
-});
+    };
+    addReplies(20); // Add 20 replies for this topic
+    return topicArguments;
+}
 
-// Simulate replies
-const addReplies = (count: number) => {
-    for (let i = 0; i < count; i++) {
-        const potentialParents = generatedArguments.filter(a => a.replyCount < 3);
-        if (potentialParents.length === 0) break;
-        
-        const parent = potentialParents[Math.floor(Math.random() * potentialParents.length)];
-        const arguer = arguers[Math.floor(Math.random() * arguers.length)];
-        const replySide = parent.side === 'for' ? 'against' : 'for';
-        
-        const reply: Argument = {
-             id: `arg_reply_${parent.topicId}_${argIdCounter++}`,
-             topicId: parent.topicId,
-             parentId: parent.id,
-             side: replySide,
-             author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
-             text: `This is a reply to "${parent.text.substring(0, 20)}...". I think you are mistaken because...`,
-             upvotes: Math.floor(Math.random() * 10),
-             downvotes: Math.floor(Math.random() * 5),
-             replyCount: 0,
-             createdAt: subHours(new Date(parent.createdAt), Math.floor(Math.random() * -24)).toISOString(),
-        };
-        
-        parent.replyCount++;
-        generatedArguments.push(reply);
-    }
-};
+const argumentsForTopic3 = createArgsForTopic('3');
+const argumentsForTopic5 = createArgsForTopic('5');
 
-addReplies(40);
-
-export const mockArguments: Argument[] = generatedArguments;
+export const mockArguments: Argument[] = [...argumentsForTopic3, ...argumentsForTopic5];
 
 export const getArgumentsForTopic = (topicId: string): Argument[] => {
     return mockArguments.filter(arg => arg.topicId === topicId);
