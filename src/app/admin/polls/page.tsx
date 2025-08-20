@@ -1,4 +1,6 @@
 
+'use client';
+
 import { PageHeader } from '@/components/admin/PageHeader';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,15 +19,35 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-
-const mockPolls = [
-    { title: 'Raise wealth-tax threshold to NOK 10m?', category: 'Taxation', subcategory: 'Wealth Tax', status: 'Active', votes: '150,234', updated: '2023-10-26' },
-    { title: 'High-speed rail Oslo–Trondheim?', category: 'Infrastructure', subcategory: 'Rail', status: 'Active', votes: '120,876', updated: '2023-10-25' },
-    { title: 'Halt new oil & gas exploration licenses?', category: 'Environment', subcategory: 'Oil & Gas', status: 'Archived', votes: '76,543', updated: '2023-09-15' },
-    { title: 'Introduce national citizens’ initiative (50k signatures)?', category: 'Governance', subcategory: 'Direct Democracy', status: 'Draft', votes: '0', updated: '2023-10-27' },
-]
+import { allTopics, categories } from '@/lib/data';
 
 export default function PollsPage() {
+
+  const getCategoryInfo = (categoryId: string, subcategoryId: string) => {
+    const category = categories.find(c => c.id === categoryId);
+    if (!category) return { cat: 'N/A', sub: 'N/A' };
+    
+    const subcategory = category.subcategories.find(s => s.id === subcategoryId);
+    return {
+      cat: category.label,
+      sub: subcategory?.label || 'N/A'
+    }
+  }
+
+  const polls = allTopics.map(topic => {
+      const { cat, sub } = getCategoryInfo(topic.categoryId, topic.subcategoryId);
+      return {
+          title: topic.question,
+          category: cat,
+          subcategory: sub,
+          status: topic.status.charAt(0).toUpperCase() + topic.status.slice(1),
+          votes: topic.totalVotes.toLocaleString(),
+          // In a real app, this would come from the data
+          updated: new Date().toISOString().split('T')[0] 
+      }
+  });
+
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -50,10 +72,10 @@ export default function PollsPage() {
             </TableRow>
         </TableHeader>
         <TableBody>
-            {mockPolls.map((poll, i) => (
+            {polls.map((poll, i) => (
                  <TableRow key={i}>
                     <TableCell className="font-medium">{poll.title}</TableCell>
-                    <TableCell>{poll.category} / {poll.subcategory}</TableCell>
+                    <TableCell>{poll.category}{poll.subcategory !== 'N/A' ? ` / ${poll.subcategory}`: ''}</TableCell>
                     <TableCell><Badge variant={poll.status === 'Active' ? 'default' : 'secondary'}>{poll.status}</Badge></TableCell>
                     <TableCell>{poll.votes}</TableCell>
                     <TableCell>{poll.updated}</TableCell>
