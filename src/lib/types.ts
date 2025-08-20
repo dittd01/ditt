@@ -51,3 +51,5 @@ export interface Party {
     imageUrl: string;
     aiHint: string;
 }
+
+    

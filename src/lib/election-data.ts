@@ -1,3 +1,4 @@
+
 import type { Topic, VoteHistory, VoteOption } from './types';
 import type { Party } from './types';
 
@@ -180,6 +181,7 @@ export const electionTopic: Topic = {
     question: 'Election 2025: Who gets your vote?',
     description: 'Cast your vote for the upcoming Stortingsvalg (parliamentary election). This is an anonymous, non-binding poll to gauge public sentiment. Results are for informational purposes only.',
     imageUrl: 'https://images.unsplash.com/photo-1517404829322-197931f08463?q=80&w=1740&auto=format&fit=crop',
+    aiHint: 'parliament building oslo',
     options: electionOptions,
     votes: electionVotes,
     totalVotes: totalElectionVotes,
@@ -189,3 +191,5 @@ export const electionTopic: Topic = {
     status: 'live',
     voteType: 'election'
 };
+
+    

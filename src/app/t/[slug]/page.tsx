@@ -230,7 +230,7 @@ export default function TopicPage() {
                   src={topic.imageUrl}
                   alt={topic.question}
                   fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 67vw, 650px"
                   className="rounded-lg object-cover"
                   data-ai-hint={topic.aiHint}
                   priority
@@ -300,3 +300,5 @@ export default function TopicPage() {
     </div>
   );
 }
+
+    
