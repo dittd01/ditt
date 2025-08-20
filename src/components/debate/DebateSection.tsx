@@ -12,29 +12,26 @@ import { ArgumentComposer } from './ArgumentComposer';
 
 interface DebateSectionProps {
   topicId: string;
+  initialArgs: Argument[];
+  onArgsChange: (args: Argument[]) => void;
 }
 
-export function DebateSection({ topicId }: DebateSectionProps) {
-  const [debateArgs, setDebateArgs] = useState<Argument[]>([]);
+export function DebateSection({ topicId, initialArgs, onArgsChange }: DebateSectionProps) {
+  const [debateArgs, setDebateArgs] = useState<Argument[]>(initialArgs);
   const [loading, setLoading] = useState(true);
   const [showComposer, setShowComposer] = useState<'for' | 'against' | null>(null);
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-    const localStorageKey = `debate_args_${topicId}`;
-    const savedArgs = localStorage.getItem(localStorageKey);
-    let initialArgs: Argument[];
-
-    if (savedArgs) {
-      initialArgs = JSON.parse(savedArgs);
-    } else {
-      initialArgs = getArgumentsForTopic(topicId);
-    }
-    
+    // initialArgs are now passed as a prop, so we sync state with it.
     setDebateArgs(initialArgs);
     setLoading(false);
-  }, [topicId]);
+  }, [initialArgs]);
+
+  useEffect(() => {
+    // When local state changes, inform the parent component.
+    onArgsChange(debateArgs);
+  }, [debateArgs, onArgsChange]);
 
   const topLevelFor = debateArgs.filter(a => a.parentId === null && a.side === 'for').sort((a,b) => b.upvotes - a.upvotes);
   const topLevelAgainst = debateArgs.filter(a => a.parentId === null && a.side === 'against').sort((a,b) => b.upvotes - a.upvotes);
@@ -73,7 +70,7 @@ export function DebateSection({ topicId }: DebateSectionProps) {
       createdAt: new Date().toISOString(),
     };
 
-    const updatedArgs = [newArgument, ...debateArgs];
+    const updatedArgs = [...debateArgs];
     
     if (parentId) {
         const parentArgIndex = updatedArgs.findIndex(a => a.id === parentId);
@@ -81,7 +78,9 @@ export function DebateSection({ topicId }: DebateSectionProps) {
             updatedArgs[parentArgIndex].replyCount += 1;
         }
     }
-
+    
+    // Add new argument to the start of the list to ensure it's visible.
+    updatedArgs.unshift(newArgument);
     setDebateArgs(updatedArgs);
     
     const localStorageKey = `debate_args_${topicId}`;
@@ -129,7 +128,6 @@ export function DebateSection({ topicId }: DebateSectionProps) {
 
   return (
     <div>
-        <h2 className="text-2xl font-bold font-headline mb-6">Structured Debate</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             {/* Arguments For Column */}
             <div className="space-y-4">

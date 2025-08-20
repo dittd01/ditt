@@ -5,13 +5,13 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter, useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { allTopics } from '@/lib/data';
-import type { Topic } from '@/lib/types';
+import { allTopics, getArgumentsForTopic } from '@/lib/data';
+import type { Topic, Argument } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, CheckCircle, Info, RefreshCw, Loader2, BarChart, FileText, History, MessageSquare } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Info, RefreshCw, Loader2, BarChart, FileText, History, MessageSquare, ListTree, PieChart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SuggestionForm } from '@/components/SuggestionForm';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -23,6 +23,7 @@ import { LiveResults } from '@/components/LiveResults';
 import { RelatedTopics } from '@/components/RelatedTopics';
 import { trackEvent } from '@/lib/analytics';
 import { DebateSection } from '@/components/debate/DebateSection';
+import { ArgumentChart } from '@/components/debate/ArgumentChart';
 
 const VoteChart = dynamic(() => import('@/components/VoteChart').then(mod => mod.VoteChart), {
   ssr: false,
@@ -41,6 +42,8 @@ export default function TopicPage() {
   const [voterId, setVoterId] = useState<string | null>(null);
   const [votedOn, setVotedOn] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const [debateArgs, setDebateArgs] = useState<Argument[]>([]);
+  const [viewMode, setViewMode] = useState<'list' | 'chart'>('list');
 
   useEffect(() => {
     setIsClient(true);
@@ -61,6 +64,16 @@ export default function TopicPage() {
 
         const initialTopicState = { ...foundTopic, votes: newVotes, totalVotes: newTotalVotes };
         setTopic(initialTopicState);
+
+        const localStorageKey = `debate_args_${foundTopic.id}`;
+        const savedArgs = localStorage.getItem(localStorageKey);
+        let initialArgs: Argument[];
+        if (savedArgs) {
+          initialArgs = JSON.parse(savedArgs);
+        } else {
+          initialArgs = getArgumentsForTopic(foundTopic.id);
+        }
+        setDebateArgs(initialArgs);
 
         const currentVoterId = localStorage.getItem('anonymousVoterId');
         setVoterId(currentVoterId);
@@ -267,8 +280,26 @@ export default function TopicPage() {
            </div>
            
            {votedOn && <LiveResults topic={topic} />}
-           
-           <DebateSection topicId={topic.id} />
+
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold font-headline">Structured Debate</h2>
+                <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
+                   <Button variant={viewMode === 'list' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode('list')} className="h-8 gap-2">
+                       <ListTree /> List
+                   </Button>
+                    <Button variant={viewMode === 'chart' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode('chart')} className="h-8 gap-2">
+                       <PieChart /> Chart
+                   </Button>
+                </div>
+              </div>
+              
+              {viewMode === 'list' ? (
+                <DebateSection topicId={topic.id} initialArgs={debateArgs} onArgsChange={setDebateArgs} />
+              ) : (
+                <ArgumentChart args={debateArgs} />
+              )}
+           </div>
            
            <Accordion type="single" collapsible className="w-full space-y-4">
                 <AccordionItem value="sources">
