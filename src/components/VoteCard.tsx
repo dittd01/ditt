@@ -60,43 +60,44 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
 
   return (
     <Card ref={cardRef} className="flex h-full flex-col">
-        <Collapsible className="flex flex-col flex-1">
-            <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
-                {iconName && <Icon name={iconName} className="h-6 w-6 shrink-0 text-muted-foreground" />}
-                <div className="flex-1">
-                     <Link href={link} className="group" onClick={handleCardClick}>
-                        <CardTitle className="text-lg font-semibold leading-snug line-clamp-2 group-hover:underline">
-                            {topic.question}
-                        </CardTitle>
-                    </Link>
-                    <p className="text-sm text-muted-foreground mt-1">Closing in 3 days</p>
-                </div>
-            </CardHeader>
-            <CardContent className="flex-1">
-                <CollapsibleContent>
-                    <p className="text-base text-muted-foreground mb-4">{topic.description}</p>
-                </CollapsibleContent>
-                 <div className="flex items-center justify-between">
-                    <CollapsibleTrigger asChild>
-                         <Button variant="ghost" size="sm" className="-ml-3 h-auto text-muted-foreground">
-                            <ChevronDown className="h-4 w-4 mr-1 transition-transform [&[data-state=open]]:rotate-180" />
-                            Details
-                        </Button>
-                    </CollapsibleTrigger>
-                     <div className="flex items-center text-sm text-muted-foreground">
-                        <Users className="w-4 h-4 mr-2" />
-                        <span>{topic.totalVotes.toLocaleString()}</span>
-                    </div>
-                </div>
-            </CardContent>
-            <CardFooter>
-                 <Button asChild className="w-full h-11 text-base" onClick={handleCardClick}>
-                    <Link href={link}>
-                        {hasVoted ? 'Change Vote' : 'Vote Now'}
-                    </Link>
+      <Collapsible className="flex flex-col flex-1">
+        <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
+          {iconName && <Icon name={iconName} className="h-6 w-6 shrink-0 text-muted-foreground" />}
+          <div className="flex-1">
+            <Link href={link} className="group" onClick={handleCardClick}>
+              <CardTitle className="text-lg font-semibold leading-snug line-clamp-3 group-hover:underline">
+                {topic.question}
+              </CardTitle>
+            </Link>
+          </div>
+        </CardHeader>
+        <div className="flex-1 flex flex-col justify-between">
+          <CardContent className="py-0">
+            <CollapsibleContent>
+              <p className="text-base text-muted-foreground mb-4">{topic.description}</p>
+            </CollapsibleContent>
+            <div className="flex items-center justify-between">
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="-ml-3 h-auto text-muted-foreground">
+                  <ChevronDown className="h-4 w-4 mr-1 transition-transform [&[data-state=open]]:rotate-180" />
+                  Details
                 </Button>
-            </CardFooter>
-        </Collapsible>
+              </CollapsibleTrigger>
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Users className="w-4 h-4 mr-2" />
+                <span>{topic.totalVotes.toLocaleString()}</span>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button asChild className="w-full h-11 text-base" onClick={handleCardClick}>
+              <Link href={link}>
+                {hasVoted ? 'Change Vote' : 'Vote Now'}
+              </Link>
+            </Button>
+          </CardFooter>
+        </div>
+      </Collapsible>
     </Card>
   );
 }
