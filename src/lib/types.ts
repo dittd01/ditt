@@ -24,6 +24,8 @@ export type Topic = {
   votes: Record<string, number>;
   totalVotes: number;
   votesLastWeek: number;
+  votesLastMonth: number;
+  votesLastYear: number;
   history: VoteHistory[];
   categoryId: string;
   subcategoryId: string;

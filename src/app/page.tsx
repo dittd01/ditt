@@ -1,17 +1,21 @@
 
 'use client';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useMemo } from 'react';
 import { VoteCard } from '@/components/VoteCard';
 import { allTopics as initialTopics } from '@/lib/data';
 import type { Topic } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+
+type TimeFrame = 'W' | '1M' | '1Y' | 'All';
 
 function HomePageContent() {
   const searchParams = useSearchParams();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [votedTopicIds, setVotedTopicIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [timeframe, setTimeframe] = useState<TimeFrame>('All');
 
   useEffect(() => {
     const syncTopicsWithLocalStorage = () => {
@@ -85,38 +89,54 @@ function HomePageContent() {
   const selectedSubCategory = searchParams.get('sub');
   const searchQuery = searchParams.get('q');
 
-  const filteredTopics = topics.filter((topic) => {
-    if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        const matches = topic.question.toLowerCase().includes(query) || topic.description.toLowerCase().includes(query);
-        if(!matches) return false;
-    }
-    
-    const category = selectedCategory || 'all';
+  const filteredTopics = useMemo(() => {
+    return topics.filter((topic) => {
+      if (searchQuery) {
+          const query = searchQuery.toLowerCase();
+          const matches = topic.question.toLowerCase().includes(query) || topic.description.toLowerCase().includes(query);
+          if(!matches) return false;
+      }
+      
+      const category = selectedCategory || 'all';
 
-    if (category === 'all') return true;
+      if (category === 'all') return true;
 
-    if (topic.categoryId === 'election_2025') {
-      return category === 'election_2025';
-    }
-    
-    if (topic.categoryId !== category) {
-      return false;
-    }
+      if (topic.categoryId === 'election_2025') {
+        return category === 'election_2025';
+      }
+      
+      if (topic.categoryId !== category) {
+        return false;
+      }
 
-    if (selectedSubCategory) {
-      return topic.subcategoryId === selectedSubCategory;
-    }
-    
-    return true;
-  }).sort((a, b) => {
-     if (a.voteType === 'election') return -1;
-     if (b.voteType === 'election') return 1;
-     if (selectedCategory === 'all' || !selectedCategory) {
-       return b.votesLastWeek - a.votesLastWeek;
-     }
-     return 0;
-  });
+      if (selectedSubCategory) {
+        return topic.subcategoryId === selectedSubCategory;
+      }
+      
+      return true;
+    }).sort((a, b) => {
+       if (a.voteType === 'election') return -1;
+       if (b.voteType === 'election') return 1;
+
+       // Sort by timeframe if on the trending page
+       if (selectedCategory === 'all' || !selectedCategory) {
+         switch (timeframe) {
+            case 'W':
+              return (b.votesLastWeek ?? 0) - (a.votesLastWeek ?? 0);
+            case '1M':
+              return (b.votesLastMonth ?? 0) - (a.votesLastMonth ?? 0);
+            case '1Y':
+              return (b.votesLastYear ?? 0) - (a.votesLastYear ?? 0);
+            case 'All':
+            default:
+              return b.totalVotes - a.totalVotes;
+         }
+       }
+       return b.totalVotes - a.totalVotes;
+    });
+  }, [topics, searchQuery, selectedCategory, selectedSubCategory, timeframe]);
+
+  const showTimeframeFilter = !selectedCategory || selectedCategory === 'all';
 
   return (
     <div className="bg-background">
@@ -127,6 +147,25 @@ function HomePageContent() {
             <p className="text-muted-foreground">{filteredTopics.length} topics found.</p>
           </div>
         )}
+
+        {showTimeframeFilter && !searchQuery && (
+          <div className="mb-8 flex justify-end">
+            <div className="flex gap-1 bg-muted p-1 rounded-md w-full sm:w-auto">
+              {(['W', '1M', '1Y', 'All'] as TimeFrame[]).map((tf) => (
+                <Button
+                  key={tf}
+                  size="sm"
+                  variant={timeframe === tf ? 'default' : 'ghost'}
+                  onClick={() => setTimeframe(tf)}
+                  className="px-3 h-8 flex-1 sm:flex-initial"
+                >
+                  {tf}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {isLoading ? (
             Array.from({ length: 9 }).map((_, i) => <VoteCard.Skeleton key={i} />)

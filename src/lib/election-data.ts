@@ -170,12 +170,12 @@ const electionVotes: Record<string, number> = {
 const totalElectionVotes = Object.values(electionVotes).reduce((sum, v) => sum + v, 0);
 
 const electionHistory: VoteHistory[] = [
-    { date: '1M Ago', ...Object.fromEntries(Object.entries(electionVotes).map(([k, v]) => [k, Math.floor(v * 0.7)])) },
-    { date: '1W Ago', ...Object.fromEntries(Object.entries(electionVotes).map(([k, v]) => [k, Math.floor(v * 0.85)])) },
-    { date: 'Today', ...electionVotes },
+    { date: '1M Ago', total: Object.values(electionVotes).reduce((s, v) => s + Math.floor(v * 0.7), 0), ...Object.fromEntries(Object.entries(electionVotes).map(([k, v]) => [k, Math.floor(v * 0.7)])) },
+    { date: '1W Ago', total: Object.values(electionVotes).reduce((s, v) => s + Math.floor(v * 0.85), 0), ...Object.fromEntries(Object.entries(electionVotes).map(([k, v]) => [k, Math.floor(v * 0.85)])) },
+    { date: 'Today', total: totalElectionVotes, ...electionVotes },
 ];
 
-export const electionTopic: Topic = {
+export const electionTopic: Omit<Topic, 'votesLastWeek' | 'votesLastMonth' | 'votesLastYear'> = {
     id: 'election-2025-poll',
     slug: 'election-2025',
     question: 'Election 2025: Who gets your vote?',
@@ -185,7 +185,6 @@ export const electionTopic: Topic = {
     options: electionOptions,
     votes: electionVotes,
     totalVotes: totalElectionVotes,
-    votesLastWeek: totalElectionVotes - (Object.values(electionHistory[1]).reduce((s: number, v) => s + (typeof v === 'number' ? v : 0), 0) as number),
     history: electionHistory,
     categoryId: 'election_2025',
     subcategoryId: '',

@@ -1,7 +1,7 @@
 
 
 import type { Topic, Category, VoteHistory, Argument } from './types';
-import { electionTopic } from './election-data';
+import { electionTopic as initialElectionTopic, parties as partyDetails } from './election-data';
 import type { LucideIcon } from 'lucide-react';
 import { subDays, subHours, subMonths, subYears, format } from 'date-fns';
 
@@ -191,6 +191,8 @@ const standardTopics: Topic[] = subCategoryData.map((sub, index): Topic => {
     const totalVotes = Object.values(votes).reduce((sum, v) => sum + v, 0);
     
     const votesLastWeek = (latestVotes.total || 0) - (history[history.length - 8]?.total || 0);
+    const votesLastMonth = (latestVotes.total || 0) - (history[history.length - 31]?.total || 0);
+    const votesLastYear = (latestVotes.total || 0) - (history[history.length - 366]?.total || 0);
 
     return {
         id: (index + 1).toString(),
@@ -203,6 +205,8 @@ const standardTopics: Topic[] = subCategoryData.map((sub, index): Topic => {
         votes: votes,
         totalVotes: totalVotes,
         votesLastWeek: votesLastWeek,
+        votesLastMonth: votesLastMonth,
+        votesLastYear: votesLastYear,
         history: history,
         categoryId: sub.categoryId,
         subcategoryId: sub.id,
@@ -210,6 +214,13 @@ const standardTopics: Topic[] = subCategoryData.map((sub, index): Topic => {
         voteType: voteType,
     }
 });
+
+const electionTopic: Topic = {
+    ...initialElectionTopic,
+    votesLastWeek: initialElectionTopic.totalVotes - (initialElectionTopic.history[1].total || 0),
+    votesLastMonth: initialElectionTopic.totalVotes - (initialElectionTopic.history[0].total || 0),
+    votesLastYear: initialElectionTopic.totalVotes,
+}
 
 export const allTopics: Topic[] = [electionTopic, ...standardTopics];
 
@@ -448,6 +459,7 @@ export const mockArguments: Argument[] = generateUniqueArguments();
 export const getArgumentsForTopic = (topicId: string): Argument[] => {
   return mockArguments.filter(arg => arg.topicId === topicId);
 };
+
 
 
 
