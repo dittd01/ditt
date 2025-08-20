@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState, useEffect, useMemo } from 'react';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,37 +28,54 @@ import { useToast } from '@/hooks/use-toast';
 export default function PollsPage() {
   const { toast } = useToast();
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [filteredPolls, setFilteredPolls] = useState(allTopics);
+
+  const polls = useMemo(() => {
+    const getCategoryInfo = (categoryId: string, subcategoryId: string) => {
+        const category = categories.find(c => c.id === categoryId);
+        if (!category) return { cat: 'N/A', sub: 'N/A', catId: 'N/A' };
+        
+        const subcategory = category.subcategories.find(s => s.id === subcategoryId);
+        return {
+          cat: category.label,
+          sub: subcategory?.label || 'N/A',
+          catId: category.id
+        }
+    }
+    return allTopics.map(topic => {
+        const { cat, sub, catId } = getCategoryInfo(topic.categoryId, topic.subcategoryId);
+        return {
+            title: topic.question,
+            category: cat,
+            subcategory: sub,
+            categoryId: catId,
+            status: topic.status.charAt(0).toUpperCase() + topic.status.slice(1),
+            votes: topic.totalVotes.toLocaleString(),
+            // In a real app, this would come from the data
+            updated: new Date().toISOString().split('T')[0] 
+        }
+    });
+  }, []);
+  
+  useEffect(() => {
+    const results = polls.filter(poll => {
+      const searchMatch = poll.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const statusMatch = statusFilter === 'all' || poll.status.toLowerCase() === statusFilter;
+      const categoryMatch = categoryFilter === 'all' || poll.categoryId === categoryFilter;
+      return searchMatch && statusMatch && categoryMatch;
+    });
+    setFilteredPolls(results);
+  }, [searchTerm, statusFilter, categoryFilter, polls]);
+
   const handleAction = (action: string, pollTitle: string) => {
     toast({
       title: `Action: ${action}`,
       description: `Triggered "${action}" for poll: ${pollTitle}`,
     });
   };
-
-  const getCategoryInfo = (categoryId: string, subcategoryId: string) => {
-    const category = categories.find(c => c.id === categoryId);
-    if (!category) return { cat: 'N/A', sub: 'N/A' };
-    
-    const subcategory = category.subcategories.find(s => s.id === subcategoryId);
-    return {
-      cat: category.label,
-      sub: subcategory?.label || 'N/A'
-    }
-  }
-
-  const polls = allTopics.map(topic => {
-      const { cat, sub } = getCategoryInfo(topic.categoryId, topic.subcategoryId);
-      return {
-          title: topic.question,
-          category: cat,
-          subcategory: sub,
-          status: topic.status.charAt(0).toUpperCase() + topic.status.slice(1),
-          votes: topic.totalVotes.toLocaleString(),
-          // In a real app, this would come from the data
-          updated: new Date().toISOString().split('T')[0] 
-      }
-  });
-
 
   return (
     <div className="space-y-8">
@@ -72,8 +90,13 @@ export default function PollsPage() {
       </PageHeader>
       
       <div className="flex flex-wrap items-center gap-4">
-          <Input placeholder="Search by title..." className="w-full sm:w-auto sm:flex-1" />
-          <Select>
+          <Input 
+            placeholder="Search by title..." 
+            className="w-full sm:w-auto sm:flex-1"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -84,7 +107,7 @@ export default function PollsPage() {
                   <SelectItem value="archived">Archived</SelectItem>
               </SelectContent>
           </Select>
-          <Select>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Category" />
               </SelectTrigger>
@@ -95,7 +118,6 @@ export default function PollsPage() {
                     ))}
               </SelectContent>
           </Select>
-          <Button>Apply</Button>
       </div>
 
 
@@ -111,11 +133,11 @@ export default function PollsPage() {
             </TableRow>
         </TableHeader>
         <TableBody>
-            {polls.map((poll, i) => (
+            {filteredPolls.map((poll, i) => (
                  <TableRow key={i}>
                     <TableCell className="font-medium">{poll.title}</TableCell>
                     <TableCell>{poll.category}{poll.subcategory !== 'N/A' ? ` / ${poll.subcategory}`: ''}</TableCell>
-                    <TableCell><Badge variant={poll.status === 'Active' ? 'default' : 'secondary'}>{poll.status}</Badge></TableCell>
+                    <TableCell><Badge variant={poll.status === 'Live' ? 'default' : 'secondary'}>{poll.status}</Badge></TableCell>
                     <TableCell>{poll.votes}</TableCell>
                     <TableCell>{poll.updated}</TableCell>
                     <TableCell>
