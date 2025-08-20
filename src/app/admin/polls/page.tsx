@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { Button } from '@/components/ui/button';
 import {
@@ -87,9 +87,15 @@ export default function PollsPage() {
     });
 
     return filteredPolls.sort((a, b) => {
-        let first = a[sortDescriptor.key];
-        let second = b[sortDescriptor.key];
-        let cmp = (parseInt(first as string) || first) < (parseInt(second as string) || second) ? -1 : 1;
+        const aValue = a[sortDescriptor.key];
+        const bValue = b[sortDescriptor.key];
+        
+        let cmp = 0;
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+            cmp = aValue.localeCompare(bValue);
+        } else if (typeof aValue === 'number' && typeof bValue === 'number') {
+            cmp = aValue - bValue;
+        }
 
         if (sortDescriptor.direction === 'descending') {
             cmp *= -1;
@@ -174,8 +180,8 @@ export default function PollsPage() {
       <Table>
         <TableHeader>
             <TableRow>
-                <SortableHeader sortKey="title">Title</SortableHeader>
                 <SortableHeader sortKey="category">Category</SortableHeader>
+                <SortableHeader sortKey="title">Title</SortableHeader>
                 <SortableHeader sortKey="status">Status</SortableHeader>
                 <SortableHeader sortKey="votes">Total Votes</SortableHeader>
                 <SortableHeader sortKey="updated">Last Updated</SortableHeader>
@@ -185,8 +191,8 @@ export default function PollsPage() {
         <TableBody>
             {sortedAndFilteredPolls.map((poll) => (
                  <TableRow key={poll.id}>
-                    <TableCell className="font-medium">{poll.title}</TableCell>
                     <TableCell>{poll.category}{poll.subcategory !== 'N/A' ? ` / ${poll.subcategory}`: ''}</TableCell>
+                    <TableCell className="font-medium">{poll.title}</TableCell>
                     <TableCell><Badge variant={poll.status === 'Live' ? 'default' : 'secondary'}>{poll.status}</Badge></TableCell>
                     <TableCell>{poll.votes.toLocaleString()}</TableCell>
                     <TableCell>{poll.updated}</TableCell>
