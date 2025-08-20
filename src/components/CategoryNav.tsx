@@ -96,10 +96,10 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
         aria-selected={selectedCategoryId === cat.id}
         onClick={() => handleSelectCategory(cat.id)}
         className={cn(
-          'whitespace-nowrap px-3 py-3 text-sm font-medium relative transition-colors',
+          'whitespace-nowrap px-3 py-2 text-sm font-medium relative transition-colors rounded-md',
           selectedCategoryId === cat.id
             ? 'text-primary'
-            : 'text-muted-foreground hover:text-foreground'
+            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
         )}
       >
         {cat.label}
@@ -112,13 +112,13 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
   return (
     <div className="sticky top-14 z-40 bg-background/80 backdrop-blur-sm shadow-sm">
       <div className="container mx-auto px-4">
-        <div role="tablist" className={cn("relative flex items-center border-b", isMobile && "no-scrollbar overflow-x-auto")}>
+        <div role="tablist" className={cn("relative flex items-center border-b -mb-px", isMobile && "no-scrollbar overflow-x-auto")}>
           {visibleCategories.map(renderCategoryButton)}
           
           {dropdownCategories.length > 0 && !isMobile && (
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-1 px-3 py-3 text-sm font-medium text-muted-foreground hover:text-foreground">
+                <Button variant="ghost" className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
                   More
                   <ChevronDown className="h-4 w-4" />
                 </Button>
