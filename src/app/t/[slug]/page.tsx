@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, CheckCircle, Info, RefreshCw, Loader2, BarChart, FileText, History, MessageSquare, ListTree, PieChart } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Info, RefreshCw, Loader2, BarChart, FileText, History, MessageSquare, ListTree, PieChart, Sun } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SuggestionForm } from '@/components/SuggestionForm';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -289,7 +289,7 @@ export default function TopicPage() {
                        <ListTree /> List
                    </Button>
                     <Button variant={viewMode === 'chart' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode('chart')} className="h-8 gap-2">
-                       <PieChart /> Chart
+                       <Sun /> Chart
                    </Button>
                 </div>
               </div>
@@ -297,7 +297,7 @@ export default function TopicPage() {
               {viewMode === 'list' ? (
                 <DebateSection topicId={topic.id} initialArgs={debateArgs} onArgsChange={setDebateArgs} />
               ) : (
-                <ArgumentChart args={debateArgs} />
+                <ArgumentChart args={debateArgs} topicQuestion={topic.question} />
               )}
            </div>
            
