@@ -1,3 +1,6 @@
+
+import type { LucideIcon } from 'lucide-react';
+
 export type VoteOption = {
   id: string;
   label: string;
@@ -35,6 +38,7 @@ export type Subcategory = {
 export type Category = {
   id: string;
   label: string;
+  icon: LucideIcon;
   subcategories: Subcategory[];
 };
 

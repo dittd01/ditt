@@ -2,20 +2,22 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useState, useEffect } from 'react';
-import { TopicCard } from '@/components/TopicCard';
+import { VoteCard } from '@/components/VoteCard';
 import { allTopics as initialTopics } from '@/lib/data';
 import type { Topic } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function HomePageContent() {
   const searchParams = useSearchParams();
   const [topics, setTopics] = useState<Topic[]>([]);
+  const [votedTopicIds, setVotedTopicIds] = useState<Set<string>>(new Set());
+  const [isLoading, setIsLoading] = useState(true);
 
-  // This effect syncs the state with localStorage on initial load and when the page becomes visible
   useEffect(() => {
     const syncTopicsWithLocalStorage = () => {
       const updatedTopics = initialTopics.map(topic => {
         if (topic.voteType === 'election') {
-            return topic;
+          return topic;
         }
         const newVotes: Record<string, number> = {};
         let newTotalVotes = 0;
@@ -30,19 +32,36 @@ function HomePageContent() {
         return { ...topic, votes: newVotes, totalVotes: newTotalVotes };
       });
       setTopics(updatedTopics);
+
+      const votedIds = new Set<string>();
+      updatedTopics.forEach(topic => {
+        if (localStorage.getItem(`voted_on_${topic.id}`)) {
+          votedIds.add(topic.id);
+        }
+      });
+      setVotedTopicIds(votedIds);
+      setIsLoading(false);
     };
     
-    syncTopicsWithLocalStorage(); // Initial sync
+    syncTopicsWithLocalStorage();
     
+    const handleStorageChange = () => {
+        syncTopicsWithLocalStorage();
+    };
+
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         syncTopicsWithLocalStorage();
       }
     };
     
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('authChange', handleStorageChange);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('authChange', handleStorageChange);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
@@ -52,45 +71,35 @@ function HomePageContent() {
   const searchQuery = searchParams.get('q');
 
   const filteredTopics = topics.filter((topic) => {
-    // Search filter
     if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const matches = topic.question.toLowerCase().includes(query) || topic.description.toLowerCase().includes(query);
         if(!matches) return false;
     }
-
+    
     const category = selectedCategory || 'all';
 
-    if (category === 'all') {
-      // "All" category shows everything, optionally filtered by subcategory
-      if (selectedSubCategory) {
-        return topic.subcategoryId === selectedSubCategory;
-      }
-      return true;
+    if (category === 'all') return true;
+
+    if (topic.categoryId === 'election_2025') {
+      return category === 'election_2025';
     }
     
-    // For any other category, it must match
     if (topic.categoryId !== category) {
       return false;
     }
 
-    // If a category is selected, further filter by subcategory if present
     if (selectedSubCategory) {
       return topic.subcategoryId === selectedSubCategory;
     }
     
     return true;
   }).sort((a, b) => {
-     // Always keep "Election 2025" card first if it's present
      if (a.voteType === 'election') return -1;
      if (b.voteType === 'election') return 1;
-
-     // For the "All" view, sort by total votes
      if (selectedCategory === 'all' || !selectedCategory) {
        return b.totalVotes - a.totalVotes;
      }
-
-     // Otherwise, maintain default order within categories
      return 0;
   });
 
@@ -104,15 +113,18 @@ function HomePageContent() {
           </div>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {filteredTopics.map((topic) => (
-            <TopicCard key={topic.id} topic={topic} />
-          ))}
+          {isLoading ? (
+            Array.from({ length: 9 }).map((_, i) => <VoteCard.Skeleton key={i} />)
+          ) : (
+            filteredTopics.map((topic) => (
+              <VoteCard key={topic.id} topic={topic} hasVoted={votedTopicIds.has(topic.id)} />
+            ))
+          )}
         </div>
       </main>
     </div>
   );
 }
-
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -122,8 +134,20 @@ export default function Home() {
   }, []);
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      {isClient ? <HomePageContent /> : null}
+    <Suspense fallback={
+        <div className="container mx-auto px-4 py-8 sm:py-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                {Array.from({ length: 9 }).map((_, i) => <VoteCard.Skeleton key={i} />)}
+            </div>
+        </div>
+    }>
+      {isClient ? <HomePageContent /> : (
+         <div className="container mx-auto px-4 py-8 sm:py-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                {Array.from({ length: 9 }).map((_, i) => <VoteCard.Skeleton key={i} />)}
+            </div>
+        </div>
+      )}
     </Suspense>
   );
 }
