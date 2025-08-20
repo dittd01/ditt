@@ -98,7 +98,7 @@ function HomePageContent() {
      if (a.voteType === 'election') return -1;
      if (b.voteType === 'election') return 1;
      if (selectedCategory === 'all' || !selectedCategory) {
-       return b.totalVotes - a.totalVotes;
+       return b.votesLastWeek - a.votesLastWeek;
      }
      return 0;
   });

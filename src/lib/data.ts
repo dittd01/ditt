@@ -187,6 +187,8 @@ const standardTopics: Topic[] = subCategoryData.map((sub, index): Topic => {
     }, {} as Record<string, number>);
     
     const totalVotes = Object.values(votes).reduce((sum, v) => sum + v, 0);
+    
+    const votesLastWeek = (latestVotes.total || 0) - (history[history.length - 8]?.total || 0);
 
     return {
         id: (index + 1).toString(),
@@ -198,6 +200,7 @@ const standardTopics: Topic[] = subCategoryData.map((sub, index): Topic => {
         options: options,
         votes: votes,
         totalVotes: totalVotes,
+        votesLastWeek: votesLastWeek,
         history: history,
         categoryId: sub.categoryId,
         subcategoryId: sub.id,

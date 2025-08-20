@@ -185,6 +185,7 @@ export const electionTopic: Topic = {
     options: electionOptions,
     votes: electionVotes,
     totalVotes: totalElectionVotes,
+    votesLastWeek: totalElectionVotes - (Object.values(electionHistory[1]).reduce((s: number, v) => s + (typeof v === 'number' ? v : 0), 0) as number),
     history: electionHistory,
     categoryId: 'election_2025',
     subcategoryId: '',

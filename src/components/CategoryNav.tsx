@@ -26,7 +26,7 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
   const [visibleCategories, setVisibleCategories] = useState<Category[]>([]);
   const [dropdownCategories, setDropdownCategories] = useState<Category[]>([]);
 
-  const allCategories = [{ id: 'all', label: 'All', subcategories: [], icon: '' }, ...categories];
+  const allCategories = [{ id: 'all', label: 'Trending', subcategories: [], icon: '' }, ...categories];
   const selectedCategoryId = searchParams.get('cat') || (pathname === '/election-2025' ? 'election_2025' : 'all');
 
   useEffect(() => {
@@ -39,7 +39,7 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
       
       const visible = [...otherCategories.slice(0, MAX_VISIBLE_CATEGORIES - (electionCategory ? 1 : 0))];
       if (electionCategory) {
-        visible.splice(1, 0, electionCategory); // Place "Election 2025" after "All"
+        visible.splice(1, 0, electionCategory); // Place "Election 2025" after "Trending"
       }
       
       const dropdown = otherCategories.slice(MAX_VISIBLE_CATEGORIES - (electionCategory ? 1 : 0));
