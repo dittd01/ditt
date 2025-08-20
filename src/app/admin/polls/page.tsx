@@ -68,7 +68,8 @@ const getCategoryInfo = (categoryId: string, subcategoryId: string) => {
 
 export default function PollsPage() {
   const { toast } = useToast();
-
+  
+  const [polls, setPolls] = useState<PollRowData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -77,18 +78,7 @@ export default function PollsPage() {
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({ key: 'votes', direction: 'descending' });
 
   useEffect(() => {
-    if (categoryFilter === 'all' || categoryFilter === 'election_2025') {
-      setAvailableSubcategories([]);
-      setSubcategoryFilter('all');
-    } else {
-      const category = categories.find(c => c.id === categoryFilter);
-      setAvailableSubcategories(category?.subcategories || []);
-      setSubcategoryFilter('all');
-    }
-  }, [categoryFilter]);
-
-  const polls = useMemo(() => {
-    return allTopics.map((topic): PollRowData => {
+    const processedPolls = allTopics.map((topic): PollRowData => {
         const { cat, sub, catId, subId } = getCategoryInfo(topic.categoryId, topic.subcategoryId);
         return {
             id: topic.id,
@@ -102,7 +92,19 @@ export default function PollsPage() {
             updated: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString().split('T')[0] 
         }
     });
+    setPolls(processedPolls);
   }, []);
+
+  useEffect(() => {
+    if (categoryFilter === 'all' || categoryFilter === 'election_2025') {
+      setAvailableSubcategories([]);
+      setSubcategoryFilter('all');
+    } else {
+      const category = categories.find(c => c.id === categoryFilter);
+      setAvailableSubcategories(category?.subcategories || []);
+      setSubcategoryFilter('all');
+    }
+  }, [categoryFilter]);
   
   const sortedAndFilteredPolls = useMemo(() => {
     let filteredPolls = polls.filter(poll => {
