@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +24,7 @@ import { allTopics, categories } from '@/lib/data';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import type { Topic } from '@/lib/types';
+import type { Topic, Subcategory } from '@/lib/types';
 
 interface PollRowData {
     id: string;
@@ -32,19 +32,20 @@ interface PollRowData {
     category: string;
     subcategory: string;
     categoryId: string;
+    subcategoryId: string;
     status: string;
     votes: number;
     updated: string;
 }
 
 type SortDescriptor = {
-    key: keyof Omit<PollRowData, 'id' | 'categoryId'>;
+    key: keyof Omit<PollRowData, 'id' | 'categoryId' | 'subcategoryId'>;
     direction: 'ascending' | 'descending';
 }
 
 const getCategoryInfo = (categoryId: string, subcategoryId: string) => {
     const category = categories.find(c => c.id === categoryId);
-    if (!category) return { cat: 'N/A', sub: 'N/A', catId: 'N/A' };
+    if (!category) return { cat: 'N/A', sub: 'N/A', catId: 'N/A', subId: 'N/A' };
     
     // For election, there's no subcategory
     if (categoryId === 'election_2025') {
@@ -52,14 +53,16 @@ const getCategoryInfo = (categoryId: string, subcategoryId: string) => {
             cat: category.label,
             sub: 'N/A',
             catId: category.id,
+            subId: 'N/A'
         }
     }
     
-    const subcategory = category.subcategories.find(s => s.id === subcategoryId);
+    const subcategoryInfo = category.subcategories.find(s => s.id === subcategoryId);
     return {
         cat: category.label,
-        sub: subcategory?.label || 'N/A',
-        catId: category.id
+        sub: subcategoryInfo?.label || 'N/A',
+        catId: category.id,
+        subId: subcategoryInfo?.id || 'N/A'
     }
 }
 
@@ -69,20 +72,34 @@ export default function PollsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [subcategoryFilter, setSubcategoryFilter] = useState('all');
+  const [availableSubcategories, setAvailableSubcategories] = useState<Subcategory[]>([]);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({ key: 'votes', direction: 'descending' });
+
+  useEffect(() => {
+    if (categoryFilter === 'all' || categoryFilter === 'election_2025') {
+      setAvailableSubcategories([]);
+      setSubcategoryFilter('all');
+    } else {
+      const category = categories.find(c => c.id === categoryFilter);
+      setAvailableSubcategories(category?.subcategories || []);
+      setSubcategoryFilter('all');
+    }
+  }, [categoryFilter]);
 
   const polls = useMemo(() => {
     return allTopics.map((topic): PollRowData => {
-        const { cat, sub, catId } = getCategoryInfo(topic.categoryId, topic.subcategoryId);
+        const { cat, sub, catId, subId } = getCategoryInfo(topic.categoryId, topic.subcategoryId);
         return {
             id: topic.id,
             title: topic.question,
             category: cat,
             subcategory: sub,
             categoryId: catId,
+            subcategoryId: subId,
             status: topic.status.charAt(0).toUpperCase() + topic.status.slice(1),
             votes: topic.totalVotes,
-            updated: new Date().toISOString().split('T')[0] 
+            updated: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString().split('T')[0] 
         }
     });
   }, []);
@@ -92,7 +109,8 @@ export default function PollsPage() {
       const searchMatch = poll.title.toLowerCase().includes(searchTerm.toLowerCase());
       const statusMatch = statusFilter === 'all' || poll.status.toLowerCase() === statusFilter;
       const categoryMatch = categoryFilter === 'all' || poll.categoryId === categoryFilter;
-      return searchMatch && statusMatch && categoryMatch;
+      const subcategoryMatch = subcategoryFilter === 'all' || poll.subcategoryId === subcategoryFilter;
+      return searchMatch && statusMatch && categoryMatch && subcategoryMatch;
     });
 
     return filteredPolls.sort((a, b) => {
@@ -111,7 +129,7 @@ export default function PollsPage() {
         }
         return cmp;
     });
-  }, [searchTerm, statusFilter, categoryFilter, polls, sortDescriptor]);
+  }, [searchTerm, statusFilter, categoryFilter, subcategoryFilter, polls, sortDescriptor]);
 
   const handleAction = (action: string, pollTitle: string) => {
     toast({
@@ -180,6 +198,17 @@ export default function PollsPage() {
                   <SelectItem value="all">All Categories</SelectItem>
                    {categories.map(category => (
                         <SelectItem key={category.id} value={category.id}>{category.label}</SelectItem>
+                    ))}
+              </SelectContent>
+          </Select>
+          <Select value={subcategoryFilter} onValueChange={setSubcategoryFilter} disabled={availableSubcategories.length === 0}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Subcategory" />
+              </SelectTrigger>
+              <SelectContent>
+                  <SelectItem value="all">All Subcategories</SelectItem>
+                   {availableSubcategories.map(subcategory => (
+                        <SelectItem key={subcategory.id} value={subcategory.id}>{subcategory.label}</SelectItem>
                     ))}
               </SelectContent>
           </Select>
