@@ -243,7 +243,7 @@ export default function TopicPage() {
               <Info className="h-4 w-4" />
               <AlertTitle>Log in to participate further</AlertTitle>
               <AlertDescription>
-                To propose a new option, you need to be logged in with your anonymous ID.
+                To propose a new topic, you need to be logged in with your anonymous ID.
               </AlertDescription>
             </Alert>
           )}

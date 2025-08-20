@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
-import { moderateSuggestionAction } from '@/app/actions';
+import { curateSuggestionAction } from '@/app/actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Loader2 } from 'lucide-react';
 
@@ -35,18 +35,18 @@ export function SuggestionForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     try {
-      const result = await moderateSuggestionAction(values.suggestion);
-      if (result.isAppropriate) {
+      const result = await curateSuggestionAction(values.suggestion);
+      if (result.success) {
         toast({
-          title: 'Suggestion Submitted',
-          description: 'Thank you! Your suggestion has been received and is under review.',
+          title: 'Suggestion Received',
+          description: result.message,
         });
         form.reset();
       } else {
         toast({
           variant: 'destructive',
-          title: 'Suggestion Rejected',
-          description: result.reason || 'This suggestion was deemed inappropriate.',
+          title: 'Suggestion Failed',
+          description: result.message,
         });
       }
     } catch (error) {
@@ -63,10 +63,10 @@ export function SuggestionForm() {
   return (
     <Card className="mt-8">
       <CardHeader>
-        <CardTitle>Propose an Option</CardTitle>
+        <CardTitle>Propose a New Topic</CardTitle>
         <CardDescription>
-          Have a different idea? Submit your own suggestion for this poll. All suggestions are
-          reviewed by our AI moderator.
+          Don't see an issue you care about? Submit a new topic for voting.
+          Our AI curator will review it for neutrality, clarity, and duplicates.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -77,10 +77,10 @@ export function SuggestionForm() {
               name="suggestion"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Your Suggestion</FormLabel>
+                  <FormLabel>Your Topic Suggestion</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="e.g., 'What about a four-day work week pilot program?'"
+                      placeholder="e.g., 'Should Norway invest 50 billion NOK in new high-speed rail between Oslo and Bergen?'"
                       className="resize-none"
                       {...field}
                     />
@@ -91,7 +91,7 @@ export function SuggestionForm() {
             />
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSubmitting ? 'Submitting...' : 'Submit Suggestion'}
+              {isSubmitting ? 'Submitting...' : 'Submit Topic Suggestion'}
             </Button>
           </form>
         </Form>
