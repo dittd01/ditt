@@ -96,27 +96,23 @@ export default function ProfilePage() {
   const [userSuggestions, setUserSuggestions] = useState<Suggestion[]>(mockUser.suggestions);
 
   useEffect(() => {
-    const customSuggestions: Suggestion[] = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
-    // Combine and remove duplicates, giving precedence to custom suggestions
-    const combined = [...customSuggestions, ...mockUser.suggestions];
-    const uniqueSuggestions = Array.from(new Set(combined.map(s => s.id)))
-        .map(id => combined.find(s => s.id === id)!);
-    setUserSuggestions(uniqueSuggestions);
-
-    const handleStorageChange = () => {
-        const updatedCustomSuggestions: Suggestion[] = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
-        const updatedCombined = [...updatedCustomSuggestions, ...mockUser.suggestions];
-        const updatedUnique = Array.from(new Set(updatedCombined.map(s => s.id)))
-            .map(id => updatedCombined.find(s => s.id === id)!);
-        setUserSuggestions(updatedUnique);
+    const syncSuggestions = () => {
+      const customSuggestions: Suggestion[] = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
+      // Combine and remove duplicates, giving precedence to custom suggestions
+      const combined = [...customSuggestions, ...mockUser.suggestions];
+      const uniqueSuggestions = Array.from(new Set(combined.map(s => s.id)))
+          .map(id => combined.find(s => s.id === id)!);
+      setUserSuggestions(uniqueSuggestions);
     };
+
+    syncSuggestions();
     
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('topicAdded', handleStorageChange);
+    window.addEventListener('storage', syncSuggestions);
+    window.addEventListener('topicAdded', syncSuggestions);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('topicAdded', handleStorageChange);
+      window.removeEventListener('storage', syncSuggestions);
+      window.removeEventListener('topicAdded', syncSuggestions);
     };
 
   }, []);
