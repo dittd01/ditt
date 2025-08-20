@@ -8,6 +8,7 @@ import { ArgumentCard } from './ArgumentCard';
 import { Button } from '../ui/button';
 import { PlusCircle } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
+import { ArgumentComposer } from './ArgumentComposer';
 
 interface DebateSectionProps {
   topicId: string;
@@ -16,6 +17,7 @@ interface DebateSectionProps {
 export function DebateSection({ topicId }: DebateSectionProps) {
   const [debateArgs, setDebateArgs] = useState<Argument[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showComposer, setShowComposer] = useState<'for' | 'against' | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -27,6 +29,22 @@ export function DebateSection({ topicId }: DebateSectionProps) {
 
   const topLevelFor = debateArgs.filter(a => a.parentId === null && a.side === 'for');
   const topLevelAgainst = debateArgs.filter(a => a.parentId === null && a.side === 'against');
+
+  const handleAddArgument = (side: 'for' | 'against') => {
+    setShowComposer(side);
+  };
+  
+  const handleCancel = () => {
+    setShowComposer(null);
+  }
+
+  const handleSubmit = (values: { text: string }) => {
+    console.log(`New argument for '${showComposer}' side:`, values.text);
+    // Here we will eventually add logic to save the argument to Firestore
+    // and optimistically update the UI.
+    setShowComposer(null);
+  };
+
 
   const renderArgumentTree = (arg: Argument) => {
     const replies = debateArgs.filter(reply => reply.parentId === arg.id);
@@ -67,11 +85,12 @@ export function DebateSection({ topicId }: DebateSectionProps) {
             <div className="space-y-4">
                 <div className="flex justify-between items-center pb-2 border-b-2 border-green-500">
                     <h3 className="text-xl font-semibold text-green-700">Arguments For</h3>
-                    <Button variant="ghost" size="sm" className="text-green-700 hover:text-green-700 hover:bg-green-100">
+                    <Button variant="ghost" size="sm" className="text-green-700 hover:text-green-700 hover:bg-green-100" onClick={() => handleAddArgument('for')}>
                         <PlusCircle className="mr-2 h-4 w-4"/>
                         Add Argument
                     </Button>
                 </div>
+                 {showComposer === 'for' && <ArgumentComposer onCancel={handleCancel} onSubmit={handleSubmit} />}
                 <div className="space-y-4">
                     {topLevelFor.length > 0 
                         ? topLevelFor.map(renderArgumentTree) 
@@ -84,11 +103,12 @@ export function DebateSection({ topicId }: DebateSectionProps) {
             <div className="space-y-4">
                  <div className="flex justify-between items-center pb-2 border-b-2 border-red-500">
                     <h3 className="text-xl font-semibold text-red-700">Arguments Against</h3>
-                     <Button variant="ghost" size="sm" className="text-red-700 hover:text-red-700 hover:bg-red-100">
+                     <Button variant="ghost" size="sm" className="text-red-700 hover:text-red-700 hover:bg-red-100" onClick={() => handleAddArgument('against')}>
                         <PlusCircle className="mr-2 h-4 w-4"/>
                         Add Argument
                     </Button>
                 </div>
+                 {showComposer === 'against' && <ArgumentComposer onCancel={handleCancel} onSubmit={handleSubmit} />}
                  <div className="space-y-4">
                     {topLevelAgainst.length > 0 
                         ? topLevelAgainst.map(renderArgumentTree)
