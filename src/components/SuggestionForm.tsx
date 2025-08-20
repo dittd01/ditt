@@ -4,6 +4,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,6 +14,8 @@ import { curateSuggestionAction } from '@/app/actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Loader2 } from 'lucide-react';
 import type { Topic } from '@/lib/types';
+import { toast as sonnerToast } from "sonner"
+
 
 const formSchema = z.object({
   suggestion: z
@@ -40,10 +43,6 @@ export function SuggestionForm() {
       const result = await curateSuggestionAction(values.suggestion);
       
       if (result.success) {
-        toast({
-          title: 'Suggestion Received',
-          description: result.message,
-        });
         form.reset();
 
         // If a new topic was created, add it to localStorage to simulate a live update
@@ -53,11 +52,29 @@ export function SuggestionForm() {
             localStorage.setItem('custom_topics', JSON.stringify(customTopics));
 
             const userSuggestions = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
-            userSuggestions.unshift(result.suggestionForProfile);
+            if (result.suggestionForProfile) {
+                userSuggestions.unshift(result.suggestionForProfile);
+            }
             localStorage.setItem('user_suggestions', JSON.stringify(userSuggestions));
 
             // Dispatch an event to notify other components of the change
             window.dispatchEvent(new Event('topicAdded'));
+            
+            toast({
+              title: 'Suggestion Received',
+              description: result.message,
+              action: (
+                <Button asChild>
+                  <Link href={`/t/${result.newTopic.slug}`}>View Topic</Link>
+                </Button>
+              )
+            });
+
+        } else {
+             toast({
+              title: 'Suggestion Received',
+              description: result.message,
+            });
         }
 
       } else {
