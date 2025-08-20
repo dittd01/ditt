@@ -1,4 +1,5 @@
 
+
 import type { Topic, Category, VoteHistory, Argument } from './types';
 import { electionTopic } from './election-data';
 import type { LucideIcon } from 'lucide-react';
@@ -328,12 +329,12 @@ const againstStatementsTopic3 = [
 let argIdCounter = 1;
 const generatedArguments: Argument[] = [];
 
-// Arguments for Topic 1
+// Arguments for Topic 1 ("Raise wealth-tax threshold to NOK 10m?")
 for (let i = 0; i < 15; i++) {
     const arguer = arguers[i];
     generatedArguments.push({
         id: `arg_${argIdCounter++}`,
-        topicId: '5', // "Raise wealth-tax threshold to NOK 10m?" is now ID 5
+        topicId: '5', // "Raise wealth-tax threshold to NOK 10m?"
         parentId: null,
         side: 'for',
         author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
@@ -346,7 +347,7 @@ for (let i = 0; i < 15; i++) {
     const arguer = arguers[i + 15];
     generatedArguments.push({
         id: `arg_${argIdCounter++}`,
-        topicId: '5', // "Raise wealth-tax threshold to NOK 10m?" is now ID 5
+        topicId: '5', // "Raise wealth-tax threshold to NOK 10m?"
         parentId: null,
         side: 'against',
         author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
@@ -356,7 +357,7 @@ for (let i = 0; i < 15; i++) {
     });
 }
 
-// Arguments for Topic 3
+// Arguments for Topic 3 ("Ban private donations above NOK 100k?")
 for (let i = 0; i < 15; i++) {
     const arguer = arguers[i]; // Reuse arguers
     generatedArguments.push({
@@ -388,7 +389,7 @@ for (let i = 0; i < 15; i++) {
 // Simulate votes from the "voters"
 voters.forEach(voter => {
     const votedOn = new Set<string>();
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 10; i++) { // Increase votes per voter
         let randomArgIndex = Math.floor(Math.random() * generatedArguments.length);
         while (votedOn.has(generatedArguments[randomArgIndex].id)) {
             randomArgIndex = Math.floor(Math.random() * generatedArguments.length);
@@ -410,14 +411,17 @@ export const mockArguments: Argument[] = generatedArguments;
 export const getArgumentsForTopic = (topicId: string): Argument[] => {
     const topicArgs = mockArguments.filter(arg => arg.topicId === topicId);
     
-    if (topicArgs.length > 5) {
-      topicArgs.sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
+    // Create a copy to avoid modifying the original mock data
+    const mutableArgs = JSON.parse(JSON.stringify(topicArgs));
+
+    if (mutableArgs.length > 5) {
+      mutableArgs.sort((a: Argument, b: Argument) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
       
       const reply1: Argument = {
         id: `arg_${++argIdCounter}`,
         topicId: topicId,
-        parentId: topicArgs[0].id,
-        side: topicArgs[0].side === 'for' ? 'against' : 'for',
+        parentId: mutableArgs[0].id,
+        side: mutableArgs[0].side === 'for' ? 'against' : 'for',
         author: { name: 'DebateLord', avatarUrl: 'https://placehold.co/40x40.png?text=DL' },
         text: "This is a very insightful point. It completely changes how I see the issue.",
         upvotes: 15,
@@ -425,13 +429,14 @@ export const getArgumentsForTopic = (topicId: string): Argument[] => {
         replyCount: 0,
         createdAt: new Date().toISOString(),
       };
-      if (topicArgs[0]) topicArgs[0].replyCount += 1;
+      const parent1 = mutableArgs.find((a: Argument) => a.id === reply1.parentId);
+      if (parent1) parent1.replyCount += 1;
       
       const reply2: Argument = {
         id: `arg_${++argIdCounter}`,
         topicId: topicId,
-        parentId: topicArgs[1].id,
-        side: topicArgs[1].side === 'for' ? 'against' : 'for',
+        parentId: mutableArgs[1].id,
+        side: mutableArgs[1].side === 'for' ? 'against' : 'for',
         author: { name: 'Skeptic', avatarUrl: 'https://placehold.co/40x40.png?text=SK' },
         text: "I disagree. The data from SSB shows a different picture entirely.",
         upvotes: 8,
@@ -439,12 +444,13 @@ export const getArgumentsForTopic = (topicId: string): Argument[] => {
         replyCount: 0,
         createdAt: new Date().toISOString(),
       };
-      if (topicArgs[1]) topicArgs[1].replyCount += 1;
+       const parent2 = mutableArgs.find((a: Argument) => a.id === reply2.parentId);
+       if (parent2) parent2.replyCount += 1;
       
-      return [...topicArgs, reply1, reply2];
+      mutableArgs.push(reply1, reply2);
     }
     
-    return topicArgs;
+    return mutableArgs;
 }
 
 
