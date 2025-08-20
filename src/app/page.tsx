@@ -132,7 +132,8 @@ function HomePageContent() {
               return b.totalVotes - a.totalVotes;
          }
        }
-       return b.totalVotes - a.totalVotes;
+       // For category pages, sort by last month's votes
+       return (b.votesLastMonth ?? 0) - (a.votesLastMonth ?? 0);
     });
   }, [topics, searchQuery, selectedCategory, selectedSubCategory, timeframe]);
 
