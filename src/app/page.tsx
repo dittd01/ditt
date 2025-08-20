@@ -14,6 +14,9 @@ function HomePageContent() {
   useEffect(() => {
     const syncTopicsWithLocalStorage = () => {
       const updatedTopics = initialTopics.map(topic => {
+        if (topic.voteType === 'election') {
+            return topic;
+        }
         const newVotes: Record<string, number> = {};
         let newTotalVotes = 0;
         
@@ -50,7 +53,7 @@ function HomePageContent() {
 
   const filteredTopics = topics.filter((topic) => {
     if (topic.categoryId === 'election_2025') {
-      return false;
+      return true;
     }
     
     // Search filter
@@ -79,6 +82,8 @@ function HomePageContent() {
     
     return true;
   }).sort((a, b) => {
+     if (a.voteType === 'election') return -1;
+     if (b.voteType === 'election') return 1;
      if (selectedCategory === 'all' || !selectedCategory) {
        return b.totalVotes - a.totalVotes;
      }

@@ -236,11 +236,11 @@ export default function TopicPage() {
             </CardHeader>
           </Card>
           
-          <div className="lg:hidden">
-            {renderVoteComponent()}
-          </div>
+           <div className="lg:hidden">
+             {renderVoteComponent()}
+           </div>
 
-          <Card>
+           <Card>
              <CardHeader>
                 <CardTitle>Live Results</CardTitle>
               </CardHeader>
@@ -259,6 +259,7 @@ export default function TopicPage() {
           </Card>
 
           <VoteChart topic={topic} />
+
         </div>
 
         <div className="space-y-8 hidden lg:block">
