@@ -253,7 +253,7 @@ const users = Array.from({ length: 100 }, (_, i) => {
 const arguers = users.filter(u => u.role === 'arguer');
 const voters = users.filter(u => u.role === 'voter');
 
-const forStatements = [
+const forStatementsTopic1 = [
     "Raising the threshold protects family businesses and farms from being taxed on essential equipment and assets.",
     "A higher threshold encourages entrepreneurs to reinvest their capital in Norway instead of moving it abroad.",
     "The current wealth tax is effectively a double tax on already-taxed income; this change mitigates that unfairness.",
@@ -271,7 +271,7 @@ const forStatements = [
     "It's a matter of principle: people should not be taxed year after year on assets they have already paid tax on."
 ];
 
-const againstStatements = [
+const againstStatementsTopic1 = [
     "This is a significant tax cut for the wealthiest, increasing the gap between rich and poor.",
     "It would reduce public revenue by billions, forcing cuts to schools, healthcare, and infrastructure.",
     "The current threshold is already high enough to protect average citizens; this only benefits the top 1%.",
@@ -289,34 +289,107 @@ const againstStatements = [
     "This is a step backward in our collective effort to build a more egalitarian society."
 ];
 
-const generatedArguments: Argument[] = [];
+const forStatementsTopic3 = [
+    "Banning large donations reduces the risk of 'cash for access' and political corruption.",
+    "It levels the playing field, so that political influence isn't tied to wealth.",
+    "This encourages parties to seek broader support from many small donors instead of a few large ones.",
+    "Large, undisclosed donations create public distrust in the political system.",
+    "A ban prevents wealthy special interests from dominating political discourse.",
+    "It helps maintain the principle of 'one person, one vote' by limiting financial influence.",
+    "This would force parties to be more transparent about their funding sources.",
+    "Capping donations can lead to more grassroots engagement and volunteering.",
+    "It reduces the pressure on politicians to cater to the demands of their biggest donors.",
+    "This policy would help to restore faith in democracy and political integrity.",
+    "It limits the ability of foreign entities or individuals to influence domestic politics.",
+    "A cap makes politics more accessible for candidates who don't have wealthy networks.",
+    "It's a simple, effective measure to curb the power of money in politics.",
+    "This would shift focus from fundraising to policy and public debate.",
+    "Other democracies have similar caps, and it works to improve fairness."
+];
+
+const againstStatementsTopic3 = [
+    "Banning donations is a restriction on free speech and the right to support a cause.",
+    "Parties need significant funding to run campaigns and communicate with voters effectively.",
+    "A cap could drive donations underground to less transparent 'dark money' groups.",
+    "Wealthy individuals should be free to support the political causes they believe in.",
+    "This could lead to parties becoming more dependent on state funding, reducing their independence.",
+    "It's not the government's role to decide how much an individual can support a political party.",
+    "A ban might not solve the problem, as influence can be wielded in other ways (e.g., media ownership).",
+    "This penalizes parties that rely on a few large donors but have legitimate public support.",
+    "Defining what constitutes a 'donation' can be complex and lead to legal loopholes.",
+    "It could inadvertently give more power to unions or other organizations that can mobilize members.",
+    "Transparency reports on donations are a better solution than an outright ban.",
+    "A cap could weaken political parties and make them less effective.",
+    "This is an overreach of state power into the voluntary association of citizens.",
+    "If donations are public, voters can decide for themselves if a politician is 'bought'.",
+    "It could lead to a system where only the independently wealthy can afford to run for office."
+];
+
 let argIdCounter = 1;
+const generatedArguments: Argument[] = [];
 
-for (let i = 0; i < arguers.length; i++) {
+// Arguments for Topic 1
+for (let i = 0; i < 15; i++) {
     const arguer = arguers[i];
-    const isFor = i < 15;
-    const text = isFor ? forStatements[i] : againstStatements[i - 15];
-
     generatedArguments.push({
         id: `arg_${argIdCounter++}`,
-        topicId: '1', // "Raise wealth-tax threshold to NOK 10m?"
+        topicId: '5', // "Raise wealth-tax threshold to NOK 10m?" is now ID 5
         parentId: null,
-        side: isFor ? 'for' : 'against',
+        side: 'for',
         author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
-        text: text,
-        upvotes: 0,
-        downvotes: 0,
-        replyCount: 0,
+        text: forStatementsTopic1[i],
+        upvotes: 0, downvotes: 0, replyCount: 0,
         createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
     });
 }
+for (let i = 0; i < 15; i++) {
+    const arguer = arguers[i + 15];
+    generatedArguments.push({
+        id: `arg_${argIdCounter++}`,
+        topicId: '5', // "Raise wealth-tax threshold to NOK 10m?" is now ID 5
+        parentId: null,
+        side: 'against',
+        author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
+        text: againstStatementsTopic1[i],
+        upvotes: 0, downvotes: 0, replyCount: 0,
+        createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
+    });
+}
+
+// Arguments for Topic 3
+for (let i = 0; i < 15; i++) {
+    const arguer = arguers[i]; // Reuse arguers
+    generatedArguments.push({
+        id: `arg_${argIdCounter++}`,
+        topicId: '3', // "Ban private donations above NOK 100k?"
+        parentId: null,
+        side: 'for',
+        author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
+        text: forStatementsTopic3[i],
+        upvotes: 0, downvotes: 0, replyCount: 0,
+        createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
+    });
+}
+for (let i = 0; i < 15; i++) {
+    const arguer = arguers[i + 15]; // Reuse arguers
+    generatedArguments.push({
+        id: `arg_${argIdCounter++}`,
+        topicId: '3', // "Ban private donations above NOK 100k?"
+        parentId: null,
+        side: 'against',
+        author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
+        text: againstStatementsTopic3[i],
+        upvotes: 0, downvotes: 0, replyCount: 0,
+        createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
+    });
+}
+
 
 // Simulate votes from the "voters"
 voters.forEach(voter => {
     const votedOn = new Set<string>();
     for (let i = 0; i < 3; i++) {
         let randomArgIndex = Math.floor(Math.random() * generatedArguments.length);
-        // Ensure we don't vote on the same argument twice
         while (votedOn.has(generatedArguments[randomArgIndex].id)) {
             randomArgIndex = Math.floor(Math.random() * generatedArguments.length);
         }
@@ -324,7 +397,7 @@ voters.forEach(voter => {
         const argument = generatedArguments[randomArgIndex];
         votedOn.add(argument.id);
         
-        if (Math.random() > 0.3) { // 70% chance to upvote
+        if (Math.random() > 0.3) {
             argument.upvotes += 1;
         } else {
             argument.downvotes += 1;
@@ -332,15 +405,11 @@ voters.forEach(voter => {
     }
 });
 
-
 export const mockArguments: Argument[] = generatedArguments;
 
 export const getArgumentsForTopic = (topicId: string): Argument[] => {
-    // In a real app, this would be a fetch call. Here, we filter the mock data.
-    // We add a few replies for demonstration purposes.
     const topicArgs = mockArguments.filter(arg => arg.topicId === topicId);
     
-    // Add a few replies to the most upvoted arguments
     if (topicArgs.length > 5) {
       topicArgs.sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
       
@@ -356,7 +425,7 @@ export const getArgumentsForTopic = (topicId: string): Argument[] => {
         replyCount: 0,
         createdAt: new Date().toISOString(),
       };
-      topicArgs[0].replyCount += 1;
+      if (topicArgs[0]) topicArgs[0].replyCount += 1;
       
       const reply2: Argument = {
         id: `arg_${++argIdCounter}`,
@@ -370,10 +439,11 @@ export const getArgumentsForTopic = (topicId: string): Argument[] => {
         replyCount: 0,
         createdAt: new Date().toISOString(),
       };
-      topicArgs[1].replyCount += 1;
+      if (topicArgs[1]) topicArgs[1].replyCount += 1;
       
       return [...topicArgs, reply1, reply2];
     }
     
     return topicArgs;
 }
+
