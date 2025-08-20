@@ -235,6 +235,10 @@ export default function TopicPage() {
               <p className="text-muted-foreground pt-2">{topic.description}</p>
             </CardHeader>
           </Card>
+          
+          <div className="lg:hidden">
+            {renderVoteComponent()}
+          </div>
 
           <Card>
              <CardHeader>
@@ -257,7 +261,7 @@ export default function TopicPage() {
           <VoteChart topic={topic} />
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-8 hidden lg:block">
           
           {renderVoteComponent()}
 
