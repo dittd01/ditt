@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, CheckCircle, Info, RefreshCw, Loader2, BarChart, FileText, History } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Info, RefreshCw, Loader2, BarChart, FileText, History, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SuggestionForm } from '@/components/SuggestionForm';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -256,6 +256,15 @@ export default function TopicPage() {
            {votedOn && <LiveResults topic={topic} />}
            
            <Accordion type="single" collapsible className="w-full space-y-4">
+                <AccordionItem value="discussion">
+                    <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
+                        <MessageSquare className="h-5 w-5" /> Discussion
+                    </AccordionTrigger>
+                    <AccordionContent className="p-6 border border-t-0 rounded-b-lg">
+                        <p className="text-base text-muted-foreground">Discussion and comments will be available here.</p>
+                    </AccordionContent>
+                </AccordionItem>
+                
                 <AccordionItem value="description">
                     <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
                         <Info className="h-5 w-5" /> Topic Description
