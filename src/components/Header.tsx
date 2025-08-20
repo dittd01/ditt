@@ -5,12 +5,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Vote, LogOut, Shield } from 'lucide-react';
+import { Vote, LogOut, Shield, Search } from 'lucide-react';
+import { Input } from './ui/input';
 
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
 export function Header() {
   const [voterId, setVoterId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
   const handleLogout = () => {
@@ -59,6 +61,15 @@ export function Header() {
     };
   }, []);
 
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/?q=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push('/');
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
@@ -69,6 +80,15 @@ export function Header() {
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
+           <form onSubmit={handleSearch} className="relative w-full max-w-sm mr-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search topics..."
+                className="pl-9"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </form>
            <Button variant="ghost" asChild>
             <Link href="/about">About</Link>
           </Button>

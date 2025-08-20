@@ -46,10 +46,18 @@ function HomePageContent() {
 
   const selectedCategory = searchParams.get('cat');
   const selectedSubCategory = searchParams.get('sub');
+  const searchQuery = searchParams.get('q');
 
   const filteredTopics = topics.filter((topic) => {
     if (topic.categoryId === 'election_2025') {
       return false;
+    }
+    
+    // Search filter
+    if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matches = topic.question.toLowerCase().includes(query) || topic.description.toLowerCase().includes(query);
+        if(!matches) return false;
     }
 
     const category = selectedCategory || 'all';
@@ -80,6 +88,12 @@ function HomePageContent() {
   return (
     <div className="bg-background">
       <main className="container mx-auto px-4 py-8 sm:py-12">
+         {searchQuery && (
+          <div className="mb-8 text-center">
+            <h1 className="text-2xl font-bold">Search Results for "{searchQuery}"</h1>
+            <p className="text-muted-foreground">{filteredTopics.length} topics found.</p>
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {filteredTopics.map((topic) => (
             <TopicCard key={topic.id} topic={topic} />
