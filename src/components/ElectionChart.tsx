@@ -83,9 +83,9 @@ export function ElectionChart({ topic }: ElectionChartProps) {
             <LabelList
               dataKey="percentage"
               position="top"
-              offset={isMobile ? 12 : 5}
+                    offset={isMobile ? 20 : 20}
               angle={isMobile ? -90 : 0}
-              textAnchor={isMobile ? 'start' : 'middle'}
+                    textAnchor={isMobile ? 'middle' : 'middle'}
               className="text-[10px] md:text-[14px] font-medium"
               formatter={(value: number) => {
                 return `${value.toFixed(1)}%`;

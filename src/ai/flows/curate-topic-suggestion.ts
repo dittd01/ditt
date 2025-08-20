@@ -1,0 +1,115 @@
+'use server';
+
+/**
+ * @fileOverview A topic curation AI agent for "Ditt Demokrati".
+ * This flow processes user-submitted suggestions for new voting topics. It normalizes the suggestion,
+ * maps it to the MECE taxonomy, handles numeric parameters, detects duplicates against existing topics,
+ * and makes a decision to create, merge, or reject the topic.
+ *
+ * - curateTopicSuggestion - A function that handles the topic curation process.
+ * - CurateTopicSuggestionInput - The input type for the curateTopicSuggestion function.
+ * - CurateTopicSuggestionOutput - The return type for the curateTopicSuggestion function.
+ */
+
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
+
+const CurateTopicSuggestionInputSchema = z.object({
+  user_text: z.string().describe('The raw text suggestion submitted by the user.'),
+  taxonomy_json: z.string().describe('A JSON string representing the MECE category/subcategory taxonomy.'),
+  existing_topics_json: z.string().describe('A JSON string of existing canonical topics to check for duplicates.'),
+});
+export type CurateTopicSuggestionInput = z.infer<typeof CurateTopicSuggestionInputSchema>;
+
+const CurateTopicSuggestionOutputSchema = z.object({
+  action: z.enum(['create', 'merge', 'reject']).describe('The final decision for the suggestion.'),
+  category: z.string().describe('The assigned category from the taxonomy.'),
+  subcategory: z.string().describe('The assigned subcategory from the taxonomy.'),
+  canonical_nb: z.string().describe('The normalized, neutral phrasing of the topic in Norwegian (Bokmål).'),
+  canonical_en: z.string().describe('The normalized, neutral phrasing of the topic in English.'),
+  parameters: z.object({
+    threshold: z.number().int().optional().describe('The extracted numeric threshold, as an absolute integer in NOK.'),
+    threshold_binned: z.number().int().optional().describe('The threshold binned to the nearest 5 million.'),
+  }).describe('Extracted numeric parameters from the suggestion.'),
+  duplicate_of: z.string().describe("The 'canonical_nb' of the existing topic if the action is 'merge', otherwise an empty string."),
+  similarity: z.object({
+    cosine_estimate: z.number().describe('Estimated cosine similarity between the suggestion and the closest existing topic (0.0 to 1.0).'),
+    parameter_distance: z.number().int().optional().describe('The absolute NOK distance between the suggestion\'s parameter and an existing topic\'s parameter.'),
+    same_bin: z.boolean().optional().describe('Whether the suggestion\'s parameter falls into the same bin as an existing topic\'s.'),
+  }).describe('Similarity metrics used for duplicate detection.'),
+  policy_flags: z.array(z.string()).describe('Flags for content that may violate policy or require human review. "none" if no issues.'),
+  reject_reason: z.string().describe('The reason for rejection if the action is "reject", otherwise an empty string.'),
+  confidence: z.number().describe('The model\'s confidence in its decision, from 0.0 to 1.0.'),
+});
+export type CurateTopicSuggestionOutput = z.infer<typeof CurateTopicSuggestionOutputSchema>;
+
+
+export async function curateTopicSuggestion(input: CurateTopicSuggestionInput): Promise<CurateTopicSuggestionOutput> {
+  return curateTopicSuggestionFlow(input);
+}
+
+
+const prompt = ai.definePrompt({
+  name: 'curateTopicSuggestionPrompt',
+  input: { schema: CurateTopicSuggestionInputSchema },
+  output: { schema: CurateTopicSuggestionOutputSchema },
+  prompt: `You are a Topic Curator AI for the anonymous voting platform “Ditt Demokrati”. Your role is to process user-submitted suggestions for new voting topics with precision and neutrality.
+
+Follow these instructions exactly:
+
+1.  **Normalize Text**:
+    -   Rewrite the user's suggestion (user_text) into a clear, neutral, single-issue question.
+    -   The question must be answerable with a simple "Yes" or "No".
+    -   Remove any rhetorical, biased, or loaded framing.
+    -   Generate both Norwegian Bokmål (canonical_nb) and English (canonical_en) versions.
+
+2.  **Map to Taxonomy**:
+    -   Analyze the provided taxonomy_json.
+    -   Assign the normalized topic to exactly one Category and one Subcategory. Be precise. If uncertain, choose the most plausible subcategory.
+
+3.  **Handle Numeric Parameters**:
+    -   If the suggestion contains a numeric threshold (e.g., an amount in NOK), extract it into the 'parameters.threshold' field.
+    -   Normalize numbers to absolute integers (e.g., "15 million" -> 15000000).
+    -   Calculate 'parameters.threshold_binned' by rounding the threshold to the nearest 5,000,000.
+
+4.  **Duplicate Detection**:
+    -   Compare the normalized suggestion against the existing_topics_json within the *same subcategory*.
+    -   Calculate an estimated semantic similarity ('similarity.cosine_estimate').
+    -   If parameters exist, calculate the 'similarity.parameter_distance' (absolute difference in NOK).
+    -   Determine if the binned thresholds are the same ('similarity.same_bin').
+    -   Mark as a duplicate ('merge') if semantic similarity is very high (>= 0.9) OR if the parameter distance is less than 10,000,000 NOK.
+
+5.  **Decision Logic**:
+    -   **'create'**: If the topic is new, valid, and not a duplicate.
+    -   **'merge'**: If it's a duplicate of an existing topic. The 'duplicate_of' field must contain the 'canonical_nb' of the topic it merges with.
+    -   **'reject'**: If the suggestion is multi-issue, out of scope for the platform, unsafe, or violates policy. Provide a clear 'reject_reason'.
+
+6.  **Moderation**:
+    -   Analyze for safety. Reject any suggestions containing personal attacks, PII, illegal content, or harmful topics.
+    -   Use 'policy_flags' to note any concerns (e.g., "borderline-language", "sensitive-topic"). Set to ["none"] if clear.
+
+7.  **Final Output**:
+    -   Return ONLY a single, valid JSON object matching the output schema. Do not include any explanations or prose.
+    -   Set a 'confidence' score (0.0 to 1.0) for your overall output.
+
+**Inputs:**
+-   User Text: {{{user_text}}}
+-   Taxonomy: {{{taxonomy_json}}}
+-   Existing Topics: {{{existing_topics_json}}}
+`,
+});
+
+const curateTopicSuggestionFlow = ai.defineFlow(
+  {
+    name: 'curateTopicSuggestionFlow',
+    inputSchema: CurateTopicSuggestionInputSchema,
+    outputSchema: CurateTopicSuggestionOutputSchema,
+  },
+  async (input) => {
+    const { output } = await prompt(input);
+    if (!output) {
+      throw new Error('Failed to get a structured response from the model.');
+    }
+    return output;
+  }
+);
