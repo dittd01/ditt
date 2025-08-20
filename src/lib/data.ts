@@ -1,7 +1,8 @@
 
-import type { Topic, Category } from './types';
+import type { Topic, Category, VoteHistory } from './types';
 import { electionTopic } from './election-data';
 import type { LucideIcon } from 'lucide-react';
+import { subDays, subMonths, subYears, format } from 'date-fns';
 
 function generateSlug(text: string): string {
   return text
@@ -145,12 +146,43 @@ const topicOptions = {
     ]
 };
 
+const generateVoteHistory = (options: {id: string}[], days: number): VoteHistory[] => {
+    const history: VoteHistory[] = [];
+    let currentVotes = options.reduce((acc, option) => {
+        acc[option.id] = Math.floor(Math.random() * 20000) + 1000;
+        return acc;
+    }, {} as Record<string, number>);
+
+    for (let i = days; i >= 0; i--) {
+        const date = subDays(new Date(), i);
+        const newEntry: VoteHistory = { date: date.toISOString() };
+
+        let totalDayVotes = 0;
+        options.forEach(option => {
+            // Fluctuate votes
+            const fluctuation = (Math.random() - 0.45) * 0.1; // Fluctuate by up to 10%
+            currentVotes[option.id] = Math.max(0, Math.floor(currentVotes[option.id] * (1 + fluctuation)));
+            newEntry[option.id] = currentVotes[option.id];
+            totalDayVotes += newEntry[option.id] as number;
+        });
+
+        // Add a total for percentage calculation
+        newEntry.total = totalDayVotes;
+        history.push(newEntry);
+    }
+    return history;
+}
+
+
 const standardTopics: Topic[] = subCategoryData.map((sub, index): Topic => {
     const voteType = (sub.voteType || 'yesno') as Topic['voteType'];
     const options = topicOptions[voteType === 'multi' || voteType === 'ranked' ? 'ranked' : voteType === 'likert' ? 'likert' : voteType === 'quadratic' ? 'quadratic' : 'yesno'];
     
+    const history = generateVoteHistory(options, 365 * 2); // 2 years of data
+    const latestVotes = history[history.length - 1];
+    
     const votes = options.reduce((acc, option) => {
-        acc[option.id] = Math.floor(Math.random() * 50000);
+        acc[option.id] = latestVotes[option.id] as number;
         return acc;
     }, {} as Record<string, number>);
     
@@ -166,11 +198,7 @@ const standardTopics: Topic[] = subCategoryData.map((sub, index): Topic => {
         options: options,
         votes: votes,
         totalVotes: totalVotes,
-        history: [
-            { date: '1W Ago', ...Object.fromEntries(Object.entries(votes).map(([k, v]) => [k, Math.floor(v * 0.8)])) },
-            { date: '4D Ago', ...Object.fromEntries(Object.entries(votes).map(([k, v]) => [k, Math.floor(v * 0.9)])) },
-            { date: 'Today', ...votes },
-        ],
+        history: history,
         categoryId: sub.categoryId,
         subcategoryId: sub.id,
         status: 'live',

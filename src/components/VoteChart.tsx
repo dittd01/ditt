@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   BarChart,
   Bar,
@@ -15,10 +15,11 @@ import {
   LineChart,
   Line,
 } from 'recharts';
-import type { Topic } from '@/lib/types';
+import type { Topic, VoteHistory } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { subDays, subMonths, subYears, parseISO, format, startOfWeek, startOfMonth, startOfYear } from 'date-fns';
 
 type VoteChartProps = {
   topic: Topic;
@@ -49,21 +50,47 @@ const CustomLabel = (props: any) => {
 
 
 export function VoteChart({ topic }: VoteChartProps) {
-  const [timeframe, setTimeframe] = useState('W');
+  const [timeframe, setTimeframe] = useState('1Y');
 
-  const chartData = topic.history.map(hist => {
-    const total = topic.options.reduce((acc, opt) => acc + (Number(hist[opt.id]) || 0), 0);
-    const data: {[key: string]: any} = { date: hist.date, total };
-    topic.options.forEach(opt => {
-        data[opt.id] = hist[opt.id];
-        if (total > 0) {
-            data[`${opt.id}_percent`] = (Number(hist[opt.id]) / total) * 100;
-        } else {
-            data[`${opt.id}_percent`] = 0;
-        }
+  const chartData = useMemo(() => {
+    const now = new Date();
+    let startDate: Date;
+
+    switch (timeframe) {
+        case 'W':
+            startDate = startOfWeek(now);
+            break;
+        case '1M':
+            startDate = subMonths(now, 1);
+            break;
+        case '1Y':
+            startDate = subYears(now, 1);
+            break;
+        case 'All':
+        default:
+            startDate = new Date(0); // Epoch start to include all data
+            break;
+    }
+    
+    const filteredHistory = topic.history.filter(hist => parseISO(hist.date) >= startDate);
+
+    return filteredHistory.map(hist => {
+        const total = topic.options.reduce((acc, opt) => acc + (Number(hist[opt.id]) || 0), 0);
+        const data: { [key: string]: any } = { 
+            date: format(parseISO(hist.date), 'MMM d, yyyy'),
+            total 
+        };
+        topic.options.forEach(opt => {
+            data[opt.id] = hist[opt.id];
+            if (total > 0) {
+                data[`${opt.id}_percent`] = (Number(hist[opt.id]) / total) * 100;
+            } else {
+                data[`${opt.id}_percent`] = 0;
+            }
+        });
+        return data;
     });
-    return data;
-  });
+  }, [topic, timeframe]);
 
   return (
     <Card>

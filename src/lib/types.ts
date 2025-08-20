@@ -8,8 +8,9 @@ export type VoteOption = {
 };
 
 export type VoteHistory = {
-  date: string;
-  [key: string]: number | string;
+  date: string; // ISO 8601 format
+  total?: number;
+  [key: string]: number | string | undefined;
 };
 
 export type Topic = {
