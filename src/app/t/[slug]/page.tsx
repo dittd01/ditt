@@ -61,28 +61,18 @@ export default function TopicPage() {
     
     if (foundTopic) {
         const newVotes: Record<string, number> = {};
-        let newTotalVotes = 0;
         
-        foundTopic.options.forEach(option => {
-            const storedVotes = localStorage.getItem(`votes_for_${foundTopic!.id}_${option.id}`);
-            const currentVotes = storedVotes ? parseInt(storedVotes, 10) : foundTopic!.votes[option.id] || 0;
-            newVotes[option.id] = currentVotes;
-            // Only add to total if it's not abstain
-            if (option.id !== 'abstain') {
-                newTotalVotes += currentVotes;
-            }
+        // Load all possible vote counts from local storage, including abstain
+        const allPossibleOptions = [...foundTopic.options.map(o => o.id), 'abstain'];
+        allPossibleOptions.forEach(optionId => {
+            const storedVotes = localStorage.getItem(`votes_for_${foundTopic!.id}_${optionId}`);
+            newVotes[optionId] = storedVotes ? parseInt(storedVotes, 10) : (foundTopic!.votes[optionId] || 0);
         });
 
-        // Separately handle abstain votes if they exist in localStorage but not in options
-        const abstainKey = `votes_for_${foundTopic.id}_abstain`;
-        const storedAbstainVotes = localStorage.getItem(abstainKey);
-        if (storedAbstainVotes) {
-            newVotes['abstain'] = parseInt(storedAbstainVotes, 10);
-        } else {
-            // Initialize from data if not in local storage
-            newVotes['abstain'] = foundTopic.votes['abstain'] || 0;
-        }
-
+        // Recalculate total votes based on primary options (excluding abstain)
+        const newTotalVotes = foundTopic.options
+            .filter(o => o.id !== 'abstain')
+            .reduce((sum, option) => sum + (newVotes[option.id] || 0), 0);
 
         const initialTopicState = { ...foundTopic, votes: newVotes, totalVotes: newTotalVotes };
         setTopic(initialTopicState);
@@ -136,30 +126,26 @@ export default function TopicPage() {
         if (!currentTopic) return null;
 
         const newVotes = { ...currentTopic.votes };
-        let newTotalVotes = currentTopic.totalVotes;
 
-        // Decrement the old vote if there was one
+        // 1. Decrement the old vote if there was one
         if (previouslyVotedOn) {
             newVotes[previouslyVotedOn] = Math.max(0, (newVotes[previouslyVotedOn] || 1) - 1);
-            // If the previous vote was not 'abstain', it was part of the total.
-            if (previouslyVotedOn !== 'abstain') {
-                newTotalVotes = Math.max(0, newTotalVotes - 1);
-            }
         }
 
-        // Increment the new vote
+        // 2. Increment the new vote
         newVotes[currentVote] = (newVotes[currentVote] || 0) + 1;
-        // If the new vote is not 'abstain', add it to the total.
-        if (currentVote !== 'abstain') {
-            newTotalVotes += 1;
-        }
         
-        // Save all vote counts to local storage
-        const allPossibleOptions = [...currentTopic.options.map(o => o.id), 'abstain'];
-        allPossibleOptions.forEach(oid => {
+        // 3. Recalculate the total votes from scratch (excluding 'abstain')
+        const newTotalVotes = currentTopic.options
+            .filter(o => o.id !== 'abstain')
+            .reduce((sum, option) => sum + (newVotes[option.id] || 0), 0);
+
+        // 4. Save all vote counts to local storage for persistence
+        Object.keys(newVotes).forEach(oid => {
           localStorage.setItem(`votes_for_${currentTopic.id}_${oid}`, (newVotes[oid] || 0).toString());
         });
-
+        
+        // 5. Return the new state
         return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
     });
       
@@ -168,7 +154,7 @@ export default function TopicPage() {
 
     const voteLabel = Array.isArray(voteData) 
       ? 'your ranking' 
-      : topic.options.find((o) => o.id === currentVote)?.label || currentVote;
+      : [...topic.options, {id: 'abstain', label: 'Abstain'}].find((o) => o.id === currentVote)?.label || currentVote;
 
     toast({
         title: previouslyVotedOn ? 'Vote Changed!' : 'Vote Cast!',
@@ -197,7 +183,7 @@ export default function TopicPage() {
               You have voted
             </CardTitle>
             <CardDescription>
-              You voted for: <strong>{topic.voteType === 'ranked' ? 'your ranking' : topic.options.find((o) => o.id === votedOn)?.label || votedOn}</strong>
+              You voted for: <strong>{topic.voteType === 'ranked' ? 'your ranking' : [...topic.options, {id: 'abstain', label: 'Abstain'}].find((o) => o.id === votedOn)?.label || votedOn}</strong>
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -371,5 +357,3 @@ export default function TopicPage() {
     </div>
   );
 }
-
-    

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import type { Topic } from '@/lib/types';
@@ -16,13 +17,17 @@ export function LiveResults({ topic }: LiveResultsProps) {
         return (voteCount / topic.totalVotes) * 100;
     };
 
+    // Filter out 'abstain' from being displayed in the main results
+    const displayOptions = topic.options.filter(option => option.id !== 'abstain');
+    const abstainVotes = topic.votes['abstain'] || 0;
+
     return (
         <Card>
             <CardHeader>
                 <CardTitle>Live Results</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                {topic.options.map((option) => (
+                {displayOptions.map((option) => (
                     <div key={option.id}>
                         <div className="flex justify-between mb-1 text-sm">
                             <span className="text-muted-foreground">{option.label}</span>
@@ -31,7 +36,10 @@ export function LiveResults({ topic }: LiveResultsProps) {
                         <Progress value={getPercentage(option.id)} className="h-2" />
                     </div>
                 ))}
-                <p className="text-sm text-center text-muted-foreground pt-2">{topic.totalVotes.toLocaleString()} total votes</p>
+                <div className="text-sm text-center text-muted-foreground pt-2">
+                    <p>{topic.totalVotes.toLocaleString()} total votes cast.</p>
+                    {abstainVotes > 0 && <p>{abstainVotes.toLocaleString()} abstained.</p>}
+                </div>
             </CardContent>
         </Card>
     );
