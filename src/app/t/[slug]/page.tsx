@@ -89,20 +89,28 @@ export default function TopicPage() {
 
     const previouslyVotedOn = votedOn;
 
+    // Optimistic UI Update
     setTopic(currentTopic => {
         if (!currentTopic) return null;
 
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
+        // Increment new vote
         newVotes[currentVote] = (newVotes[currentVote] || 0) + 1;
 
         if (previouslyVotedOn) {
-            newVotes[previouslyVotedOn] = (newVotes[previouslyVotedOn] || 1) - 1;
+            // Decrement old vote if it exists
+            newVotes[previouslyVotedOn] = Math.max(0, (newVotes[previouslyVotedOn] || 1) - 1);
         } else {
+            // If it's a new vote, increment total voters
             newTotalVotes += 1;
         }
 
+        // The UI is now updated optimistically.
+        // In a real app, you'd now send the request to the server.
+        // For this demo, we'll just write to localStorage.
+        
         Object.keys(newVotes).forEach(oid => {
           localStorage.setItem(`votes_for_${currentTopic.id}_${oid}`, newVotes[oid].toString());
         });
@@ -112,8 +120,10 @@ export default function TopicPage() {
       
     localStorage.setItem(`voted_on_${topic.id}`, currentVote);
     setVotedOn(currentVote);
+
+    // Show success toast
     toast({
-        title: 'Vote Cast!',
+        title: previouslyVotedOn ? 'Vote Changed!' : 'Vote Cast!',
         description: `Your anonymous vote for "${
           topic.options.find((o) => o.id === currentVote)?.label
         }" has been recorded.`,
@@ -239,7 +249,8 @@ export default function TopicPage() {
            <div className="lg:hidden">
              {renderVoteComponent()}
            </div>
-
+          
+           {renderVoteComponent()}
            <Card>
              <CardHeader>
                 <CardTitle>Live Results</CardTitle>
@@ -264,7 +275,7 @@ export default function TopicPage() {
 
         <div className="space-y-8 hidden lg:block">
           
-          {renderVoteComponent()}
+          
 
           {voterId ? (
             <SuggestionForm />
