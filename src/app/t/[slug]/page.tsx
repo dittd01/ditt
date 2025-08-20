@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter, useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { allTopics, getArgumentsForTopic } from '@/lib/data';
+import { allTopics as initialTopics, getArgumentsForTopic } from '@/lib/data';
 import type { Topic, Argument } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -50,15 +50,22 @@ export default function TopicPage() {
     setIsClient(true);
     setLoading(true);
     
-    const foundTopic = allTopics.find((t) => t.slug === slug);
+    // First, try to find the topic in the initial static list
+    let foundTopic = initialTopics.find((t) => t.slug === slug);
+    
+    // If not found, check localStorage for custom topics
+    if (!foundTopic) {
+        const customTopics: Topic[] = JSON.parse(localStorage.getItem('custom_topics') || '[]');
+        foundTopic = customTopics.find(t => t.slug === slug);
+    }
     
     if (foundTopic) {
         const newVotes: Record<string, number> = {};
         let newTotalVotes = 0;
         
         foundTopic.options.forEach(option => {
-            const storedVotes = localStorage.getItem(`votes_for_${foundTopic.id}_${option.id}`);
-            const currentVotes = storedVotes ? parseInt(storedVotes, 10) : foundTopic.votes[option.id] || 0;
+            const storedVotes = localStorage.getItem(`votes_for_${foundTopic!.id}_${option.id}`);
+            const currentVotes = storedVotes ? parseInt(storedVotes, 10) : foundTopic!.votes[option.id] || 0;
             newVotes[option.id] = currentVotes;
             newTotalVotes += currentVotes;
         });
