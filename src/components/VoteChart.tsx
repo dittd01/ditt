@@ -72,9 +72,13 @@ export function VoteChart({ topic }: VoteChartProps) {
             break;
     }
     
-    const filteredHistory = topic.history.filter(hist => parseISO(hist.date) >= startDate);
+    // Filter history, but always keep at least one entry to show the start
+    let filteredHistory = topic.history.filter(hist => parseISO(hist.date) >= startDate);
+    if (filteredHistory.length === 0 && topic.history.length > 0) {
+        filteredHistory = [topic.history[0]];
+    }
 
-    return filteredHistory.map(hist => {
+    const processedHistory = filteredHistory.map(hist => {
         const total = topic.options.reduce((acc, opt) => acc + (Number(hist[opt.id]) || 0), 0);
         const data: { [key: string]: any } = { 
             date: format(parseISO(hist.date), 'MMM d, yyyy'),
@@ -90,6 +94,30 @@ export function VoteChart({ topic }: VoteChartProps) {
         });
         return data;
     });
+
+    // **This is the key fix**: Append the CURRENT vote state from the topic prop
+    // to the end of the historical data, ensuring the chart is always up-to-date.
+    const currentData: { [key: string]: any } = {
+        date: format(new Date(), 'MMM d, yyyy'),
+        total: topic.totalVotes
+    };
+    topic.options.forEach(option => {
+        currentData[option.id] = topic.votes[option.id] || 0;
+        if (topic.totalVotes > 0) {
+            currentData[`${option.id}_percent`] = ((topic.votes[option.id] || 0) / topic.totalVotes) * 100;
+        } else {
+            currentData[`${option.id}_percent`] = 0;
+        }
+    });
+
+    // Avoid duplicating the "today" entry if it's already the last one
+    if (processedHistory.length > 0 && processedHistory[processedHistory.length - 1].date === currentData.date) {
+        processedHistory[processedHistory.length - 1] = currentData;
+        return processedHistory;
+    } else {
+        return [...processedHistory, currentData];
+    }
+    
   }, [topic, timeframe]);
 
   return (
@@ -154,7 +182,7 @@ export function VoteChart({ topic }: VoteChartProps) {
                         }}
                     />
                     <Legend />
-                    {topic.options.map((option) => (
+                    {topic.options.filter(opt => opt.id !== 'abstain').map((option) => (
                         <Bar
                         key={option.id}
                         dataKey={option.id}
@@ -200,16 +228,16 @@ export function VoteChart({ topic }: VoteChartProps) {
                                 formatter={(value: number) => [`${value.toFixed(2)}%`, 'Percentage']}
                             />
                             <Legend />
-                            {topic.options.map((option) => (
+                            {topic.options.filter(opt => opt.id !== 'abstain').map((option) => (
                                 <Line
                                     key={option.id}
                                     type="monotone"
                                     dataKey={`${option.id}_percent`}
                                     name={option.label}
                                     stroke={option.color}
-                                    strokeWidth={0.25}
-                                    dot={{ r: 1, fill: option.color }}
-                                    activeDot={{ r: 2 }}
+                                    strokeWidth={2}
+                                    dot={{ r: 2, fill: option.color }}
+                                    activeDot={{ r: 4 }}
                                 />
                             ))}
                         </LineChart>
