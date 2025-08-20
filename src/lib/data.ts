@@ -84,7 +84,7 @@ const subCategoryData = [
     // Infrastructure & Transport
     { id: "rail", label: "Rail", categoryId: "infrastructure-transport", topic: "High‑speed rail Oslo–Trondheim?", imageUrl: 'https://images.pexels.com/photos/208736/pexels-photo-208736.jpeg', aiHint: 'high-speed train', voteType: 'yesno' },
     { id: "roads", label: "Roads/Tolls", categoryId: "infrastructure-transport", topic: "Abolish urban road tolls?", imageUrl: 'https://images.pexels.com/photos/347141/pexels-photo-347141.jpeg', aiHint: 'traffic highway', voteType: 'yesno' },
-    { id: "public_transit", label: "Public Transit", categoryId: "infrastructure-transport", topic: "Free transit for under‑18s?", imageUrl: 'https://images.pexels.com/photos/1603599/pexels-photo-1603599.jpeg', aiHint: 'bus city', voteType: 'yesno' },
+    { id: "public_transit", label: "Public Transit", categoryId: "infrastructure-transport", topic: "Free transit for under‑18s?", imageUrl: 'https://images.unsplash.com/photo-1646244552321-217ab905f505?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxCdXNzfGVufDB8fHx8MTc1NTcxNzQ0M3ww&ixlib=rb-4.1.0&q=80&w=1080', aiHint: 'bus city', voteType: 'yesno' },
     { id: "broadband", label: "Broadband", categoryId: "infrastructure-transport", topic: "Universal 1 Gbps by 2028?", imageUrl: 'https://images.pexels.com/photos/4144923/pexels-photo-4144923.jpeg', aiHint: 'fiber optics', voteType: 'yesno' },
     // Housing & Urban Development
     { id: "affordable", label: "Affordable Housing", categoryId: "housing-urban-development", topic: "Target 30k affordable units/year?", imageUrl: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg', aiHint: 'modern houses', voteType: 'yesno' },
@@ -448,4 +448,5 @@ export const mockArguments: Argument[] = generateUniqueArguments();
 export const getArgumentsForTopic = (topicId: string): Argument[] => {
   return mockArguments.filter(arg => arg.topicId === topicId);
 };
+
 
