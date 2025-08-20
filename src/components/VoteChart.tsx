@@ -49,7 +49,7 @@ const CustomLabel = (props: any) => {
 
 
 export function VoteChart({ topic }: VoteChartProps) {
-  const [timeframe, setTimeframe] = useState('1W');
+  const [timeframe, setTimeframe] = useState('W');
 
   const chartData = topic.history.map(hist => {
     const total = topic.options.reduce((acc, opt) => acc + (Number(hist[opt.id]) || 0), 0);
@@ -77,7 +77,7 @@ export function VoteChart({ topic }: VoteChartProps) {
                     <TabsTrigger value="percentage">Vote %</TabsTrigger>
                 </TabsList>
                 <div className="flex gap-1 bg-muted p-1 rounded-md w-full sm:w-auto">
-                    {['1H', '1D', 'W', '1M'].map((tf) => (
+                    {['W', '1M', '1Y', 'All'].map((tf) => (
                     <Button
                         key={tf}
                         size="sm"
