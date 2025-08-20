@@ -33,6 +33,23 @@ interface TooltipData {
     argument: Argument | null;
 }
 
+const CustomTooltip = ({ data }: { data: TooltipData['argument'] }) => {
+    if (!data || !data.author) {
+        return null;
+    }
+    return (
+        <div className="rounded-lg border bg-popover p-2 shadow-lg max-w-xs text-xs pointer-events-none">
+             <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full" style={{ backgroundColor: data.side === 'for' ? COLORS.for : COLORS.against }}/>
+                <p className="text-sm font-bold text-popover-foreground">Argument by {data.author.name}</p>
+            </div>
+            <p className="text-xs text-muted-foreground truncate mt-1">{data.text}</p>
+            <p className="text-xs text-muted-foreground mt-1">Upvotes: {data.upvotes}</p>
+        </div>
+    );
+};
+
+
 export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -44,7 +61,6 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
     const resizeObserver = new ResizeObserver(entries => {
         if (entries[0]) {
             const { width } = entries[0].contentRect;
-            // Keep height proportional or fixed for better sunburst aspect ratio
             const height = Math.min(width, 500); 
             setDimensions({ width, height });
         }
@@ -59,23 +75,32 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
     if (!args || args.length === 0 || dimensions.width === 0) {
         return null;
     }
-
+    
     const topicRoot: Argument = {
         id: 'root',
         topicId: args[0]?.topicId || '',
-        parentId: null,
-        side: 'for', // neutral, but needs a value
+        parentId: '', // Stratify expects empty string for root's parent
+        side: 'for', 
         author: { name: 'Topic' },
         text: topicQuestion,
         upvotes: 0, downvotes: 0, replyCount: 0, createdAt: ''
     };
     
+    const dataWithRoot = [topicRoot, ...args];
+    
+    // Check for duplicate IDs and filter them out
+    const uniqueArgs = Array.from(new Map(dataWithRoot.map(item => [item.id, item])).values());
+    const validArgs = uniqueArgs.filter(arg => arg.id === 'root' || uniqueArgs.find(a => a.id === arg.parentId));
+
+
+    if (validArgs.length <= 1) return null;
+
+
     const stratifiedData = d3.stratify<Argument>()
         .id(d => d.id)
-        .parentId(d => d.parentId === null ? 'root' : d.parentId)
-        ([topicRoot, ...args]);
+        .parentId(d => d.parentId)
+        (validArgs);
     
-    // Give each node equal weight for equal slices
     stratifiedData.sum(d => (d.id === 'root' ? 0 : 1));
 
     const radius = Math.min(dimensions.width, dimensions.height) / 2;
@@ -94,8 +119,9 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
     .startAngle(d => d.x0)
     .endAngle(d => d.x1)
     .padAngle(0.01)
-    .innerRadius(d => d.y0)
-    .outerRadius(d => d.y1);
+    .padRadius(1)
+    .innerRadius(d => d.y0 + 4)
+    .outerRadius(d => Math.max(d.y0 + 4, d.y1 - 2));
 
   const handleMouseOver = (event: React.MouseEvent<SVGPathElement>, d: HierarchyNode) => {
     if (d.depth === 0) return;
@@ -132,15 +158,10 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
     
     const baseColor = d.data.side === 'for' ? COLORS.for : COLORS.against;
     const hslColor = d3.hsl(baseColor);
-
-    // Adjust saturation and lightness based on votes
-    // More upvotes -> more saturated
-    // More downvotes -> less light (darker)
-    const saturation = 0.5 + Math.min(0.5, Math.log10(Math.max(1, d.data.upvotes + 1)) * 0.2);
-    const lightness = 0.6 - Math.min(0.2, Math.log10(Math.max(1, d.data.downvotes + 1)) * 0.1);
     
+    const totalVotes = d.data.upvotes + d.data.downvotes;
+    const saturation = 0.4 + Math.min(0.6, (totalVotes / 50) * 0.6);
     hslColor.s = saturation;
-    hslColor.l = lightness;
 
     return hslColor.toString();
   };
@@ -179,21 +200,16 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
         </svg>
         {tooltip.visible && tooltip.argument && (
              <div 
-                className="absolute rounded-lg border bg-popover p-2 shadow-lg max-w-xs text-xs pointer-events-none transition-opacity"
+                className="absolute z-50 transition-opacity"
                 style={{
                     left: tooltip.x + 10,
                     top: tooltip.y + 10,
                     transform: `translate(-${tooltip.x > window.innerWidth / 2 ? '100%' : '0'}, -${tooltip.y > window.innerHeight / 2 ? '100%' : '0'})`,
                     opacity: tooltip.visible ? 1 : 0,
+                    pointerEvents: 'none'
                 }}
             >
-                {tooltip.argument.id !== 'root' && tooltip.argument.author && (
-                    <>
-                        <p className="font-bold text-popover-foreground">Argument by {tooltip.argument.author.name}</p>
-                        <p className="text-muted-foreground line-clamp-4 mt-1">{tooltip.argument.text}</p>
-                        <p className="text-muted-foreground mt-1">Upvotes: {tooltip.argument.upvotes}</p>
-                    </>
-                )}
+               <CustomTooltip data={tooltip.argument} />
             </div>
         )}
       </CardContent>
