@@ -43,7 +43,9 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
   useEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
         if (entries[0]) {
-            const { width, height } = entries[0].contentRect;
+            const { width } = entries[0].contentRect;
+            // Keep height proportional or fixed for better sunburst aspect ratio
+            const height = Math.min(width, 500); 
             setDimensions({ width, height });
         }
     });
@@ -73,7 +75,8 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
         .parentId(d => d.parentId === null ? 'root' : d.parentId)
         ([topicRoot, ...args]);
     
-    stratifiedData.sum(d => (d.id === 'root' ? 0 : 1 + (d.upvotes || 0)));
+    // Give each node equal weight for equal slices
+    stratifiedData.sum(d => (d.id === 'root' ? 0 : 1));
 
     const radius = Math.min(dimensions.width, dimensions.height) / 2;
     
@@ -90,10 +93,12 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
   const arcGenerator = d3.arc<HierarchyNode>()
     .startAngle(d => d.x0)
     .endAngle(d => d.x1)
+    .padAngle(0.01)
     .innerRadius(d => d.y0)
     .outerRadius(d => d.y1);
 
   const handleMouseOver = (event: React.MouseEvent<SVGPathElement>, d: HierarchyNode) => {
+    if (d.depth === 0) return;
     d3.select(event.currentTarget).attr('stroke', 'hsl(var(--primary))').attr('stroke-width', 2);
     setTooltip({
         x: event.clientX,
@@ -124,10 +129,20 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
 
   const getColor = (d: HierarchyNode) => {
     if (d.depth === 0) return COLORS.neutral;
+    
     const baseColor = d.data.side === 'for' ? COLORS.for : COLORS.against;
-    const saturation = 50 + Math.min(50, Math.log2(Math.max(1, d.data.upvotes + 1)) * 10);
-    const lightness = 60 - Math.min(20, Math.log2(Math.max(1, d.data.downvotes + 1)) * 5);
-    return d3.hsl(baseColor).s(saturation/100).l(lightness/100).toString();
+    const hslColor = d3.hsl(baseColor);
+
+    // Adjust saturation and lightness based on votes
+    // More upvotes -> more saturated
+    // More downvotes -> less light (darker)
+    const saturation = 0.5 + Math.min(0.5, Math.log10(Math.max(1, d.data.upvotes + 1)) * 0.2);
+    const lightness = 0.6 - Math.min(0.2, Math.log10(Math.max(1, d.data.downvotes + 1)) * 0.1);
+    
+    hslColor.s = saturation;
+    hslColor.l = lightness;
+
+    return hslColor.toString();
   };
 
   return (
@@ -136,7 +151,7 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
         <CardTitle>Debate Visualization</CardTitle>
         <CardDescription>A radial map of the argument structure. Inner rings are top-level arguments.</CardDescription>
       </CardHeader>
-      <CardContent ref={containerRef} className="h-[400px] md:h-[500px] w-full p-0 relative">
+      <CardContent ref={containerRef} className="h-[500px] w-full p-0 relative">
         <svg ref={svgRef} width="100%" height="100%">
           <g transform={`translate(${dimensions.width / 2},${dimensions.height / 2})`}>
             {allNodes.map((d, i) => (
@@ -168,10 +183,11 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
                 style={{
                     left: tooltip.x + 10,
                     top: tooltip.y + 10,
-                    opacity: tooltip.visible ? 1 : 0
+                    transform: `translate(-${tooltip.x > window.innerWidth / 2 ? '100%' : '0'}, -${tooltip.y > window.innerHeight / 2 ? '100%' : '0'})`,
+                    opacity: tooltip.visible ? 1 : 0,
                 }}
             >
-                {tooltip.argument.id !== 'root' && (
+                {tooltip.argument.id !== 'root' && tooltip.argument.author && (
                     <>
                         <p className="font-bold text-popover-foreground">Argument by {tooltip.argument.author.name}</p>
                         <p className="text-muted-foreground line-clamp-4 mt-1">{tooltip.argument.text}</p>
