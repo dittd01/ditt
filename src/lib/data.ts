@@ -254,7 +254,39 @@ const users = Array.from({ length: 100 }, (_, i) => {
 const arguers = users.filter(u => u.role === 'arguer');
 const voters = users.filter(u => u.role === 'voter');
 
-const forStatementsTopic1 = [
+let argIdCounter = 1;
+const generatedArguments: Argument[] = [];
+
+const createArgsForTopic = (topicId: string, forStatements: string[], againstStatements: string[]) => {
+    forStatements.forEach((statement, i) => {
+        const arguer = arguers[i % 15];
+        generatedArguments.push({
+            id: `arg_${topicId}_${argIdCounter++}`,
+            topicId: topicId,
+            parentId: null,
+            side: 'for',
+            author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
+            text: statement,
+            upvotes: 0, downvotes: 0, replyCount: 0,
+            createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
+        });
+    });
+    againstStatements.forEach((statement, i) => {
+        const arguer = arguers[15 + (i % 15)];
+        generatedArguments.push({
+            id: `arg_${topicId}_${argIdCounter++}`,
+            topicId: topicId,
+            parentId: null,
+            side: 'against',
+            author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
+            text: statement,
+            upvotes: 0, downvotes: 0, replyCount: 0,
+            createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
+        });
+    });
+};
+
+const forStatementsTopic5 = [
     "Raising the threshold protects family businesses and farms from being taxed on essential equipment and assets.",
     "A higher threshold encourages entrepreneurs to reinvest their capital in Norway instead of moving it abroad.",
     "The current wealth tax is effectively a double tax on already-taxed income; this change mitigates that unfairness.",
@@ -272,7 +304,7 @@ const forStatementsTopic1 = [
     "It's a matter of principle: people should not be taxed year after year on assets they have already paid tax on."
 ];
 
-const againstStatementsTopic1 = [
+const againstStatementsTopic5 = [
     "This is a significant tax cut for the wealthiest, increasing the gap between rich and poor.",
     "It would reduce public revenue by billions, forcing cuts to schools, healthcare, and infrastructure.",
     "The current threshold is already high enough to protect average citizens; this only benefits the top 1%.",
@@ -289,6 +321,7 @@ const againstStatementsTopic1 = [
     "The majority of the population, who would not benefit from this change, would have to bear the cost through reduced services.",
     "This is a step backward in our collective effort to build a more egalitarian society."
 ];
+
 
 const forStatementsTopic3 = [
     "Banning large donations reduces the risk of 'cash for access' and political corruption.",
@@ -326,57 +359,19 @@ const againstStatementsTopic3 = [
     "It could lead to a system where only the independently wealthy can afford to run for office."
 ];
 
-let argIdCounter = 1;
-const generatedArguments: Argument[] = [];
-
-const createArgsForTopic = (topicId: string, forStatements: string[], againstStatements: string[]) => {
-    forStatements.forEach((statement, i) => {
-        const arguer = arguers[i % 15]; // Use the first 15 arguers for "for"
-        generatedArguments.push({
-            id: `arg_${topicId}_${argIdCounter++}`,
-            topicId: topicId,
-            parentId: null,
-            side: 'for',
-            author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
-            text: statement,
-            upvotes: 0, downvotes: 0, replyCount: 0,
-            createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
-        });
-    });
-    againstStatements.forEach((statement, i) => {
-        const arguer = arguers[15 + (i % 15)]; // Use the last 15 arguers for "against"
-        generatedArguments.push({
-            id: `arg_${topicId}_${argIdCounter++}`,
-            topicId: topicId,
-            parentId: null,
-            side: 'against',
-            author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
-            text: statement,
-            upvotes: 0, downvotes: 0, replyCount: 0,
-            createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
-        });
-    });
-};
-
-// Arguments for Topic 5 ("Raise wealth-tax threshold to NOK 10m?")
-createArgsForTopic('5', forStatementsTopic1, againstStatementsTopic1);
-
-// Arguments for Topic 3 ("Ban private donations above NOK 100k?")
+createArgsForTopic('5', forStatementsTopic5, againstStatementsTopic5);
 createArgsForTopic('3', forStatementsTopic3, againstStatementsTopic3);
 
-
-// Simulate votes from the "voters"
 voters.forEach(voter => {
     const votedOn = new Set<string>();
-    for (let i = 0; i < 10; i++) { // Increase votes per voter
+    const numVotes = Math.floor(Math.random() * 10) + 3; // Vote on 3 to 12 arguments
+    for (let i = 0; i < numVotes; i++) {
         let randomArgIndex = Math.floor(Math.random() * generatedArguments.length);
         while (votedOn.has(generatedArguments[randomArgIndex].id)) {
             randomArgIndex = Math.floor(Math.random() * generatedArguments.length);
         }
-        
         const argument = generatedArguments[randomArgIndex];
         votedOn.add(argument.id);
-        
         if (Math.random() > 0.3) {
             argument.upvotes += 1;
         } else {
@@ -385,26 +380,22 @@ voters.forEach(voter => {
     }
 });
 
-
-// Add some replies to create a tree structure
 const addReplies = (count: number) => {
     for (let i = 0; i < count; i++) {
-        const potentialParents = generatedArguments.filter(a => a.replyCount < 3); // Limit replies to keep it from getting too deep
+        const potentialParents = generatedArguments.filter(a => a.replyCount < 3);
         if (potentialParents.length === 0) break;
-
-        const parentIndex = Math.floor(Math.random() * potentialParents.length);
-        const parent = potentialParents[parentIndex];
         
+        const parent = potentialParents[Math.floor(Math.random() * potentialParents.length)];
         const arguer = arguers[Math.floor(Math.random() * arguers.length)];
         const replySide = parent.side === 'for' ? 'against' : 'for';
         
         const reply: Argument = {
-             id: `arg_${parent.topicId}_${argIdCounter++}`,
+             id: `arg_reply_${argIdCounter++}`,
              topicId: parent.topicId,
              parentId: parent.id,
              side: replySide,
              author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
-             text: `This is a reply to the previous statement about "${parent.text.substring(0, 20)}...". I think you are mistaken because...`,
+             text: `This is a reply to "${parent.text.substring(0, 20)}...". I think you are mistaken because...`,
              upvotes: Math.floor(Math.random() * 10),
              downvotes: Math.floor(Math.random() * 5),
              replyCount: 0,
@@ -416,7 +407,7 @@ const addReplies = (count: number) => {
     }
 };
 
-addReplies(40); // Add 40 replies across all arguments
+addReplies(40);
 
 export const mockArguments: Argument[] = generatedArguments;
 
@@ -426,4 +417,5 @@ export const getArgumentsForTopic = (topicId: string): Argument[] => {
     
 
     
+
 

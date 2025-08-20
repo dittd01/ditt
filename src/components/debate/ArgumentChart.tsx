@@ -88,23 +88,24 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
     
     const dataWithRoot = [topicRoot, ...args];
     
-    // Check for duplicate IDs and filter them out
-    const uniqueArgs = Array.from(new Map(dataWithRoot.map(item => [item.id, item])).values());
-    const argMap = new Map(uniqueArgs.map(arg => [arg.id, arg]));
+    const idToNodeMap = new Map(dataWithRoot.map(item => [item.id, item]));
 
-    // Filter out children whose parents do not exist in the map (except for the root itself)
-    const validArgs = uniqueArgs.filter(arg => {
-        if (arg.parentId === null || arg.parentId === '') return true;
-        return argMap.has(arg.parentId);
+    // Ensure parentId is either valid or null (for top-level)
+    const sanitizedData = dataWithRoot.map(item => {
+        if (item.parentId && !idToNodeMap.has(item.parentId)) {
+            console.warn(`Invalid parentId "${item.parentId}" for item "${item.id}". Setting to root.`);
+            return { ...item, parentId: 'root' };
+        }
+        return item;
     });
 
-    if (validArgs.length <= 1) return null;
+    if (sanitizedData.length <= 1) return null;
 
     try {
         const stratifiedData = d3.stratify<Argument>()
             .id(d => d.id)
-            .parentId(d => d.parentId)
-            (validArgs);
+            .parentId(d => d.parentId || 'root') // Default to root if parentId is null
+            (sanitizedData);
         
         stratifiedData.sum(d => (d.id === 'root' ? 0 : 1));
 
@@ -117,7 +118,7 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
         return partition(stratifiedData) as HierarchyNode;
     } catch(e) {
         console.error("D3 Stratify error:", e);
-        console.error("Invalid data:", validArgs);
+        console.error("Invalid data provided to stratify:", sanitizedData);
         return null;
     }
 
