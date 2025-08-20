@@ -59,7 +59,10 @@ export default function TopicPage() {
         if (currentVoterId) {
             const previousVote = localStorage.getItem(`voted_on_${foundTopic.id}`);
             setVotedOn(previousVote);
-            setSelectedOption(previousVote);
+            // For yes/no, pre-select the radio button
+            if (foundTopic.voteType === 'yesno') {
+                setSelectedOption(previousVote);
+            }
         }
     } else {
         setTopic(null);
@@ -68,7 +71,7 @@ export default function TopicPage() {
     setLoading(false);
   }, [slug]);
 
-  const handleVote = () => {
+  const handleVote = (voteData: string | string[]) => {
     if (!voterId) {
       toast({
         variant: 'destructive',
@@ -78,7 +81,9 @@ export default function TopicPage() {
       router.push('/login');
       return;
     }
-    if (!selectedOption || !topic || votedOn === selectedOption) {
+    
+    const currentVote = Array.isArray(voteData) ? voteData[0] : voteData;
+    if (!currentVote || !topic || votedOn === currentVote) {
       return;
     }
 
@@ -90,7 +95,7 @@ export default function TopicPage() {
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
-        newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
+        newVotes[currentVote] = (newVotes[currentVote] || 0) + 1;
 
         if (previouslyVotedOn) {
             newVotes[previouslyVotedOn] = (newVotes[previouslyVotedOn] || 1) - 1;
@@ -105,19 +110,19 @@ export default function TopicPage() {
         return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
     });
       
-    localStorage.setItem(`voted_on_${topic.id}`, selectedOption);
-    setVotedOn(selectedOption);
+    localStorage.setItem(`voted_on_${topic.id}`, currentVote);
+    setVotedOn(currentVote);
     toast({
         title: 'Vote Cast!',
         description: `Your anonymous vote for "${
-          topic.options.find((o) => o.id === selectedOption)?.label
+          topic.options.find((o) => o.id === currentVote)?.label
         }" has been recorded.`,
     });
   };
   
   const handleRevote = () => {
     setVotedOn(null);
-    setSelectedOption(null);
+    setSelectedOption(null); // Clear radio selection
      toast({
       title: 'Cast a new vote',
       description: 'You may now select a different option.',
@@ -185,7 +190,7 @@ export default function TopicPage() {
                         </RadioGroup>
                     </CardContent>
                     <CardFooter>
-                        <Button onClick={handleVote} disabled={!selectedOption} className="w-full h-12 text-lg">
+                        <Button onClick={() => handleVote(selectedOption!)} disabled={!selectedOption} className="w-full h-12 text-lg">
                         Submit Vote
                         </Button>
                     </CardFooter>

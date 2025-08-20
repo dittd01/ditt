@@ -44,7 +44,7 @@ function SortableItem({ item }: { item: VoteOption }) {
   };
   
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="flex items-center gap-4 p-4 border rounded-md bg-background touch-none">
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="flex items-center gap-4 p-4 border rounded-md bg-background touch-none w-full">
         <GripVertical className="text-muted-foreground" />
         <span className="font-medium">{item.label}</span>
     </div>
@@ -64,10 +64,10 @@ export function RankedChoice({ topic, onVote }: RankedChoiceProps) {
   function handleDragEnd(event: DragEndEvent) {
     const {active, over} = event;
     
-    if (active.id !== over?.id) {
+    if (over && active.id !== over.id) {
       setRankedItems((items) => {
         const oldIndex = items.findIndex(item => item.id === active.id);
-        const newIndex = items.findIndex(item => item.id === over?.id);
+        const newIndex = items.findIndex(item => item.id === over.id);
         return arrayMove(items, oldIndex, newIndex);
       });
     }
@@ -96,7 +96,7 @@ export function RankedChoice({ topic, onVote }: RankedChoiceProps) {
             <div className="space-y-2">
                 {rankedItems.map((item, index) => (
                     <div key={item.id} className="flex items-center gap-2">
-                        <span className="font-bold text-lg text-muted-foreground w-6">{index + 1}.</span>
+                        <span className="font-bold text-lg text-muted-foreground w-6 text-center">{index + 1}.</span>
                         <SortableItem item={item} />
                     </div>
                 ))}
@@ -104,7 +104,7 @@ export function RankedChoice({ topic, onVote }: RankedChoiceProps) {
           </SortableContext>
         </DndContext>
       </CardContent>
-      <CardFooter className="flex-col gap-4">
+      <CardFooter className="flex-col gap-4 pt-6">
         <Button onClick={handleSubmit} className="w-full h-12 text-lg">
           Submit Ranking
         </Button>
