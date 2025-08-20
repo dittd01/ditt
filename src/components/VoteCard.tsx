@@ -2,6 +2,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Collapsible,
   CollapsibleContent,
@@ -60,7 +61,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
 
   return (
     <Card ref={cardRef} className="flex h-full flex-col">
-      <Collapsible className="flex flex-col flex-1">
+      <Collapsible className="flex flex-1 flex-col">
         <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
           {iconName && <Icon name={iconName} className="h-6 w-6 shrink-0 text-muted-foreground" />}
           <div className="flex-1">
@@ -70,6 +71,16 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
               </CardTitle>
             </Link>
           </div>
+           <Link href={link} className="relative h-16 w-16 shrink-0" onClick={handleCardClick}>
+              <Image
+                src={topic.imageUrl}
+                alt={topic.question}
+                fill
+                sizes="64px"
+                className="rounded-md object-cover"
+                data-ai-hint={topic.aiHint}
+              />
+            </Link>
         </CardHeader>
         <div className="flex-1 flex flex-col justify-between">
           <CardContent className="py-0">
@@ -89,7 +100,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
               </div>
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="pt-4">
             <Button asChild className="w-full h-11 text-base" onClick={handleCardClick}>
               <Link href={link}>
                 {hasVoted ? 'Change Vote' : 'Vote Now'}
@@ -111,14 +122,15 @@ VoteCard.Skeleton = function VoteCardSkeleton() {
                     <Skeleton className="h-5 w-4/5" />
                     <Skeleton className="h-5 w-2/5" />
                 </div>
+                 <Skeleton className="h-16 w-16 rounded-md" />
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
                 <div className="flex items-center justify-between">
                     <Skeleton className="h-8 w-20" />
                     <Skeleton className="h-5 w-16" />
                 </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="pt-4">
                 <Skeleton className="h-11 w-full" />
             </CardFooter>
         </Card>
