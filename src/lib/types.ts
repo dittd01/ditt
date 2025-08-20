@@ -15,6 +15,7 @@ export type Topic = {
   question: string;
   description: string;
   imageUrl: string;
+  aiHint: string;
   options: VoteOption[];
   votes: Record<string, number>;
   totalVotes: number;

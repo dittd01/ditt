@@ -160,7 +160,7 @@ export default function TopicPage() {
                   alt={topic.question}
                   fill
                   className="rounded-lg object-cover"
-                   data-ai-hint="technology policy"
+                   data-ai-hint={topic.aiHint}
                 />
               </div>
               <h1 className="text-2xl md:text-3xl font-bold font-headline">{topic.question}</h1>

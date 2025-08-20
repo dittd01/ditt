@@ -24,7 +24,7 @@ export function TopicCard({ topic }: { topic: Topic }) {
               alt={topic.question}
               fill
               className="rounded-t-lg object-cover"
-              data-ai-hint="technology policy"
+              data-ai-hint={topic.aiHint}
             />
           </div>
         </CardHeader>
