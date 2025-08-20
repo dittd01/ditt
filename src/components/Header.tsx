@@ -65,33 +65,33 @@ export function Header() {
         <div className="mr-4 flex">
           <Link href="/" className="flex items-center space-x-2">
             <Vote className="h-6 w-6 text-primary" />
-            <span className="font-bold">Ditt Demokrati</span>
+            <span className="font-bold sm:inline-block">Ditt Demokrati</span>
           </Link>
         </div>
-        <div className="flex flex-1 items-center justify-end space-x-2">
-           <Button variant="ghost" asChild>
+        <div className="flex flex-1 items-center justify-end space-x-1 sm:space-x-2">
+           <Button variant="ghost" asChild className="hidden sm:inline-flex">
             <Link href="/about">About</Link>
           </Button>
-          <Button variant="ghost" asChild>
+          <Button variant="ghost" asChild className="hidden sm:inline-flex">
             <Link href="/admin" className="flex items-center gap-2">
               <Shield className="h-4 w-4" /> Admin
             </Link>
           </Button>
 
-          <div className="w-px h-6 bg-border mx-2"></div>
+          <div className="w-px h-6 bg-border mx-2 hidden sm:block"></div>
 
           {voterId ? (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <span className="text-sm text-muted-foreground hidden md:inline">
                 ID: {voterId.substring(0, 15)}...
               </span>
-              <Button variant="outline" onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="mr-0 sm:mr-2 h-4 w-4" />
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           ) : (
-            <Button asChild>
+            <Button asChild size="sm">
               <Link href="/login">BankID Login</Link>
             </Button>
           )}
