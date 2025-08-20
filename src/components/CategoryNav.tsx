@@ -15,8 +15,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
+import Link from 'next/link';
 
-const MAX_VISIBLE_CATEGORIES = 7;
+const MAX_VISIBLE_CATEGORIES = 6;
 
 function CategoryNavContent({ categories }: { categories: Category[] }) {
   const router = useRouter();
@@ -27,7 +28,9 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
   const [dropdownCategories, setDropdownCategories] = useState<Category[]>([]);
 
   const allCategories = [{ id: 'all', label: 'Trending', subcategories: [], icon: '' }, ...categories];
-  const selectedCategoryId = searchParams.get('cat') || (pathname === '/election-2025' ? 'election_2025' : 'all');
+  const selectedCategoryId = searchParams.get('cat') || 
+    (pathname === '/election-2025' ? 'election_2025' : 
+    (pathname === '/all' ? 'all_topics' : 'all'));
 
   useEffect(() => {
     if (isMobile) {
@@ -64,6 +67,10 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
         router.push('/election-2025');
         return;
       }
+      if (categoryId === 'all_topics') {
+        router.push('/all');
+        return;
+      }
       const current = new URLSearchParams(Array.from(searchParams.entries()));
       if (categoryId && categoryId !== 'all') {
         current.set('cat', categoryId);
@@ -89,31 +96,38 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
     return null;
   }
   
-  const renderCategoryButton = (cat: Category) => (
-     <button
-        key={cat.id}
-        role="tab"
-        aria-selected={selectedCategoryId === cat.id}
-        onClick={() => handleSelectCategory(cat.id)}
-        className={cn(
-          'whitespace-nowrap px-3 py-2 text-sm font-medium relative transition-colors rounded-md',
-          selectedCategoryId === cat.id
-            ? 'text-primary'
-            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-        )}
-      >
-        {cat.label}
-        {selectedCategoryId === cat.id && (
-          <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></span>
-        )}
-      </button>
-  );
+  const renderCategoryButton = (cat: Category, isLink: boolean = false, href?: string) => {
+     const button = (
+       <button
+          key={cat.id}
+          role="tab"
+          aria-selected={selectedCategoryId === cat.id}
+          onClick={() => !isLink && handleSelectCategory(cat.id)}
+          className={cn(
+            'whitespace-nowrap px-3 py-2 text-sm font-medium relative transition-colors rounded-md',
+            selectedCategoryId === cat.id
+              ? 'text-primary'
+              : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+          )}
+        >
+          {cat.label}
+          {selectedCategoryId === cat.id && (
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></span>
+          )}
+        </button>
+     );
+
+      if (isLink && href) {
+        return <Link href={href}>{button}</Link>;
+      }
+      return button;
+  };
 
   return (
     <div className="sticky top-14 z-40 bg-background/80 backdrop-blur-sm shadow-sm">
       <div className="container mx-auto px-4">
         <div role="tablist" className={cn("relative flex items-center border-b -mb-px", isMobile && "no-scrollbar overflow-x-auto")}>
-          {visibleCategories.map(renderCategoryButton)}
+          {visibleCategories.map(cat => renderCategoryButton(cat))}
           
           {dropdownCategories.length > 0 && !isMobile && (
              <DropdownMenu>
@@ -134,6 +148,24 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+
+           <button
+            key="all_topics"
+            role="tab"
+            aria-selected={selectedCategoryId === 'all_topics'}
+            onClick={() => handleSelectCategory('all_topics')}
+            className={cn(
+              'whitespace-nowrap px-3 py-2 text-sm font-medium relative transition-colors rounded-md ml-auto',
+              selectedCategoryId === 'all_topics'
+                ? 'text-primary'
+                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+            )}
+          >
+            All Topics
+            {selectedCategoryId === 'all_topics' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></span>
+            )}
+          </button>
         </div>
       </div>
     </div>
