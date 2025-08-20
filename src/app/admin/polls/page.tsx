@@ -122,8 +122,8 @@ export default function PollsPage() {
     }
   };
   
-  const SortableHeader = ({ sortKey, children }: { sortKey: SortDescriptor['key'], children: React.ReactNode}) => (
-    <TableHead>
+  const SortableHeader = ({ sortKey, children, className }: { sortKey: SortDescriptor['key'], children: React.ReactNode, className?: string}) => (
+    <TableHead className={className}>
         <Button variant="ghost" onClick={() => handleSortChange(sortKey)} className="-ml-4 h-8">
             {children}
             {sortDescriptor.key === sortKey && (
@@ -181,7 +181,7 @@ export default function PollsPage() {
         <TableHeader>
             <TableRow>
                 <SortableHeader sortKey="category">Category</SortableHeader>
-                <SortableHeader sortKey="title">Title</SortableHeader>
+                <SortableHeader sortKey="title" className="w-[40%]">Subcategory / Title</SortableHeader>
                 <SortableHeader sortKey="status">Status</SortableHeader>
                 <SortableHeader sortKey="votes">Total Votes</SortableHeader>
                 <SortableHeader sortKey="updated">Last Updated</SortableHeader>
@@ -191,8 +191,11 @@ export default function PollsPage() {
         <TableBody>
             {sortedAndFilteredPolls.map((poll) => (
                  <TableRow key={poll.id}>
-                    <TableCell>{poll.category}{poll.subcategory !== 'N/A' ? ` / ${poll.subcategory}`: ''}</TableCell>
-                    <TableCell className="font-medium">{poll.title}</TableCell>
+                    <TableCell>{poll.category}</TableCell>
+                    <TableCell className="font-medium">
+                        {poll.subcategory !== 'N/A' && <span className="text-muted-foreground">{poll.subcategory} / </span>}
+                        {poll.title}
+                    </TableCell>
                     <TableCell><Badge variant={poll.status === 'Live' ? 'default' : 'secondary'}>{poll.status}</Badge></TableCell>
                     <TableCell>{poll.votes.toLocaleString()}</TableCell>
                     <TableCell>{poll.updated}</TableCell>
