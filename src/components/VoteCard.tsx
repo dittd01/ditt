@@ -3,14 +3,9 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronDown, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Topic, Category, Subcategory } from '@/lib/types';
 import { categories } from '@/lib/data';
@@ -18,6 +13,7 @@ import { Skeleton } from './ui/skeleton';
 import { Icon } from './Icon';
 import { trackEvent } from '@/lib/analytics';
 import { useEffect, useRef } from 'react';
+import { Progress } from './ui/progress';
 
 
 interface VoteCardProps {
@@ -70,62 +66,66 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
   const handleCardClick = () => {
     trackEvent('open_card', { topicId: topic.id, from: 'homepage' });
   };
+  
+  const yesVotes = topic.votes?.yes || 0;
+  const noVotes = topic.votes?.no || 0;
+  const primaryVotes = yesVotes + noVotes;
+  const yesPercentage = primaryVotes > 0 ? (yesVotes / primaryVotes) * 100 : 50;
+
 
   return (
-    <Card ref={cardRef} className="flex h-full flex-col">
-      <Collapsible className="flex flex-1 flex-col">
-        <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
-          {iconName && <Icon name={iconName} className="h-6 w-6 shrink-0 text-muted-foreground" />}
-          <div className="flex-1">
-            {category && subcategory && topic.voteType !== 'election' && (
-                 <div className="text-xs text-muted-foreground font-medium mb-1">
-                    {category.label} &middot; {subcategory.label}
-                 </div>
+    <Card ref={cardRef} className="flex h-full flex-col transition-all hover:shadow-lg hover:-translate-y-1">
+        <Link href={link} className="group" onClick={handleCardClick}>
+            <CardHeader className="p-0 border-b">
+                <div className="aspect-video relative">
+                    <Image
+                        src={topic.imageUrl}
+                        alt={topic.question}
+                        fill
+                        sizes="350px"
+                        className="rounded-t-lg object-cover"
+                        data-ai-hint={topic.aiHint}
+                    />
+                </div>
+            </CardHeader>
+        </Link>
+        <div className="flex-1 flex flex-col p-4">
+            <div className="flex-1">
+                {category && subcategory && topic.voteType !== 'election' && (
+                     <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-2">
+                        {iconName && <Icon name={iconName} className="h-4 w-4" />}
+                        <span>{category.label} &middot; {subcategory.label}</span>
+                     </div>
+                )}
+                <Link href={link} className="group" onClick={handleCardClick}>
+                  <CardTitle className="text-base font-semibold leading-snug line-clamp-3 group-hover:text-primary">
+                    {topic.question}
+                  </CardTitle>
+                </Link>
+            </div>
+            
+             {topic.voteType === 'yesno' && (
+                <div className="space-y-2 mt-4">
+                    <div className="flex justify-between text-xs font-medium text-muted-foreground">
+                        <span>Yes {yesPercentage.toFixed(0)}%</span>
+                        <span>No {(100 - yesPercentage).toFixed(0)}%</span>
+                    </div>
+                    <Progress value={yesPercentage} className="h-2" />
+                </div>
             )}
-            <Link href={link} className="group" onClick={handleCardClick}>
-              <CardTitle className="text-lg font-semibold leading-snug line-clamp-3 group-hover:underline">
-                {topic.question}
-              </CardTitle>
-            </Link>
-          </div>
-           <Link href={link} className="relative h-16 w-16 shrink-0" onClick={handleCardClick}>
-              <Image
-                src={topic.imageUrl}
-                alt={topic.question}
-                fill
-                sizes="64px"
-                className="rounded-md object-cover"
-                data-ai-hint={topic.aiHint}
-              />
-            </Link>
-        </CardHeader>
-        <div className="flex-1 flex flex-col justify-between">
-          <CardContent className="py-0">
-            <CollapsibleContent>
-              <p className="text-base text-muted-foreground mb-4">{topic.description}</p>
-            </CollapsibleContent>
-            <div className="flex items-center justify-between">
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="-ml-3 h-auto text-muted-foreground">
-                  <ChevronDown className="h-4 w-4 mr-1 transition-transform [&[data-state=open]]:rotate-180" />
-                  Details
-                </Button>
-              </CollapsibleTrigger>
-              <div className="flex items-center text-sm text-muted-foreground">
+
+        </div>
+        <CardFooter className="pt-0 p-4 border-t flex justify-between items-center">
+             <div className="flex items-center text-sm text-muted-foreground">
                 <Users className="w-4 h-4 mr-2" />
                 <span>{topic.totalVotes.toLocaleString()}</span>
               </div>
-            </div>
-          </CardContent>
-          <CardFooter className="pt-4">
-            <Button asChild className="w-full h-11 text-base" onClick={handleCardClick}>
+            <Button asChild size="sm" className="h-9 text-sm" onClick={handleCardClick}>
               <Link href={link}>
                 {hasVoted ? 'Change Vote' : 'Vote Now'}
               </Link>
             </Button>
-          </CardFooter>
-        </div>
-      </Collapsible>
+        </CardFooter>
     </Card>
   );
 }
@@ -133,23 +133,24 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
 VoteCard.Skeleton = function VoteCardSkeleton() {
     return (
         <Card className="flex h-full flex-col">
-            <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
-                <Skeleton className="h-6 w-6 rounded-md" />
-                <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="aspect-video w-full rounded-b-none" />
+            <div className="p-4 flex-1 flex flex-col">
+                <div className="flex-1">
+                    <Skeleton className="h-4 w-1/2 mb-2" />
                     <Skeleton className="h-5 w-4/5" />
-                    <Skeleton className="h-5 w-2/5" />
+                    <Skeleton className="h-5 w-2/5 mt-1" />
                 </div>
-                 <Skeleton className="h-16 w-16 rounded-md" />
-            </CardHeader>
-            <CardContent className="pt-0">
-                <div className="flex items-center justify-between">
-                    <Skeleton className="h-8 w-20" />
-                    <Skeleton className="h-5 w-16" />
+                <div className="space-y-2 mt-4">
+                    <div className="flex justify-between">
+                         <Skeleton className="h-4 w-1/4" />
+                         <Skeleton className="h-4 w-1/4" />
+                    </div>
+                     <Skeleton className="h-2 w-full" />
                 </div>
-            </CardContent>
-            <CardFooter className="pt-4">
-                <Skeleton className="h-11 w-full" />
+            </div>
+            <CardFooter className="pt-0 p-4 border-t flex justify-between items-center">
+                 <Skeleton className="h-5 w-16" />
+                 <Skeleton className="h-9 w-24" />
             </CardFooter>
         </Card>
     )
