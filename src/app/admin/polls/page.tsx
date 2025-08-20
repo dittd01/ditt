@@ -24,6 +24,17 @@ import { allTopics, categories } from '@/lib/data';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import type { Topic } from '@/lib/types';
+
+interface PollRowData {
+    title: string;
+    category: string;
+    subcategory: string;
+    categoryId: string;
+    status: string;
+    votes: string;
+    updated: string;
+}
 
 export default function PollsPage() {
   const { toast } = useToast();
@@ -31,7 +42,7 @@ export default function PollsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [filteredPolls, setFilteredPolls] = useState(allTopics);
+  const [filteredPolls, setFilteredPolls] = useState<PollRowData[]>([]);
 
   const polls = useMemo(() => {
     const getCategoryInfo = (categoryId: string, subcategoryId: string) => {
@@ -45,7 +56,7 @@ export default function PollsPage() {
           catId: category.id
         }
     }
-    return allTopics.map(topic => {
+    return allTopics.map((topic): PollRowData => {
         const { cat, sub, catId } = getCategoryInfo(topic.categoryId, topic.subcategoryId);
         return {
             title: topic.question,
@@ -150,7 +161,7 @@ export default function PollsPage() {
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => handleAction('Edit', poll.title)}>Edit</DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleAction('Duplicate', poll.title)}>Duplicate</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleAction(poll.status === 'Active' ? 'Archive' : 'Activate', poll.title)}>{poll.status === 'Active' ? 'Archive' : 'Activate'}</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleAction(poll.status === 'Live' ? 'Archive' : 'Activate', poll.title)}>{poll.status === 'Live' ? 'Archive' : 'Activate'}</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </TableCell>
