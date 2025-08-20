@@ -1,10 +1,20 @@
+
 'use client';
 
 import { useParams } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Globe, Mail, MapPin, Milestone } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Globe, Mail, MapPin, Milestone, CheckCircle, XCircle, CopyCheck } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 
 // Mock data - in a real app, this would be fetched from Firestore
 const mockUser = {
@@ -18,7 +28,46 @@ const mockUser = {
   pronouns: 'they/them',
   interests: ['Votering', 'Teknologi', 'Demokrati'],
   createdAt: new Date(),
+  suggestions: [
+    {
+      id: 1,
+      text: 'Should all public transport be free in major cities?',
+      verdict: 'Approved',
+      reason: 'Clear, single-issue question.',
+    },
+    {
+      id: 2,
+      text: 'More money for schools and also lower taxes.',
+      verdict: 'Rejected',
+      reason: 'Contains multiple, conflicting issues.',
+    },
+    {
+      id: 3,
+      text: 'What about making the wealth tax higher?',
+      verdict: 'Merged',
+      reason: 'Similar to existing topic: "Raise wealth-tax threshold to NOK 10m?"',
+    },
+     {
+      id: 4,
+      text: 'Introduce a four-day work week as standard.',
+      verdict: 'Approved',
+      reason: 'Unique and well-defined topic.',
+    },
+  ]
 };
+
+const getVerdictIcon = (verdict: string) => {
+    switch (verdict) {
+        case 'Approved':
+            return <CheckCircle className="h-4 w-4 text-green-500" />;
+        case 'Merged':
+            return <CopyCheck className="h-4 w-4 text-blue-500" />;
+        case 'Rejected':
+            return <XCircle className="h-4 w-4 text-red-500" />;
+        default:
+            return null;
+    }
+}
 
 export default function ProfilePage() {
   const params = useParams();
@@ -38,7 +87,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
+    <div className="container mx-auto max-w-4xl px-4 py-8 space-y-8">
       <Card>
         <CardHeader className="flex flex-col items-center justify-center space-y-4 bg-muted/30 p-8 text-center">
           <Avatar className="h-24 w-24 border-4 border-background">
@@ -90,6 +139,40 @@ export default function ProfilePage() {
           )}
         </CardContent>
       </Card>
+      
+      {user.suggestions && user.suggestions.length > 0 && (
+         <Card>
+            <CardHeader>
+                <CardTitle>Topic Suggestions</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Suggestion</TableHead>
+                            <TableHead>Verdict</TableHead>
+                            <TableHead>Reason / Outcome</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {user.suggestions.map((s) => (
+                            <TableRow key={s.id}>
+                                <TableCell className="font-medium">{s.text}</TableCell>
+                                <TableCell>
+                                    <Badge variant={s.verdict === 'Rejected' ? 'destructive' : s.verdict === 'Merged' ? 'secondary' : 'default'} className="gap-1.5 pl-2">
+                                        {getVerdictIcon(s.verdict)}
+                                        {s.verdict}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>{s.reason}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+      )}
+
     </div>
   );
 }
