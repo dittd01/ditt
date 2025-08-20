@@ -11,13 +11,13 @@ import {
   FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
 const argumentSchema = z.object({
   text: z
@@ -44,7 +44,12 @@ export function ArgumentComposer({ onSubmit, onCancel }: ArgumentComposerProps) 
     defaultValues: {
       text: '',
     },
+    mode: 'onChange',
   });
+
+  const textValue = form.watch('text');
+  const textLength = textValue?.length || 0;
+  const maxLength = 750;
 
   async function handleSubmit(values: ArgumentFormValues) {
     setIsSubmitting(true);
@@ -75,7 +80,15 @@ export function ArgumentComposer({ onSubmit, onCancel }: ArgumentComposerProps) 
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <div className="flex justify-between items-center">
+                    <FormMessage />
+                    <FormDescription className={cn(
+                        "text-xs",
+                        textLength > maxLength ? "text-destructive" : "text-muted-foreground"
+                      )}>
+                        {textLength} / {maxLength}
+                    </FormDescription>
+                  </div>
                 </FormItem>
               )}
             />
