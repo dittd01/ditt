@@ -50,7 +50,7 @@ const subCategoryData = [
     // Budget & Public Finance
     { id: "fiscal_rule", label: "Fiscal Rule", categoryId: "budget-public-finance", topic: "Change structural non‑oil deficit rule to 2.5%?", imageUrl: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=1740&auto=format&fit=crop', aiHint: 'government building' },
     { id: "sovereign_fund", label: "Sovereign Wealth Fund", categoryId: "budget-public-finance", topic: "Allow Oljefondet to invest 10% in domestic infrastructure?", imageUrl: 'https://images.unsplash.com/photo-1665686306574-1ace09918530?q=80&w=1740&auto=format&fit=crop', aiHint: 'investment chart' },
-    { id: "spending_priorities", label: "Spending Priorities", categoryId: "budget-public-finance", topic: "Raise defense spending to 2.5% of GDP?", imageUrl: 'https://images.unsplash.com/photo-1561638845-35656111574a?q=80&w=1740&auto=format&fit=crop', aiHint: 'military soldiers' },
+    { id: "spending_priorities", label: "Spending Priorities", categoryId: "budget-public-finance", topic: "Raise defense spending to 2.5% of GDP?", imageUrl: 'https://images.unsplash.com/photo-1587612844837-533b66627065?q=80&w=1740&auto=format&fit=crop', aiHint: 'military jet' },
     { id: "debt_rule", label: "Debt Rule", categoryId: "budget-public-finance", topic: "Adopt balanced‑budget amendment?", imageUrl: 'https://images.unsplash.com/photo-1554474059-873f33c847a9?q=80&w=1740&auto=format&fit=crop', aiHint: 'scales justice' },
     // Economy & Business
     { id: "sme_policy", label: "SMEs", categoryId: "economy-business", topic: "Cut employer fees for firms with <20 employees?", imageUrl: 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=1740&auto=format&fit=crop', aiHint: 'small business' },
@@ -75,7 +75,7 @@ const subCategoryData = [
     // Environment & Energy
     { id: "renewables", label: "Renewables", categoryId: "environment-energy", topic: "Build 5 GW offshore wind by 2030?", imageUrl: 'https://images.unsplash.com/photo-1594796695624-955956a312a0?q=80&w=1740&auto=format&fit=crop', aiHint: 'wind turbines' },
     { id: "oil_gas", label: "Oil & Gas", categoryId: "environment-energy", topic: "Halt new exploration licenses?", imageUrl: 'https://images.unsplash.com/photo-1563811771708-71ee81736633?q=80&w=1740&auto=format&fit=crop', aiHint: 'oil rig' },
-    { id: "nuclear", label: "Nuclear", categoryId: "environment-energy", topic: "Legalize small modular reactors (SMRs)?", imageUrl: 'https://images.unsplash.com/photo-1629809549346-7c9c09ee65a2?q=80&w=1740&auto=format&fit=crop', aiHint: 'nuclear power' },
+    { id: "nuclear", label: "Nuclear", categoryId: "environment-energy", topic: "Legalize small modular reactors (SMRs)?", imageUrl: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=1740&auto=format&fit=crop', aiHint: 'nuclear power' },
     { id: "climate_targets", label: "Climate Targets", categoryId: "environment-energy", topic: "Make net‑zero by 2040 legally binding?", imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1740&auto=format&fit=crop', aiHint: 'earth space' },
     // Infrastructure & Transport
     { id: "rail", label: "Rail", categoryId: "infrastructure-transport", topic: "High‑speed rail Oslo–Trondheim?", imageUrl: 'https://images.unsplash.com/photo-1555633461-9e8e2b7de325?q=80&w=1740&auto=format&fit=crop', aiHint: 'highspeed train' },
