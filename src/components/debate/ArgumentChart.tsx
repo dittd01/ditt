@@ -23,6 +23,7 @@ const COLORS = {
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload.payload; // The actual treenode
+    if (!data || !data.author) return null;
     return (
       <div className="rounded-lg border bg-background p-2 shadow-sm max-w-xs">
         <div className="flex items-center gap-2">
