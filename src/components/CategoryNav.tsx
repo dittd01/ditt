@@ -118,7 +118,7 @@ function CategoryNavContent({ categories }: { categories: Category[] }) {
           {dropdownCategories.length > 0 && !isMobile && (
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+                <Button variant="ghost" className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground">
                   More
                   <ChevronDown className="h-4 w-4" />
                 </Button>
