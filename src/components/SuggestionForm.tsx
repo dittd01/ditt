@@ -14,7 +14,6 @@ import { curateSuggestionAction } from '@/app/actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Loader2 } from 'lucide-react';
 import type { Topic } from '@/lib/types';
-import { toast as sonnerToast } from "sonner"
 
 
 const formSchema = z.object({

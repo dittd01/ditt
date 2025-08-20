@@ -1,11 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
-import { Header } from '@/components/Header';
 import { Toaster } from '@/components/ui/toaster';
-import { CategoryNav } from '@/components/CategoryNav';
-import { categories } from '@/lib/data';
-import { SubCategoryNav } from '@/components/SubCategoryNav';
+import { SiteHeader } from '@/components/layout/site-header';
+import { ThemeProvider } from '@/components/layout/theme-provider';
 
 export const metadata: Metadata = {
   title: 'Ditt Demokrati - Anonymous Voting',
@@ -36,13 +34,18 @@ export default function RootLayout({
         />
       </head>
       <body className={cn('min-h-screen bg-background font-sans antialiased')}>
-        <div className="relative flex min-h-screen flex-col">
-          <Header />
-          <CategoryNav categories={categories} />
-          <SubCategoryNav />
-          <div className="flex-1">{children}</div>
-        </div>
-        <Toaster />
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
+            <div className="relative flex min-h-screen flex-col">
+              <SiteHeader />
+              <div className="flex-1">{children}</div>
+            </div>
+            <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
