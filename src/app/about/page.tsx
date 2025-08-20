@@ -94,6 +94,17 @@ export default function AboutPage() {
           </div>
 
           <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-foreground">Data &amp; Retention Policy</h3>
+             <ul className="list-disc list-inside space-y-2">
+                <li><strong>Anonymous by Design:</strong> Your BankID is used only for a one-time verification to generate a persistent, anonymous Voter ID. This ID is not linked to your personal identity on our servers.</li>
+                <li><strong>Local Storage:</strong> Your anonymous Voter ID and your individual votes are stored only in your browser's local storage. Clearing your browser data will remove them.</li>
+                <li><strong>Aggregate Tallies:</strong> When you vote, the public tally for that poll is incremented. This is a one-way operation; your individual vote is not stored on our servers and cannot be traced back to you.</li>
+                <li><strong>Data Deletion:</strong> You can permanently delete your anonymous Voter ID and all associated vote records from your browser at any time by visiting our <a href="/privacy" className="underline">Privacy</a> page. This action cannot be undone.</li>
+                <li><strong>Session Timeout:</strong> For your security, you are automatically logged out after 30 minutes of inactivity.</li>
+            </ul>
+          </div>
+
+          <div className="space-y-4">
             <h3 className="text-xl font-semibold text-foreground">Our Vision</h3>
             <p>Ditt Demokrati is not just a prototype — it’s a proof of concept for a <strong>more legitimate, more engaging, and more democratic future</strong>. By combining secure digital identity, nuanced voting methods, and transparent technology, we can build a system where every citizen’s voice is heard in full, not lost in party compromises.</p>
           </div>

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Vote, LogOut, Shield } from 'lucide-react';
+import { Vote, LogOut, Shield, Lock } from 'lucide-react';
 
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
@@ -71,6 +71,9 @@ export function Header() {
         <div className="flex flex-1 items-center justify-end space-x-1 sm:space-x-2">
            <Button variant="ghost" asChild className="hidden sm:inline-flex">
             <Link href="/about">About</Link>
+          </Button>
+           <Button variant="ghost" asChild className="hidden sm:inline-flex">
+            <Link href="/privacy">Privacy</Link>
           </Button>
           <Button variant="ghost" asChild className="hidden sm:inline-flex">
             <Link href="/admin" className="flex items-center gap-2">
