@@ -60,7 +60,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
 
   return (
     <Card ref={cardRef} className="flex h-full flex-col">
-        <Collapsible>
+        <Collapsible className="flex flex-col flex-1">
             <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
                 {iconName && <Icon name={iconName} className="h-6 w-6 shrink-0 text-muted-foreground" />}
                 <div className="flex-1">
@@ -72,7 +72,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
                     <p className="text-sm text-muted-foreground mt-1">Closing in 3 days</p>
                 </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1">
                 <CollapsibleContent>
                     <p className="text-base text-muted-foreground mb-4">{topic.description}</p>
                 </CollapsibleContent>
