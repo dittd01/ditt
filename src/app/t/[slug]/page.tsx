@@ -67,13 +67,26 @@ export default function TopicPage() {
             const storedVotes = localStorage.getItem(`votes_for_${foundTopic!.id}_${option.id}`);
             const currentVotes = storedVotes ? parseInt(storedVotes, 10) : foundTopic!.votes[option.id] || 0;
             newVotes[option.id] = currentVotes;
-            newTotalVotes += currentVotes;
+            // Only add to total if it's not abstain
+            if (option.id !== 'abstain') {
+                newTotalVotes += currentVotes;
+            }
         });
+
+        // Separately handle abstain votes if they exist in localStorage but not in options
+        const abstainKey = `votes_for_${foundTopic.id}_abstain`;
+        const storedAbstainVotes = localStorage.getItem(abstainKey);
+        if (storedAbstainVotes) {
+            newVotes['abstain'] = parseInt(storedAbstainVotes, 10);
+        } else {
+            // Initialize from data if not in local storage
+            newVotes['abstain'] = foundTopic.votes['abstain'] || 0;
+        }
+
 
         const initialTopicState = { ...foundTopic, votes: newVotes, totalVotes: newTotalVotes };
         setTopic(initialTopicState);
         
-        // Simplified data loading
         const baseArgs = getArgumentsForTopic(foundTopic.id);
         setDebateArgs(baseArgs);
 
@@ -113,13 +126,11 @@ export default function TopicPage() {
 
     const previouslyVotedOn = votedOn;
 
-    // Fire analytics event
     if (previouslyVotedOn) {
         trackEvent('vote_changed', { topicId: topic.id, from: previouslyVotedOn, to: currentVote });
     } else {
         trackEvent('vote_cast', { topicId: topic.id, choice: currentVote });
     }
-
 
     setTopic(currentTopic => {
         if (!currentTopic) return null;
@@ -127,16 +138,27 @@ export default function TopicPage() {
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
+        // Increment the new vote
         newVotes[currentVote] = (newVotes[currentVote] || 0) + 1;
-
-        if (previouslyVotedOn) {
-            newVotes[previouslyVotedOn] = Math.max(0, (newVotes[previouslyVotedOn] || 1) - 1);
-        } else {
-            newTotalVotes += 1;
+        if(currentVote !== 'abstain') {
+            if(!previouslyVotedOn || (previouslyVotedOn && previouslyVotedOn === 'abstain')) {
+                newTotalVotes += 1;
+            }
         }
         
-        Object.keys(newVotes).forEach(oid => {
-          localStorage.setItem(`votes_for_${currentTopic.id}_${oid}`, newVotes[oid].toString());
+        // Decrement the old vote if there was one
+        if (previouslyVotedOn) {
+            newVotes[previouslyVotedOn] = Math.max(0, (newVotes[previouslyVotedOn] || 1) - 1);
+            // If the previous vote was not abstain, and the new one is, decrement total.
+            if(previouslyVotedOn !== 'abstain' && currentVote === 'abstain') {
+                newTotalVotes = Math.max(0, newTotalVotes - 1);
+            }
+        }
+        
+        // Save all vote counts to local storage
+        const allPossibleOptions = [...currentTopic.options.map(o => o.id), 'abstain'];
+        allPossibleOptions.forEach(oid => {
+          localStorage.setItem(`votes_for_${currentTopic.id}_${oid}`, (newVotes[oid] || 0).toString());
         });
 
         return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
@@ -147,7 +169,7 @@ export default function TopicPage() {
 
     const voteLabel = Array.isArray(voteData) 
       ? 'your ranking' 
-      : topic.options.find((o) => o.id === currentVote)?.label;
+      : topic.options.find((o) => o.id === currentVote)?.label || currentVote;
 
     toast({
         title: previouslyVotedOn ? 'Vote Changed!' : 'Vote Cast!',
@@ -206,7 +228,7 @@ export default function TopicPage() {
                     </CardHeader>
                     <CardContent>
                         <RadioGroup onValueChange={setSelectedOption} value={selectedOption || ''} className="gap-4">
-                        {topic.options.map((option) => (
+                        {topic.options.filter(o => o.id !== 'abstain').map((option) => (
                             <Label
                             key={option.id}
                             htmlFor={option.id}
@@ -218,10 +240,11 @@ export default function TopicPage() {
                         ))}
                         </RadioGroup>
                     </CardContent>
-                    <CardFooter>
+                    <CardFooter className="flex-col gap-4 border-t pt-6">
                         <Button onClick={() => handleVote(selectedOption!)} disabled={!selectedOption} className="w-full h-12 text-lg">
                         Submit Vote
                         </Button>
+                        <Button variant="outline" onClick={() => handleVote('abstain')}>Abstain / No Opinion</Button>
                     </CardFooter>
                 </Card>
             );
