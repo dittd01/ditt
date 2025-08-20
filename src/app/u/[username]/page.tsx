@@ -15,6 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
 
 // Mock data - in a real app, this would be fetched from Firestore
 const mockUser = {
@@ -34,30 +35,35 @@ const mockUser = {
       text: 'Foreign fishing boats should be banned from Norwegian waters.',
       verdict: 'Approved',
       reason: 'Clear, single-issue question.',
+      slug: 'foreign-fishing-boats-should-be-banned-from-norwegian-waters',
     },
     {
       id: 1,
       text: 'Should all public transport be free in major cities?',
       verdict: 'Approved',
       reason: 'Clear, single-issue question.',
+      slug: 'free-transit-for-under-18s', // Note: slug might not perfectly match text
     },
     {
       id: 2,
       text: 'More money for schools and also lower taxes.',
       verdict: 'Rejected',
       reason: 'Contains multiple, conflicting issues.',
+      slug: null,
     },
     {
       id: 3,
       text: 'What about making the wealth tax higher?',
       verdict: 'Merged',
       reason: 'Similar to existing topic: "Raise wealth-tax threshold to NOK 10m?"',
+      slug: null,
     },
      {
       id: 4,
       text: 'Introduce a four-day work week as standard.',
       verdict: 'Approved',
       reason: 'Unique and well-defined topic.',
+      slug: null, // This topic doesn't exist yet as a poll
     },
   ]
 };
@@ -163,7 +169,15 @@ export default function ProfilePage() {
                     <TableBody>
                         {user.suggestions.map((s) => (
                             <TableRow key={s.id}>
-                                <TableCell className="font-medium">{s.text}</TableCell>
+                                <TableCell className="font-medium">
+                                  {s.verdict === 'Approved' && s.slug ? (
+                                    <Link href={`/t/${s.slug}`} className="hover:underline text-primary">
+                                      {s.text}
+                                    </Link>
+                                  ) : (
+                                    s.text
+                                  )}
+                                </TableCell>
                                 <TableCell>
                                     <Badge variant={s.verdict === 'Rejected' ? 'destructive' : s.verdict === 'Merged' ? 'secondary' : 'default'} className="gap-1.5 pl-2">
                                         {getVerdictIcon(s.verdict)}
