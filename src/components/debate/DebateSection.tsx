@@ -18,6 +18,7 @@ export function DebateSection({ topicId }: DebateSectionProps) {
   const [debateArgs, setDebateArgs] = useState<Argument[]>([]);
   const [loading, setLoading] = useState(true);
   const [showComposer, setShowComposer] = useState<'for' | 'against' | null>(null);
+  const [replyingToId, setReplyingToId] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -35,25 +36,35 @@ export function DebateSection({ topicId }: DebateSectionProps) {
     setLoading(false);
   }, [topicId]);
 
-  const topLevelFor = debateArgs.filter(a => a.parentId === null && a.side === 'for');
-  const topLevelAgainst = debateArgs.filter(a => a.parentId === null && a.side === 'against');
+  const topLevelFor = debateArgs.filter(a => a.parentId === null && a.side === 'for').sort((a,b) => b.upvotes - a.upvotes);
+  const topLevelAgainst = debateArgs.filter(a => a.parentId === null && a.side === 'against').sort((a,b) => b.upvotes - a.upvotes);
 
   const handleAddArgument = (side: 'for' | 'against') => {
+    setReplyingToId(null);
     setShowComposer(side);
   };
   
+  const handleCounter = (argumentId: string) => {
+    setShowComposer(null);
+    setReplyingToId(currentId => currentId === argumentId ? null : argumentId);
+  }
+
   const handleCancel = () => {
     setShowComposer(null);
+    setReplyingToId(null);
   }
 
   const handleSubmit = (values: { text: string }) => {
-    if (!showComposer) return;
+    const parentId = replyingToId;
+    const side = parentId ? debateArgs.find(a => a.id === parentId)?.side : showComposer;
+
+    if (!side) return;
 
     const newArgument: Argument = {
       id: `arg_${Date.now()}`,
       topicId: topicId,
-      parentId: null,
-      side: showComposer,
+      parentId: parentId,
+      side: side,
       author: { name: 'New User', avatarUrl: 'https://placehold.co/40x40.png?text=NU' },
       text: values.text,
       upvotes: 1,
@@ -63,20 +74,33 @@ export function DebateSection({ topicId }: DebateSectionProps) {
     };
 
     const updatedArgs = [newArgument, ...debateArgs];
+    
+    if (parentId) {
+        const parentArgIndex = updatedArgs.findIndex(a => a.id === parentId);
+        if (parentArgIndex > -1) {
+            updatedArgs[parentArgIndex].replyCount += 1;
+        }
+    }
+
     setDebateArgs(updatedArgs);
     
     const localStorageKey = `debate_args_${topicId}`;
     localStorage.setItem(localStorageKey, JSON.stringify(updatedArgs));
 
     setShowComposer(null);
+    setReplyingToId(null);
   };
 
-
-  const renderArgumentTree = (arg: Argument) => {
-    const replies = debateArgs.filter(reply => reply.parentId === arg.id);
+  const renderArgumentTree = (arg: Argument): React.ReactNode => {
+    const replies = debateArgs.filter(reply => reply.parentId === arg.id).sort((a,b) => b.upvotes - a.upvotes);
     return (
         <div key={arg.id} className="space-y-4">
-            <ArgumentCard argument={arg} />
+            <ArgumentCard argument={arg} onCounter={handleCounter} />
+            {replyingToId === arg.id && (
+                 <div className="ml-6 pl-4 border-l-2">
+                    <ArgumentComposer onCancel={handleCancel} onSubmit={handleSubmit} />
+                </div>
+            )}
             {replies.length > 0 && (
                 <div className="ml-6 pl-4 border-l-2 space-y-4">
                     {replies.map(renderArgumentTree)}
@@ -110,7 +134,10 @@ export function DebateSection({ topicId }: DebateSectionProps) {
             {/* Arguments For Column */}
             <div className="space-y-4">
                 <div className="flex justify-between items-center pb-2 border-b-2 border-green-500">
-                    <h3 className="text-xl font-semibold text-green-700">Arguments <span className="block font-normal">For</span></h3>
+                    <h3 className="text-xl font-semibold text-green-700">
+                        Arguments
+                        <span className="block font-normal">For</span>
+                    </h3>
                     <div className="flex">
                         <Button variant="ghost" size="sm" className="text-green-700 hover:text-green-700 hover:bg-green-100" onClick={() => handleAddArgument('for')}>
                             <PlusCircle className="mr-2 h-4 w-4"/>
@@ -130,7 +157,10 @@ export function DebateSection({ topicId }: DebateSectionProps) {
             {/* Arguments Against Column */}
             <div className="space-y-4">
                  <div className="flex justify-between items-center pb-2 border-b-2 border-red-500">
-                    <h3 className="text-xl font-semibold text-red-700">Arguments <span className="block font-normal">Against</span></h3>
+                     <h3 className="text-xl font-semibold text-red-700">
+                        Arguments
+                        <span className="block font-normal">Against</span>
+                    </h3>
                      <div className="flex">
                         <Button variant="ghost" size="sm" className="text-red-700 hover:text-red-700 hover:bg-red-100" onClick={() => handleAddArgument('against')}>
                             <PlusCircle className="mr-2 h-4 w-4"/>

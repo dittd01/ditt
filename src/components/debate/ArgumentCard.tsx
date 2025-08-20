@@ -10,9 +10,10 @@ import { formatDistanceToNow } from 'date-fns';
 
 interface ArgumentCardProps {
   argument: Argument;
+  onCounter: (argumentId: string) => void;
 }
 
-export function ArgumentCard({ argument }: ArgumentCardProps) {
+export function ArgumentCard({ argument, onCounter }: ArgumentCardProps) {
   const netVotes = argument.upvotes - argument.downvotes;
   const createdAt = new Date(argument.createdAt);
 
@@ -48,7 +49,7 @@ export function ArgumentCard({ argument }: ArgumentCardProps) {
           </Button>
         </div>
         <div className="flex items-center gap-2">
-           <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground">
+           <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground" onClick={() => onCounter(argument.id)}>
              <MessageSquare className="h-4 w-4" />
              <span className="text-sm">Counter ({argument.replyCount})</span>
            </Button>
