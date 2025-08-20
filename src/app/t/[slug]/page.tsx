@@ -108,13 +108,15 @@ export default function TopicPage() {
       router.push('/login');
       return;
     }
-    
-    const currentVote = Array.isArray(voteData) ? voteData[0] : voteData;
-    if (!currentVote || !topic || votedOn === currentVote) {
-      return;
-    }
+    if (!topic) return;
 
-    const previouslyVotedOn = votedOn;
+    const currentVote = Array.isArray(voteData) ? voteData[0] : voteData;
+    if (!currentVote) return;
+    
+    // Get the previous vote directly from localStorage to ensure it's the most recent value.
+    const previouslyVotedOn = localStorage.getItem(`voted_on_${topic.id}`);
+
+    if (previouslyVotedOn === currentVote) return;
 
     if (previouslyVotedOn) {
         trackEvent('vote_changed', { topicId: topic.id, from: previouslyVotedOn, to: currentVote });
@@ -128,29 +130,30 @@ export default function TopicPage() {
         const newVotes = { ...currentTopic.votes };
 
         // 1. Decrement the old vote if there was one
-        if (previouslyVotedOn) {
-            newVotes[previouslyVotedOn] = Math.max(0, (newVotes[previouslyVotedOn] || 1) - 1);
+        if (previouslyVotedOn && newVotes[previouslyVotedOn] !== undefined) {
+            newVotes[previouslyVotedOn] = Math.max(0, newVotes[previouslyVotedOn] - 1);
+            localStorage.setItem(`votes_for_${currentTopic.id}_${previouslyVotedOn}`, newVotes[previouslyVotedOn].toString());
         }
 
         // 2. Increment the new vote
         newVotes[currentVote] = (newVotes[currentVote] || 0) + 1;
+        localStorage.setItem(`votes_for_${currentTopic.id}_${currentVote}`, newVotes[currentVote].toString());
         
         // 3. Recalculate the total votes from scratch (excluding 'abstain')
         const newTotalVotes = currentTopic.options
             .filter(o => o.id !== 'abstain')
             .reduce((sum, option) => sum + (newVotes[option.id] || 0), 0);
 
-        // 4. Save all vote counts to local storage for persistence
-        Object.keys(newVotes).forEach(oid => {
-          localStorage.setItem(`votes_for_${currentTopic.id}_${oid}`, (newVotes[oid] || 0).toString());
-        });
-        
-        // 5. Return the new state
+        // 4. Return the new state
         return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
     });
       
+    // 5. Persist the user's new vote choice
     localStorage.setItem(`voted_on_${topic.id}`, currentVote);
     setVotedOn(currentVote);
+    if(topic.voteType === 'yesno') {
+        setSelectedOption(currentVote);
+    }
 
     const voteLabel = Array.isArray(voteData) 
       ? 'your ranking' 
@@ -357,3 +360,4 @@ export default function TopicPage() {
     </div>
   );
 }
+
