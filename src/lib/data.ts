@@ -329,61 +329,40 @@ const againstStatementsTopic3 = [
 let argIdCounter = 1;
 const generatedArguments: Argument[] = [];
 
-// Arguments for Topic 1 ("Raise wealth-tax threshold to NOK 10m?")
-for (let i = 0; i < 15; i++) {
-    const arguer = arguers[i];
-    generatedArguments.push({
-        id: `arg_${argIdCounter++}`,
-        topicId: '5', // "Raise wealth-tax threshold to NOK 10m?"
-        parentId: null,
-        side: 'for',
-        author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
-        text: forStatementsTopic1[i],
-        upvotes: 0, downvotes: 0, replyCount: 0,
-        createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
+const createArgsForTopic = (topicId: string, forStatements: string[], againstStatements: string[]) => {
+    forStatements.forEach((statement, i) => {
+        const arguer = arguers[i % 15]; // Use the first 15 arguers for "for"
+        generatedArguments.push({
+            id: `arg_${topicId}_${argIdCounter++}`,
+            topicId: topicId,
+            parentId: null,
+            side: 'for',
+            author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
+            text: statement,
+            upvotes: 0, downvotes: 0, replyCount: 0,
+            createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
+        });
     });
-}
-for (let i = 0; i < 15; i++) {
-    const arguer = arguers[i + 15];
-    generatedArguments.push({
-        id: `arg_${argIdCounter++}`,
-        topicId: '5', // "Raise wealth-tax threshold to NOK 10m?"
-        parentId: null,
-        side: 'against',
-        author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
-        text: againstStatementsTopic1[i],
-        upvotes: 0, downvotes: 0, replyCount: 0,
-        createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
+    againstStatements.forEach((statement, i) => {
+        const arguer = arguers[15 + (i % 15)]; // Use the last 15 arguers for "against"
+        generatedArguments.push({
+            id: `arg_${topicId}_${argIdCounter++}`,
+            topicId: topicId,
+            parentId: null,
+            side: 'against',
+            author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
+            text: statement,
+            upvotes: 0, downvotes: 0, replyCount: 0,
+            createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
+        });
     });
-}
+};
+
+// Arguments for Topic 5 ("Raise wealth-tax threshold to NOK 10m?")
+createArgsForTopic('5', forStatementsTopic1, againstStatementsTopic1);
 
 // Arguments for Topic 3 ("Ban private donations above NOK 100k?")
-for (let i = 0; i < 15; i++) {
-    const arguer = arguers[i]; // Reuse arguers
-    generatedArguments.push({
-        id: `arg_${argIdCounter++}`,
-        topicId: '3', // "Ban private donations above NOK 100k?"
-        parentId: null,
-        side: 'for',
-        author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
-        text: forStatementsTopic3[i],
-        upvotes: 0, downvotes: 0, replyCount: 0,
-        createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
-    });
-}
-for (let i = 0; i < 15; i++) {
-    const arguer = arguers[i + 15]; // Reuse arguers
-    generatedArguments.push({
-        id: `arg_${argIdCounter++}`,
-        topicId: '3', // "Ban private donations above NOK 100k?"
-        parentId: null,
-        side: 'against',
-        author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
-        text: againstStatementsTopic3[i],
-        upvotes: 0, downvotes: 0, replyCount: 0,
-        createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
-    });
-}
+createArgsForTopic('3', forStatementsTopic3, againstStatementsTopic3);
 
 
 // Simulate votes from the "voters"
@@ -406,55 +385,45 @@ voters.forEach(voter => {
     }
 });
 
+
+// Add some replies to create a tree structure
+const addReplies = (count: number) => {
+    for (let i = 0; i < count; i++) {
+        const potentialParents = generatedArguments.filter(a => a.replyCount < 3); // Limit replies to keep it from getting too deep
+        if (potentialParents.length === 0) break;
+
+        const parentIndex = Math.floor(Math.random() * potentialParents.length);
+        const parent = potentialParents[parentIndex];
+        
+        const arguer = arguers[Math.floor(Math.random() * arguers.length)];
+        const replySide = parent.side === 'for' ? 'against' : 'for';
+        
+        const reply: Argument = {
+             id: `arg_${parent.topicId}_${argIdCounter++}`,
+             topicId: parent.topicId,
+             parentId: parent.id,
+             side: replySide,
+             author: { name: arguer.username, avatarUrl: arguer.avatarUrl },
+             text: `This is a reply to the previous statement about "${parent.text.substring(0, 20)}...". I think you are mistaken because...`,
+             upvotes: Math.floor(Math.random() * 10),
+             downvotes: Math.floor(Math.random() * 5),
+             replyCount: 0,
+             createdAt: subHours(new Date(parent.createdAt), Math.floor(Math.random() * -24)).toISOString(),
+        };
+        
+        parent.replyCount++;
+        generatedArguments.push(reply);
+    }
+};
+
+addReplies(40); // Add 40 replies across all arguments
+
 export const mockArguments: Argument[] = generatedArguments;
 
 export const getArgumentsForTopic = (topicId: string): Argument[] => {
-    const topicArgs = mockArguments.filter(arg => arg.topicId === topicId);
-    
-    // Create a copy to avoid modifying the original mock data
-    const mutableArgs = JSON.parse(JSON.stringify(topicArgs));
-
-    if (mutableArgs.length > 5) {
-      mutableArgs.sort((a: Argument, b: Argument) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
-      
-      const reply1: Argument = {
-        id: `arg_${++argIdCounter}`,
-        topicId: topicId,
-        parentId: mutableArgs[0].id,
-        side: mutableArgs[0].side === 'for' ? 'against' : 'for',
-        author: { name: 'DebateLord', avatarUrl: 'https://placehold.co/40x40.png?text=DL' },
-        text: "This is a very insightful point. It completely changes how I see the issue.",
-        upvotes: 15,
-        downvotes: 1,
-        replyCount: 0,
-        createdAt: new Date().toISOString(),
-      };
-      const parent1 = mutableArgs.find((a: Argument) => a.id === reply1.parentId);
-      if (parent1) parent1.replyCount += 1;
-      
-      const reply2: Argument = {
-        id: `arg_${++argIdCounter}`,
-        topicId: topicId,
-        parentId: mutableArgs[1].id,
-        side: mutableArgs[1].side === 'for' ? 'against' : 'for',
-        author: { name: 'Skeptic', avatarUrl: 'https://placehold.co/40x40.png?text=SK' },
-        text: "I disagree. The data from SSB shows a different picture entirely.",
-        upvotes: 8,
-        downvotes: 4,
-        replyCount: 0,
-        createdAt: new Date().toISOString(),
-      };
-       const parent2 = mutableArgs.find((a: Argument) => a.id === reply2.parentId);
-       if (parent2) parent2.replyCount += 1;
-      
-      mutableArgs.push(reply1, reply2);
-    }
-    
-    return mutableArgs;
+    return mockArguments.filter(arg => arg.topicId === topicId);
 }
-
-
-
     
 
     
+

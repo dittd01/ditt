@@ -90,26 +90,37 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
     
     // Check for duplicate IDs and filter them out
     const uniqueArgs = Array.from(new Map(dataWithRoot.map(item => [item.id, item])).values());
-    const validArgs = uniqueArgs.filter(arg => arg.id === 'root' || uniqueArgs.find(a => a.id === arg.parentId));
+    const argMap = new Map(uniqueArgs.map(arg => [arg.id, arg]));
 
+    // Filter out children whose parents do not exist in the map (except for the root itself)
+    const validArgs = uniqueArgs.filter(arg => {
+        if (arg.parentId === null || arg.parentId === '') return true;
+        return argMap.has(arg.parentId);
+    });
 
     if (validArgs.length <= 1) return null;
 
-
-    const stratifiedData = d3.stratify<Argument>()
-        .id(d => d.id)
-        .parentId(d => d.parentId)
-        (validArgs);
-    
-    stratifiedData.sum(d => (d.id === 'root' ? 0 : 1));
-
-    const radius = Math.min(dimensions.width, dimensions.height) / 2;
-    
-    const partition = d3.partition<Argument>()
-        .size([2 * Math.PI, radius])
-        .padding(0.005);
+    try {
+        const stratifiedData = d3.stratify<Argument>()
+            .id(d => d.id)
+            .parentId(d => d.parentId)
+            (validArgs);
         
-    return partition(stratifiedData) as HierarchyNode;
+        stratifiedData.sum(d => (d.id === 'root' ? 0 : 1));
+
+        const radius = Math.min(dimensions.width, dimensions.height) / 2;
+        
+        const partition = d3.partition<Argument>()
+            .size([2 * Math.PI, radius])
+            .padding(0.005);
+            
+        return partition(stratifiedData) as HierarchyNode;
+    } catch(e) {
+        console.error("D3 Stratify error:", e);
+        console.error("Invalid data:", validArgs);
+        return null;
+    }
+
 
   }, [args, topicQuestion, dimensions]);
 
