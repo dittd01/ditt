@@ -20,6 +20,7 @@ import { RankedChoice } from '@/components/RankedChoice';
 import { QuadraticVote } from '@/components/QuadraticVote';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { LiveResults } from '@/components/LiveResults';
+import { RelatedTopics } from '@/components/RelatedTopics';
 
 const VoteChart = dynamic(() => import('@/components/VoteChart').then(mod => mod.VoteChart), {
   ssr: false,
@@ -118,11 +119,13 @@ export default function TopicPage() {
     localStorage.setItem(`voted_on_${topic.id}`, currentVote);
     setVotedOn(currentVote);
 
+    const voteLabel = Array.isArray(voteData) 
+      ? 'your ranking' 
+      : topic.options.find((o) => o.id === currentVote)?.label;
+
     toast({
         title: previouslyVotedOn ? 'Vote Changed!' : 'Vote Cast!',
-        description: `Your anonymous vote for "${
-          topic.options.find((o) => o.id === currentVote)?.label
-        }" has been recorded.`,
+        description: `Your anonymous vote for "${voteLabel}" has been recorded.`,
     });
   };
   
@@ -147,7 +150,7 @@ export default function TopicPage() {
               You have voted
             </CardTitle>
             <CardDescription>
-              You voted for: <strong>{topic.options.find((o) => o.id === votedOn)?.label || votedOn}</strong>
+              You voted for: <strong>{topic.voteType === 'ranked' ? 'your ranking' : topic.options.find((o) => o.id === votedOn)?.label || votedOn}</strong>
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -241,10 +244,6 @@ export default function TopicPage() {
              {renderVoteComponent()}
            </div>
            
-           <div className="hidden lg:block">
-             {renderVoteComponent()}
-           </div>
-
            {votedOn && <LiveResults topic={topic} />}
            
            <Accordion type="single" collapsible className="w-full space-y-4">
@@ -275,6 +274,9 @@ export default function TopicPage() {
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
+
+            <RelatedTopics topicId={topic.id} subcategoryId={topic.subcategoryId} />
+
         </div>
 
         <div className="space-y-8 lg:sticky lg:top-24 self-start">

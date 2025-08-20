@@ -190,3 +190,13 @@ export const categories: Category[] = [
             .map(sub => ({ id: sub.id, label: sub.label, categoryId: sub.categoryId })),
     }))
 ];
+
+export function getRelatedTopics(currentTopicId: string, subcategoryId: string): Topic[] {
+  return allTopics
+    .filter(topic => 
+      topic.id !== currentTopicId && 
+      topic.subcategoryId === subcategoryId &&
+      topic.voteType !== 'election' // Exclude the main election poll
+    )
+    .slice(0, 3);
+}
