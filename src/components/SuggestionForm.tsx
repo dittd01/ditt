@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,6 +12,7 @@ import { useState } from 'react';
 import { curateSuggestionAction } from '@/app/actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Loader2 } from 'lucide-react';
+import type { Topic } from '@/lib/types';
 
 const formSchema = z.object({
   suggestion: z
@@ -36,12 +38,28 @@ export function SuggestionForm() {
     setIsSubmitting(true);
     try {
       const result = await curateSuggestionAction(values.suggestion);
+      
       if (result.success) {
         toast({
           title: 'Suggestion Received',
           description: result.message,
         });
         form.reset();
+
+        // If a new topic was created, add it to localStorage to simulate a live update
+        if (result.action === 'create' && result.newTopic) {
+            const customTopics = JSON.parse(localStorage.getItem('custom_topics') || '[]');
+            customTopics.push(result.newTopic);
+            localStorage.setItem('custom_topics', JSON.stringify(customTopics));
+
+            const userSuggestions = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
+            userSuggestions.unshift(result.suggestionForProfile);
+            localStorage.setItem('user_suggestions', JSON.stringify(userSuggestions));
+
+            // Dispatch an event to notify other components of the change
+            window.dispatchEvent(new Event('topicAdded'));
+        }
+
       } else {
         toast({
           variant: 'destructive',

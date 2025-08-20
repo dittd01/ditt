@@ -1,9 +1,11 @@
+
 'use server';
 
 import { moderateVotingSuggestion } from '@/ai/flows/moderate-voting-suggestions';
 import { curateTopicSuggestion } from '@/ai/flows/curate-topic-suggestion';
 import { categories, allTopics } from '@/lib/data';
 import { calculateQVCost } from '@/lib/qv';
+import type { Topic } from '@/lib/types';
 
 export async function moderateSuggestionAction(suggestion: string) {
   try {
@@ -24,8 +26,6 @@ export async function curateSuggestionAction(suggestion: string) {
             return { success: false, message: 'Suggestion is too short.' };
         }
         
-        // In a real app, you might not want to send all topics every time.
-        // For this demo, we will.
         const existing_topics_json = JSON.stringify(allTopics.map(t => ({
             canonical_nb: t.question,
             category: t.categoryId,
@@ -45,10 +45,48 @@ export async function curateSuggestionAction(suggestion: string) {
         }
         
         if (result.action === 'merge') {
-            return { success: true, message: `Thanks! Your suggestion is similar to an existing topic and has been merged.` };
+            return { success: true, action: 'merge', message: `Thanks! Your suggestion is similar to an existing topic and has been merged.` };
         }
         
-        return { success: true, message: 'Thank you! Your new topic suggestion has been accepted and is under review.' };
+        // If we get here, the action is 'create'.
+        // We'll create a new Topic object to pass back to the client.
+        const newTopicSlug = result.canonical_en.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        const newTopic: Partial<Topic> = {
+            id: `topic_${Date.now()}`,
+            slug: newTopicSlug,
+            question: result.canonical_nb,
+            description: `A new topic suggested by a user: ${result.canonical_en}`,
+            categoryId: result.category,
+            subcategoryId: result.subcategory,
+            // These are placeholder values for a new topic
+            imageUrl: 'https://placehold.co/600x400.png',
+            aiHint: 'new topic',
+            status: 'live',
+            voteType: 'yesno', // Default to yes/no for new suggestions
+            votes: { yes: 0, no: 0, abstain: 0},
+            totalVotes: 0,
+            votesLastWeek: 0,
+            history: [],
+             options: [
+                { id: 'yes', label: 'Yes', color: 'hsl(var(--chart-2))' },
+                { id: 'no', label: 'No', color: 'hsl(var(--chart-1))' },
+                { id: 'abstain', label: 'Abstain', color: 'hsl(var(--muted))' }
+            ],
+        };
+
+        return { 
+            success: true, 
+            action: 'create',
+            message: 'Thank you! Your new topic suggestion has been accepted and is now live.',
+            newTopic: newTopic,
+            suggestionForProfile: {
+                id: Date.now(),
+                text: suggestion, // The original user text
+                verdict: 'Approved',
+                reason: 'Clear, single-issue question.',
+                slug: newTopicSlug,
+            }
+        };
 
     } catch(error) {
         console.error('Error curating suggestion:', error);

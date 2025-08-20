@@ -15,7 +15,19 @@ function HomePageContent() {
 
   useEffect(() => {
     const syncTopicsWithLocalStorage = () => {
-      const updatedTopics = initialTopics.map(topic => {
+      // Get custom topics from local storage
+      const customTopics: Topic[] = JSON.parse(localStorage.getItem('custom_topics') || '[]');
+
+      // Combine initial topics with custom topics, ensuring no duplicates
+      const combinedTopics = [...initialTopics];
+      const existingIds = new Set(initialTopics.map(t => t.id));
+      customTopics.forEach(customTopic => {
+        if (!existingIds.has(customTopic.id)) {
+          combinedTopics.push(customTopic);
+        }
+      });
+
+      const updatedTopics = combinedTopics.map(topic => {
         if (topic.voteType === 'election') {
           return topic;
         }
@@ -57,11 +69,14 @@ function HomePageContent() {
     
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('authChange', handleStorageChange);
+    // Listen for a custom event when a new topic is added
+    window.addEventListener('topicAdded', handleStorageChange);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('authChange', handleStorageChange);
+      window.removeEventListener('topicAdded', handleStorageChange);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);

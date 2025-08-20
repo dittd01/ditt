@@ -16,6 +16,15 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+
+type Suggestion = {
+  id: number;
+  text: string;
+  verdict: string;
+  reason: string;
+  slug: string | null;
+}
 
 // Mock data - in a real app, this would be fetched from Firestore
 const mockUser = {
@@ -84,6 +93,33 @@ const getVerdictIcon = (verdict: string) => {
 export default function ProfilePage() {
   const params = useParams();
   const username = params.username as string;
+  const [userSuggestions, setUserSuggestions] = useState<Suggestion[]>(mockUser.suggestions);
+
+  useEffect(() => {
+    const customSuggestions: Suggestion[] = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
+    // Combine and remove duplicates, giving precedence to custom suggestions
+    const combined = [...customSuggestions, ...mockUser.suggestions];
+    const uniqueSuggestions = Array.from(new Set(combined.map(s => s.id)))
+        .map(id => combined.find(s => s.id === id)!);
+    setUserSuggestions(uniqueSuggestions);
+
+    const handleStorageChange = () => {
+        const updatedCustomSuggestions: Suggestion[] = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
+        const updatedCombined = [...updatedCustomSuggestions, ...mockUser.suggestions];
+        const updatedUnique = Array.from(new Set(updatedCombined.map(s => s.id)))
+            .map(id => updatedCombined.find(s => s.id === id)!);
+        setUserSuggestions(updatedUnique);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('topicAdded', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('topicAdded', handleStorageChange);
+    };
+
+  }, []);
 
   // In a real app, you would fetch user data based on the username
   // For now, we'll just display the mock user if the username matches
@@ -152,7 +188,7 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
       
-      {user.suggestions && user.suggestions.length > 0 && (
+      {userSuggestions.length > 0 && (
          <Card>
             <CardHeader>
                 <CardTitle>Topic Suggestions</CardTitle>
@@ -167,7 +203,7 @@ export default function ProfilePage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {user.suggestions.map((s) => (
+                        {userSuggestions.map((s) => (
                             <TableRow key={s.id}>
                                 <TableCell className="font-medium">
                                   {s.verdict === 'Approved' && s.slug ? (
