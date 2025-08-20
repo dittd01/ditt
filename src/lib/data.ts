@@ -417,7 +417,7 @@ export const getArgumentsForTopic = (topicId: string): Argument[] => {
         id: `arg_${++argIdCounter}`,
         topicId: topicId,
         parentId: topicArgs[0].id,
-        side: topicArgs[0].side,
+        side: topicArgs[0].side === 'for' ? 'against' : 'for',
         author: { name: 'DebateLord', avatarUrl: 'https://placehold.co/40x40.png?text=DL' },
         text: "This is a very insightful point. It completely changes how I see the issue.",
         upvotes: 15,
@@ -431,7 +431,7 @@ export const getArgumentsForTopic = (topicId: string): Argument[] => {
         id: `arg_${++argIdCounter}`,
         topicId: topicId,
         parentId: topicArgs[1].id,
-        side: topicArgs[1].side,
+        side: topicArgs[1].side === 'for' ? 'against' : 'for',
         author: { name: 'Skeptic', avatarUrl: 'https://placehold.co/40x40.png?text=SK' },
         text: "I disagree. The data from SSB shows a different picture entirely.",
         upvotes: 8,
@@ -448,5 +448,7 @@ export const getArgumentsForTopic = (topicId: string): Argument[] => {
 }
 
 
+
+    
 
     
