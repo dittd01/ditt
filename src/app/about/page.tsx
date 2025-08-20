@@ -72,14 +72,32 @@ export default function AboutPage() {
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-foreground">How It Works</h3>
-            <ul className="list-disc list-inside space-y-2">
-              <li><strong>Anonymous Participation:</strong> A temporary identifier ensures each user can vote once per poll. For national election simulations, a more secure login process is demonstrated.</li>
-              <li><strong>Live Results:</strong> Votes are updated instantly, providing an unfiltered snapshot of public opinion.</li>
-              <li><strong>Data Integrity:</strong> While polls are non-binding, they run on a simulated database and server-side logic to ensure fairness within this demonstration.</li>
-              <li><strong>AI Moderation:</strong> Suggestions for new poll topics are screened by AI to maintain a constructive environment.</li>
+            <h3 className="text-xl font-semibold text-foreground">How It Works on Ditt Demokrati</h3>
+            <p>We believe democracy should reflect <strong>both what people think and how strongly they think it</strong>. That’s why we use a <strong>hybrid voting system</strong> designed for nuance, legitimacy, and engagement:</p>
+             <ul className="list-disc list-inside space-y-2">
+                <li><strong>Likert Scale (Default):</strong> Most questions are statements answered on a 5- or 7-point scale (<em>Strongly Agree → Strongly Disagree</em>). This captures shades of opinion, not just black-and-white answers.</li>
+                <li><strong>Ranked-Choice (For Multi-Option Decisions):</strong> When there are multiple alternatives, you can rank them in order of preference. This ensures the winning outcome has broad support and avoids “spoiler” effects.</li>
+                <li><strong>Yes/No (For Binary Questions):</strong> Used only for strictly constitutional or all-or-nothing issues.</li>
+                <li><strong>Quadratic Voting (QV):</strong> Each citizen receives a recurring budget of “voice credits.” Casting extra votes on an issue costs quadratically (1=1, 2=4, 3=9). This balances majority rule with minority passion, letting people express intensity without domination.</li>
+                <li><strong>Abstention:</strong> You can always choose to abstain. Abstentions are recorded and displayed, showing the full picture of public engagement.</li>
             </ul>
           </div>
+          
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-foreground">Safeguards and Trust</h3>
+             <ul className="list-disc list-inside space-y-2">
+                <li><strong>BankID Verification:</strong> Every participant is verified through BankID, ensuring one person = one account, while keeping ballots fully anonymous.</li>
+                <li><strong>Security Against Manipulation:</strong> Bot detection, CAPTCHA, rate limiting, and anomaly detection protect against abuse.</li>
+                <li><strong>Transparency in Results:</strong> We display both raw totals (breadth of opinion) and QV-weighted outcomes (intensity of preferences). Full Likert distributions make minority voices visible.</li>
+                <li><strong>AI Moderation:</strong> Suggested poll topics are screened by AI to prevent duplicates and ensure constructive debate.</li>
+            </ul>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-foreground">Our Vision</h3>
+            <p>Ditt Demokrati is not just a prototype — it’s a proof of concept for a <strong>more legitimate, more engaging, and more democratic future</strong>. By combining secure digital identity, nuanced voting methods, and transparent technology, we can build a system where every citizen’s voice is heard in full, not lost in party compromises.</p>
+          </div>
+
         </CardContent>
       </Card>
     </div>
