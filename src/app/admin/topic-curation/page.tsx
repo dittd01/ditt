@@ -27,7 +27,7 @@ export default function TopicCurationPage() {
         <div className="lg:col-span-2 space-y-8">
             <PageHeader
                 title="Topic Curation"
-                subtitle="Manage canonical topics and their variants."
+                subtitle="Group user suggestions (variants) under official 'canonical' topics to prevent duplicates."
             />
             <Table>
                 <TableHeader>
