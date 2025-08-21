@@ -243,7 +243,7 @@ export default function EditUserPage() {
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>New Password</FormLabel>
-                                            <FormControl><Input {...field} type="password" disabled={!isNew} /></FormControl>
+                                            <FormControl><Input {...field} type="text" disabled={!isNew} /></FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
