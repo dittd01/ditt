@@ -27,7 +27,7 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Info } from 'lucide-react';
 import { usersData } from '@/app/admin/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
@@ -89,6 +89,8 @@ export default function EditUserPage() {
             notifications: { newContent: true, weeklyDigest: true },
         }
     });
+
+    const watchedRole = form.watch('role');
     
     function onSubmit(data: UserFormValues) {
         console.log(data);
@@ -253,28 +255,28 @@ export default function EditUserPage() {
                                                 <RadioGroup
                                                     onValueChange={field.onChange}
                                                     defaultValue={field.value}
-                                                    className="grid grid-cols-3 gap-2"
+                                                    className="flex flex-col space-y-2"
                                                     >
                                                     <FormItem>
-                                                        <Label className="flex h-10 w-full cursor-pointer items-center justify-center rounded-md border text-sm transition-all hover:border-accent has-[input:checked]:border-primary">
+                                                        <Label className="flex h-10 w-full cursor-pointer items-center justify-start rounded-md border px-3 text-sm transition-all hover:border-accent has-[input:checked]:border-primary">
                                                             <FormControl>
-                                                                <RadioGroupItem value="active" className="sr-only" />
+                                                                <RadioGroupItem value="active" className="mr-2" />
                                                             </FormControl>
                                                             Active
                                                         </Label>
                                                     </FormItem>
                                                     <FormItem>
-                                                        <Label className="flex h-10 w-full cursor-pointer items-center justify-center rounded-md border text-sm transition-all hover:border-accent has-[input:checked]:border-primary">
+                                                        <Label className="flex h-10 w-full cursor-pointer items-center justify-start rounded-md border px-3 text-sm transition-all hover:border-accent has-[input:checked]:border-primary">
                                                             <FormControl>
-                                                                <RadioGroupItem value="suspended" className="sr-only" />
+                                                                <RadioGroupItem value="suspended" className="mr-2" />
                                                             </FormControl>
                                                             Suspended
                                                         </Label>
                                                     </FormItem>
                                                     <FormItem>
-                                                        <Label className="flex h-10 w-full cursor-pointer items-center justify-center rounded-md border text-sm transition-all hover:border-accent has-[input:checked]:border-destructive has-[input:checked]:text-destructive-foreground has-[input:checked]:bg-destructive">
+                                                        <Label className="flex h-10 w-full cursor-pointer items-center justify-start rounded-md border px-3 text-sm transition-all hover:border-accent has-[input:checked]:border-destructive has-[input:checked]:text-destructive-foreground has-[input:checked]:bg-destructive">
                                                             <FormControl>
-                                                                <RadioGroupItem value="deactivated" className="sr-only" />
+                                                                <RadioGroupItem value="deactivated" className="mr-2" />
                                                             </FormControl>
                                                             Deactivated
                                                         </Label>
