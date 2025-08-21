@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
+import { currentUser } from '@/lib/user-data';
 
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
@@ -24,11 +25,7 @@ export function UserNav() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const user = {
-    username: 'testuser',
-    photoUrl: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=1740&auto=format&fit=crop',
-    initials: 'TU',
-  };
+  const user = currentUser;
 
   useEffect(() => {
     const handleLogout = () => {

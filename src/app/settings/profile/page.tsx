@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { currentUser } from '@/lib/user-data';
 
 const profileFormSchema = z.object({
   username: z.string()
@@ -26,18 +27,6 @@ const profileFormSchema = z.object({
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
-
-// Mock data, in a real app this would come from an auth context
-const currentUser = {
-  uid: 'mock-uid-123',
-  username: 'testuser',
-  displayName: 'Test User',
-  bio: 'This is a mock bio for the test user.',
-  website: 'https://example.com',
-  location: 'Oslo, Norway',
-  photoUrl: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=1740&auto=format&fit=crop',
-  initials: 'TU',
-};
 
 export default function ProfileSettingsPage() {
   const { toast } = useToast();
