@@ -44,7 +44,7 @@ const userFormSchema = z.object({
   username: z.string().min(3, { message: 'Username must be at least 3 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   bio: z.string().max(160).optional(),
-  role: z.enum(['admin', 'moderator', 'analyst', 'readonly']),
+  role: z.enum(['voter', 'admin', 'moderator', 'analyst', 'readonly']),
   status: z.enum(['active', 'suspended', 'deactivated']),
   notifications: z.object({
     newContent: z.boolean(),
@@ -71,7 +71,7 @@ export default function EditUserPage() {
             username: '',
             email: '',
             bio: '',
-            role: 'readonly',
+            role: 'voter',
             status: 'active',
             notifications: { newContent: true, weeklyDigest: false },
         } : {
@@ -79,7 +79,7 @@ export default function EditUserPage() {
             username: userData?.username,
             email: `${userData?.username}@example.com`,
             bio: 'A mock bio for this user.',
-            role: 'readonly',
+            role: 'voter',
             status: 'active',
             notifications: { newContent: true, weeklyDigest: true },
         }
@@ -201,6 +201,7 @@ export default function EditUserPage() {
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                                                 <SelectContent>
+                                                    <SelectItem value="voter">Voter</SelectItem>
                                                     <SelectItem value="readonly">Read-Only</SelectItem>
                                                     <SelectItem value="analyst">Analyst</SelectItem>
                                                     <SelectItem value="moderator">Moderator</SelectItem>
