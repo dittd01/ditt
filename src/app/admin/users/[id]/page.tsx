@@ -47,6 +47,7 @@ const userFormSchema = z.object({
   displayName: z.string().min(2, { message: 'Display name must be at least 2 characters.' }),
   username: z.string().min(3, { message: 'Username must be at least 3 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
+  password: z.string().optional(),
   bio: z.string().max(160).optional(),
   role: z.enum(['voter', 'admin_readonly', 'analyst', 'moderator', 'admin']),
   status: z.enum(['active', 'suspended', 'deactivated']),
@@ -82,6 +83,7 @@ export default function EditUserPage() {
             displayName: '',
             username: '',
             email: '',
+            password: '',
             bio: '',
             role: 'voter',
             status: 'active',
@@ -108,9 +110,6 @@ export default function EditUserPage() {
     }
 
     const handleGenerateMockUser = async () => {
-        form.control.register('bio'); 
-        form.control.register('email');
-        
         toast({ title: 'Generating Mock User...', description: 'Please wait while the AI creates a profile.' });
         const result = await generateMockUserAction();
         if(result.success && result.data) {
@@ -120,6 +119,7 @@ export default function EditUserPage() {
                 username: result.data.username,
                 email: result.data.email,
                 bio: result.data.bio,
+                password: result.data.password,
                 role: 'voter',
                 status: 'active',
             });
@@ -237,7 +237,17 @@ export default function EditUserPage() {
                                 <CardDescription>Manage user password. Only available on creation for this mock.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                 <Input type="password" placeholder="New Password" disabled={!isNew} />
+                                 <FormField
+                                    control={form.control}
+                                    name="password"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>New Password</FormLabel>
+                                            <FormControl><Input {...field} type="password" disabled={!isNew} /></FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                                  {isNew && <p className="text-sm text-muted-foreground">A link to set the password will be sent to the user's email.</p>}
                             </CardContent>
                         </Card>

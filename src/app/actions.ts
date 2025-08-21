@@ -3,7 +3,7 @@
 
 import { moderateVotingSuggestion } from '@/ai/flows/moderate-voting-suggestions';
 import { curateTopicSuggestion, type CurateTopicSuggestionInput, type CurateTopicSuggestionOutput } from '@/ai/flows/curate-topic-suggestion';
-import { generateMockUser } from '@/ai/flows/generate-mock-user';
+import { generateMockUser, type GenerateMockUserOutput } from '@/ai/flows/generate-mock-user';
 import { categories, allTopics } from '@/lib/data';
 import { calculateQVCost } from '@/lib/qv';
 import type { Topic } from '@/lib/types';
@@ -110,7 +110,7 @@ export async function castQuadraticVoteAction(input: {
 }
 
 
-export async function generateMockUserAction() {
+export async function generateMockUserAction(): Promise<{ success: true, data: GenerateMockUserOutput } | { success: false, message: string }> {
     try {
         const result = await generateMockUser({ role: 'standard user', country: 'Norway' });
         return { success: true, data: result };

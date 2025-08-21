@@ -26,6 +26,7 @@ const GenerateMockUserOutputSchema = z.object({
   location: z.string().describe("A plausible city and country for the user."),
   interests: z.array(z.string()).describe("An array of 3-5 interests or hobbies for the user."),
   pronouns: z.string().describe("A plausible set of pronouns, e.g., 'he/him', 'she/her', 'they/them'."),
+  password: z.string().describe("A random password containing exactly four letters and two numbers."),
 });
 export type GenerateMockUserOutput = z.infer<typeof GenerateMockUserOutputSchema>;
 
@@ -44,6 +45,8 @@ const prompt = ai.definePrompt({
     
     The user data should be realistic and consistent. The username should be derived from the display name. The email should be the username at 'example.com'.
     
+    The password must contain exactly four letters and two numbers, in any order.
+
     Return a single, valid JSON object matching the output schema. Do not include any other text or explanations.`
 });
 
