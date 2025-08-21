@@ -63,7 +63,7 @@ const AlertActions = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex justify-end gap-2 mt-4", className)}
+    className={cn("mt-4 flex justify-end gap-2", className)}
     {...props}
   />
 ))
