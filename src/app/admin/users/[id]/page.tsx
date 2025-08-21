@@ -141,12 +141,6 @@ export default function EditUserPage() {
                     subtitle={isNew ? 'Add a new user to the system.' : `Editing details for ${userData?.name}.`}
                 >
                     <div className="flex items-center gap-2">
-                         {isNew && (
-                            <Button variant="outline" onClick={handleGenerateMockUser} type="button">
-                                <Wand2 className="mr-2 h-4 w-4" />
-                                AI Mock Standard User
-                            </Button>
-                        )}
                         <Button variant="outline" onClick={() => router.back()} type="button">
                             <ArrowLeft className="mr-2 h-4 w-4" />Back
                         </Button>
@@ -282,13 +276,19 @@ export default function EditUserPage() {
                                                             Real User
                                                         </Label>
                                                     </FormItem>
-                                                    <FormItem>
+                                                    <FormItem className="space-y-2">
                                                         <Label className="flex h-10 w-full cursor-pointer items-center justify-start rounded-md border px-3 text-sm transition-all hover:border-accent has-[input:checked]:border-primary">
                                                             <FormControl>
                                                                 <RadioGroupItem value="mock" className="mr-2" />
                                                             </FormControl>
                                                             Mock User (AI-Generated)
                                                         </Label>
+                                                         {isNew && field.value === 'mock' && (
+                                                            <Button variant="outline" size="sm" onClick={handleGenerateMockUser} type="button" className="w-full">
+                                                                <Wand2 className="mr-2 h-4 w-4" />
+                                                                Generate with AI
+                                                            </Button>
+                                                        )}
                                                     </FormItem>
                                                 </RadioGroup>
                                             </FormControl>
