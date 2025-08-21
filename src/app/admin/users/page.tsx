@@ -50,7 +50,7 @@ export default function UsersPage() {
                     </TableCell>
                     <TableCell>@{user.username}</TableCell>
                     <TableCell className="font-mono">{user.id}</TableCell>
-                    <TableCell><Badge variant="outline">{user.type}</Badge></TableCell>
+                    <TableCell><Badge variant={user.type === 'Real' ? 'default' : 'outline'}>{user.type}</Badge></TableCell>
                     <TableCell>{user.created}</TableCell>
                     <TableCell>{user.locale}</TableCell>
                     <TableCell>{user.device}</TableCell>

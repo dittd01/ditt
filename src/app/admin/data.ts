@@ -2,6 +2,7 @@
 import { allTopics, categories } from '@/lib/data';
 import type { Topic, Subcategory } from '@/lib/types';
 import { format, subDays } from 'date-fns';
+import { currentUser } from '@/lib/user-data';
 
 // Overview Page
 export const kpiData = {
@@ -66,7 +67,7 @@ const mockUserNames = [
     'Knut Lien', 'Astrid Moen', 'Jan Eriksen', 'Berit Andreassen', 'Arne Solberg'
 ];
 
-export const usersData = Array.from({ length: 50 }, (_, i) => {
+const generatedUsers = Array.from({ length: 50 }, (_, i) => {
     const createdDate = subDays(new Date(), Math.floor(Math.random() * 90));
     const lastSeenDate = subDays(createdDate, Math.floor(Math.random() * -30)); // last seen is after created
     const randomHex = [...Array(4)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
@@ -85,6 +86,20 @@ export const usersData = Array.from({ length: 50 }, (_, i) => {
         type: 'Mock',
     };
 });
+
+const currentLoggedInUser = {
+    id: currentUser.uid,
+    name: currentUser.displayName,
+    username: currentUser.username,
+    avatar: currentUser.photoUrl,
+    created: format(subDays(new Date(), 120), 'yyyy-MM-dd'),
+    locale: 'en-US',
+    device: 'Desktop',
+    last_seen: format(new Date(), 'yyyy-MM-dd HH:mm'),
+    type: 'Real',
+};
+
+export const usersData = [currentLoggedInUser, ...generatedUsers];
 
 
 // Health Page
