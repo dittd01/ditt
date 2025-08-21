@@ -31,12 +31,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Loader2 } from 'lucide-react';
@@ -60,7 +54,7 @@ const userFormSchema = z.object({
 
 type UserFormValues = z.infer<typeof userFormSchema>;
 
-const roleDescriptions = {
+const roleDescriptions: Record<UserFormValues['role'], string> = {
     voter: 'Standard user. Can vote, propose topics, and participate in debates.',
     admin_readonly: 'Can view all admin pages but cannot make any changes.',
     analyst: 'Access to Analytics and Data Exports pages.',
@@ -98,6 +92,8 @@ export default function EditUserPage() {
             notifications: { newContent: true, weeklyDigest: true },
         }
     });
+    
+    const watchedRole = form.watch('role');
 
     function onSubmit(data: UserFormValues) {
         console.log(data);
@@ -215,40 +211,17 @@ export default function EditUserPage() {
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                                                 <SelectContent>
-                                                    <TooltipProvider>
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <SelectItem value="voter">Voter</SelectItem>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent className="w-80"><p>{roleDescriptions.voter}</p></TooltipContent>
-                                                        </Tooltip>
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <SelectItem value="admin_readonly">Admin Read-Only</SelectItem>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent className="w-80"><p>{roleDescriptions.admin_readonly}</p></TooltipContent>
-                                                        </Tooltip>
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <SelectItem value="analyst">Analyst</SelectItem>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent className="w-80"><p>{roleDescriptions.analyst}</p></TooltipContent>
-                                                        </Tooltip>
-                                                         <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <SelectItem value="moderator">Moderator</SelectItem>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent className="w-80"><p>{roleDescriptions.moderator}</p></TooltipContent>
-                                                        </Tooltip>
-                                                         <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <SelectItem value="admin">Admin</SelectItem>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent className="w-80"><p>{roleDescriptions.admin}</p></TooltipContent>
-                                                        </Tooltip>
-                                                    </TooltipProvider>
+                                                    <SelectItem value="voter">Voter</SelectItem>
+                                                    <SelectItem value="admin_readonly">Admin Read-Only</SelectItem>
+                                                    <SelectItem value="analyst">Analyst</SelectItem>
+                                                    <SelectItem value="moderator">Moderator</SelectItem>
+                                                    <SelectItem value="admin">Admin</SelectItem>
                                                 </SelectContent>
                                             </Select>
+                                            <FormDescription className="pt-2">
+                                                {roleDescriptions[watchedRole]}
+                                            </FormDescription>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
