@@ -1,4 +1,5 @@
 
+'use client';
 import { DateRangePicker } from '@/components/admin/DateRangePicker';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { Button } from '@/components/ui/button';
@@ -11,7 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { BarChart, LineChart } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -19,12 +19,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
-const pollPerformance = [
-    { poll: 'Raise wealth-tax threshold to NOK 10m?', status: 'Active', total_votes: '150,234', votes_last_7d: '12,456' },
-    { poll: 'High-speed rail Oslo–Trondheim?', status: 'Active', total_votes: '120,876', votes_last_7d: '9,876' },
-    { poll: 'Halt new oil & gas exploration licenses?', status: 'Archived', total_votes: '76,543', votes_last_7d: 'N/A' },
-]
+import { pollPerformanceData } from '@/app/admin/data';
+import { SessionsChart, VotesChart } from '@/components/admin/charts';
+import { KpiCard } from '@/components/admin/KpiCard';
+import { Users, BarChart, CheckCircle } from 'lucide-react';
+import { kpiData } from '@/app/admin/data';
 
 export default function AnalyticsPage() {
   return (
@@ -38,7 +37,7 @@ export default function AnalyticsPage() {
       
       <div className="flex flex-wrap items-center gap-4">
           <Select defaultValue="all">
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Category"/>
               </SelectTrigger>
               <SelectContent>
@@ -48,7 +47,7 @@ export default function AnalyticsPage() {
               </SelectContent>
           </Select>
            <Select defaultValue="all">
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Device"/>
               </SelectTrigger>
               <SelectContent>
@@ -58,7 +57,7 @@ export default function AnalyticsPage() {
               </SelectContent>
           </Select>
            <Select defaultValue="all">
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Locale"/>
               </SelectTrigger>
               <SelectContent>
@@ -70,19 +69,23 @@ export default function AnalyticsPage() {
           <Button>Apply Filters</Button>
       </div>
 
+       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <KpiCard title="Active Users (DAU)" data={kpiData.dau} icon={Users} />
+        <KpiCard title="Total Sessions" data={kpiData.sessions} icon={BarChart} />
+        <KpiCard title="Total Votes Cast" data={kpiData.totalVotes} icon={CheckCircle} />
+      </div>
+
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader><CardTitle>Votes per Day</CardTitle></CardHeader>
-          <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground">
-            <LineChart className="w-16 h-16" />
-            <p>Line chart placeholder</p>
+          <CardContent className="h-[300px]">
+            <VotesChart />
           </CardContent>
         </Card>
         <Card>
           <CardHeader><CardTitle>Sessions per Day</CardTitle></CardHeader>
-          <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground">
-            <LineChart className="w-16 h-16" />
-            <p>Line chart placeholder</p>
+          <CardContent className="h-[300px]">
+            <SessionsChart />
           </CardContent>
         </Card>
       </div>
@@ -97,17 +100,17 @@ export default function AnalyticsPage() {
                 <TableRow>
                   <TableHead>Poll</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Total Votes</TableHead>
-                  <TableHead>Votes (Last 7d)</TableHead>
+                  <TableHead className="text-right">Total Votes</TableHead>
+                  <TableHead className="text-right">Votes (Last 7d)</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pollPerformance.map((poll, i) => (
+                {pollPerformanceData.map((poll, i) => (
                   <TableRow key={i}>
                     <TableCell className="font-medium">{poll.poll}</TableCell>
                     <TableCell>{poll.status}</TableCell>
-                    <TableCell>{poll.total_votes}</TableCell>
-                    <TableCell>{poll.votes_last_7d}</TableCell>
+                    <TableCell className="text-right">{poll.total_votes.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{poll.votes_last_7d.toLocaleString()}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

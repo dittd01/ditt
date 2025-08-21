@@ -19,12 +19,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
-const mockTopics = [
-    { id: 1, nb: 'Should the wealth tax threshold be raised?', en: 'Should the wealth tax threshold be raised?', params: 'Threshold: NOK 10m', status: 'Active', aliases: 5 },
-    { id: 2, nb: 'Should Norway build a high-speed rail between Oslo and Trondheim?', en: 'Should Norway build high-speed rail...', params: 'N/A', status: 'Active', aliases: 2 },
-    { id: 3, nb: 'Should Norway cease issuing new oil and gas exploration licenses?', en: 'Should Norway cease issuing new oil...', params: 'N/A', status: 'Archived', aliases: 12 },
-]
+import { topicsData } from '@/app/admin/data';
 
 export default function TopicCurationPage() {
   return (
@@ -45,7 +40,7 @@ export default function TopicCurationPage() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {mockTopics.map((topic) => (
+                    {topicsData.map((topic) => (
                         <TableRow key={topic.id}>
                             <TableCell className="font-medium">{topic.nb}</TableCell>
                             <TableCell>{topic.params}</TableCell>

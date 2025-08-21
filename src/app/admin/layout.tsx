@@ -1,16 +1,18 @@
 
+'use client';
+
 import { ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 import {
   SidebarProvider,
   Sidebar,
   SidebarHeader,
   SidebarContent,
-  SidebarInset,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarTrigger,
   SidebarFooter,
+  SidebarInset,
 } from '@/components/ui/sidebar';
 import {
   Home,
@@ -27,79 +29,76 @@ import {
   LogOut,
 } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Header } from '@/components/Header';
 import { AdminHeader } from '@/components/admin/AdminHeader';
+import { Button } from '@/components/ui/button';
+
+const navItems = [
+  { href: '/admin/overview', icon: Home, label: 'Overview', roles: ['ReadOnly', 'Analyst', 'Moderator', 'Admin', 'Owner'] },
+  { href: '/admin/analytics', icon: BarChart2, label: 'Analytics', roles: ['ReadOnly', 'Analyst', 'Moderator', 'Admin', 'Owner'] },
+  { href: '/admin/polls', icon: List, label: 'Polls', roles: ['ReadOnly', 'Analyst', 'Moderator', 'Admin', 'Owner'] },
+  { href: '/admin/topic-curation', icon: Lightbulb, label: 'Topic Curation', roles: ['Moderator', 'Admin', 'Owner'] },
+  { href: '/admin/suggestions-queue', icon: MessageSquareQuote, label: 'Suggestions Queue', roles: ['Moderator', 'Admin', 'Owner'] },
+  { href: '/admin/users', icon: Users, label: 'Users', roles: ['Admin', 'Owner'] },
+  { href: '/admin/audit-logs', icon: Shield, label: 'Audit Logs', roles: ['Admin', 'Owner'] },
+  { href: '/admin/feature-flags', icon: FileText, label: 'Feature Flags', roles: ['Admin', 'Owner'] },
+  { href: '/admin/health', icon: HeartPulse, label: 'Health', roles: ['Admin', 'Owner'] },
+  { href: '/admin/exports', icon: Download, label: 'Exports', roles: ['Analyst', 'Admin', 'Owner'] },
+];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  // In a real app, you'd get this from an auth context
-  const userRole = 'Admin'; 
-  const user = {
-      name: 'Admin User',
-      email: 'admin@dittdemokrati.no',
-  }
-
-  const navItems = [
-    { href: '/admin/overview', icon: Home, label: 'Overview', roles: ['ReadOnly', 'Analyst', 'Moderator', 'Admin', 'Owner'] },
-    { href: '/admin/analytics', icon: BarChart2, label: 'Analytics', roles: ['ReadOnly', 'Analyst', 'Moderator', 'Admin', 'Owner'] },
-    { href: '/admin/polls', icon: List, label: 'Polls', roles: ['ReadOnly', 'Analyst', 'Moderator', 'Admin', 'Owner'] },
-    { href: '/admin/topic-curation', icon: Lightbulb, label: 'Topic Curation', roles: ['Moderator', 'Admin', 'Owner'] },
-    { href: '/admin/suggestions-queue', icon: MessageSquareQuote, label: 'Suggestions Queue', roles: ['Moderator', 'Admin', 'Owner'] },
-    { href: '/admin/users', icon: Users, label: 'Users', roles: ['Admin', 'Owner'] },
-    { href: '/admin/audit-logs', icon: Shield, label: 'Audit Logs', roles: ['Admin', 'Owner'] },
-    { href: '/admin/feature-flags', icon: FileText, label: 'Feature Flags', roles: ['Admin', 'Owner'] },
-    { href: '/admin/health', icon: HeartPulse, label: 'Health', roles: ['Admin', 'Owner'] },
-    { href: '/admin/exports', icon: Download, label: 'Exports', roles: ['Analyst', 'Admin', 'Owner'] },
-  ];
+  const pathname = usePathname();
 
   return (
     <SidebarProvider>
       <div className="flex min-h-screen bg-background">
         <Sidebar>
           <SidebarHeader>
-             <div className="flex items-center gap-2 p-2">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold">
-                    D
-                </div>
-                <h2 className="text-lg font-semibold">Admin Panel</h2>
-             </div>
+            <div className="flex items-center gap-2 p-2">
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold">
+                D
+              </div>
+              <h2 className="text-lg font-semibold">Admin Panel</h2>
+            </div>
           </SidebarHeader>
           <SidebarContent className="p-2">
             <SidebarMenu>
               {navItems.map((item) => (
-                // A real implementation would check userRole against item.roles
                 <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton asChild tooltip={item.label}>
-                    <Link href={item.href}>
+                  <Link href={item.href} passHref legacyBehavior>
+                     <SidebarMenuButton
+                      as="a"
+                      tooltip={item.label}
+                      isActive={pathname === item.href}
+                    >
                       <item.icon />
                       <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
+                    </SidebarMenuButton>
+                  </Link>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
-             <SidebarMenu>
-                <SidebarMenuItem>
-                    <SidebarMenuButton>
-                        <Settings />
-                        <span>Settings</span>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-                 <SidebarMenuItem>
-                    <SidebarMenuButton>
-                        <LogOut />
-                        <span>Logout</span>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-             </SidebarMenu>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton>
+                  <Settings />
+                  <span>Settings</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                 <SidebarMenuButton>
+                  <LogOut />
+                  <span>Logout</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <SidebarInset className="flex-1 flex flex-col">
+         <SidebarInset>
             <AdminHeader />
             <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-                {children}
+              {children}
             </main>
         </SidebarInset>
       </div>

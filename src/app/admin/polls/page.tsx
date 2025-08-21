@@ -20,50 +20,16 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { allTopics, categories } from '@/lib/data';
+import { getPollsTableData, PollRowData, categories } from '@/app/admin/data';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import type { Topic, Subcategory } from '@/lib/types';
-
-interface PollRowData {
-    id: string;
-    title: string;
-    category: string;
-    subcategory: string;
-    categoryId: string;
-    subcategoryId: string;
-    status: string;
-    votes: number;
-    updated: string;
-}
+import type { Subcategory } from '@/lib/types';
+import Link from 'next/link';
 
 type SortDescriptor = {
     key: keyof Omit<PollRowData, 'id' | 'categoryId' | 'subcategoryId'>;
     direction: 'ascending' | 'descending';
-}
-
-const getCategoryInfo = (categoryId: string, subcategoryId: string) => {
-    const category = categories.find(c => c.id === categoryId);
-    if (!category) return { cat: 'N/A', sub: 'N/A', catId: 'N/A', subId: 'N/A' };
-    
-    // For election, there's no subcategory
-    if (categoryId === 'election_2025') {
-        return {
-            cat: category.label,
-            sub: 'N/A',
-            catId: category.id,
-            subId: 'N/A'
-        }
-    }
-    
-    const subcategoryInfo = category.subcategories.find(s => s.id === subcategoryId);
-    return {
-        cat: category.label,
-        sub: subcategoryInfo?.label || 'N/A',
-        catId: category.id,
-        subId: subcategoryInfo?.id || 'N/A'
-    }
 }
 
 export default function PollsPage() {
@@ -78,21 +44,7 @@ export default function PollsPage() {
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({ key: 'votes', direction: 'descending' });
 
   useEffect(() => {
-    const processedPolls = allTopics.map((topic): PollRowData => {
-        const { cat, sub, catId, subId } = getCategoryInfo(topic.categoryId, topic.subcategoryId);
-        return {
-            id: topic.id,
-            title: topic.question,
-            category: cat,
-            subcategory: sub,
-            categoryId: catId,
-            subcategoryId: subId,
-            status: topic.status.charAt(0).toUpperCase() + topic.status.slice(1),
-            votes: topic.totalVotes,
-            updated: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString().split('T')[0] 
-        }
-    });
-    setPolls(processedPolls);
+    setPolls(getPollsTableData());
   }, []);
 
   useEffect(() => {
@@ -168,9 +120,11 @@ export default function PollsPage() {
         title="Polls Management"
         subtitle="Create, edit, and manage all voting polls."
       >
-        <Button>
-          <PlusCircle className="mr-2" />
-          Create Poll
+        <Button asChild>
+          <Link href="/admin/polls/new">
+            <PlusCircle className="mr-2" />
+            Create Poll
+          </Link>
         </Button>
       </PageHeader>
       
@@ -246,7 +200,9 @@ export default function PollsPage() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleAction('Edit', poll.title)}>Edit</DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                  <Link href={`/admin/polls/${poll.id}`}>Edit</Link>
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleAction('Duplicate', poll.title)}>Duplicate</DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleAction(poll.status === 'Live' ? 'Archive' : 'Activate', poll.title)}>{poll.status === 'Live' ? 'Archive' : 'Activate'}</DropdownMenuItem>
                             </DropdownMenuContent>

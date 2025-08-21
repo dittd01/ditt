@@ -10,12 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
-const mockLogs = [
-    { ts: '2023-10-27 10:45:12', actor: 'admin@...', action: 'poll.update_status', entity: 'poll/xyz123', notes: 'Status -> Archived' },
-    { ts: '2023-10-27 10:30:05', actor: 'moderator@...', action: 'suggestion.approve', entity: 'suggestion/abc789', notes: 'Approved as new topic' },
-    { ts: '2023-10-26 15:00:00', actor: 'system', action: 'export.complete', entity: 'export/def456', notes: 'Weekly votes export' },
-]
+import { auditLogsData } from '@/app/admin/data';
 
 export default function AuditLogsPage() {
   return (
@@ -41,7 +36,7 @@ export default function AuditLogsPage() {
             </TableRow>
         </TableHeader>
         <TableBody>
-            {mockLogs.map((log, i) => (
+            {auditLogsData.map((log, i) => (
                  <TableRow key={i}>
                     <TableCell className="font-mono">{log.ts}</TableCell>
                     <TableCell>{log.actor}</TableCell>

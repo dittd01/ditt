@@ -4,13 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CheckCircle, AlertTriangle, Database, Cloud, AlertCircle as AlertIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-
-const mockHealth = [
-    { name: 'Firestore Latency', status: 'ok', details: 'Read: 25ms, Write: 40ms' },
-    { name: 'Genkit AI Functions', status: 'ok', details: 'All functions responsive' },
-    { name: 'Next.js Server', status: 'warn', details: 'Memory usage at 85%' },
-    { name: 'BankID API', status: 'ok', details: 'Connection healthy' },
-]
+import { healthData } from '@/app/admin/data';
 
 export default function HealthPage() {
   return (
@@ -20,8 +14,8 @@ export default function HealthPage() {
         subtitle="Monitor the status of key application components."
       />
 
-      <Alert severity="warning">
-        <AlertIcon />
+      <Alert>
+        <AlertIcon className="h-4 w-4" />
         <AlertTitle>Scheduled Maintenance</AlertTitle>
         <AlertDescription>
           A brief maintenance window is scheduled for tomorrow at 02:00 CET to deploy system updates.
@@ -29,7 +23,7 @@ export default function HealthPage() {
       </Alert>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {mockHealth.map(service => (
+        {healthData.map(service => (
             <Card key={service.name}>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium">{service.name}</CardTitle>

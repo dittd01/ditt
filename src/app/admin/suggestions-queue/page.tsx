@@ -17,14 +17,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
-const mockSuggestions = [
-    { id: 1, text: 'Increase inheritance tax to 25% for amounts over 10M NOK', verdict: 'create', status: 'Pending', created: '2023-10-27' },
-    { id: 2, text: 'Stop taxing working capital so hard', verdict: 'merge', status: 'Pending', created: '2023-10-27' },
-    { id: 3, text: 'Should we build trains and also stop giving money to rich people?', verdict: 'reject', status: 'Pending', created: '2023-10-26' },
-    { id: 4, text: 'Better roads in the north', verdict: 'create', status: 'Approved', created: '2023-10-25' },
-    { id: 5, text: 'Abolish the monarchy', verdict: 'reject', status: 'Rejected', created: '2023-10-24' },
-]
+import { suggestionsData } from '@/app/admin/data';
 
 export default function SuggestionsQueuePage() {
   return (
@@ -45,7 +38,7 @@ export default function SuggestionsQueuePage() {
             </TableRow>
         </TableHeader>
         <TableBody>
-            {mockSuggestions.map((s) => (
+            {suggestionsData.map((s) => (
                  <TableRow key={s.id}>
                     <TableCell className="font-medium">{s.text}</TableCell>
                     <TableCell><Badge variant="outline">{s.verdict}</Badge></TableCell>

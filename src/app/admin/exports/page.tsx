@@ -11,13 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Download, PlusCircle, RefreshCw } from 'lucide-react';
-
-const mockExports = [
-    { id: 1, type: 'Votes', params: 'Poll: #123, Date: 2023-10-01 to 2023-10-27', status: 'Done', created: '2023-10-27', url: '#' },
-    { id: 2, type: 'Users', params: 'All users', status: 'Running', created: '2023-10-27', url: null },
-    { id: 3, type: 'Audit Logs', params: 'Actor: admin, Last 30 days', status: 'Queued', created: '2023-10-27', url: null },
-    { id: 4, type: 'Polls', params: 'Category: Taxation', status: 'Error', created: '2023-10-26', url: null },
-]
+import { exportsData } from '@/app/admin/data';
 
 export default function ExportsPage() {
   return (
@@ -43,7 +37,7 @@ export default function ExportsPage() {
             </TableRow>
         </TableHeader>
         <TableBody>
-            {mockExports.map((exp) => (
+            {exportsData.map((exp) => (
                  <TableRow key={exp.id}>
                     <TableCell className="font-medium">{exp.type}</TableCell>
                     <TableCell>{exp.params}</TableCell>

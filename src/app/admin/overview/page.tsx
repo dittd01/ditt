@@ -12,24 +12,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { BarChart, LineChart, Users, FileText, CheckCircle, Download } from 'lucide-react';
+import { Users, FileText, CheckCircle, Download, BarChart } from 'lucide-react';
 import Link from 'next/link';
-
-// Mock Data
-const kpiData = {
-  dau: { value: '12,456', delta: '+12.5%' },
-  sessions: { value: '34,890', delta: '+8.2%' },
-  totalVotes: { value: '1,2M', delta: '+25K' },
-  newUsers: { value: '1,502', delta: '-3.1%' },
-};
-
-const topPolls = [
-  { id: 1, title: 'Raise wealth-tax threshold to NOK 10m?', votes: '150,234' },
-  { id: 2, title: 'High-speed rail Oslo–Trondheim?', votes: '120,876' },
-  { id: 3, title: 'Adopt ranked-choice voting for national elections?', votes: '98,456' },
-  { id: 4, title: 'Increase carbon tax to NOK 2,000/ton?', votes: '88,123' },
-  { id: 5, title: 'Halt new oil & gas exploration licenses?', votes: '76,543' },
-];
+import { kpiData, topPollsData } from '@/app/admin/data';
+import { DauChart } from '@/components/admin/charts';
 
 export default function OverviewPage() {
   return (
@@ -53,9 +39,8 @@ export default function OverviewPage() {
           <CardHeader>
             <CardTitle>Daily Active Users</CardTitle>
           </CardHeader>
-          <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground">
-            <LineChart className="w-16 h-16" />
-            <p>Line chart placeholder</p>
+          <CardContent className="h-[300px] pl-2">
+            <DauChart />
           </CardContent>
         </Card>
         <Card>
@@ -63,7 +48,7 @@ export default function OverviewPage() {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <Button className="w-full justify-start" variant="outline"><FileText className="mr-2" />Create Poll</Button>
+            <Button asChild className="w-full justify-start" variant="outline"><Link href="/admin/polls/new"><FileText className="mr-2" />Create Poll</Link></Button>
             <Button asChild className="w-full justify-start" variant="outline"><Link href="/admin/suggestions-queue"><CheckCircle className="mr-2" />Review Suggestions</Link></Button>
             <Button asChild className="w-full justify-start" variant="outline"><Link href="/admin/exports"><Download className="mr-2" />Export Dataset</Link></Button>
           </CardContent>
@@ -83,10 +68,10 @@ export default function OverviewPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {topPolls.map((poll) => (
+                {topPollsData.map((poll) => (
                   <TableRow key={poll.id}>
                     <TableCell className="font-medium">{poll.title}</TableCell>
-                    <TableCell className="text-right">{poll.votes}</TableCell>
+                    <TableCell className="text-right">{poll.votes.toLocaleString()}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

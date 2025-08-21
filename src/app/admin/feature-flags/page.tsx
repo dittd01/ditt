@@ -12,13 +12,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Edit } from 'lucide-react';
-
-const mockFlags = [
-    { key: 'suggestions.enabled', desc: 'Allow users to submit new topics', enabled: false, rollout: '0%' },
-    { key: 'polls.shuffle_options', desc: 'Randomize order of Yes/No options', enabled: true, rollout: '100%' },
-    { key: 'realtime.results.enabled', desc: 'Update poll results in real-time via websockets', enabled: true, rollout: '100%' },
-    { key: 'ai.moderation.enabled', desc: 'Use AI to moderate suggestions', enabled: true, rollout: '100%' },
-]
+import { featureFlagsData } from '@/app/admin/data';
 
 export default function FeatureFlagsPage() {
   return (
@@ -39,7 +33,7 @@ export default function FeatureFlagsPage() {
             </TableRow>
         </TableHeader>
         <TableBody>
-            {mockFlags.map((flag) => (
+            {featureFlagsData.map((flag) => (
                  <TableRow key={flag.key}>
                     <TableCell className="font-mono">{flag.key}</TableCell>
                     <TableCell>{flag.desc}</TableCell>
