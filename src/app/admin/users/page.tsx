@@ -1,4 +1,5 @@
 
+'use client';
 import { PageHeader } from '@/components/admin/PageHeader';
 import {
   Table,
@@ -14,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
+import Link from 'next/link';
 
 export default function UsersPage() {
   return (
@@ -24,9 +26,11 @@ export default function UsersPage() {
       >
         <div className="flex gap-2">
             <Input placeholder="Search by user ID..." className="w-[300px]" />
-            <Button>
-                <PlusCircle className="mr-2" />
-                Create User
+            <Button asChild>
+                <Link href="/admin/users/new">
+                    <PlusCircle className="mr-2" />
+                    Create User
+                </Link>
             </Button>
         </div>
       </PageHeader>
