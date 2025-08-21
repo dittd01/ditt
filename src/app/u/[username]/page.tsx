@@ -27,46 +27,6 @@ type Suggestion = {
   slug: string | null;
 }
 
-// Mock data - in a real app, this would be fetched from Firestore
-const initialSuggestions = [
-    {
-      id: 5,
-      text: 'Foreign fishing boats should be banned from Norwegian waters.',
-      verdict: 'Approved',
-      reason: 'Clear, single-issue question.',
-      slug: 'foreign-fishing-boats-should-be-banned-from-norwegian-waters',
-    },
-    {
-      id: 1,
-      text: 'Should all public transport be free in major cities?',
-      verdict: 'Approved',
-      reason: 'Clear, single-issue question.',
-      slug: 'free-transit-for-under-18s', // Note: slug might not perfectly match text
-    },
-    {
-      id: 2,
-      text: 'More money for schools and also lower taxes.',
-      verdict: 'Rejected',
-      reason: 'Contains multiple, conflicting issues.',
-      slug: null,
-    },
-    {
-      id: 3,
-      text: 'What about making the wealth tax higher?',
-      verdict: 'Merged',
-      reason: 'Similar to existing topic: "Raise wealth-tax threshold to NOK 10m?"',
-      slug: null,
-    },
-     {
-      id: 4,
-      text: 'Introduce a four-day work week as standard.',
-      verdict: 'Approved',
-      reason: 'Unique and well-defined topic.',
-      slug: null, // This topic doesn't exist yet as a poll
-    },
-  ]
-
-
 const getVerdictIcon = (verdict: string) => {
     switch (verdict) {
         case 'Approved':
@@ -94,11 +54,7 @@ export default function ProfilePage() {
       // Only load suggestions if the user is the current user
       if (user) {
         const customSuggestions: Suggestion[] = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
-        // Combine and remove duplicates, giving precedence to custom suggestions
-        const combined = [...customSuggestions, ...initialSuggestions];
-        const uniqueSuggestions = Array.from(new Set(combined.map(s => s.id)))
-            .map(id => combined.find(s => s.id === id)!);
-        setUserSuggestions(uniqueSuggestions);
+        setUserSuggestions(customSuggestions);
       } else {
         setUserSuggestions([]);
       }
@@ -106,7 +62,9 @@ export default function ProfilePage() {
 
     syncSuggestions();
     
+    // Rerender if storage changes (e.g. new suggestion added from another tab)
     window.addEventListener('storage', syncSuggestions);
+    // Custom event to handle updates within the same tab
     window.addEventListener('topicAdded', syncSuggestions);
 
     return () => {
@@ -114,7 +72,7 @@ export default function ProfilePage() {
       window.removeEventListener('topicAdded', syncSuggestions);
     };
 
-  }, [username, user]);
+  }, [user]);
 
 
   if (!user) {
