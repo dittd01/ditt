@@ -59,8 +59,8 @@ export async function curateSuggestionAction(suggestion: string) {
             categoryId: result.category,
             subcategoryId: result.subcategory,
             // These are placeholder values for a new topic
-            imageUrl: 'https://images.unsplash.com/photo-1500252185289-40ca85eb23a7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtaWxpdGFyeXxlbnwwfHx8fDE3NTU3NjczMTl8MA&ixlib=rb-4.1.0&q=80&w=1080',
-            aiHint: 'new topic',
+            imageUrl: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1738&auto=format&fit=crop',
+            aiHint: 'debate ideas',
             status: 'live',
             voteType: 'yesno', // Default to yes/no for new suggestions
             votes: { yes: 0, no: 0, abstain: 0},
