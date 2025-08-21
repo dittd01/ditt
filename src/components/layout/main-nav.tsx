@@ -29,14 +29,11 @@ export function MainNav() {
         <NavigationMenu>
             <NavigationMenuList>
             <NavigationMenuItem>
-                <Link href="/all" legacyBehavior passHref>
-                  <NavigationMenuLink
-                      className={navigationMenuTriggerStyle()}
-                      active={pathname === '/all'}
-                  >
-                      Explore
-                  </NavigationMenuLink>
+              <NavigationMenuLink asChild active={pathname === '/all'}>
+                <Link href="/all" className={navigationMenuTriggerStyle()}>
+                  Explore
                 </Link>
+              </NavigationMenuLink>
             </NavigationMenuItem>
             
             <NavigationMenuItem>
@@ -57,14 +54,11 @@ export function MainNav() {
             </NavigationMenuItem>
             
             <NavigationMenuItem>
-                <Link href="/propose" legacyBehavior passHref>
-                  <NavigationMenuLink
-                      className={navigationMenuTriggerStyle()}
-                      active={pathname === '/propose'}
-                  >
-                      Propose Topic
-                  </NavigationMenuLink>
+              <NavigationMenuLink asChild active={pathname === '/propose'}>
+                <Link href="/propose" className={navigationMenuTriggerStyle()}>
+                  Propose Topic
                 </Link>
+              </NavigationMenuLink>
             </NavigationMenuItem>
             
             </NavigationMenuList>
