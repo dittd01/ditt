@@ -20,7 +20,7 @@ import { useState, useEffect } from 'react';
 import { currentUser } from '@/lib/user-data'; // Import the centralized user data
 
 type Suggestion = {
-  id: number;
+  id: number | string;
   text: string;
   verdict: string;
   reason: string;
@@ -182,3 +182,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    

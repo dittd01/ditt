@@ -107,7 +107,7 @@ export function SuggestionForm() {
     await new Promise(resolve => setTimeout(resolve, 500));
     
     const slug = reviewData.canonical_en.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    const newTopic: Partial<Topic> = {
+    const newTopic: Topic = {
         id: `topic_${Date.now()}`,
         slug: slug,
         question: reviewData.canonical_nb,
@@ -135,6 +135,19 @@ export function SuggestionForm() {
     const customTopics = JSON.parse(localStorage.getItem('custom_topics') || '[]');
     customTopics.push(newTopic);
     localStorage.setItem('custom_topics', JSON.stringify(customTopics));
+
+    // Also add to user-specific suggestions
+    const userSuggestions = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
+    userSuggestions.unshift({
+        id: newTopic.id,
+        text: newTopic.question,
+        verdict: 'Approved',
+        reason: 'Clear, single-issue question.',
+        slug: newTopic.slug,
+    });
+    localStorage.setItem('user_suggestions', JSON.stringify(userSuggestions));
+
+
     window.dispatchEvent(new Event('topicAdded'));
 
     setNewTopicSlug(slug);
@@ -336,3 +349,5 @@ export function SuggestionForm() {
     </Card>
   );
 }
+
+    
