@@ -30,23 +30,23 @@ export function MainNav() {
             <NavigationMenuList>
             <NavigationMenuItem>
                 <Link href="/all" legacyBehavior passHref>
-                <NavigationMenuLink
-                    className={navigationMenuTriggerStyle()}
-                    active={pathname === '/all'}
-                >
-                    Explore
-                </NavigationMenuLink>
+                  <NavigationMenuLink
+                      className={navigationMenuTriggerStyle()}
+                      active={pathname === '/all'}
+                  >
+                      Explore
+                  </NavigationMenuLink>
                 </Link>
             </NavigationMenuItem>
             
             <NavigationMenuItem>
                 <Link href="/propose" legacyBehavior passHref>
-                <NavigationMenuLink
-                    className={navigationMenuTriggerStyle()}
-                    active={pathname === '/propose'}
-                >
-                    Propose Topic
-                </NavigationMenuLink>
+                  <NavigationMenuLink
+                      className={navigationMenuTriggerStyle()}
+                      active={pathname === '/propose'}
+                  >
+                      Propose Topic
+                  </NavigationMenuLink>
                 </Link>
             </NavigationMenuItem>
             
@@ -69,23 +69,23 @@ export function MainNav() {
             
              <NavigationMenuItem>
                 <Link href="/about" legacyBehavior passHref>
-                <NavigationMenuLink
-                    className={navigationMenuTriggerStyle()}
-                    active={pathname === '/about'}
-                >
-                    About
-                </NavigationMenuLink>
+                  <NavigationMenuLink
+                      className={navigationMenuTriggerStyle()}
+                      active={pathname === '/about'}
+                  >
+                      About
+                  </NavigationMenuLink>
                 </Link>
             </NavigationMenuItem>
 
              <NavigationMenuItem>
                 <Link href="/privacy" legacyBehavior passHref>
-                <NavigationMenuLink
-                    className={navigationMenuTriggerStyle()}
-                    active={pathname === '/privacy'}
-                >
-                    Privacy
-                </NavigationMenuLink>
+                  <NavigationMenuLink
+                      className={navigationMenuTriggerStyle()}
+                      active={pathname === '/privacy'}
+                  >
+                      Privacy
+                  </NavigationMenuLink>
                 </Link>
             </NavigationMenuItem>
             
