@@ -71,6 +71,7 @@ export const usersData = Array.from({ length: 50 }, (_, i) => {
         locale: Math.random() > 0.3 ? 'nb-NO' : 'en-US',
         device: Math.random() > 0.5 ? 'Mobile' : 'Desktop',
         last_seen: format(lastSeenDate, 'yyyy-MM-dd HH:mm'),
+        type: 'Mock',
     };
 });
 

@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { usersData } from '@/app/admin/data';
+import { Badge } from '@/components/ui/badge';
 
 export default function UsersPage() {
   return (
@@ -25,6 +26,7 @@ export default function UsersPage() {
         <TableHeader>
             <TableRow>
                 <TableHead>User ID (Masked)</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead>Created At</TableHead>
                 <TableHead>Locale</TableHead>
                 <TableHead>Device Type</TableHead>
@@ -35,6 +37,7 @@ export default function UsersPage() {
             {usersData.map((user, i) => (
                  <TableRow key={i}>
                     <TableCell className="font-mono">{user.id}</TableCell>
+                    <TableCell><Badge variant="outline">{user.type}</Badge></TableCell>
                     <TableCell>{user.created}</TableCell>
                     <TableCell>{user.locale}</TableCell>
                     <TableCell>{user.device}</TableCell>
