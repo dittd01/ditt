@@ -57,4 +57,17 @@ const AlertDescription = React.forwardRef<
 ))
 AlertDescription.displayName = "AlertDescription"
 
-export { Alert, AlertTitle, AlertDescription }
+const AlertActions = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex justify-end gap-2 mt-4", className)}
+    {...props}
+  />
+))
+AlertActions.displayName = "AlertActions"
+
+
+export { Alert, AlertTitle, AlertDescription, AlertActions }

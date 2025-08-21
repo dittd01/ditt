@@ -18,6 +18,8 @@ import type { CurateTopicSuggestionOutput } from '@/ai/flows/curate-topic-sugges
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription, AlertTitle, AlertActions } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 const suggestionSchema = z.object({
   suggestion: z
@@ -39,6 +41,7 @@ export function SuggestionForm() {
   const [step, setStep] = useState<FormStep>('INPUT');
   const [reviewData, setReviewData] = useState<AIReviewData | null>(null);
   const [newTopicSlug, setNewTopicSlug] = useState<string | null>(null);
+  const [rejectionReason, setRejectionReason] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(suggestionSchema),
@@ -47,6 +50,7 @@ export function SuggestionForm() {
 
   async function handleGetSuggestions(values: FormValues) {
     setIsLoading(true);
+    setRejectionReason(null);
     try {
       const result = await curateSuggestionAction({
           user_text: values.suggestion,
@@ -64,21 +68,23 @@ export function SuggestionForm() {
             form.reset();
          }
       } else {
-        toast({
-          variant: 'destructive',
-          title: 'Suggestion Rejected',
-          description: result.message || 'The AI curator determined this suggestion could not be approved.',
-        });
+        setRejectionReason(result.message || 'The AI curator determined this suggestion could not be approved.');
       }
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'An Error Occurred',
-        description: 'Could not process your suggestion. Please try again.',
-      });
+       setRejectionReason('Could not process your suggestion. Please try again.');
     } finally {
       setIsLoading(false);
     }
+  }
+
+  const handleRequestReview = () => {
+    // In a real app, this would trigger a backend process to flag for admin review.
+    toast({
+        title: "Review Requested",
+        description: "Your suggestion has been submitted for manual review by our team.",
+    });
+    setRejectionReason(null);
+    form.reset();
   }
 
   const handleFinalSubmit = async () => {
@@ -126,6 +132,7 @@ export function SuggestionForm() {
   const handleStartOver = () => {
       setStep('INPUT');
       setReviewData(null);
+      setRejectionReason(null);
       form.reset();
   }
 
@@ -212,6 +219,21 @@ export function SuggestionForm() {
                       )}
                     />
                 </div>
+
+                {rejectionReason && (
+                    <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Suggestion Rejected</AlertTitle>
+                        <AlertDescription>
+                            {rejectionReason}
+                        </AlertDescription>
+                        <AlertActions>
+                             <Button variant="ghost" onClick={() => setRejectionReason(null)}>Dismiss</Button>
+                             <Button variant="secondary" onClick={handleRequestReview}>Request Manual Review</Button>
+                        </AlertActions>
+                    </Alert>
+                )}
+
                 <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
                   {isLoading ? (
                     <>
