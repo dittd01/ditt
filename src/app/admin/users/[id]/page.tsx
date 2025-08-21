@@ -112,6 +112,7 @@ export default function EditUserPage() {
                 id: `voter...${randomHex}`,
                 name: data.displayName,
                 username: data.username,
+                password: data.password,
                 avatar: `https://placehold.co/40x40.png?text=${data.displayName.split(' ').map(n => n[0]).join('')}`,
                 created: format(new Date(), 'yyyy-MM-dd'),
                 locale: 'en-US',

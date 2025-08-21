@@ -21,10 +21,10 @@ import Link from 'next/link';
 import { useDebounce } from 'use-debounce';
 import { parse } from 'date-fns';
 
-type User = typeof staticUsersData[0];
+type User = typeof staticUsersData[0] & { password?: string };
 
 type SortDescriptor = {
-    key: keyof Omit<User, 'id' | 'avatar' | 'username'> | 'name' | 'username';
+    key: keyof Omit<User, 'id' | 'avatar' | 'username' | 'password'> | 'name' | 'username';
     direction: 'ascending' | 'descending';
 }
 
@@ -154,6 +154,7 @@ export default function UsersPage() {
                 <SortableHeader sortKey="name">User</SortableHeader>
                 <SortableHeader sortKey="username">Username</SortableHeader>
                 <TableHead>User ID (Masked)</TableHead>
+                <TableHead>Password</TableHead>
                 <SortableHeader sortKey="type">Type</SortableHeader>
                 <SortableHeader sortKey="created">Created At</SortableHeader>
                 <SortableHeader sortKey="locale">Locale</SortableHeader>
@@ -175,6 +176,9 @@ export default function UsersPage() {
                     </TableCell>
                     <TableCell>@{user.username}</TableCell>
                     <TableCell className="font-mono">{user.id}</TableCell>
+                    <TableCell className="font-mono">
+                        {user.type === 'Mock' ? user.password : '********'}
+                    </TableCell>
                     <TableCell><Badge variant={user.type === 'Real' ? 'default' : 'outline'}>{user.type}</Badge></TableCell>
                     <TableCell>{user.created}</TableCell>
                     <TableCell>{user.locale}</TableCell>
