@@ -50,7 +50,7 @@ const userFormSchema = z.object({
   username: z.string().min(3, { message: 'Username must be at least 3 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   bio: z.string().max(160).optional(),
-  role: z.enum(['voter', 'admin', 'moderator', 'analyst', 'admin_readonly']),
+  role: z.enum(['voter', 'admin_readonly', 'analyst', 'moderator', 'admin']),
   status: z.enum(['active', 'suspended', 'deactivated']),
   notifications: z.object({
     newContent: z.boolean(),
@@ -220,31 +220,31 @@ export default function EditUserPage() {
                                                             <TooltipTrigger asChild>
                                                                 <SelectItem value="voter">Voter</SelectItem>
                                                             </TooltipTrigger>
-                                                            <TooltipContent><p>{roleDescriptions.voter}</p></TooltipContent>
+                                                            <TooltipContent className="w-80"><p>{roleDescriptions.voter}</p></TooltipContent>
                                                         </Tooltip>
                                                         <Tooltip>
                                                             <TooltipTrigger asChild>
                                                                 <SelectItem value="admin_readonly">Admin Read-Only</SelectItem>
                                                             </TooltipTrigger>
-                                                            <TooltipContent><p>{roleDescriptions.admin_readonly}</p></TooltipContent>
+                                                            <TooltipContent className="w-80"><p>{roleDescriptions.admin_readonly}</p></TooltipContent>
                                                         </Tooltip>
                                                         <Tooltip>
                                                             <TooltipTrigger asChild>
                                                                 <SelectItem value="analyst">Analyst</SelectItem>
                                                             </TooltipTrigger>
-                                                            <TooltipContent><p>{roleDescriptions.analyst}</p></TooltipContent>
+                                                            <TooltipContent className="w-80"><p>{roleDescriptions.analyst}</p></TooltipContent>
                                                         </Tooltip>
                                                          <Tooltip>
                                                             <TooltipTrigger asChild>
                                                                 <SelectItem value="moderator">Moderator</SelectItem>
                                                             </TooltipTrigger>
-                                                            <TooltipContent><p>{roleDescriptions.moderator}</p></TooltipContent>
+                                                            <TooltipContent className="w-80"><p>{roleDescriptions.moderator}</p></TooltipContent>
                                                         </Tooltip>
                                                          <Tooltip>
                                                             <TooltipTrigger asChild>
                                                                 <SelectItem value="admin">Admin</SelectItem>
                                                             </TooltipTrigger>
-                                                            <TooltipContent><p>{roleDescriptions.admin}</p></TooltipContent>
+                                                            <TooltipContent className="w-80"><p>{roleDescriptions.admin}</p></TooltipContent>
                                                         </Tooltip>
                                                     </TooltipProvider>
                                                 </SelectContent>
@@ -318,3 +318,4 @@ export default function EditUserPage() {
             </form>
         </Form>
     );
+}
