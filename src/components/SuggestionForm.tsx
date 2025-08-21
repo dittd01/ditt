@@ -114,7 +114,7 @@ export function SuggestionForm() {
         description: reviewData.canonical_description, // Use AI-generated description
         categoryId: reviewData.category,
         subcategoryId: reviewData.subcategory,
-        imageUrl: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1738&auto=format&fit=crop',
+        imageUrl: 'https://placehold.co/600x400.png',
         aiHint: 'debate ideas',
         status: 'live',
         voteType: 'yesno',
@@ -349,3 +349,5 @@ export function SuggestionForm() {
     </Card>
   );
 }
+
+    
