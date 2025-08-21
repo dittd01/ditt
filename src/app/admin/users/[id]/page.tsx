@@ -33,11 +33,18 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Info } from 'lucide-react';
 import { usersData } from '@/app/admin/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+
 
 const userFormSchema = z.object({
   displayName: z.string().min(2, { message: 'Display name must be at least 2 characters.' }),
@@ -93,8 +100,6 @@ export default function EditUserPage() {
         }
     });
     
-    const watchedRole = form.watch('role');
-
     function onSubmit(data: UserFormValues) {
         console.log(data);
         toast({
@@ -211,16 +216,25 @@ export default function EditUserPage() {
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="voter">Voter</SelectItem>
-                                                    <SelectItem value="admin_readonly">Admin Read-Only</SelectItem>
-                                                    <SelectItem value="analyst">Analyst</SelectItem>
-                                                    <SelectItem value="moderator">Moderator</SelectItem>
-                                                    <SelectItem value="admin">Admin</SelectItem>
+                                                    {Object.keys(roleDescriptions).map(roleKey => (
+                                                        <TooltipProvider key={roleKey} delayDuration={200}>
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <SelectItem value={roleKey}>
+                                                                        <div className="flex justify-between w-full items-center">
+                                                                            <span>{roleKey.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                                                                            <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                                                                        </div>
+                                                                    </SelectItem>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent className="w-80">
+                                                                    <p>{roleDescriptions[roleKey as keyof typeof roleDescriptions]}</p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        </TooltipProvider>
+                                                    ))}
                                                 </SelectContent>
                                             </Select>
-                                            <FormDescription className="pt-2">
-                                                {roleDescriptions[watchedRole]}
-                                            </FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
