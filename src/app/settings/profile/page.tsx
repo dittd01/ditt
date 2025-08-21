@@ -103,7 +103,7 @@ export default function ProfileSettingsPage() {
         <CardHeader>
           <CardTitle>Public Profile</CardTitle>
           <CardDescription>
-            This information will be displayed on your public profile.
+            This is where you manage your public identity. You can change your avatar by uploading a photo or generating one with AI, and you can edit your display name, bio, website, and location.
           </CardDescription>
         </CardHeader>
         <CardContent>
