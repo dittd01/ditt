@@ -1,5 +1,6 @@
 
 'use client';
+import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/admin/PageHeader';
 import {
   Table,
@@ -10,14 +11,36 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-import { usersData } from '@/app/admin/data';
+import { usersData as staticUsersData } from '@/app/admin/data';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 
+type User = typeof staticUsersData[0];
+
 export default function UsersPage() {
+  const [allUsers, setAllUsers] = useState<User[]>(staticUsersData);
+
+  useEffect(() => {
+    // This effect runs on the client and will read from localStorage
+    const customUsers: User[] = JSON.parse(localStorage.getItem('custom_users') || '[]');
+    
+    // Combine static data with localStorage data, avoiding duplicates
+    setAllUsers(prevUsers => {
+        const combined = [...staticUsersData];
+        const existingIds = new Set(combined.map(u => u.id));
+        customUsers.forEach(user => {
+            if (!existingIds.has(user.id)) {
+                combined.push(user);
+            }
+        });
+        return combined.sort((a,b) => new Date(b.created).getTime() - new Date(a.created).getTime());
+    });
+  }, []);
+
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -49,7 +72,7 @@ export default function UsersPage() {
             </TableRow>
         </TableHeader>
         <TableBody>
-            {usersData.map((user, i) => (
+            {allUsers.map((user, i) => (
                  <TableRow key={i}>
                     <TableCell>
                         <div className="flex items-center gap-2">

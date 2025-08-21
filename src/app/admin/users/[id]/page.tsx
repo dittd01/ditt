@@ -41,6 +41,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { generateMockUserAction } from '@/app/actions';
+import { format } from 'date-fns';
 
 
 const userFormSchema = z.object({
@@ -105,11 +106,32 @@ export default function EditUserPage() {
     const watchedRole = form.watch('role');
     
     function onSubmit(data: UserFormValues) {
-        console.log(data);
+        if (isNew) {
+            const randomHex = [...Array(4)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+            const newUser = {
+                id: `voter...${randomHex}`,
+                name: data.displayName,
+                username: data.username,
+                avatar: `https://placehold.co/40x40.png?text=${data.displayName.split(' ').map(n => n[0]).join('')}`,
+                created: format(new Date(), 'yyyy-MM-dd'),
+                locale: 'en-US',
+                device: 'Desktop',
+                last_seen: format(new Date(), 'yyyy-MM-dd HH:mm'),
+                type: data.type.charAt(0).toUpperCase() + data.type.slice(1),
+            };
+            const customUsers = JSON.parse(localStorage.getItem('custom_users') || '[]');
+            customUsers.push(newUser);
+            localStorage.setItem('custom_users', JSON.stringify(customUsers));
+        }
+
         toast({
             title: isNew ? 'User Created' : 'User Updated',
             description: `The user ${data.displayName} has been saved.`,
         });
+        
+        if (isNew) {
+            router.push('/admin/users');
+        }
     }
 
     const handleGenerateMockUser = async () => {
