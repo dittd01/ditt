@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { ArrowBigDown, ArrowBigUp, MessageSquare, Flag } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import Image from 'next/image';
 
 interface ArgumentCardProps {
   argument: Argument;

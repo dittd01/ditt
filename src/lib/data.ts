@@ -280,7 +280,7 @@ const createArgsForTopic = (topicId: string): Argument[] => {
             id: `user_${topicId}_${i + 1}`,
             username: `${name.toLowerCase()}${suffix}`,
             role: i < 30 ? 'arguer' : 'voter',
-            avatarUrl: `https://placehold.co/40x40.png?text=${name.substring(0, 1)}${suffix.toString().substring(0,1)}`,
+            avatarUrl: `https://placehold.co/40x40.png`,
         };
     });
 

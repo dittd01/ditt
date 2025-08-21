@@ -7,7 +7,7 @@ export const currentUser = {
   bio: 'This is a mock bio for the test user. Building things with Next.js and Firebase.',
   website: 'https://example.com',
   location: 'Oslo, Norway',
-  photoUrl: 'https://placehold.co/600x400.png',
+  photoUrl: 'https://placehold.co/40x40.png',
   initials: 'TU',
   pronouns: 'they/them',
   interests: ['Votering', 'Teknologi', 'Demokrati'],
