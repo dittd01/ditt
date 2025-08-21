@@ -12,6 +12,8 @@ import { Input } from '@/components/ui/input';
 import { usersData } from '@/app/admin/data';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { PlusCircle } from 'lucide-react';
 
 export default function UsersPage() {
   return (
@@ -20,7 +22,13 @@ export default function UsersPage() {
         title="Users"
         subtitle="View user data. PII is redacted for non-admins."
       >
-        <Input placeholder="Search by user ID..." className="w-[300px]" />
+        <div className="flex gap-2">
+            <Input placeholder="Search by user ID..." className="w-[300px]" />
+            <Button>
+                <PlusCircle className="mr-2" />
+                Create User
+            </Button>
+        </div>
       </PageHeader>
       
        <Table>
