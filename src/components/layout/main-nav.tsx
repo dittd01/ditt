@@ -29,7 +29,7 @@ export function MainNav() {
         <NavigationMenu>
             <NavigationMenuList>
             <NavigationMenuItem>
-                <Link href="/all" passHref legacyBehavior>
+                <Link href="/all" legacyBehavior passHref>
                   <NavigationMenuLink
                       className={navigationMenuTriggerStyle()}
                       active={pathname === '/all'}
@@ -40,7 +40,7 @@ export function MainNav() {
             </NavigationMenuItem>
             
             <NavigationMenuItem>
-                <Link href="/propose" passHref legacyBehavior>
+                <Link href="/propose" legacyBehavior passHref>
                   <NavigationMenuLink
                       className={navigationMenuTriggerStyle()}
                       active={pathname === '/propose'}
@@ -68,7 +68,7 @@ export function MainNav() {
             </NavigationMenuItem>
             
              <NavigationMenuItem>
-                <Link href="/about" passHref legacyBehavior>
+                <Link href="/about" legacyBehavior passHref>
                   <NavigationMenuLink
                       className={navigationMenuTriggerStyle()}
                       active={pathname === '/about'}
@@ -79,7 +79,7 @@ export function MainNav() {
             </NavigationMenuItem>
 
              <NavigationMenuItem>
-                <Link href="/privacy" passHref legacyBehavior>
+                <Link href="/privacy" legacyBehavior passHref>
                   <NavigationMenuLink
                       className={navigationMenuTriggerStyle()}
                       active={pathname === '/privacy'}
@@ -102,21 +102,19 @@ const ListItem = React.forwardRef<
   return (
     <li>
       <NavigationMenuLink asChild>
-        <Link href={props.href || ''} passHref legacyBehavior>
-          <a
-            ref={ref}
-            className={cn(
-              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-              className
-            )}
-            {...props}
-          >
-            <div className="text-sm font-medium leading-none">{title}</div>
-            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-              {children}
-            </p>
-          </a>
-        </Link>
+        <a
+          ref={ref}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            className
+          )}
+          {...props}
+        >
+          <div className="text-sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        </a>
       </NavigationMenuLink>
     </li>
   )
