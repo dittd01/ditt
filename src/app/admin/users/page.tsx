@@ -16,14 +16,21 @@ import { usersData as staticUsersData } from '@/app/admin/data';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { useDebounce } from 'use-debounce';
+import { parse } from 'date-fns';
 
 type User = typeof staticUsersData[0];
 
+type SortDescriptor = {
+    key: keyof Omit<User, 'id' | 'avatar' | 'username'> | 'name' | 'username';
+    direction: 'ascending' | 'descending';
+}
+
 export default function UsersPage() {
   const [allUsers, setAllUsers] = useState<User[]>(staticUsersData);
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({ key: 'last_seen', direction: 'descending' });
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -60,8 +67,8 @@ export default function UsersPage() {
     router.replace(`${pathname}?${params.toString()}`);
   };
 
-  const filteredUsers = useMemo(() => {
-    return allUsers.filter(user => {
+  const sortedAndFilteredUsers = useMemo(() => {
+    let filtered = allUsers.filter(user => {
         const term = debouncedSearchTerm.toLowerCase();
         return (
             user.id.toLowerCase().includes(term) ||
@@ -71,7 +78,52 @@ export default function UsersPage() {
             user.locale.toLowerCase().includes(term)
         );
     });
-  }, [allUsers, debouncedSearchTerm]);
+
+    return filtered.sort((a, b) => {
+        const aValue = a[sortDescriptor.key];
+        const bValue = b[sortDescriptor.key];
+
+        let cmp = 0;
+        if (sortDescriptor.key === 'created' || sortDescriptor.key === 'last_seen') {
+            const formatString = sortDescriptor.key === 'created' ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm';
+            const dateA = parse(aValue, formatString, new Date());
+            const dateB = parse(bValue, formatString, new Date());
+            cmp = dateA.getTime() - dateB.getTime();
+        } else if (typeof aValue === 'string' && typeof bValue === 'string') {
+            cmp = aValue.localeCompare(bValue);
+        } else if (typeof aValue === 'number' && typeof bValue === 'number') {
+            cmp = aValue - bValue;
+        }
+
+        if (sortDescriptor.direction === 'descending') {
+            cmp *= -1;
+        }
+        return cmp;
+    });
+
+  }, [allUsers, debouncedSearchTerm, sortDescriptor]);
+  
+  const handleSortChange = (key: SortDescriptor['key']) => {
+    if (sortDescriptor.key === key) {
+        setSortDescriptor({
+            key,
+            direction: sortDescriptor.direction === 'ascending' ? 'descending' : 'ascending',
+        });
+    } else {
+        setSortDescriptor({ key, direction: 'ascending' });
+    }
+  };
+
+  const SortableHeader = ({ sortKey, children, className }: { sortKey: SortDescriptor['key'], children: React.ReactNode, className?: string}) => (
+    <TableHead className={className}>
+        <Button variant="ghost" onClick={() => handleSortChange(sortKey)} className="-ml-4 h-8">
+            {children}
+            {sortDescriptor.key === sortKey && (
+                 <ArrowUpDown className={`ml-2 h-4 w-4 transition-transform ${sortDescriptor.direction === 'descending' ? 'rotate-180' : ''}`} />
+            )}
+        </Button>
+    </TableHead>
+  );
 
 
   return (
@@ -99,18 +151,18 @@ export default function UsersPage() {
        <Table>
         <TableHeader>
             <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Username</TableHead>
+                <SortableHeader sortKey="name">User</SortableHeader>
+                <SortableHeader sortKey="username">Username</SortableHeader>
                 <TableHead>User ID (Masked)</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Created At</TableHead>
-                <TableHead>Locale</TableHead>
-                <TableHead>Device Type</TableHead>
-                <TableHead>Last Seen</TableHead>
+                <SortableHeader sortKey="type">Type</SortableHeader>
+                <SortableHeader sortKey="created">Created At</SortableHeader>
+                <SortableHeader sortKey="locale">Locale</SortableHeader>
+                <SortableHeader sortKey="device">Device Type</SortableHeader>
+                <SortableHeader sortKey="last_seen">Last Seen</SortableHeader>
             </TableRow>
         </TableHeader>
         <TableBody>
-            {filteredUsers.map((user, i) => (
+            {sortedAndFilteredUsers.map((user, i) => (
                  <TableRow key={user.id}>
                     <TableCell>
                         <Link href={`/admin/users/${user.id}`} className="flex items-center gap-2 hover:underline">
