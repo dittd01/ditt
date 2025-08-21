@@ -40,17 +40,6 @@ export function MainNav() {
             </NavigationMenuItem>
             
             <NavigationMenuItem>
-                <Link href="/propose" legacyBehavior passHref>
-                  <NavigationMenuLink
-                      className={navigationMenuTriggerStyle()}
-                      active={pathname === '/propose'}
-                  >
-                      Propose Topic
-                  </NavigationMenuLink>
-                </Link>
-            </NavigationMenuItem>
-            
-            <NavigationMenuItem>
                 <NavigationMenuTrigger>Categories</NavigationMenuTrigger>
                 <NavigationMenuContent>
                 <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
@@ -65,6 +54,17 @@ export function MainNav() {
                     ))}
                 </ul>
                 </NavigationMenuContent>
+            </NavigationMenuItem>
+            
+            <NavigationMenuItem>
+                <Link href="/propose" legacyBehavior passHref>
+                  <NavigationMenuLink
+                      className={navigationMenuTriggerStyle()}
+                      active={pathname === '/propose'}
+                  >
+                      Propose Topic
+                  </NavigationMenuLink>
+                </Link>
             </NavigationMenuItem>
             
             </NavigationMenuList>
