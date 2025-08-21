@@ -83,16 +83,25 @@ const getVerdictIcon = (verdict: string) => {
 export default function ProfilePage() {
   const params = useParams();
   const username = params.username as string;
-  const [userSuggestions, setUserSuggestions] = useState<Suggestion[]>(initialSuggestions);
+  const [userSuggestions, setUserSuggestions] = useState<Suggestion[]>([]);
+  
+  // In a real app, you would fetch user data based on the username
+  // For now, we'll just display the mock user if the username matches
+  const user = username === currentUser.username ? currentUser : null;
 
   useEffect(() => {
     const syncSuggestions = () => {
-      const customSuggestions: Suggestion[] = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
-      // Combine and remove duplicates, giving precedence to custom suggestions
-      const combined = [...customSuggestions, ...initialSuggestions];
-      const uniqueSuggestions = Array.from(new Set(combined.map(s => s.id)))
-          .map(id => combined.find(s => s.id === id)!);
-      setUserSuggestions(uniqueSuggestions);
+      // Only load suggestions if the user is the current user
+      if (user) {
+        const customSuggestions: Suggestion[] = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
+        // Combine and remove duplicates, giving precedence to custom suggestions
+        const combined = [...customSuggestions, ...initialSuggestions];
+        const uniqueSuggestions = Array.from(new Set(combined.map(s => s.id)))
+            .map(id => combined.find(s => s.id === id)!);
+        setUserSuggestions(uniqueSuggestions);
+      } else {
+        setUserSuggestions([]);
+      }
     };
 
     syncSuggestions();
@@ -105,11 +114,8 @@ export default function ProfilePage() {
       window.removeEventListener('topicAdded', syncSuggestions);
     };
 
-  }, []);
+  }, [username, user]);
 
-  // In a real app, you would fetch user data based on the username
-  // For now, we'll just display the mock user if the username matches
-  const user = username === currentUser.username ? currentUser : null;
 
   if (!user) {
     return (
