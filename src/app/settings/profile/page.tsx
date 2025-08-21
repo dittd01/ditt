@@ -22,6 +22,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { generateAvatar } from '@/ai/flows/generate-avatar';
 import { Loader2, Sparkles, Upload } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 
 
 const profileFormSchema = z.object({
@@ -236,7 +237,7 @@ export default function ProfileSettingsPage() {
             </div>
             <DialogFooter>
                 <Button variant="ghost" onClick={() => setShowGeneratorDialog(false)} disabled={isGenerating}>Cancel</Button>
-                <Button onClick={handleGenerateAvatar} disabled={isGenerating}>
+                <Button onClick={handleGenerateAvatar} disabled={isGenerating || !avatarPrompt}>
                     {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Generate
                 </Button>
