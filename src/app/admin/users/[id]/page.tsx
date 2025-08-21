@@ -31,6 +31,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Loader2 } from 'lucide-react';
@@ -44,7 +50,7 @@ const userFormSchema = z.object({
   username: z.string().min(3, { message: 'Username must be at least 3 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   bio: z.string().max(160).optional(),
-  role: z.enum(['voter', 'admin', 'moderator', 'analyst', 'readonly']),
+  role: z.enum(['voter', 'admin', 'moderator', 'analyst', 'admin_readonly']),
   status: z.enum(['active', 'suspended', 'deactivated']),
   notifications: z.object({
     newContent: z.boolean(),
@@ -53,6 +59,14 @@ const userFormSchema = z.object({
 });
 
 type UserFormValues = z.infer<typeof userFormSchema>;
+
+const roleDescriptions = {
+    voter: 'Standard user. Can vote, propose topics, and participate in debates.',
+    admin_readonly: 'Can view all admin pages but cannot make any changes.',
+    analyst: 'Access to Analytics and Data Exports pages.',
+    moderator: 'Can manage Topic Curation and the Suggestions Queue.',
+    admin: 'Full access to all administrative features.',
+};
 
 export default function EditUserPage() {
     const router = useRouter();
@@ -201,20 +215,40 @@ export default function EditUserPage() {
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="voter">Voter</SelectItem>
-                                                    <SelectItem value="readonly">Read-Only</SelectItem>
-                                                    <SelectItem value="analyst">Analyst</SelectItem>
-                                                    <SelectItem value="moderator">Moderator</SelectItem>
-                                                    <SelectItem value="admin">Admin</SelectItem>
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <SelectItem value="voter">Voter</SelectItem>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent><p>{roleDescriptions.voter}</p></TooltipContent>
+                                                        </Tooltip>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <SelectItem value="admin_readonly">Admin Read-Only</SelectItem>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent><p>{roleDescriptions.admin_readonly}</p></TooltipContent>
+                                                        </Tooltip>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <SelectItem value="analyst">Analyst</SelectItem>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent><p>{roleDescriptions.analyst}</p></TooltipContent>
+                                                        </Tooltip>
+                                                         <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <SelectItem value="moderator">Moderator</SelectItem>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent><p>{roleDescriptions.moderator}</p></TooltipContent>
+                                                        </Tooltip>
+                                                         <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <SelectItem value="admin">Admin</SelectItem>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent><p>{roleDescriptions.admin}</p></TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
                                                 </SelectContent>
                                             </Select>
-                                            <FormDescription className="pt-2 text-xs">
-                                                - **Voter**: Standard user, can vote and propose topics.
-                                                <br/>- **Read-Only**: Can view all admin pages but cannot make changes.
-                                                <br/>- **Analyst**: Access to Analytics and Data Exports.
-                                                <br/>- **Moderator**: Can manage Topic Curation and Suggestions.
-                                                <br/>- **Admin**: Full access to all administrative features.
-                                            </FormDescription>
                                         </FormItem>
                                     )}
                                 />
@@ -284,4 +318,3 @@ export default function EditUserPage() {
             </form>
         </Form>
     );
-}
