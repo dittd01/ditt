@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Sparkles, Upload } from 'lucide-react';
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { currentUser } from '@/lib/user-data';
@@ -20,6 +19,9 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { generateAvatar } from '@/ai/flows/generate-avatar';
+import { Loader2, Sparkles, Upload } from 'lucide-react';
 
 
 const profileFormSchema = z.object({
@@ -38,6 +40,10 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 export default function ProfileSettingsPage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(currentUser.photoUrl);
+  const [showGeneratorDialog, setShowGeneratorDialog] = useState(false);
+  const [avatarPrompt, setAvatarPrompt] = useState('');
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -65,6 +71,31 @@ export default function ProfileSettingsPage() {
     setIsSubmitting(false);
   }
 
+  const handleGenerateAvatar = async () => {
+      if (!avatarPrompt) return;
+      setIsGenerating(true);
+      try {
+          const result = await generateAvatar({ prompt: avatarPrompt });
+          if(result.imageUrl) {
+              setAvatarUrl(result.imageUrl);
+          }
+          setShowGeneratorDialog(false);
+          setAvatarPrompt('');
+           toast({
+              title: "Avatar Generated!",
+              description: "Your new avatar is ready. Don't forget to save.",
+            });
+      } catch (e) {
+           toast({
+              variant: 'destructive',
+              title: "Generation Failed",
+              description: "Could not generate avatar. Please try again.",
+            });
+      } finally {
+        setIsGenerating(false);
+      }
+  }
+
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">
       <Card>
@@ -79,7 +110,7 @@ export default function ProfileSettingsPage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="flex items-center gap-4">
                  <Avatar className="h-20 w-20">
-                    <AvatarImage src={currentUser.photoUrl} data-ai-hint="handsome man" />
+                    <AvatarImage src={avatarUrl} data-ai-hint="handsome man" />
                     <AvatarFallback>{currentUser.initials}</AvatarFallback>
                 </Avatar>
                 <DropdownMenu>
@@ -87,11 +118,11 @@ export default function ProfileSettingsPage() {
                         <Button type="button" variant="outline">Change Photo</Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => toast({ title: "Not Implemented", description: "File uploads are coming soon."})}>
                             <Upload className="mr-2" />
                             Upload from device
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => setShowGeneratorDialog(true)}>
                             <Sparkles className="mr-2" />
                             Generate with AI
                         </DropdownMenuItem>
@@ -188,6 +219,30 @@ export default function ProfileSettingsPage() {
           </Form>
         </CardContent>
       </Card>
+      <Dialog open={showGeneratorDialog} onOpenChange={setShowGeneratorDialog}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Generate Avatar with AI</DialogTitle>
+                <DialogDescription>Describe the avatar you'd like to create.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-2">
+                <Label htmlFor="avatar-prompt">Prompt</Label>
+                <Input 
+                    id="avatar-prompt"
+                    value={avatarPrompt}
+                    onChange={e => setAvatarPrompt(e.target.value)}
+                    placeholder="e.g., a handsome man, photorealistic" 
+                />
+            </div>
+            <DialogFooter>
+                <Button variant="ghost" onClick={() => setShowGeneratorDialog(false)} disabled={isGenerating}>Cancel</Button>
+                <Button onClick={handleGenerateAvatar} disabled={isGenerating}>
+                    {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Generate
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
