@@ -84,6 +84,7 @@ const generatedUsers = Array.from({ length: 50 }, (_, i) => {
         device: Math.random() > 0.5 ? 'Mobile' : 'Desktop',
         last_seen: format(lastSeenDate, 'yyyy-MM-dd HH:mm'),
         type: 'Mock',
+        password: 'a1bc2d',
     };
 });
 

@@ -32,7 +32,10 @@ export type GenerateMockUserOutput = z.infer<typeof GenerateMockUserOutputSchema
 
 
 export async function generateMockUser(input: GenerateMockUserInput): Promise<GenerateMockUserOutput> {
-  return generateMockUserFlow(input);
+  const result = await generateMockUserFlow(input);
+  // Override the generated password with the static one for testing.
+  result.password = 'a1bc2d';
+  return result;
 }
 
 const prompt = ai.definePrompt({
