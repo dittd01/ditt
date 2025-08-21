@@ -123,6 +123,7 @@ export function SuggestionForm() {
         votesLastWeek: 0,
         votesLastMonth: 0,
         votesLastYear: 0,
+        history: [], // Ensure history exists for new topics
         options: [
             { id: 'yes', label: 'Yes', color: 'hsl(var(--chart-2))' },
             { id: 'no', label: 'No', color: 'hsl(var(--chart-1))' },
