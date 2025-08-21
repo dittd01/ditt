@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { LogOut, Shield, User, Settings } from 'lucide-react';
+import { LogOut, Shield, User, Settings, Info, Lock } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -80,8 +80,8 @@ export function UserNav() {
         <DropdownMenu>
         <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-            <Avatar className="h-8 w-8" data-ai-hint="handsome man">
-                <AvatarImage src={user.photoUrl} alt={`@${user.username}`} />
+            <Avatar className="h-8 w-8">
+                <AvatarImage src={user.photoUrl} alt={`@${user.username}`} data-ai-hint="handsome man" />
                 <AvatarFallback>{user.initials}</AvatarFallback>
             </Avatar>
             </Button>
@@ -113,6 +113,19 @@ export function UserNav() {
                 <Shield className="mr-2 h-4 w-4" />
                 <span>Admin</span>
             </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+             <DropdownMenuItem asChild>
+                <Link href="/about">
+                    <Info className="mr-2 h-4 w-4" />
+                    <span>About</span>
+                </Link>
+            </DropdownMenuItem>
+             <DropdownMenuItem asChild>
+                <Link href="/privacy">
+                    <Lock className="mr-2 h-4 w-4" />
+                    <span>Privacy</span>
+                </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogoutClick}>

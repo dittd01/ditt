@@ -101,20 +101,6 @@ export function MobileNav() {
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
-            <MobileLink
-              href="/about"
-              onOpenChange={setOpen}
-              className="text-foreground"
-            >
-              About
-            </MobileLink>
-            <MobileLink
-              href="/privacy"
-              onOpenChange={setOpen}
-              className="text-foreground"
-            >
-              Privacy
-            </MobileLink>
           </div>
         </div>
       </SheetContent>
