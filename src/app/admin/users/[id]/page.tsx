@@ -50,6 +50,7 @@ const userFormSchema = z.object({
   password: z.string().optional(),
   bio: z.string().max(160).optional(),
   role: z.enum(['voter', 'admin_readonly', 'analyst', 'moderator', 'admin']),
+  type: z.enum(['real', 'mock']),
   status: z.enum(['active', 'suspended', 'deactivated']),
   notifications: z.object({
     newContent: z.boolean(),
@@ -86,6 +87,7 @@ export default function EditUserPage() {
             password: '',
             bio: '',
             role: 'voter',
+            type: 'real',
             status: 'active',
             notifications: { newContent: true, weeklyDigest: false },
         } : {
@@ -94,6 +96,7 @@ export default function EditUserPage() {
             email: `${userData?.username}@example.com`,
             bio: 'A mock bio for this user.',
             role: 'voter',
+            type: userData?.type.toLowerCase() as 'real' | 'mock' || 'real',
             status: 'active',
             notifications: { newContent: true, weeklyDigest: true },
         }
@@ -121,6 +124,7 @@ export default function EditUserPage() {
                 bio: result.data.bio,
                 password: result.data.password,
                 role: 'voter',
+                type: 'mock',
                 status: 'active',
             });
             toast({ title: 'Mock User Generated!', description: 'The form has been populated with AI-generated data.' });
@@ -253,6 +257,46 @@ export default function EditUserPage() {
                         </Card>
                     </div>
                     <div className="space-y-8">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Type</CardTitle>
+                                <CardDescription>Differentiate between real and mock users.</CardDescription>
+                            </CardHeader>
+                             <CardContent>
+                                <FormField
+                                    control={form.control}
+                                    name="type"
+                                    render={({ field }) => (
+                                        <FormItem className="space-y-3">
+                                            <FormControl>
+                                                <RadioGroup
+                                                    onValueChange={field.onChange}
+                                                    defaultValue={field.value}
+                                                    className="flex flex-col space-y-2"
+                                                >
+                                                    <FormItem>
+                                                        <Label className="flex h-10 w-full cursor-pointer items-center justify-start rounded-md border px-3 text-sm transition-all hover:border-accent has-[input:checked]:border-primary">
+                                                            <FormControl>
+                                                                <RadioGroupItem value="real" className="mr-2" />
+                                                            </FormControl>
+                                                            Real User
+                                                        </Label>
+                                                    </FormItem>
+                                                    <FormItem>
+                                                        <Label className="flex h-10 w-full cursor-pointer items-center justify-start rounded-md border px-3 text-sm transition-all hover:border-accent has-[input:checked]:border-primary">
+                                                            <FormControl>
+                                                                <RadioGroupItem value="mock" className="mr-2" />
+                                                            </FormControl>
+                                                            Mock User (AI-Generated)
+                                                        </Label>
+                                                    </FormItem>
+                                                </RadioGroup>
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                            </CardContent>
+                        </Card>
                         <Card>
                              <CardHeader>
                                 <CardTitle>Role</CardTitle>
