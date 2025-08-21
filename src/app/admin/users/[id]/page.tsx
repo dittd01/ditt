@@ -208,6 +208,13 @@ export default function EditUserPage() {
                                                     <SelectItem value="admin">Admin</SelectItem>
                                                 </SelectContent>
                                             </Select>
+                                            <FormDescription className="pt-2 text-xs">
+                                                - **Voter**: Standard user, can vote and propose topics.
+                                                <br/>- **Read-Only**: Can view all admin pages but cannot make changes.
+                                                <br/>- **Analyst**: Access to Analytics and Data Exports.
+                                                <br/>- **Moderator**: Can manage Topic Curation and Suggestions.
+                                                <br/>- **Admin**: Full access to all administrative features.
+                                            </FormDescription>
                                         </FormItem>
                                     )}
                                 />
