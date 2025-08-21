@@ -75,7 +75,7 @@ export function DebateSection({ topicId, initialArgs, onArgsChange }: DebateSect
       topicId: topicId,
       parentId: parentId,
       side: side,
-      author: { name: 'New User', avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1740&auto=format&fit=crop' },
+      author: { name: 'New User', avatarUrl: 'https://placehold.co/600x400.png' },
       text: values.text,
       upvotes: 1,
       downvotes: 0,

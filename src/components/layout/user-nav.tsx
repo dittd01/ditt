@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -80,7 +81,7 @@ export function UserNav() {
         <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
-                <AvatarImage src={user.photoUrl} alt={`@${user.username}`} data-ai-hint="handsome man" />
+                <AvatarImage src={user.photoUrl} alt={`@${user.username}`} />
                 <AvatarFallback>{user.initials}</AvatarFallback>
             </Avatar>
             </Button>

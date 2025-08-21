@@ -8,7 +8,7 @@ export const parties: Party[] = [
     name: 'Rødt',
     abbreviation: 'R',
     color: '#9B1C1C',
-    imageUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'woman politician glasses',
   },
   {
@@ -16,7 +16,7 @@ export const parties: Party[] = [
     name: 'Sosialistisk Venstreparti',
     abbreviation: 'SV',
     color: '#D63DB3',
-    imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'smiling woman politician',
   },
   {
@@ -24,7 +24,7 @@ export const parties: Party[] = [
     name: 'Arbeiderpartiet',
     abbreviation: 'AP',
     color: '#E52424',
-    imageUrl: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'handsome man',
   },
   {
@@ -33,7 +33,7 @@ export const parties: Party[] = [
     abbreviation: 'SP',
     color: '#BBD64B',
     textColor: '#000000',
-    imageUrl: 'https://images.unsplash.com/photo-1557862921-37829c790f19?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'smiling man politician',
   },
   {
@@ -41,7 +41,7 @@ export const parties: Party[] = [
     name: 'Miljøpartiet De Grønne',
     abbreviation: 'MDG',
     color: '#006437',
-    imageUrl: 'https://images.unsplash.com/photo-1590086782792-42dd2350140d?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'man politician portrait',
   },
   {
@@ -50,7 +50,7 @@ export const parties: Party[] = [
     abbreviation: 'KRF',
     color: '#F6C14B',
     textColor: '#000000',
-    imageUrl: 'https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'man politician beard',
   },
   {
@@ -58,7 +58,7 @@ export const parties: Party[] = [
     name: 'Venstre',
     abbreviation: 'V',
     color: '#00A199',
-    imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'woman politician smiling',
   },
   {
@@ -66,7 +66,7 @@ export const parties: Party[] = [
     name: 'Høyre',
     abbreviation: 'H',
     color: '#0055A4',
-    imageUrl: 'https://images.unsplash.com/photo-1611601322175-875b4cfb334a?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'woman politician portrait',
   },
   {
@@ -74,7 +74,7 @@ export const parties: Party[] = [
     name: 'Fremskrittspartiet',
     abbreviation: 'FRP',
     color: '#003876',
-    imageUrl: 'https://images.unsplash.com/photo-1607746882042-944635dfe10e?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'woman politician professional',
   },
   {
@@ -82,7 +82,7 @@ export const parties: Party[] = [
     name: 'Folkets Parti',
     abbreviation: 'FOR', // As per image
     color: '#8B575C',
-    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'woman politician friendly',
   },
   {
@@ -90,7 +90,7 @@ export const parties: Party[] = [
     name: 'Demokratene i Norge',
     abbreviation: 'DNI',
     color: '#4A6B7B',
-    imageUrl: 'https://images.unsplash.com/photo-1628890923662-2cb23c2a02cf?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'man politician serious',
   },
   {
@@ -99,7 +99,7 @@ export const parties: Party[] = [
     abbreviation: 'GP',
     color: '#D8A868',
     textColor: '#000000',
-    imageUrl: 'https://images.unsplash.com/photo-1542596768-5d1d6bf6cf52?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'young woman politician',
   },
   {
@@ -108,7 +108,7 @@ export const parties: Party[] = [
     abbreviation: 'PS', // As per image
     color: '#C3874B',
     textColor: '#000000',
-    imageUrl: 'https://images.unsplash.com/photo-1615222441922-a8d8396d11b5?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'older man politician',
   },
   {
@@ -116,7 +116,7 @@ export const parties: Party[] = [
     name: 'Piratpartiet',
     abbreviation: 'PP',
     color: '#9A7E98',
-    imageUrl: 'https://images.unsplash.com/photo-1610624922137-0c675c747657?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'man politician glasses',
   },
   {
@@ -125,7 +125,7 @@ export const parties: Party[] = [
     abbreviation: 'KON',
     color: '#6FA8D1',
     textColor: '#000000',
-    imageUrl: 'https://images.unsplash.com/photo-1627541594242-ac420480d457?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'man politician leader',
   },
   {
@@ -133,7 +133,7 @@ export const parties: Party[] = [
     name: 'Industri- og Næringspartiet',
     abbreviation: 'INP',
     color: '#4B7F7F',
-    imageUrl: 'https://images.unsplash.com/photo-1600486913747-55e5470d6f40?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'man politician professional',
   },
   {
@@ -141,7 +141,7 @@ export const parties: Party[] = [
     name: 'Verdipartiet',
     abbreviation: 'VIP',
     color: '#8C7B3E',
-    imageUrl: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'man politician smiling',
   },
   {
@@ -149,7 +149,7 @@ export const parties: Party[] = [
     name: 'Norgesdemokratene',
     abbreviation: 'ND',
     color: '#3D6E98',
-    imageUrl: 'https://images.unsplash.com/photo-1639747594911-3b653d5d08a2?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'man politician confident',
   },
 ];
@@ -180,7 +180,7 @@ export const electionTopic: Omit<Topic, 'votesLastWeek' | 'votesLastMonth' | 'vo
     slug: 'election-2025',
     question: 'Election 2025: Who gets your vote?',
     description: 'Cast your vote for the upcoming Stortingsvalg (parliamentary election). This is an anonymous, non-binding poll to gauge public sentiment. Results are for informational purposes only.',
-    imageUrl: 'https://images.unsplash.com/photo-1599454100789-b23720912a7a?q=80&w=1740&auto=format&fit=crop',
+    imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'parliament building',
     options: electionOptions,
     votes: electionVotes,
