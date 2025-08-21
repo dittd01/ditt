@@ -22,7 +22,7 @@ const GenerateMockUserOutputSchema = z.object({
   displayName: z.string().describe("A realistic-sounding full name for the user."),
   username: z.string().describe("A plausible, lowercase, alphanumeric username (with underscores). e.g., 'johndoe_88'."),
   email: z.string().email().describe("A mock email address based on the username, using 'example.com' domain."),
-  bio: z.string().describe("A short, interesting bio for the user in the first person (1-2 sentences)."),
+  bio: z.string().max(160).describe("A short, interesting bio for the user in the first person (1-2 sentences, max 160 characters)."),
   location: z.string().describe("A plausible city and country for the user."),
   interests: z.array(z.string()).describe("An array of 3-5 interests or hobbies for the user."),
   pronouns: z.string().describe("A plausible set of pronouns, e.g., 'he/him', 'she/her', 'they/them'."),
@@ -44,6 +44,7 @@ const prompt = ai.definePrompt({
     Generate a profile for a {{role}} from {{country}}.
     
     The user data should be realistic and consistent. The username should be derived from the display name. The email should be the username at 'example.com'.
+    The bio must be a maximum of 160 characters.
     
     The password must contain exactly four letters and two numbers, in any order.
 
