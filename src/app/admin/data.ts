@@ -98,6 +98,7 @@ const currentLoggedInUser = {
     device: 'Desktop',
     last_seen: format(new Date(), 'yyyy-MM-dd HH:mm'),
     type: 'Real',
+    password: 'password',
 };
 
 export const usersData = [currentLoggedInUser, ...generatedUsers];

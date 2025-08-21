@@ -177,7 +177,7 @@ export default function UsersPage() {
                     <TableCell>@{user.username}</TableCell>
                     <TableCell className="font-mono">{user.id}</TableCell>
                     <TableCell className="font-mono">
-                        {user.type === 'Mock' ? user.password : '********'}
+                        {user.password || '********'}
                     </TableCell>
                     <TableCell><Badge variant={user.type === 'Real' ? 'default' : 'outline'}>{user.type}</Badge></TableCell>
                     <TableCell>{user.created}</TableCell>
