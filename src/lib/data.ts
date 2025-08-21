@@ -399,7 +399,7 @@ const generateUniqueArguments = () => {
           const suffix = Math.floor(10 + Math.random() * 90);
           return {
               username: `${name.toLowerCase()}${suffix}`,
-              avatarUrl: `https://placehold.co/40x40.png?text=${name.substring(0, 1)}${suffix.toString().substring(0,1)}`,
+              avatarUrl: `https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1740&auto=format&fit=crop`,
           };
       });
       const arguers = users.slice(0, 30);
@@ -459,10 +459,3 @@ export const mockArguments: Argument[] = generateUniqueArguments();
 export const getArgumentsForTopic = (topicId: string): Argument[] => {
   return mockArguments.filter(arg => arg.topicId === topicId);
 };
-
-
-
-
-
-
-

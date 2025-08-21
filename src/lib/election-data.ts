@@ -191,5 +191,3 @@ export const electionTopic: Omit<Topic, 'votesLastWeek' | 'votesLastMonth' | 'vo
     status: 'live',
     voteType: 'election'
 };
-
-    
