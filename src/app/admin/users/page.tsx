@@ -66,7 +66,9 @@ export default function UsersPage() {
         return (
             user.id.toLowerCase().includes(term) ||
             user.name.toLowerCase().includes(term) ||
-            user.username.toLowerCase().includes(term)
+            user.username.toLowerCase().includes(term) ||
+            user.type.toLowerCase().includes(term) ||
+            user.locale.toLowerCase().includes(term)
         );
     });
   }, [allUsers, debouncedSearchTerm]);
@@ -80,7 +82,7 @@ export default function UsersPage() {
       >
         <div className="flex gap-2">
             <Input 
-              placeholder="Search by name, username, or ID..." 
+              placeholder="Search by name, username, ID, type, locale..." 
               className="w-[300px]"
               value={searchTerm}
               onChange={handleSearchChange} 
