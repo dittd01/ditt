@@ -39,7 +39,7 @@ export function RelatedTopics({ topicId, subcategoryId }: RelatedTopicsProps) {
                 <Card key={topic.id} className="flex flex-col justify-between">
                     <CardHeader>
                         <CardTitle className="text-base font-medium line-clamp-3">
-                           <Link href={`/t/${topic.slug}`} onClick={() => handleRelatedClick(topic.id)}>{topic.question}</Link>
+                           <Link href={`/t/${topic.slug}`} onClick={() => handleRelatedClick(topic.id)} className="hover:underline">{topic.question}</Link>
                         </CardTitle>
                     </CardHeader>
                     <CardFooter>

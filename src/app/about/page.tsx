@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Vote } from 'lucide-react';
+import Link from 'next/link';
 
 export default function AboutPage() {
   const router = useRouter();
@@ -99,7 +100,7 @@ export default function AboutPage() {
                 <li><strong>Anonymous by Design:</strong> Your BankID is used only for a one-time verification to generate a persistent, anonymous Voter ID. This ID is not linked to your personal identity on our servers.</li>
                 <li><strong>Local Storage:</strong> Your anonymous Voter ID and your individual votes are stored only in your browser's local storage. Clearing your browser data will remove them.</li>
                 <li><strong>Aggregate Tallies:</strong> When you vote, the public tally for that poll is incremented. This is a one-way operation; your individual vote is not stored on our servers and cannot be traced back to you.</li>
-                <li><strong>Data Deletion:</strong> You can permanently delete your anonymous Voter ID and all associated vote records from your browser at any time by visiting our <a href="/privacy" className="underline">Privacy</a> page. This action cannot be undone.</li>
+                <li><strong>Data Deletion:</strong> You can permanently delete your anonymous Voter ID and all associated vote records from your browser at any time by visiting our <Link href="/privacy" className="underline">Privacy</Link> page. This action cannot be undone.</li>
                 <li><strong>Session Timeout:</strong> For your security, you are automatically logged out after 30 minutes of inactivity.</li>
             </ul>
           </div>

@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import Link, { type LinkProps } from 'next/link';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Menu, CheckSquare } from 'lucide-react';
@@ -13,6 +13,9 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { categories } from '@/lib/data';
+import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
+
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -29,30 +32,30 @@ export function MobileNav() {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="pr-0">
-        <Link
+        <MobileLink
           href="/"
           className="flex items-center"
-          onClick={() => setOpen(false)}
+          onOpenChange={setOpen}
         >
           <CheckSquare className="mr-2 h-4 w-4" />
           <span className="font-bold">Ditt Demokrati</span>
-        </Link>
+        </MobileLink>
         <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6 overflow-y-auto">
           <div className="flex flex-col space-y-3">
-             <Link
+             <MobileLink
                 href="/all"
-                onClick={() => setOpen(false)}
+                onOpenChange={setOpen}
                 className="text-foreground"
               >
                 Explore
-              </Link>
-              <Link
+              </MobileLink>
+              <MobileLink
                 href="/propose"
-                onClick={() => setOpen(false)}
+                onOpenChange={setOpen}
                 className="text-foreground"
               >
                 Propose Topic
-              </Link>
+              </MobileLink>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="categories">
                 <AccordionTrigger className="text-sm">Categories</AccordionTrigger>
@@ -71,50 +74,79 @@ export function MobileNav() {
                             </AccordionTrigger>
                             <AccordionContent className="pl-8">
                               {category.subcategories.map((item) => (
-                                <Link
+                                <MobileLink
                                   key={item.id}
                                   href={`/?cat=${category.id}&sub=${item.id}`}
                                   className="block py-1 text-muted-foreground"
-                                  onClick={() => setOpen(false)}
+                                  onOpenChange={setOpen}
                                 >
                                   {item.label}
-                                </Link>
+                                </MobileLink>
                               ))}
                             </AccordionContent>
                           </AccordionItem>
                         </Accordion>
                       ) : (
-                         <Link
+                         <MobileLink
                             key={category.id}
                             href={`/?cat=${category.id}`}
                             className="flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline"
-                            onClick={() => setOpen(false)}
+                            onOpenChange={setOpen}
                         >
                             {category.label}
-                        </Link>
+                        </MobileLink>
                       )
                     )}
                   </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
-            <Link
+            <MobileLink
               href="/about"
-              onClick={() => setOpen(false)}
+              onOpenChange={setOpen}
               className="text-foreground"
             >
               About
-            </Link>
-            <Link
+            </MobileLink>
+            <MobileLink
               href="/privacy"
-              onClick={() => setOpen(false)}
+              onOpenChange={setOpen}
               className="text-foreground"
             >
               Privacy
-            </Link>
+            </MobileLink>
           </div>
         </div>
       </SheetContent>
     </Sheet>
   );
+}
+
+interface MobileLinkProps extends LinkProps {
+  onOpenChange?: (open: boolean) => void
+  children: React.ReactNode
+  className?: string
+}
+
+function MobileLink({
+  href,
+  onOpenChange,
+  className,
+  children,
+  ...props
+}: MobileLinkProps) {
+  const router = useRouter()
+  return (
+    <Link
+      href={href}
+      onClick={() => {
+        router.push(href.toString())
+        onOpenChange?.(false)
+      }}
+      className={cn(className)}
+      {...props}
+    >
+      {children}
+    </Link>
+  )
 }
