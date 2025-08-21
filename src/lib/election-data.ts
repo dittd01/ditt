@@ -25,7 +25,7 @@ export const parties: Party[] = [
     abbreviation: 'AP',
     color: '#E52424',
     imageUrl: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=1740&auto=format&fit=crop',
-    aiHint: 'man politician suit',
+    aiHint: 'handsome man',
   },
   {
     id: 'sp',
