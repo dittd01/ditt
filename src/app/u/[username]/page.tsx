@@ -125,7 +125,7 @@ export default function ProfilePage() {
       <Card>
         <CardHeader className="flex flex-col items-center justify-center space-y-4 bg-muted/30 p-8 text-center">
           <Avatar className="h-24 w-24 border-4 border-background">
-            <AvatarImage src={user.photoUrl} alt={user.displayName} />
+            <AvatarImage src={user.photoUrl} alt={user.displayName} className="object-cover" />
             <AvatarFallback>{user.initials}</AvatarFallback>
           </Avatar>
           <div className="space-y-1">
