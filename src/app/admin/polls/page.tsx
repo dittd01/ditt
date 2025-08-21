@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import type { Subcategory } from '@/lib/types';
 import Link from 'next/link';
+import { useDebounce } from 'use-debounce';
 
 type SortDescriptor = {
     key: keyof Omit<PollRowData, 'id' | 'categoryId' | 'subcategoryId'>;
@@ -34,33 +36,50 @@ type SortDescriptor = {
 
 export default function PollsPage() {
   const { toast } = useToast();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   
   const [polls, setPolls] = useState<PollRowData[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [subcategoryFilter, setSubcategoryFilter] = useState('all');
-  const [availableSubcategories, setAvailableSubcategories] = useState<Subcategory[]>([]);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({ key: 'votes', direction: 'descending' });
+
+  // Filters from URL
+  const searchTerm = searchParams.get('q') || '';
+  const statusFilter = searchParams.get('status') || 'all';
+  const categoryFilter = searchParams.get('category') || 'all';
+  const subcategoryFilter = searchParams.get('subcategory') || 'all';
+  
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 
   useEffect(() => {
     setPolls(getPollsTableData());
   }, []);
-
-  useEffect(() => {
-    if (categoryFilter === 'all' || categoryFilter === 'election_2025') {
-      setAvailableSubcategories([]);
-      setSubcategoryFilter('all');
-    } else {
+  
+  const availableSubcategories = useMemo(() => {
+      if (categoryFilter === 'all' || categoryFilter === 'election_2025') {
+          return [];
+      }
       const category = categories.find(c => c.id === categoryFilter);
-      setAvailableSubcategories(category?.subcategories || []);
-      setSubcategoryFilter('all');
-    }
+      return category?.subcategories || [];
   }, [categoryFilter]);
+
+  const handleFilterChange = (key: 'q' | 'status' | 'category' | 'subcategory', value: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (value && value !== 'all') {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    // Reset subcategory if category changes
+    if (key === 'category') {
+        params.delete('subcategory');
+    }
+    router.replace(`${pathname}?${params.toString()}`);
+  }
   
   const sortedAndFilteredPolls = useMemo(() => {
     let filteredPolls = polls.filter(poll => {
-      const searchMatch = poll.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const searchMatch = debouncedSearchTerm ? poll.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) : true;
       const statusMatch = statusFilter === 'all' || poll.status.toLowerCase() === statusFilter;
       const categoryMatch = categoryFilter === 'all' || poll.categoryId === categoryFilter;
       const subcategoryMatch = subcategoryFilter === 'all' || poll.subcategoryId === subcategoryFilter;
@@ -83,7 +102,7 @@ export default function PollsPage() {
         }
         return cmp;
     });
-  }, [searchTerm, statusFilter, categoryFilter, subcategoryFilter, polls, sortDescriptor]);
+  }, [debouncedSearchTerm, statusFilter, categoryFilter, subcategoryFilter, polls, sortDescriptor]);
 
   const handleAction = (action: string, pollTitle: string) => {
     toast({
@@ -132,10 +151,10 @@ export default function PollsPage() {
           <Input 
             placeholder="Search by title..." 
             className="w-full sm:w-auto sm:flex-1"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            defaultValue={searchTerm}
+            onChange={(e) => handleFilterChange('q', e.target.value)}
           />
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={statusFilter} onValueChange={(value) => handleFilterChange('status', value)}>
               <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -146,7 +165,7 @@ export default function PollsPage() {
                   <SelectItem value="archived">Archived</SelectItem>
               </SelectContent>
           </Select>
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <Select value={categoryFilter} onValueChange={(value) => handleFilterChange('category', value)}>
               <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Category" />
               </SelectTrigger>
@@ -157,7 +176,7 @@ export default function PollsPage() {
                     ))}
               </SelectContent>
           </Select>
-          <Select value={subcategoryFilter} onValueChange={setSubcategoryFilter} disabled={availableSubcategories.length === 0}>
+          <Select value={subcategoryFilter} onValueChange={(value) => handleFilterChange('subcategory', value)} disabled={availableSubcategories.length === 0}>
               <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Subcategory" />
               </SelectTrigger>
