@@ -1,22 +1,32 @@
 
 
 'use client';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Suspense, useState, useEffect, useMemo } from 'react';
 import { VoteCard } from '@/components/VoteCard';
 import { allTopics as initialTopics } from '@/lib/data';
 import type { Topic } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useDebounce } from 'use-debounce';
+import { Search } from 'lucide-react';
 
 type TimeFrame = 'W' | '1M' | '1Y' | 'All';
 
 function HomePageContent() {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+
   const [topics, setTopics] = useState<Topic[]>([]);
   const [votedTopicIds, setVotedTopicIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [timeframe, setTimeframe] = useState<TimeFrame>('All');
+  
+  const initialSearch = searchParams.get('q') || '';
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
 
   useEffect(() => {
     const syncTopicsWithLocalStorage = () => {
@@ -74,7 +84,6 @@ function HomePageContent() {
     
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('authChange', handleStorageChange);
-    // Listen for a custom event when a new topic is added
     window.addEventListener('topicAdded', handleStorageChange);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
@@ -85,15 +94,25 @@ function HomePageContent() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
+  
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    if (debouncedSearchQuery) {
+        params.set('q', debouncedSearchQuery);
+    } else {
+        params.delete('q');
+    }
+    router.replace(`${pathname}?${params.toString()}`);
+  }, [debouncedSearchQuery, pathname, router, searchParams]);
+
 
   const selectedCategory = searchParams.get('cat');
   const selectedSubCategory = searchParams.get('sub');
-  const searchQuery = searchParams.get('q');
 
   const filteredTopics = useMemo(() => {
     return topics.filter((topic) => {
-      if (searchQuery) {
-          const query = searchQuery.toLowerCase();
+      if (debouncedSearchQuery) {
+          const query = debouncedSearchQuery.toLowerCase();
           const matches = topic.question.toLowerCase().includes(query) || topic.description.toLowerCase().includes(query);
           if(!matches) return false;
       }
@@ -119,7 +138,6 @@ function HomePageContent() {
        if (a.voteType === 'election') return -1;
        if (b.voteType === 'election') return 1;
 
-       // Sort by timeframe if on the trending page
        if (selectedCategory === 'all' || !selectedCategory) {
          switch (timeframe) {
             case 'W':
@@ -133,30 +151,42 @@ function HomePageContent() {
               return b.totalVotes - a.totalVotes;
          }
        }
-       // For category pages, sort by last month's votes
        return (b.votesLastMonth ?? 0) - (a.votesLastMonth ?? 0);
     });
-  }, [topics, searchQuery, selectedCategory, selectedSubCategory, timeframe]);
+  }, [topics, debouncedSearchQuery, selectedCategory, selectedSubCategory, timeframe]);
 
   const showTimeframeFilter = !selectedCategory || selectedCategory === 'all';
 
   return (
     <div className="bg-background">
       <main className="container mx-auto px-4 py-8 sm:py-12">
-         {searchQuery ? (
-            <div className="mb-8 text-center">
-              <h1 className="text-2xl font-bold">Search Results for "{searchQuery}"</h1>
-              <p className="text-muted-foreground">{filteredTopics.length} topics found.</p>
+         {!selectedCategory && (
+            <div className="mb-12">
+              <div className="text-center">
+                <h1 className="text-4xl font-bold font-headline tracking-tight">Trending Topics</h1>
+                <p className="text-lg text-muted-foreground mt-2">The most discussed and voted on issues right now.</p>
+              </div>
+              <div className="relative max-w-lg mx-auto mt-8">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                      type="search"
+                      placeholder="Search for any topic..."
+                      className="w-full pl-10 h-12 text-base"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+              </div>
             </div>
-         ) : showTimeframeFilter && (
-            <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold font-headline tracking-tight">Trending Topics</h1>
-              <p className="text-lg text-muted-foreground mt-2">The most discussed and voted on issues right now.</p>
+         )}
+        
+         {debouncedSearchQuery && (
+            <div className="mb-8 text-center">
+              <h2 className="text-2xl font-bold">Search Results for "{debouncedSearchQuery}"</h2>
+              <p className="text-muted-foreground">{filteredTopics.length} topics found.</p>
             </div>
          )}
 
-
-        {showTimeframeFilter && !searchQuery && (
+        {showTimeframeFilter && !debouncedSearchQuery && (
           <div className="mb-8 flex justify-end">
             <div className="flex gap-1 bg-muted p-1 rounded-md w-full sm:w-auto">
               {(['W', '1M', '1Y', 'All'] as TimeFrame[]).map((tf) => (
@@ -182,6 +212,11 @@ function HomePageContent() {
               <VoteCard key={topic.id} topic={topic} hasVoted={votedTopicIds.has(topic.id)} />
             ))
           )}
+           {!isLoading && filteredTopics.length === 0 && (
+             <div className="md:col-span-2 lg:col-span-3 text-center py-16">
+                 <p className="text-muted-foreground">No topics found matching your search.</p>
+             </div>
+           )}
         </div>
       </main>
     </div>

@@ -1,6 +1,7 @@
 
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PageHeader } from '@/components/admin/PageHeader';
 import {
   Table,
@@ -17,11 +18,18 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useDebounce } from 'use-debounce';
 
 type User = typeof staticUsersData[0];
 
 export default function UsersPage() {
   const [allUsers, setAllUsers] = useState<User[]>(staticUsersData);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const initialSearchTerm = searchParams.get('q') || '';
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 
   useEffect(() => {
     // This effect runs on the client and will read from localStorage
@@ -40,6 +48,29 @@ export default function UsersPage() {
     });
   }, []);
 
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newSearchTerm = event.target.value;
+    setSearchTerm(newSearchTerm);
+    const params = new URLSearchParams(searchParams);
+    if (newSearchTerm) {
+      params.set('q', newSearchTerm);
+    } else {
+      params.delete('q');
+    }
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
+  const filteredUsers = useMemo(() => {
+    return allUsers.filter(user => {
+        const term = debouncedSearchTerm.toLowerCase();
+        return (
+            user.id.toLowerCase().includes(term) ||
+            user.name.toLowerCase().includes(term) ||
+            user.username.toLowerCase().includes(term)
+        );
+    });
+  }, [allUsers, debouncedSearchTerm]);
+
 
   return (
     <div className="space-y-8">
@@ -48,7 +79,12 @@ export default function UsersPage() {
         subtitle="View user data. PII is redacted for non-admins."
       >
         <div className="flex gap-2">
-            <Input placeholder="Search by user ID..." className="w-[300px]" />
+            <Input 
+              placeholder="Search by name, username, or ID..." 
+              className="w-[300px]"
+              value={searchTerm}
+              onChange={handleSearchChange} 
+            />
             <Button asChild>
                 <Link href="/admin/users/new">
                     <PlusCircle className="mr-2" />
@@ -72,16 +108,16 @@ export default function UsersPage() {
             </TableRow>
         </TableHeader>
         <TableBody>
-            {allUsers.map((user, i) => (
-                 <TableRow key={i}>
+            {filteredUsers.map((user, i) => (
+                 <TableRow key={user.id}>
                     <TableCell>
-                        <div className="flex items-center gap-2">
+                        <Link href={`/admin/users/${user.id}`} className="flex items-center gap-2 hover:underline">
                             <Avatar className="h-8 w-8">
                                 <AvatarImage src={user.avatar} alt={user.name} />
                                 <AvatarFallback>{user.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                             </Avatar>
                             <span className="font-medium">{user.name}</span>
-                        </div>
+                        </Link>
                     </TableCell>
                     <TableCell>@{user.username}</TableCell>
                     <TableCell className="font-mono">{user.id}</TableCell>
