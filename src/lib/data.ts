@@ -94,7 +94,7 @@ const subCategoryData = [
     // Justice, Rights & Public Safety
     { id: "policing", label: "Policing", categoryId: "justice-rights-public-safety", topic: "Mandate body‑worn cameras nationwide?", imageUrl: 'https://images.pexels.com/photos/8649395/pexels-photo-8649395.jpeg', aiHint: 'police officer', voteType: 'yesno' },
     { id: "drug_policy", label: "Drugs", categoryId: "justice-rights-public-safety", topic: "Decriminalize possession of small amounts?", imageUrl: 'https://images.pexels.com/photos/7667733/pexels-photo-7667733.jpeg', aiHint: 'cannabis leaf', voteType: 'yesno' },
-    { id: "privacy", label: "Civil Liberties", categoryId: "justice-rights-public-safety", topic: "Ban mass facial recognition in public spaces?", imageUrl: 'https://images.pexels.com/photos/53464/camera-movie-video-recording-53464.jpeg', aiHint: 'cctv camera', voteType: 'yesno' },
+    { id: "privacy", label: "Civil Liberties", categoryId: "justice-rights-public-safety", topic: "Ban mass facial recognition in public spaces?", imageUrl: 'https://images.unsplash.com/photo-1628422537562-0980980f52a0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmYWNpYWwlMjByZWNvZ25pdGlvbnxlbnwwfHx8fDE3NTU3NjcxMzh8MA&ixlib=rb-4.1.0&q=80&w=1080', aiHint: 'cctv camera', voteType: 'yesno' },
     { id: "prison_reform", label: "Prisons", categoryId: "justice-rights-public-safety", topic: "Expand rehabilitation programs over incarceration?", imageUrl: 'https://images.pexels.com/photos/1546912/pexels-photo-1546912.jpeg', aiHint: 'prison cell', voteType: 'yesno' },
     // Digital, Data & AI
     { id: "privacy_data", label: "Data Privacy", categoryId: "digital-data-ai", topic: "Require explicit opt‑in for cross‑service data sharing?", imageUrl: 'https://images.pexels.com/photos/60504/security-protection-anti-virus-software-60504.jpeg', aiHint: 'code screen', voteType: 'yesno' },
@@ -459,6 +459,7 @@ export const mockArguments: Argument[] = generateUniqueArguments();
 export const getArgumentsForTopic = (topicId: string): Argument[] => {
   return mockArguments.filter(arg => arg.topicId === topicId);
 };
+
 
 
 
