@@ -24,26 +24,16 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Loader2, Info } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { usersData } from '@/app/admin/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
 
 
 const userFormSchema = z.object({
@@ -203,7 +193,7 @@ export default function EditUserPage() {
                     </div>
                     <div className="space-y-8">
                         <Card>
-                            <CardHeader>
+                             <CardHeader>
                                 <CardTitle>Role</CardTitle>
                                 <CardDescription>Set the user's permissions within the application.</CardDescription>
                             </CardHeader>
@@ -212,35 +202,42 @@ export default function EditUserPage() {
                                     control={form.control}
                                     name="role"
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                                                <SelectContent>
-                                                    {Object.keys(roleDescriptions).map(roleKey => (
-                                                        <TooltipProvider key={roleKey} delayDuration={200}>
-                                                            <Tooltip>
-                                                                <TooltipTrigger asChild>
-                                                                    <SelectItem value={roleKey}>
-                                                                        <div className="flex justify-between w-full items-center">
-                                                                            <span>{roleKey.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
-                                                                            <Info className="h-3.5 w-3.5 text-muted-foreground" />
-                                                                        </div>
-                                                                    </SelectItem>
-                                                                </TooltipTrigger>
-                                                                <TooltipContent className="w-80">
-                                                                    <p>{roleDescriptions[roleKey as keyof typeof roleDescriptions]}</p>
-                                                                </TooltipContent>
-                                                            </Tooltip>
-                                                        </TooltipProvider>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                        <FormItem className="space-y-3">
+                                            <FormControl>
+                                                <RadioGroup
+                                                onValueChange={field.onChange}
+                                                defaultValue={field.value}
+                                                className="flex flex-col space-y-2"
+                                                >
+                                                {Object.keys(roleDescriptions).map(roleKey => (
+                                                    <FormItem key={roleKey}>
+                                                        <Label className={cn(
+                                                            "flex flex-col items-start space-y-1 rounded-md border-2 p-3 transition-all hover:border-accent",
+                                                            field.value === roleKey && "border-primary"
+                                                        )}>
+                                                            <div className="flex w-full items-center gap-2">
+                                                                <FormControl>
+                                                                    <RadioGroupItem value={roleKey} />
+                                                                </FormControl>
+                                                                <span className="font-semibold text-foreground">
+                                                                    {roleKey.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                                                </span>
+                                                            </div>
+                                                            <FormDescription className="pl-6 text-xs text-muted-foreground">
+                                                                {roleDescriptions[roleKey as keyof typeof roleDescriptions]}
+                                                            </FormDescription>
+                                                        </Label>
+                                                    </FormItem>
+                                                ))}
+                                                </RadioGroup>
+                                            </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
                             </CardContent>
                         </Card>
+
                         <Card>
                             <CardHeader>
                                 <CardTitle>Status</CardTitle>
@@ -252,19 +249,44 @@ export default function EditUserPage() {
                                     name="status"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="active">Active</SelectItem>
-                                                    <SelectItem value="suspended">Suspended</SelectItem>
-                                                    <SelectItem value="deactivated">Deactivated</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                            <FormControl>
+                                                <RadioGroup
+                                                    onValueChange={field.onChange}
+                                                    defaultValue={field.value}
+                                                    className="grid grid-cols-3 gap-2"
+                                                    >
+                                                    <FormItem>
+                                                        <Label className="flex h-10 w-full cursor-pointer items-center justify-center rounded-md border text-sm transition-all hover:border-accent has-[input:checked]:border-primary">
+                                                            <FormControl>
+                                                                <RadioGroupItem value="active" className="sr-only" />
+                                                            </FormControl>
+                                                            Active
+                                                        </Label>
+                                                    </FormItem>
+                                                    <FormItem>
+                                                        <Label className="flex h-10 w-full cursor-pointer items-center justify-center rounded-md border text-sm transition-all hover:border-accent has-[input:checked]:border-primary">
+                                                            <FormControl>
+                                                                <RadioGroupItem value="suspended" className="sr-only" />
+                                                            </FormControl>
+                                                            Suspended
+                                                        </Label>
+                                                    </FormItem>
+                                                    <FormItem>
+                                                        <Label className="flex h-10 w-full cursor-pointer items-center justify-center rounded-md border text-sm transition-all hover:border-accent has-[input:checked]:border-destructive has-[input:checked]:text-destructive-foreground has-[input:checked]:bg-destructive">
+                                                            <FormControl>
+                                                                <RadioGroupItem value="deactivated" className="sr-only" />
+                                                            </FormControl>
+                                                            Deactivated
+                                                        </Label>
+                                                    </FormItem>
+                                                </RadioGroup>
+                                            </FormControl>
                                         </FormItem>
                                     )}
                                 />
                             </CardContent>
                         </Card>
+
                          <Card>
                             <CardHeader>
                                 <CardTitle>Notifications</CardTitle>
