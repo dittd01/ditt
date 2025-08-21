@@ -60,11 +60,19 @@ export const topicsData = [
 ];
 
 // Users Page
-export const usersData = [
-    { id: 'voter_...a3b4', created: '2023-10-27', locale: 'nb-NO', device: 'Mobile', last_seen: '2023-10-27 10:30' },
-    { id: 'voter_...c5d6', created: '2023-10-26', locale: 'en-US', device: 'Desktop', last_seen: '2023-10-27 09:15' },
-    { id: 'voter_...e7f8', created: '2023-10-25', locale: 'en-GB', device: 'Desktop', last_seen: '2023-10-25 18:00' },
-];
+export const usersData = Array.from({ length: 50 }, (_, i) => {
+    const createdDate = subDays(new Date(), Math.floor(Math.random() * 90));
+    const lastSeenDate = subDays(createdDate, Math.floor(Math.random() * -30)); // last seen is after created
+    const randomHex = [...Array(4)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+
+    return {
+        id: `voter...${randomHex}`,
+        created: format(createdDate, 'yyyy-MM-dd'),
+        locale: Math.random() > 0.3 ? 'nb-NO' : 'en-US',
+        device: Math.random() > 0.5 ? 'Mobile' : 'Desktop',
+        last_seen: format(lastSeenDate, 'yyyy-MM-dd HH:mm'),
+    };
+});
 
 // Health Page
 export const healthData = [
