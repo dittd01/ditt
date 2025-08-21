@@ -349,5 +349,3 @@ export function SuggestionForm() {
     </Card>
   );
 }
-
-    
