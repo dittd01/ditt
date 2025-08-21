@@ -1,4 +1,7 @@
 
+'use client';
+
+import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,9 +20,36 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { suggestionsData } from '@/app/admin/data';
+import { suggestionsData as staticSuggestions } from '@/app/admin/data';
+
+type Suggestion = {
+  id: number | string;
+  text: string;
+  verdict: string;
+  status: string;
+  created: string;
+};
 
 export default function SuggestionsQueuePage() {
+  const [allSuggestions, setAllSuggestions] = useState<Suggestion[]>(staticSuggestions);
+
+  useEffect(() => {
+    // This effect runs on the client and will read from localStorage
+    const manualReviewQueue: Suggestion[] = JSON.parse(localStorage.getItem('manual_review_queue') || '[]');
+    
+    // Combine static data with localStorage data, avoiding duplicates
+    const combined = [...staticSuggestions];
+    const existingIds = new Set(combined.map(s => s.id));
+    
+    manualReviewQueue.forEach(item => {
+      if (!existingIds.has(item.id)) {
+        combined.push(item);
+      }
+    });
+
+    setAllSuggestions(combined.sort((a,b) => new Date(b.created).getTime() - new Date(a.created).getTime()));
+  }, []);
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -38,11 +68,19 @@ export default function SuggestionsQueuePage() {
             </TableRow>
         </TableHeader>
         <TableBody>
-            {suggestionsData.map((s) => (
+            {allSuggestions.map((s) => (
                  <TableRow key={s.id}>
                     <TableCell className="font-medium">{s.text}</TableCell>
-                    <TableCell><Badge variant="outline">{s.verdict}</Badge></TableCell>
-                    <TableCell><Badge variant={s.status === 'Pending' ? 'destructive' : 'secondary'}>{s.status}</Badge></TableCell>
+                    <TableCell>
+                      <Badge variant={s.verdict === 'rejected_by_ai' ? 'destructive' : 'outline'}>
+                        {s.verdict === 'rejected_by_ai' ? 'AI Rejected' : s.verdict}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={s.status === 'Pending' ? 'destructive' : 'secondary'}>
+                        {s.status}
+                      </Badge>
+                    </TableCell>
                     <TableCell>{s.created}</TableCell>
                     <TableCell>
                          <DropdownMenu>

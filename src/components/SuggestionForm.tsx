@@ -79,6 +79,18 @@ export function SuggestionForm() {
 
   const handleRequestReview = () => {
     // In a real app, this would trigger a backend process to flag for admin review.
+    // For this prototype, we'll simulate it by adding to localStorage.
+    const reviewQueue = JSON.parse(localStorage.getItem('manual_review_queue') || '[]');
+    const rejectedSuggestion = form.getValues('suggestion');
+    reviewQueue.push({
+      id: Date.now(),
+      text: rejectedSuggestion,
+      verdict: 'rejected_by_ai',
+      status: 'Pending',
+      created: new Date().toISOString().split('T')[0],
+    });
+    localStorage.setItem('manual_review_queue', JSON.stringify(reviewQueue));
+
     toast({
         title: "Review Requested",
         description: "Your suggestion has been submitted for manual review by our team.",
