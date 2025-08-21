@@ -35,7 +35,7 @@ const currentUser = {
   bio: 'This is a mock bio for the test user.',
   website: 'https://example.com',
   location: 'Oslo, Norway',
-  photoUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1780&auto=format&fit=crop',
+  photoUrl: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=1740&auto=format&fit=crop',
   initials: 'TU',
 };
 
@@ -83,7 +83,7 @@ export default function ProfileSettingsPage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="flex items-center gap-4">
                  <Avatar className="h-20 w-20">
-                    <AvatarImage src={currentUser.photoUrl} data-ai-hint="man portrait" />
+                    <AvatarImage src={currentUser.photoUrl} data-ai-hint="handsome man" />
                     <AvatarFallback>{currentUser.initials}</AvatarFallback>
                 </Avatar>
                 <Button type="button" variant="outline">Change Photo</Button>
