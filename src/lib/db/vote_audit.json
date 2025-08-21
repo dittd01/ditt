@@ -89,5 +89,12 @@
         "old_party_id": "sv",
         "new_party_id": "sp",
         "ts": "2025-08-20T18:29:47.436Z"
+    },
+    {
+        "audit_id": "1755767372270-voter_test_user",
+        "user_id": "voter_test_user",
+        "old_party_id": "sp",
+        "new_party_id": "h",
+        "ts": "2025-08-21T09:09:32.270Z"
     }
 ]

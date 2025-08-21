@@ -29,7 +29,7 @@ export function MainNav() {
         <NavigationMenu>
             <NavigationMenuList>
             <NavigationMenuItem>
-                <Link href="/all" passHref>
+                <Link href="/all" legacyBehavior passHref>
                 <NavigationMenuLink
                     className={navigationMenuTriggerStyle()}
                     active={pathname === '/all'}
@@ -40,7 +40,7 @@ export function MainNav() {
             </NavigationMenuItem>
             
             <NavigationMenuItem>
-                <Link href="/propose" passHref>
+                <Link href="/propose" legacyBehavior passHref>
                 <NavigationMenuLink
                     className={navigationMenuTriggerStyle()}
                     active={pathname === '/propose'}
@@ -68,7 +68,7 @@ export function MainNav() {
             </NavigationMenuItem>
             
              <NavigationMenuItem>
-                <Link href="/about" passHref>
+                <Link href="/about" legacyBehavior passHref>
                 <NavigationMenuLink
                     className={navigationMenuTriggerStyle()}
                     active={pathname === '/about'}
@@ -79,7 +79,7 @@ export function MainNav() {
             </NavigationMenuItem>
 
              <NavigationMenuItem>
-                <Link href="/privacy" passHref>
+                <Link href="/privacy" legacyBehavior passHref>
                 <NavigationMenuLink
                     className={navigationMenuTriggerStyle()}
                     active={pathname === '/privacy'}
