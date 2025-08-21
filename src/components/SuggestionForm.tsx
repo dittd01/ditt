@@ -17,6 +17,7 @@ import type { Topic } from '@/lib/types';
 import type { CurateTopicSuggestionOutput } from '@/ai/flows/curate-topic-suggestion';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
+import { Label } from './ui/label';
 
 const suggestionSchema = z.object({
   suggestion: z
