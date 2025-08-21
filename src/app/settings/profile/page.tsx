@@ -10,10 +10,17 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles, Upload } from 'lucide-react';
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { currentUser } from '@/lib/user-data';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
 
 const profileFormSchema = z.object({
   username: z.string()
@@ -75,7 +82,21 @@ export default function ProfileSettingsPage() {
                     <AvatarImage src={currentUser.photoUrl} data-ai-hint="handsome man" />
                     <AvatarFallback>{currentUser.initials}</AvatarFallback>
                 </Avatar>
-                <Button type="button" variant="outline">Change Photo</Button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button type="button" variant="outline">Change Photo</Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem>
+                            <Upload className="mr-2" />
+                            Upload from device
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                            <Sparkles className="mr-2" />
+                            Generate with AI
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               
               <FormField
