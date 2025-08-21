@@ -27,7 +27,7 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Loader2, Info, Sparkles, Upload } from 'lucide-react';
+import { ArrowLeft, Loader2, Info, Sparkles, Upload, Wand2 } from 'lucide-react';
 import { usersData } from '@/app/admin/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
@@ -40,6 +40,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { generateMockUserAction } from '@/app/actions';
 
 
 const userFormSchema = z.object({
@@ -106,6 +107,28 @@ export default function EditUserPage() {
         });
     }
 
+    const handleGenerateMockUser = async () => {
+        form.control.register('bio'); 
+        form.control.register('email');
+        
+        toast({ title: 'Generating Mock User...', description: 'Please wait while the AI creates a profile.' });
+        const result = await generateMockUserAction();
+        if(result.success && result.data) {
+            form.reset({
+                ...form.getValues(),
+                displayName: result.data.displayName,
+                username: result.data.username,
+                email: result.data.email,
+                bio: result.data.bio,
+                role: 'voter',
+                status: 'active',
+            });
+            toast({ title: 'Mock User Generated!', description: 'The form has been populated with AI-generated data.' });
+        } else {
+            toast({ title: 'Error', description: result.message, variant: 'destructive' });
+        }
+    }
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -114,6 +137,12 @@ export default function EditUserPage() {
                     subtitle={isNew ? 'Add a new user to the system.' : `Editing details for ${userData?.name}.`}
                 >
                     <div className="flex items-center gap-2">
+                         {isNew && (
+                            <Button variant="outline" onClick={handleGenerateMockUser} type="button">
+                                <Wand2 className="mr-2 h-4 w-4" />
+                                AI Mock Standard User
+                            </Button>
+                        )}
                         <Button variant="outline" onClick={() => router.back()} type="button">
                             <ArrowLeft className="mr-2 h-4 w-4" />Back
                         </Button>

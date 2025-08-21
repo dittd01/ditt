@@ -3,6 +3,7 @@
 
 import { moderateVotingSuggestion } from '@/ai/flows/moderate-voting-suggestions';
 import { curateTopicSuggestion, type CurateTopicSuggestionInput, type CurateTopicSuggestionOutput } from '@/ai/flows/curate-topic-suggestion';
+import { generateMockUser } from '@/ai/flows/generate-mock-user';
 import { categories, allTopics } from '@/lib/data';
 import { calculateQVCost } from '@/lib/qv';
 import type { Topic } from '@/lib/types';
@@ -106,4 +107,15 @@ export async function castQuadraticVoteAction(input: {
     message: `Vote cast successfully! You spent ${cost} credits.`,
     newCreditBalance: newCreditBalance,
   };
+}
+
+
+export async function generateMockUserAction() {
+    try {
+        const result = await generateMockUser({ role: 'standard user', country: 'Norway' });
+        return { success: true, data: result };
+    } catch (error) {
+        console.error('Error generating mock user:', error);
+        return { success: false, message: 'Failed to generate mock user data.' };
+    }
 }
