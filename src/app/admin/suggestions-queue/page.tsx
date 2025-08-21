@@ -28,12 +28,12 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { suggestionsData as staticSuggestions } from '@/app/admin/data';
 import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 type Suggestion = {
   id: number | string;
@@ -131,9 +131,9 @@ export default function SuggestionsQueuePage() {
       </div>
       
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-4xl h-[90vh]">
+        <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
             {selectedSuggestion && (
-                <div className="flex flex-col h-full">
+                <>
                     <DialogHeader>
                         <DialogTitle className="truncate">{selectedSuggestion.text}</DialogTitle>
                         <DialogDescription>
@@ -141,56 +141,56 @@ export default function SuggestionsQueuePage() {
                         </DialogDescription>
                     </DialogHeader>
                     
-                    <Tabs defaultValue="details" className="flex-1 min-h-0 flex flex-col">
-                        <TabsList className="mt-4">
-                            <TabsTrigger value="details"><FileClock className="mr-2" /> Details</TabsTrigger>
-                            <TabsTrigger value="ai-review"><Wand2 className="mr-2" /> AI Review</TabsTrigger>
-                            <TabsTrigger value="actions"><CheckCircle className="mr-2" /> Actions</TabsTrigger>
-                        </TabsList>
-                        <div className="flex-1 overflow-y-auto p-1">
-                            <TabsContent value="details" className="mt-4">
-                                <Card>
-                                    <CardHeader><CardTitle>Original Submission</CardTitle></CardHeader>
-                                    <CardContent>
-                                        <p className="text-muted-foreground">{selectedSuggestion.text}</p>
-                                    </CardContent>
-                                </Card>
-                            </TabsContent>
-                            <TabsContent value="ai-review" className="mt-4 space-y-4">
-                                <Card className="border-amber-500 bg-amber-50/50">
-                                    <CardHeader>
-                                        <CardTitle className="text-amber-700">AI Verdict: <span className="capitalize">{selectedSuggestion.verdict}</span></CardTitle>
-                                        <CardDescription>
-                                            This section will contain the AI's detailed analysis, including policy checks, quality scores, and reasons for its verdict.
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div>
-                                            <Label>AI Suggested Rephrase</Label>
-                                            <Textarea readOnly value={`This is where the AI's suggested neutral rephrasing of "${selectedSuggestion.text}" would appear.`} />
-                                        </div>
-                                         <Button variant="secondary">Apply Rephrase & Preview</Button>
-                                    </CardContent>
-                                </Card>
-                            </TabsContent>
-                            <TabsContent value="actions" className="mt-4 space-y-4">
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Moderation Actions</CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-2">
-                                        <Textarea placeholder="Add an optional moderation note..." />
-                                    </CardContent>
-                                    <CardFooter className="flex justify-end gap-2">
-                                         <Button variant="secondary" onClick={() => handleAction('Request Changes')}><MessageSquareWarning className="mr-2" /> Request Changes</Button>
-                                         <Button variant="destructive" onClick={() => handleAction('Reject')}><XCircle className="mr-2" /> Reject</Button>
-                                         <Button onClick={() => handleAction('Approve')}><CheckCircle className="mr-2" /> Approve</Button>
-                                    </CardFooter>
-                                </Card>
-                            </TabsContent>
+                    <ScrollArea className="flex-1 pr-6 -mr-6">
+                        <div className="space-y-6">
+                            {/* Details Box */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><FileClock /> Original Submission</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-muted-foreground">{selectedSuggestion.text}</p>
+                                </CardContent>
+                            </Card>
+
+                            {/* AI Review Box */}
+                            <Card className="border-amber-500 bg-amber-50/50">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2 text-amber-700"><Wand2 /> AI Review</CardTitle>
+                                    <CardDescription>
+                                        This section will contain the AI's detailed analysis, including policy checks, quality scores, and reasons for its verdict.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                     <div>
+                                        <Label>AI Verdict</Label>
+                                        <p className="font-semibold capitalize">{selectedSuggestion.verdict}</p>
+                                    </div>
+                                    <div>
+                                        <Label>AI Suggested Rephrase</Label>
+                                        <Textarea readOnly value={`This is where the AI's suggested neutral rephrasing of "${selectedSuggestion.text}" would appear.`} />
+                                    </div>
+                                     <Button variant="secondary">Apply Rephrase & Preview</Button>
+                                </CardContent>
+                            </Card>
+
+                            {/* Actions Box */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><CheckCircle /> Moderation Actions</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-2">
+                                    <Textarea placeholder="Add an optional moderation note..." />
+                                </CardContent>
+                                <CardFooter className="flex justify-end gap-2">
+                                     <Button variant="secondary" onClick={() => handleAction('Request Changes')}><MessageSquareWarning className="mr-2" /> Request Changes</Button>
+                                     <Button variant="destructive" onClick={() => handleAction('Reject')}><XCircle className="mr-2" /> Reject</Button>
+                                     <Button onClick={() => handleAction('Approve')}><CheckCircle className="mr-2" /> Approve</Button>
+                                </CardFooter>
+                            </Card>
                         </div>
-                    </Tabs>
-                </div>
+                    </ScrollArea>
+                </>
             )}
         </DialogContent>
       </Dialog>
