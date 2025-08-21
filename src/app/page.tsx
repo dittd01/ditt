@@ -143,12 +143,18 @@ function HomePageContent() {
   return (
     <div className="bg-background">
       <main className="container mx-auto px-4 py-8 sm:py-12">
-         {searchQuery && (
-          <div className="mb-8 text-center">
-            <h1 className="text-2xl font-bold">Search Results for "{searchQuery}"</h1>
-            <p className="text-muted-foreground">{filteredTopics.length} topics found.</p>
-          </div>
-        )}
+         {searchQuery ? (
+            <div className="mb-8 text-center">
+              <h1 className="text-2xl font-bold">Search Results for "{searchQuery}"</h1>
+              <p className="text-muted-foreground">{filteredTopics.length} topics found.</p>
+            </div>
+         ) : showTimeframeFilter && (
+            <div className="text-center mb-12">
+              <h1 className="text-4xl font-bold font-headline tracking-tight">Trending Topics</h1>
+              <p className="text-lg text-muted-foreground mt-2">The most discussed and voted on issues right now.</p>
+            </div>
+         )}
+
 
         {showTimeframeFilter && !searchQuery && (
           <div className="mb-8 flex justify-end">
