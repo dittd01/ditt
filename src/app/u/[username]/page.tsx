@@ -17,6 +17,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { currentUser } from '@/lib/user-data'; // Import the centralized user data
 
 type Suggestion = {
   id: number;
@@ -27,18 +28,7 @@ type Suggestion = {
 }
 
 // Mock data - in a real app, this would be fetched from Firestore
-const mockUser = {
-  username: 'testuser',
-  displayName: 'Test User',
-  bio: 'This is a mock bio for the test user. Building things with Next.js and Firebase.',
-  location: 'Oslo, Norway',
-  website: 'https://example.com',
-  photoUrl: 'https://placehold.co/256x256.png',
-  initials: 'TU',
-  pronouns: 'they/them',
-  interests: ['Votering', 'Teknologi', 'Demokrati'],
-  createdAt: new Date(),
-  suggestions: [
+const initialSuggestions = [
     {
       id: 5,
       text: 'Foreign fishing boats should be banned from Norwegian waters.',
@@ -75,7 +65,7 @@ const mockUser = {
       slug: null, // This topic doesn't exist yet as a poll
     },
   ]
-};
+
 
 const getVerdictIcon = (verdict: string) => {
     switch (verdict) {
@@ -93,13 +83,13 @@ const getVerdictIcon = (verdict: string) => {
 export default function ProfilePage() {
   const params = useParams();
   const username = params.username as string;
-  const [userSuggestions, setUserSuggestions] = useState<Suggestion[]>(mockUser.suggestions);
+  const [userSuggestions, setUserSuggestions] = useState<Suggestion[]>(initialSuggestions);
 
   useEffect(() => {
     const syncSuggestions = () => {
       const customSuggestions: Suggestion[] = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
       // Combine and remove duplicates, giving precedence to custom suggestions
-      const combined = [...customSuggestions, ...mockUser.suggestions];
+      const combined = [...customSuggestions, ...initialSuggestions];
       const uniqueSuggestions = Array.from(new Set(combined.map(s => s.id)))
           .map(id => combined.find(s => s.id === id)!);
       setUserSuggestions(uniqueSuggestions);
@@ -119,7 +109,7 @@ export default function ProfilePage() {
 
   // In a real app, you would fetch user data based on the username
   // For now, we'll just display the mock user if the username matches
-  const user = username === mockUser.username ? mockUser : null;
+  const user = username === currentUser.username ? currentUser : null;
 
   if (!user) {
     return (
@@ -165,7 +155,7 @@ export default function ProfilePage() {
             )}
             <div className="flex items-center gap-2 text-muted-foreground">
                 <Milestone className="h-4 w-4" />
-                <span>Joined {user.createdAt.toLocaleDateString()}</span>
+                <span>Joined {new Date().toLocaleDateString()}</span>
             </div>
           </div>
 

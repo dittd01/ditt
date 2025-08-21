@@ -4,9 +4,11 @@ export const currentUser = {
   uid: 'mock-uid-123',
   username: 'testuser',
   displayName: 'Test User',
-  bio: 'This is a mock bio for the test user.',
+  bio: 'This is a mock bio for the test user. Building things with Next.js and Firebase.',
   website: 'https://example.com',
   location: 'Oslo, Norway',
   photoUrl: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=1740&auto=format&fit=crop',
   initials: 'TU',
+  pronouns: 'they/them',
+  interests: ['Votering', 'Teknologi', 'Demokrati'],
 };
