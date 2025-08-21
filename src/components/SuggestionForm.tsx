@@ -11,125 +11,213 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { curateSuggestionAction } from '@/app/actions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Loader2 } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
+import { Loader2, Wand2, ArrowRight } from 'lucide-react';
 import type { Topic } from '@/lib/types';
+import type { CurateTopicSuggestionOutput } from '@/ai/flows/curate-topic-suggestion';
+import { Input } from './ui/input';
+import { Badge } from './ui/badge';
 
-
-const formSchema = z.object({
+const suggestionSchema = z.object({
   suggestion: z
     .string()
-    .min(10, {
-      message: 'Suggestion must be at least 10 characters.',
-    })
-    .max(500, {
-      message: 'Suggestion must not be longer than 500 characters.',
-    }),
+    .min(10, { message: 'Suggestion must be at least 10 characters.' })
+    .max(500, { message: 'Suggestion must not be longer than 500 characters.' }),
 });
+
+type FormStep = 'INPUT' | 'REVIEW' | 'SUCCESS';
+type AIReviewData = Omit<CurateTopicSuggestionOutput, 'action' | 'confidence' | 'policy_flags'>;
 
 export function SuggestionForm() {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState<FormStep>('INPUT');
+  const [reviewData, setReviewData] = useState<AIReviewData | null>(null);
+  const [newTopicSlug, setNewTopicSlug] = useState<string | null>(null);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof suggestionSchema>>({
+    resolver: zodResolver(suggestionSchema),
     defaultValues: { suggestion: '' },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
+  async function handleGetSuggestions(values: z.infer<typeof suggestionSchema>) {
+    setIsLoading(true);
     try {
       const result = await curateSuggestionAction(values.suggestion);
-      
-      if (result.success) {
-        form.reset();
 
-        // If a new topic was created, add it to localStorage to simulate a live update
-        if (result.action === 'create' && result.newTopic) {
-            const customTopics = JSON.parse(localStorage.getItem('custom_topics') || '[]');
-            customTopics.push(result.newTopic);
-            localStorage.setItem('custom_topics', JSON.stringify(customTopics));
-
-            const userSuggestions = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
-            if (result.suggestionForProfile) {
-                userSuggestions.unshift(result.suggestionForProfile);
-            }
-            localStorage.setItem('user_suggestions', JSON.stringify(userSuggestions));
-
-            // Dispatch an event to notify other components of the change
-            window.dispatchEvent(new Event('topicAdded'));
-            
-            toast({
-              title: 'Suggestion Received',
-              description: result.message,
-              action: (
-                <Button asChild>
-                  <Link href={`/t/${result.newTopic.slug}`}>View Topic</Link>
-                </Button>
-              )
-            });
-
-        } else {
-             toast({
-              title: 'Suggestion Received',
-              description: result.message,
-            });
-        }
-
+      if (result.success && (result.action === 'create' || result.action === 'merge')) {
+         if (result.action === 'create' && result.curationResult) {
+            setReviewData(result.curationResult);
+            setStep('REVIEW');
+         } else {
+            toast({ title: 'Suggestion Merged', description: result.message });
+            form.reset();
+         }
       } else {
         toast({
           variant: 'destructive',
-          title: 'Suggestion Failed',
-          description: result.message,
+          title: 'Suggestion Rejected',
+          description: result.message || 'The AI curator determined this suggestion could not be approved.',
         });
       }
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'An Error Occurred',
-        description: 'Could not submit your suggestion. Please try again later.',
+        description: 'Could not process your suggestion. Please try again.',
       });
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   }
 
+  const handleFinalSubmit = async () => {
+    if (!reviewData) return;
+    setIsLoading(true);
+    // In a real app, this would call a `finalizeProposal` action.
+    // For now, we simulate success and add the topic to local storage.
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const slug = reviewData.canonical_en.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    const newTopic: Partial<Topic> = {
+        id: `topic_${Date.now()}`,
+        slug: slug,
+        question: reviewData.canonical_nb,
+        description: `A new topic suggested by a user: ${reviewData.canonical_en}`,
+        categoryId: reviewData.category,
+        subcategoryId: reviewData.subcategory,
+        imageUrl: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1738&auto=format&fit=crop',
+        aiHint: 'debate ideas',
+        status: 'live',
+        voteType: 'yesno',
+        votes: { yes: 0, no: 0, abstain: 0},
+        totalVotes: 0,
+        votesLastWeek: 0,
+        options: [
+            { id: 'yes', label: 'Yes', color: 'hsl(var(--chart-2))' },
+            { id: 'no', label: 'No', color: 'hsl(var(--chart-1))' },
+            { id: 'abstain', label: 'Abstain', color: 'hsl(var(--muted))' }
+        ],
+    };
+    
+    const customTopics = JSON.parse(localStorage.getItem('custom_topics') || '[]');
+    customTopics.push(newTopic);
+    localStorage.setItem('custom_topics', JSON.stringify(customTopics));
+    window.dispatchEvent(new Event('topicAdded'));
+
+    setNewTopicSlug(slug);
+    setStep('SUCCESS');
+    setIsLoading(false);
+  };
+  
+  const handleStartOver = () => {
+      setStep('INPUT');
+      setReviewData(null);
+      form.reset();
+  }
+
   return (
-    <Card className="mt-8">
-      <CardHeader>
-        <CardTitle>Propose a New Topic</CardTitle>
-        <CardDescription>
-          Don't see an issue you care about? Submit a new topic for voting.
-          Our AI curator will review it for neutrality, clarity, and duplicates.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="suggestion"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Your Topic Suggestion</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="e.g., 'Should Norway invest 50 billion NOK in new high-speed rail between Oslo and Bergen?'"
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSubmitting ? 'Submitting...' : 'Submit Topic Suggestion'}
+    <Card>
+      {step === 'INPUT' && (
+        <>
+          <CardHeader>
+            <CardTitle>Propose a New Topic</CardTitle>
+            <CardDescription>
+              Submit your idea for a poll. Our AI curator will help refine it into a clear, neutral question for everyone to vote on.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleGetSuggestions)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="suggestion"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Your Topic Suggestion</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="e.g., 'Should Norway invest 50 billion NOK in new high-speed rail between Oslo and Bergen?'"
+                          className="resize-none min-h-[120px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                     <>
+                      <Wand2 className="mr-2 h-4 w-4" />
+                      Get AI Suggestions
+                    </>
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+        </>
+      )}
+
+      {step === 'REVIEW' && reviewData && (
+        <>
+          <CardHeader>
+            <CardTitle>Review AI Suggestions</CardTitle>
+            <CardDescription>
+              We've refined your proposal into a standardized format. Review the changes below before submitting it for a vote.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+             <div className="space-y-2">
+                <Label>Suggested Question (Neutral)</Label>
+                <Input value={reviewData.canonical_nb} readOnly />
+                <p className="text-sm text-muted-foreground">This is the final question wording that will be used for the poll.</p>
+            </div>
+             <div className="space-y-2">
+                <Label>Assigned Category</Label>
+                <div>
+                  <Badge variant="secondary">{reviewData.category}</Badge>
+                  <ArrowRight className="h-4 w-4 inline-block mx-2" />
+                  <Badge variant="secondary">{reviewData.subcategory}</Badge>
+                </div>
+            </div>
+            {reviewData.duplicate_of && (
+                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-800">
+                    <p className="font-bold">Duplicate Found</p>
+                    <p>This topic seems very similar to an existing one: "{reviewData.duplicate_of}". Submitting may result in your suggestion being merged.</p>
+                </div>
+            )}
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button variant="ghost" onClick={handleStartOver} disabled={isLoading}>Back</Button>
+            <Button onClick={handleFinalSubmit} disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Submit for Voting
             </Button>
-          </form>
-        </Form>
-      </CardContent>
+          </CardFooter>
+        </>
+      )}
+
+       {step === 'SUCCESS' && (
+        <>
+            <CardHeader>
+                <CardTitle className="text-green-600">Suggestion Submitted!</CardTitle>
+                <CardDescription>Your topic has been successfully added to the platform and is now live for voting.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <Button asChild className="w-full">
+                    <Link href={`/t/${newTopicSlug}`}>View Your Topic</Link>
+                </Button>
+                <Button variant="outline" className="w-full" onClick={handleStartOver}>Propose Another Topic</Button>
+            </CardContent>
+        </>
+       )}
     </Card>
   );
 }

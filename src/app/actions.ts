@@ -2,7 +2,7 @@
 'use server';
 
 import { moderateVotingSuggestion } from '@/ai/flows/moderate-voting-suggestions';
-import { curateTopicSuggestion } from '@/ai/flows/curate-topic-suggestion';
+import { curateTopicSuggestion, type CurateTopicSuggestionOutput } from '@/ai/flows/curate-topic-suggestion';
 import { categories, allTopics } from '@/lib/data';
 import { calculateQVCost } from '@/lib/qv';
 import type { Topic } from '@/lib/types';
@@ -20,7 +20,12 @@ export async function moderateSuggestionAction(suggestion: string) {
   }
 }
 
-export async function curateSuggestionAction(suggestion: string) {
+export async function curateSuggestionAction(suggestion: string): Promise<{
+    success: boolean;
+    message: string;
+    action?: 'create' | 'merge' | 'reject';
+    curationResult?: CurateTopicSuggestionOutput;
+}> {
     try {
         if (!suggestion || suggestion.trim().length < 10) {
             return { success: false, message: 'Suggestion is too short.' };
@@ -41,51 +46,24 @@ export async function curateSuggestionAction(suggestion: string) {
          });
 
         if (result.action === 'reject') {
-             return { success: false, message: `Suggestion rejected: ${result.reject_reason}` };
+             return { success: false, message: `Suggestion rejected: ${result.reject_reason}`, action: 'reject' };
         }
         
         if (result.action === 'merge') {
-            return { success: true, action: 'merge', message: `Thanks! Your suggestion is similar to an existing topic and has been merged.` };
+            return { 
+                success: true, 
+                action: 'merge', 
+                message: `Thanks! Your suggestion is similar to an existing topic and has been merged.`,
+                curationResult: result 
+            };
         }
         
-        // If we get here, the action is 'create'.
-        // We'll create a new Topic object to pass back to the client.
-        const newTopicSlug = result.canonical_en.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-        const newTopic: Partial<Topic> = {
-            id: `topic_${Date.now()}`,
-            slug: newTopicSlug,
-            question: result.canonical_nb,
-            description: `A new topic suggested by a user: ${result.canonical_en}`,
-            categoryId: result.category,
-            subcategoryId: result.subcategory,
-            // These are placeholder values for a new topic
-            imageUrl: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1738&auto=format&fit=crop',
-            aiHint: 'debate ideas',
-            status: 'live',
-            voteType: 'yesno', // Default to yes/no for new suggestions
-            votes: { yes: 0, no: 0, abstain: 0},
-            totalVotes: 0,
-            votesLastWeek: 0,
-            history: [],
-             options: [
-                { id: 'yes', label: 'Yes', color: 'hsl(var(--chart-2))' },
-                { id: 'no', label: 'No', color: 'hsl(var(--chart-1))' },
-                { id: 'abstain', label: 'Abstain', color: 'hsl(var(--muted))' }
-            ],
-        };
-
+        // Action is 'create', return the data for user review
         return { 
             success: true, 
             action: 'create',
-            message: 'Thank you! Your new topic suggestion has been accepted and is now live.',
-            newTopic: newTopic,
-            suggestionForProfile: {
-                id: Date.now(),
-                text: suggestion, // The original user text
-                verdict: 'Approved',
-                reason: 'Clear, single-issue question.',
-                slug: newTopicSlug,
-            }
+            message: 'AI review complete. Please confirm the details.',
+            curationResult: result,
         };
 
     } catch(error) {
@@ -93,6 +71,7 @@ export async function curateSuggestionAction(suggestion: string) {
         return { success: false, message: 'An error occurred while processing your suggestion.' };
     }
 }
+
 
 // In a real app, this would interact with Firestore and be secured by Cloud Functions.
 // For now, we simulate the logic.
