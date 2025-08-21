@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -139,7 +138,7 @@ export function UserNav() {
 
   return (
     <Button asChild size="sm">
-      <Link href="/login">Logg inn med BankID</Link>
+      <Link href="/login">Logg inn</Link>
     </Button>
   )
 }
