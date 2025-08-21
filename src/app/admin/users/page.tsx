@@ -16,7 +16,7 @@ import { usersData as staticUsersData } from '@/app/admin/data';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, ArrowUpDown } from 'lucide-react';
+import { PlusCircle, ArrowUpDown, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useDebounce } from 'use-debounce';
 import { parse } from 'date-fns';
@@ -31,6 +31,7 @@ type SortDescriptor = {
 export default function UsersPage() {
   const [allUsers, setAllUsers] = useState<User[]>(staticUsersData);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({ key: 'last_seen', direction: 'descending' });
+  const [visiblePasswordId, setVisiblePasswordId] = useState<string | null>(null);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -113,6 +114,10 @@ export default function UsersPage() {
         setSortDescriptor({ key, direction: 'ascending' });
     }
   };
+  
+  const togglePasswordVisibility = (userId: string) => {
+    setVisiblePasswordId(currentId => (currentId === userId ? null : userId));
+  }
 
   const SortableHeader = ({ sortKey, children, className }: { sortKey: SortDescriptor['key'], children: React.ReactNode, className?: string}) => (
     <TableHead className={className}>
@@ -164,7 +169,7 @@ export default function UsersPage() {
         </TableHeader>
         <TableBody>
             {sortedAndFilteredUsers.map((user, i) => (
-                 <TableRow key={user.id}>
+                 <TableRow key={user.id} className="group">
                     <TableCell>
                         <Link href={`/admin/users/${user.id}`} className="flex items-center gap-2 hover:underline">
                             <Avatar className="h-8 w-8">
@@ -177,7 +182,21 @@ export default function UsersPage() {
                     <TableCell>@{user.username}</TableCell>
                     <TableCell className="font-mono">{user.id}</TableCell>
                     <TableCell className="font-mono">
-                        {user.password || '********'}
+                        <div className="flex items-center gap-2">
+                            <span>
+                                {visiblePasswordId === user.id ? user.password : '********'}
+                            </span>
+                            {user.password && (
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => togglePasswordVisibility(user.id)}
+                                >
+                                    {visiblePasswordId === user.id ? <EyeOff /> : <Eye />}
+                                </Button>
+                            )}
+                        </div>
                     </TableCell>
                     <TableCell><Badge variant={user.type === 'Real' ? 'default' : 'outline'}>{user.type}</Badge></TableCell>
                     <TableCell>{user.created}</TableCell>
