@@ -11,6 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { usersData } from '@/app/admin/data';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function UsersPage() {
   return (
@@ -25,6 +26,8 @@ export default function UsersPage() {
        <Table>
         <TableHeader>
             <TableRow>
+                <TableHead>User</TableHead>
+                <TableHead>Username</TableHead>
                 <TableHead>User ID (Masked)</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Created At</TableHead>
@@ -36,6 +39,16 @@ export default function UsersPage() {
         <TableBody>
             {usersData.map((user, i) => (
                  <TableRow key={i}>
+                    <TableCell>
+                        <div className="flex items-center gap-2">
+                            <Avatar className="h-8 w-8">
+                                <AvatarImage src={user.avatar} alt={user.name} />
+                                <AvatarFallback>{user.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                            </Avatar>
+                            <span className="font-medium">{user.name}</span>
+                        </div>
+                    </TableCell>
+                    <TableCell>@{user.username}</TableCell>
                     <TableCell className="font-mono">{user.id}</TableCell>
                     <TableCell><Badge variant="outline">{user.type}</Badge></TableCell>
                     <TableCell>{user.created}</TableCell>

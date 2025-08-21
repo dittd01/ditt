@@ -60,13 +60,24 @@ export const topicsData = [
 ];
 
 // Users Page
+const mockUserNames = [
+    'Anne Olsen', 'Per Hansen', 'Ingrid Johansen', 'Lars Nilsen', 'Kari Berg', 'Ole Larsen',
+    'Sigrid Andersen', 'Torbjorn Kristiansen', 'Marit Dahl', 'Hans Pettersen', 'Solveig Jensen',
+    'Knut Lien', 'Astrid Moen', 'Jan Eriksen', 'Berit Andreassen', 'Arne Solberg'
+];
+
 export const usersData = Array.from({ length: 50 }, (_, i) => {
     const createdDate = subDays(new Date(), Math.floor(Math.random() * 90));
     const lastSeenDate = subDays(createdDate, Math.floor(Math.random() * -30)); // last seen is after created
     const randomHex = [...Array(4)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+    const name = mockUserNames[i % mockUserNames.length];
+    const [firstName, lastName] = name.split(' ');
 
     return {
         id: `voter...${randomHex}`,
+        name: name,
+        username: `${firstName.toLowerCase()}${lastName ? lastName.charAt(0).toLowerCase() : ''}${Math.floor(10 + Math.random() * 90)}`,
+        avatar: `https://placehold.co/40x40.png?text=${firstName.charAt(0)}${lastName ? lastName.charAt(0) : ''}`,
         created: format(createdDate, 'yyyy-MM-dd'),
         locale: Math.random() > 0.3 ? 'nb-NO' : 'en-US',
         device: Math.random() > 0.5 ? 'Mobile' : 'Desktop',
@@ -74,6 +85,7 @@ export const usersData = Array.from({ length: 50 }, (_, i) => {
         type: 'Mock',
     };
 });
+
 
 // Health Page
 export const healthData = [
