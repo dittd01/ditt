@@ -17,15 +17,19 @@ import type { Topic } from '@/lib/types';
 import type { CurateTopicSuggestionOutput } from '@/ai/flows/curate-topic-suggestion';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
-import { Label } from './ui/label';
+import { Label } from '@/components/ui/label';
 
 const suggestionSchema = z.object({
   suggestion: z
     .string()
     .min(10, { message: 'Suggestion must be at least 10 characters.' })
     .max(500, { message: 'Suggestion must not be longer than 500 characters.' }),
+  description: z.string().optional(),
+  pro_argument: z.string().optional(),
+  con_argument: z.string().optional(),
 });
 
+type FormValues = z.infer<typeof suggestionSchema>;
 type FormStep = 'INPUT' | 'REVIEW' | 'SUCCESS';
 type AIReviewData = Omit<CurateTopicSuggestionOutput, 'action' | 'confidence' | 'policy_flags'>;
 
@@ -36,15 +40,20 @@ export function SuggestionForm() {
   const [reviewData, setReviewData] = useState<AIReviewData | null>(null);
   const [newTopicSlug, setNewTopicSlug] = useState<string | null>(null);
 
-  const form = useForm<z.infer<typeof suggestionSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(suggestionSchema),
-    defaultValues: { suggestion: '' },
+    defaultValues: { suggestion: '', description: '', pro_argument: '', con_argument: '' },
   });
 
-  async function handleGetSuggestions(values: z.infer<typeof suggestionSchema>) {
+  async function handleGetSuggestions(values: FormValues) {
     setIsLoading(true);
     try {
-      const result = await curateSuggestionAction(values.suggestion);
+      const result = await curateSuggestionAction({
+          user_text: values.suggestion,
+          user_description: values.description,
+          user_pro_argument: values.pro_argument,
+          user_con_argument: values.con_argument,
+      });
 
       if (result.success && (result.action === 'create' || result.action === 'merge')) {
          if (result.action === 'create' && result.curationResult) {
@@ -84,7 +93,7 @@ export function SuggestionForm() {
         id: `topic_${Date.now()}`,
         slug: slug,
         question: reviewData.canonical_nb,
-        description: `A new topic suggested by a user: ${reviewData.canonical_en}`,
+        description: reviewData.canonical_description, // Use AI-generated description
         categoryId: reviewData.category,
         subcategoryId: reviewData.subcategory,
         imageUrl: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1738&auto=format&fit=crop',
@@ -94,11 +103,14 @@ export function SuggestionForm() {
         votes: { yes: 0, no: 0, abstain: 0},
         totalVotes: 0,
         votesLastWeek: 0,
+        votesLastMonth: 0,
+        votesLastYear: 0,
         options: [
             { id: 'yes', label: 'Yes', color: 'hsl(var(--chart-2))' },
             { id: 'no', label: 'No', color: 'hsl(var(--chart-1))' },
             { id: 'abstain', label: 'Abstain', color: 'hsl(var(--muted))' }
         ],
+        // In a real app, you would also save the pro/con arguments to be displayed on the topic page
     };
     
     const customTopics = JSON.parse(localStorage.getItem('custom_topics') || '[]');
@@ -124,7 +136,7 @@ export function SuggestionForm() {
           <CardHeader>
             <CardTitle>Propose a New Topic</CardTitle>
             <CardDescription>
-              Submit your idea for a poll. Our AI curator will help refine it into a clear, neutral question for everyone to vote on.
+              Submit your idea for a poll. Our AI curator will help refine it into a clear, neutral question for everyone to vote on. Provide as much or as little detail as you like.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -135,11 +147,11 @@ export function SuggestionForm() {
                   name="suggestion"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Your Topic Suggestion</FormLabel>
+                      <FormLabel>Your Topic Question</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="e.g., 'Should Norway invest 50 billion NOK in new high-speed rail between Oslo and Bergen?'"
-                          className="resize-none min-h-[120px]"
+                          className="resize-none"
                           {...field}
                         />
                       </FormControl>
@@ -147,6 +159,59 @@ export function SuggestionForm() {
                     </FormItem>
                   )}
                 />
+                 <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Topic Details (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Explain the background or context of your proposal. If left blank, our AI will write a summary for you."
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <FormField
+                      control={form.control}
+                      name="pro_argument"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Key Argument For (Optional)</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="e.g., 'It would boost economic growth in inland regions.'"
+                              className="resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name="con_argument"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Key Argument Against (Optional)</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="e.g., 'The cost is too high and would divert funds from healthcare.'"
+                              className="resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                </div>
                 <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
                   {isLoading ? (
                     <>
@@ -179,6 +244,20 @@ export function SuggestionForm() {
                 <Label>Suggested Question (Neutral)</Label>
                 <Input value={reviewData.canonical_nb} readOnly />
                 <p className="text-sm text-muted-foreground">This is the final question wording that will be used for the poll.</p>
+            </div>
+             <div className="space-y-2">
+                <Label>Suggested Description</Label>
+                <Textarea value={reviewData.canonical_description} readOnly className="resize-none" />
+            </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label>Key Argument For</Label>
+                    <Textarea value={reviewData.key_pro_argument} readOnly className="resize-none" />
+                </div>
+                 <div className="space-y-2">
+                    <Label>Key Argument Against</Label>
+                    <Textarea value={reviewData.key_con_argument} readOnly className="resize-none" />
+                </div>
             </div>
              <div className="space-y-2">
                 <Label>Assigned Category</Label>

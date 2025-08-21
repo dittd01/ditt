@@ -2,7 +2,7 @@
 'use server';
 
 import { moderateVotingSuggestion } from '@/ai/flows/moderate-voting-suggestions';
-import { curateTopicSuggestion, type CurateTopicSuggestionOutput } from '@/ai/flows/curate-topic-suggestion';
+import { curateTopicSuggestion, type CurateTopicSuggestionInput, type CurateTopicSuggestionOutput } from '@/ai/flows/curate-topic-suggestion';
 import { categories, allTopics } from '@/lib/data';
 import { calculateQVCost } from '@/lib/qv';
 import type { Topic } from '@/lib/types';
@@ -20,14 +20,14 @@ export async function moderateSuggestionAction(suggestion: string) {
   }
 }
 
-export async function curateSuggestionAction(suggestion: string): Promise<{
+export async function curateSuggestionAction(input: CurateTopicSuggestionInput): Promise<{
     success: boolean;
     message: string;
     action?: 'create' | 'merge' | 'reject';
     curationResult?: CurateTopicSuggestionOutput;
 }> {
     try {
-        if (!suggestion || suggestion.trim().length < 10) {
+        if (!input.user_text || input.user_text.trim().length < 10) {
             return { success: false, message: 'Suggestion is too short.' };
         }
         
@@ -40,7 +40,7 @@ export async function curateSuggestionAction(suggestion: string): Promise<{
         const taxonomy_json = JSON.stringify(categories);
 
         const result = await curateTopicSuggestion({ 
-            user_text: suggestion,
+            ...input,
             taxonomy_json,
             existing_topics_json,
          });
