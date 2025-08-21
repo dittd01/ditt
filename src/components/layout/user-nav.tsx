@@ -26,7 +26,7 @@ export function UserNav() {
 
   const user = {
     username: 'testuser',
-    photoUrl: 'https://placehold.co/256x256.png',
+    photoUrl: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=1740&auto=format&fit=crop',
     initials: 'TU',
   };
 
@@ -83,7 +83,7 @@ export function UserNav() {
         <DropdownMenu>
         <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-            <Avatar className="h-8 w-8">
+            <Avatar className="h-8 w-8" data-ai-hint="handsome man">
                 <AvatarImage src={user.photoUrl} alt={`@${user.username}`} />
                 <AvatarFallback>{user.initials}</AvatarFallback>
             </Avatar>
