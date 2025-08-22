@@ -291,12 +291,12 @@ export default function TopicPage() {
                     </CardHeader>
                     <CardContent className="flex flex-col items-center justify-center gap-4">
                         <div className="flex w-full items-center justify-center gap-4">
-                           <Button variant="outline" size="lg" className="h-12 flex-1 text-lg hover:bg-primary hover:text-primary-foreground group" onClick={() => handleVote('yes')}>
-                               <ThumbsUp className="h-5 w-5 text-[hsl(var(--chart-2))] group-hover:text-primary-foreground" />
+                           <Button size="lg" className="h-14 flex-1 text-lg bg-[hsl(var(--chart-2))] hover:bg-[hsl(var(--chart-2))]/90 text-white" onClick={() => handleVote('yes')}>
+                               <ThumbsUp className="h-6 w-6" />
                                <span className="ml-2">{t.yes}</span>
                            </Button>
-                           <Button variant="outline" size="lg" className="h-12 flex-1 text-lg hover:bg-destructive hover:text-destructive-foreground group" onClick={() => handleVote('no')}>
-                               <ThumbsDown className="h-5 w-5 text-[hsl(var(--chart-1))] group-hover:text-destructive-foreground" />
+                           <Button size="lg" className="h-14 flex-1 text-lg bg-[hsl(var(--chart-1))] hover:bg-[hsl(var(--chart-1))]/90 text-white" onClick={() => handleVote('no')}>
+                               <ThumbsDown className="h-6 w-6" />
                                 <span className="ml-2">{t.no}</span>
                            </Button>
                         </div>
