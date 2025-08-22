@@ -14,7 +14,7 @@ import { Icon } from './Icon';
 import { trackEvent } from '@/lib/analytics';
 import { useEffect, useRef, useState } from 'react';
 import { MiniTrendChart } from './MiniTrendChart';
-import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 
 interface VoteCardProps {
@@ -90,6 +90,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
   const categoryLabel = lang === 'nb' ? category?.label_nb : category?.label;
   const subcategoryLabel = lang === 'nb' ? subcategory?.label_nb : subcategory?.label;
   const question = lang === 'nb' ? topic.question : topic.question_en;
+  const tooltipText = lang === 'nb' ? 'Antall som har stemt' : 'Number of voters';
 
   return (
     <Card ref={cardRef} className="flex h-full flex-col transition-all hover:shadow-lg hover:-translate-y-1">
@@ -110,7 +111,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
             
              {topic.voteType === 'yesno' && (
                 <div className="space-y-4 mt-4">
-                    <div className="flex w-full h-2.5 rounded-full overflow-hidden bg-muted">
+                    <div className="flex w-full h-2 rounded-full overflow-hidden bg-muted">
                         <div className="flex items-center justify-center bg-green-500 text-white text-[10px] font-bold" style={{ width: `${yesPercentage}%`}}>
                            {yesPercentage > 15 && `${lang === 'nb' ? 'Ja' : 'Yes'} ${yesPercentage.toFixed(0)}%`}
                         </div>
@@ -126,10 +127,19 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
 
         </div>
         <CardFooter className="pt-0 p-4 border-t flex justify-between items-center">
-             <div className="flex items-center text-sm text-muted-foreground">
-                <Users className="w-4 h-4 mr-2" />
-                <span>{topic.totalVotes.toLocaleString()}</span>
-              </div>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div className="flex items-center text-sm text-muted-foreground">
+                            <Users className="w-4 h-4 mr-2" />
+                            <span>{topic.totalVotes.toLocaleString()}</span>
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>{tooltipText}</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
             <Button asChild size="sm" className="h-9 text-sm" onClick={handleCardClick}>
               <Link href={link}>
                 {hasVoted ? changeVoteText : voteNowText}
