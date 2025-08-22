@@ -125,35 +125,37 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
 
         </div>
         <CardFooter className="pt-0 p-4 border-t flex flex-col items-center justify-center gap-3">
-             <div className="flex items-center justify-center gap-1">
-                <Button variant="outline" size="sm" className="h-9 hover:bg-primary hover:text-primary-foreground group">
+             <div className="flex w-full items-center justify-center gap-2">
+                <Button variant="outline" size="sm" className="h-9 flex-1 hover:bg-primary hover:text-primary-foreground group">
                     <ThumbsUp className="h-4 w-4 text-[hsl(var(--chart-2))] group-hover:text-primary-foreground" />
                     <span className="ml-2">{yesText}</span>
                 </Button>
-                <Button variant="outline" size="sm" className="h-9 hover:bg-destructive hover:text-destructive-foreground group">
+                <Button variant="outline" size="sm" className="h-9 flex-1 hover:bg-destructive hover:text-destructive-foreground group">
                      <ThumbsDown className="h-4 w-4 text-[hsl(var(--chart-1))] group-hover:text-destructive-foreground" />
                      <span className="ml-2">{noText}</span>
                 </Button>
-                <Button asChild size="sm" className="h-9 text-sm" onClick={handleCardClick} variant="outline">
+            </div>
+            <div className="w-full flex justify-between items-center mt-2">
+                <Button asChild size="sm" className="h-8 text-sm px-4" onClick={handleCardClick} variant="ghost">
                     <Link href={link}>
                         <InfoIcon className="mr-2 h-4 w-4" />
                         {infoText}
                     </Link>
                 </Button>
+                 <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <Users className="h-3 w-3" />
+                                <span>{topic.totalVotes.toLocaleString()}</span>
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>{tooltipText}</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </div>
-             <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
-                            <Users className="h-3 w-3" />
-                            <span>{topic.totalVotes.toLocaleString()}</span>
-                        </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>{tooltipText}</p>
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
         </CardFooter>
     </Card>
   );
