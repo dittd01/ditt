@@ -26,6 +26,7 @@ export function MainNav() {
         setLang(selectedLang);
     }, []);
   
+    const trendingText = lang === 'nb' ? 'Populært' : 'Trending';
     const exploreText = lang === 'nb' ? 'Utforsk' : 'Explore';
     const categoriesText = lang === 'nb' ? 'Kategorier' : 'Categories';
     const proposeText = lang === 'nb' ? 'Foreslå Tema' : 'Propose Topic';
@@ -38,6 +39,13 @@ export function MainNav() {
         </Link>
         <NavigationMenu>
             <NavigationMenuList>
+             <NavigationMenuItem>
+              <NavigationMenuLink asChild active={pathname === '/'}>
+                <Link href="/" className={navigationMenuTriggerStyle()}>
+                  {trendingText}
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuLink asChild active={pathname === '/all'}>
                 <Link href="/all" className={navigationMenuTriggerStyle()}>

@@ -26,6 +26,7 @@ export function MobileNav() {
     setLang(selectedLang);
   }, []);
 
+  const trendingText = lang === 'nb' ? 'Populært' : 'Trending';
   const exploreText = lang === 'nb' ? 'Utforsk' : 'Explore';
   const categoriesText = lang === 'nb' ? 'Kategorier' : 'Categories';
   const proposeText = lang === 'nb' ? 'Foreslå Tema' : 'Propose Topic';
@@ -52,6 +53,13 @@ export function MobileNav() {
         </MobileLink>
         <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6 overflow-y-auto">
           <div className="flex flex-col space-y-3">
+             <MobileLink
+                href="/"
+                onOpenChange={setOpen}
+                className="text-foreground"
+              >
+                {trendingText}
+              </MobileLink>
              <MobileLink
                 href="/all"
                 onOpenChange={setOpen}
