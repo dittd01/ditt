@@ -46,6 +46,8 @@ import {
   ArrowLeft,
   Sparkles,
   Loader2,
+  Edit,
+  Save,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -57,6 +59,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { useEffect, useState } from 'react';
 import { populatePollAction } from '@/app/actions';
+import { DEFAULT_POPULATE_POLL_PROMPT } from '@/ai/flows/populate-poll-flow';
 
 const pollFormSchema = z.object({
   title: z.string().min(12, 'Title must be at least 12 characters.').max(120, 'Title must be 120 characters or less.'),
@@ -132,6 +135,9 @@ export default function EditPollPage() {
   const pollId = params.id as string;
 
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isEditingPrompt, setIsEditingPrompt] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState(DEFAULT_POPULATE_POLL_PROMPT);
+
   const isNew = pollId === 'new';
   const pollData = isNew ? null : allTopics.find(p => p.id === pollId);
   
@@ -216,7 +222,7 @@ export default function EditPollPage() {
     }
     setIsAiLoading(true);
     try {
-        const result = await populatePollAction({ title });
+        const result = await populatePollAction({ title, customPrompt });
         if (result.success) {
             form.reset({
                 ...form.getValues(), // Keep existing values like title, slug etc.
@@ -530,10 +536,27 @@ export default function EditPollPage() {
             {/* AI Copilot Card */}
             <Card className="sticky top-20">
               <CardHeader>
-                <CardTitle>AI Copilot</CardTitle>
-                <CardDescription>Use AI to generate all poll content from just the title.</CardDescription>
+                <div className="flex justify-between items-start">
+                    <div>
+                        <CardTitle>AI Copilot</CardTitle>
+                        <CardDescription>Use AI to generate all poll content from just the title.</CardDescription>
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsEditingPrompt(!isEditingPrompt)}>
+                        {isEditingPrompt ? <Save /> : <Edit />}
+                    </Button>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-4">
+                 <div className="space-y-2">
+                    <Label htmlFor="ai-prompt">AI Instructions</Label>
+                    <Textarea 
+                        id="ai-prompt"
+                        value={customPrompt}
+                        onChange={(e) => setCustomPrompt(e.target.value)}
+                        readOnly={!isEditingPrompt}
+                        className={cn("text-xs text-muted-foreground h-48", !isEditingPrompt && "bg-muted/50 border-dashed")}
+                    />
+                </div>
                 <Button variant="default" className="w-full" onClick={handleAutoPopulate} disabled={isAiLoading}>
                     {isAiLoading ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
                     Auto-populate from Title
@@ -546,4 +569,3 @@ export default function EditPollPage() {
     </Form>
   );
 }
-

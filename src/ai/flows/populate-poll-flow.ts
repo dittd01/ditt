@@ -18,6 +18,7 @@ import { z } from 'genkit';
 const PopulatePollInputSchema = z.object({
   title: z.string().describe('The user-provided title for the poll.'),
   taxonomy_json: z.string().describe('A JSON string representing the MECE category/subcategory taxonomy.'),
+  customPrompt: z.string().optional().describe('An optional custom prompt to override the default instructions.'),
 });
 export type PopulatePollInput = z.infer<typeof PopulatePollInputSchema>;
 
@@ -32,17 +33,7 @@ const PopulatePollOutputSchema = z.object({
 });
 export type PopulatePollOutput = z.infer<typeof PopulatePollOutputSchema>;
 
-
-export async function populatePoll(input: PopulatePollInput): Promise<PopulatePollOutput> {
-  return populatePollFlow(input);
-}
-
-
-const prompt = ai.definePrompt({
-  name: 'populatePollPrompt',
-  input: { schema: PopulatePollInputSchema },
-  output: { schema: PopulatePollOutputSchema },
-  prompt: `You are an expert editor and political analyst for a neutral voting platform. Your task is to take a user's poll title and generate a complete, well-structured poll.
+export const DEFAULT_POPULATE_POLL_PROMPT = `You are an expert editor and political analyst for a neutral voting platform. Your task is to take a user's poll title and generate a complete, well-structured poll.
 
 Follow these instructions precisely:
 
@@ -59,8 +50,12 @@ Return ONLY a single, valid JSON object matching the output schema.
 
 **User-provided Title:**
 "{{{title}}}"
-`,
-});
+`;
+
+export async function populatePoll(input: PopulatePollInput): Promise<PopulatePollOutput> {
+  return populatePollFlow(input);
+}
+
 
 const populatePollFlow = ai.defineFlow(
   {
@@ -69,6 +64,14 @@ const populatePollFlow = ai.defineFlow(
     outputSchema: PopulatePollOutputSchema,
   },
   async (input) => {
+    
+    const prompt = ai.definePrompt({
+        name: 'populatePollPrompt_dynamic',
+        input: { schema: PopulatePollInputSchema },
+        output: { schema: PopulatePollOutputSchema },
+        prompt: input.customPrompt || DEFAULT_POPULATE_POLL_PROMPT,
+    });
+
     const { output } = await prompt(input);
     if (!output) {
       throw new Error('Failed to get a structured response from the model.');

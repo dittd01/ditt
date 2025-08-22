@@ -4,7 +4,7 @@
 import { moderateVotingSuggestion } from '@/ai/flows/moderate-voting-suggestions';
 import { curateTopicSuggestion, type CurateTopicSuggestionInput, type CurateTopicSuggestionOutput } from '@/ai/flows/curate-topic-suggestion';
 import { generateMockUser, type GenerateMockUserOutput } from '@/ai/flows/generate-mock-user';
-import { populatePoll, type PopulatePollInput, type PopulatePollOutput } from '@/ai/flows/populate-poll-flow';
+import { populatePoll, type PopulatePollOutput } from '@/ai/flows/populate-poll-flow';
 import { categories, allTopics } from '@/lib/data';
 import { calculateQVCost } from '@/lib/qv';
 import type { Topic } from '@/lib/types';
@@ -131,9 +131,10 @@ export async function generateMockUserAction(): Promise<{ success: true, data: G
 }
 
 
-export async function populatePollAction(input: { title: string }): Promise<{ success: true, data: PopulatePollOutput } | { success: false, message: string }> {
+export async function populatePollAction(input: { title: string, customPrompt?: string }): Promise<{ success: true, data: PopulatePollOutput } | { success: false, message: string }> {
     const PopulatePollInputClientSchema = z.object({
       title: z.string().min(1, "Title is required."),
+      customPrompt: z.string().optional(),
     });
 
     try {
