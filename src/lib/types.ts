@@ -76,4 +76,51 @@ export interface Argument {
     replyCount: number;
     createdAt: string; // ISO 8601 string
 }
-    
+
+// --- New Auth & Security Types ---
+
+/**
+ * Represents the eligibility record for a unique person.
+ * Stored in Firestore: /eligibility/{person_hash}
+ */
+export interface Eligibility {
+    is_adult: boolean;
+    assurance_level: string; // e.g., 'BankID', 'Vipps'
+    createdAt: number; // Unix timestamp
+    lastVerifiedAt: number; // Unix timestamp
+    bankid_first_verified_at: number; // Unix timestamp
+    deviceIds: string[];
+    audit_flags?: string[];
+}
+
+/**
+ * Represents a registered device for a user.
+ * Stored in Firestore: /devices/{deviceId}
+ */
+export interface Device {
+    person_hash: string;
+    webauthn?: {
+        credentialId: string; // base64url encoded
+        publicKey: string; // base64url encoded
+        signCount: number;
+    };
+    mobileKey?: {
+        publicKey: string; // PEM format
+    };
+    platform: 'web' | 'ios' | 'android';
+    createdAt: number; // Unix timestamp
+    lastSeenAt: number; // Unix timestamp
+    revoked: boolean;
+}
+
+/**
+ * Represents a pending request to link a new device.
+ * Stored in Firestore: /links/{link_id}
+ */
+export interface LinkRequest {
+    person_hash: string;
+    nonce: string;
+    status: 'pending' | 'confirmed' | 'expired';
+    expiresAt: number; // Unix timestamp
+    createdAt: number; // Unix timestamp
+}

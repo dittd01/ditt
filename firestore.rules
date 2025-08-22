@@ -1,0 +1,33 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all reads and writes
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // New Secure Collections
+    // These collections should only be accessed via server-side Admin SDKs
+    // (e.g., in Firebase Functions or Cloud Run).
+
+    // Stores the eligibility status of a person, keyed by their privacy-preserving hash.
+    // Contains no PII.
+    match /eligibility/{person_hash} {
+      allow read, write: if false;
+    }
+
+    // Stores information about devices linked to a person.
+    // Contains no PII, only public keys and metadata.
+    match /devices/{deviceId} {
+        allow read, write: if false;
+    }
+
+    // Stores temporary challenges for linking new devices.
+    match /links/{link_id} {
+        allow read, write: if false;
+    }
+  }
+}
