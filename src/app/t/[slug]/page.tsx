@@ -31,6 +31,70 @@ const VoteChart = dynamic(() => import('@/components/VoteChart').then(mod => mod
   loading: () => <div className="h-[300px] w-full flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
 });
 
+const translations = {
+  en: {
+    backToPolls: 'Back to Polls',
+    topicDetails: 'Topic Details',
+    castVote: 'Cast Your Anonymous Vote',
+    submitVote: 'Submit Vote',
+    abstain: 'Abstain / No Opinion',
+    youHaveVoted: 'You have voted',
+    youVotedFor: 'You voted for:',
+    yourRanking: 'your ranking',
+    changeVoteDescription: 'You can change your vote at any time during the voting period.',
+    changeVoteButton: 'Change Your Vote',
+    castNewVoteTitle: 'Cast a new vote',
+    castNewVoteDescription: 'You may now select a different option.',
+    authRequiredTitle: 'Authentication Required',
+    authRequiredDescription: 'You must be logged in to vote.',
+    voteChangedTitle: 'Vote Changed!',
+    voteCastTitle: 'Vote Cast!',
+    voteRecordedDescription: (voteLabel: string) => `Your anonymous vote for "${voteLabel}" has been recorded.`,
+    topicNotFound: 'Topic not found.',
+    structuredDebate: 'Structured Debate',
+    debateViewList: 'List',
+    debateViewChart: 'Chart',
+    sourcesContext: 'Sources & Context',
+    sourcesDescription: 'Sources and external links will be available here.',
+    voteHistory: 'Vote History',
+    loginToParticipateTitle: 'Log in to participate further',
+    loginToParticipateDescription: 'To propose a new topic, you need to be logged in with your anonymous ID.',
+    yes: 'Yes',
+    no: 'No',
+  },
+  nb: {
+    backToPolls: 'Tilbake til avstemninger',
+    topicDetails: 'Emnedetaljer',
+    castVote: 'Avgir din anonyme stemme',
+    submitVote: 'Send inn stemme',
+    abstain: 'Avstå / Ingen mening',
+    youHaveVoted: 'Du har stemt',
+    youVotedFor: 'Du stemte på:',
+    yourRanking: 'din rangering',
+    changeVoteDescription: 'Du kan endre stemmen din når som helst i stemmeperioden.',
+    changeVoteButton: 'Endre din stemme',
+    castNewVoteTitle: 'Avgir en ny stemme',
+    castNewVoteDescription: 'Du kan nå velge et annet alternativ.',
+    authRequiredTitle: 'Autentisering kreves',
+    authRequiredDescription: 'Du må være logget inn for å stemme.',
+    voteChangedTitle: 'Stemme endret!',
+    voteCastTitle: 'Stemme avgitt!',
+    voteRecordedDescription: (voteLabel: string) => `Din anonyme stemme for "${voteLabel}" er registrert.`,
+    topicNotFound: 'Emnet ble ikke funnet.',
+    structuredDebate: 'Strukturert debatt',
+    debateViewList: 'Liste',
+    debateViewChart: 'Diagram',
+    sourcesContext: 'Kilder og kontekst',
+    sourcesDescription: 'Kilder og eksterne lenker vil være tilgjengelige her.',
+    voteHistory: 'Stemmehistorikk',
+    loginToParticipateTitle: 'Logg inn for å delta videre',
+    loginToParticipateDescription: 'For å foreslå et nytt emne, må du være logget inn med din anonyme ID.',
+    yes: 'Ja',
+    no: 'Nei',
+  }
+};
+
+
 export default function TopicPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -45,13 +109,15 @@ export default function TopicPage() {
   const [isClient, setIsClient] = useState(false);
   const [debateArgs, setDebateArgs] = useState<Argument[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'chart'>('list');
-  const [lang, setLang] = useState('en');
+  const [lang, setLang] = useState<'en' | 'nb'>('en');
+
+  const t = translations[lang];
 
   useEffect(() => {
     setIsClient(true);
     setLoading(true);
     
-    const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+    const selectedLang = (localStorage.getItem('selectedLanguage') || 'en') as 'en' | 'nb';
     setLang(selectedLang);
     
     // First, try to find the topic in the initial static list
@@ -106,8 +172,8 @@ export default function TopicPage() {
     if (!voterId) {
       toast({
         variant: 'destructive',
-        title: 'Authentication Required',
-        description: 'You must be logged in to vote.',
+        title: t.authRequiredTitle,
+        description: t.authRequiredDescription,
       });
       router.push('/login');
       return;
@@ -160,12 +226,12 @@ export default function TopicPage() {
     }
 
     const voteLabel = Array.isArray(voteData) 
-      ? 'your ranking' 
+      ? t.yourRanking
       : [...topic.options, {id: 'abstain', label: 'Abstain'}].find((o) => o.id === currentVote)?.label || currentVote;
 
     toast({
-        title: previouslyVotedOn ? 'Vote Changed!' : 'Vote Cast!',
-        description: `Your anonymous vote for "${voteLabel}" has been recorded.`,
+        title: previouslyVotedOn ? t.voteChangedTitle : t.voteCastTitle,
+        description: t.voteRecordedDescription(voteLabel),
     });
   };
   
@@ -173,8 +239,8 @@ export default function TopicPage() {
     setVotedOn(null);
     setSelectedOption(null);
      toast({
-      title: 'Cast a new vote',
-      description: 'You may now select a different option.',
+      title: t.castNewVoteTitle,
+      description: t.castNewVoteDescription,
     });
   };
   
@@ -182,22 +248,26 @@ export default function TopicPage() {
     if (!topic) return null;
 
     if (votedOn) {
+      const votedForLabel = topic.voteType === 'ranked' 
+        ? t.yourRanking
+        : [...topic.options, {id: 'abstain', label: t.abstain}].find((o) => o.id === votedOn)?.label || votedOn
+
       return (
         <Card className="bg-primary/5 border-primary/20">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="text-primary" />
-              You have voted
+              {t.youHaveVoted}
             </CardTitle>
             <CardDescription>
-              You voted for: <strong>{topic.voteType === 'ranked' ? 'your ranking' : [...topic.options, {id: 'abstain', label: 'Abstain'}].find((o) => o.id === votedOn)?.label || votedOn}</strong>
+              {t.youVotedFor} <strong>{votedForLabel}</strong>
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">You can change your vote at any time during the voting period.</p>
+            <p className="text-sm text-muted-foreground mb-4">{t.changeVoteDescription}</p>
             <Button className="w-full" onClick={handleRevote}>
                 <RefreshCw className="mr-2 h-4 w-4" />
-                Change Your Vote
+                {t.changeVoteButton}
             </Button>
           </CardContent>
         </Card>
@@ -216,27 +286,33 @@ export default function TopicPage() {
             return (
                  <Card>
                     <CardHeader>
-                        <CardTitle>Cast Your Anonymous Vote</CardTitle>
+                        <CardTitle>{t.castVote}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <RadioGroup onValueChange={setSelectedOption} value={selectedOption || ''} className="gap-4">
-                        {topic.options.filter(o => o.id !== 'abstain').map((option) => (
                             <Label
-                            key={option.id}
-                            htmlFor={option.id}
-                            className="flex items-center space-x-4 border p-4 rounded-md cursor-pointer hover:bg-accent/50 has-[input:checked]:bg-accent/80 has-[input:checked]:border-primary text-base"
-                            >
-                            <RadioGroupItem value={option.id} id={option.id} />
-                            <span className="font-medium">{option.label}</span>
+                                key={'yes'}
+                                htmlFor={'yes'}
+                                className="flex items-center space-x-4 border p-4 rounded-md cursor-pointer hover:bg-accent/50 has-[input:checked]:bg-accent/80 has-[input:checked]:border-primary text-base"
+                                >
+                                <RadioGroupItem value={'yes'} id={'yes'} />
+                                <span className="font-medium">{t.yes}</span>
                             </Label>
-                        ))}
+                             <Label
+                                key={'no'}
+                                htmlFor={'no'}
+                                className="flex items-center space-x-4 border p-4 rounded-md cursor-pointer hover:bg-accent/50 has-[input:checked]:bg-accent/80 has-[input:checked]:border-primary text-base"
+                                >
+                                <RadioGroupItem value={'no'} id={'no'} />
+                                <span className="font-medium">{t.no}</span>
+                            </Label>
                         </RadioGroup>
                     </CardContent>
                     <CardFooter className="flex-col gap-4 border-t pt-6">
                         <Button onClick={() => handleVote(selectedOption!)} disabled={!selectedOption} className="w-full h-12 text-lg">
-                        Submit Vote
+                        {t.submitVote}
                         </Button>
-                        <Button variant="outline" onClick={() => handleVote('abstain')}>Abstain / No Opinion</Button>
+                        <Button variant="outline" onClick={() => handleVote('abstain')}>{t.abstain}</Button>
                     </CardFooter>
                 </Card>
             );
@@ -252,7 +328,7 @@ export default function TopicPage() {
   }
 
   if (!topic) {
-    return <div className="container mx-auto px-4 py-8 text-center">Topic not found.</div>;
+    return <div className="container mx-auto px-4 py-8 text-center">{t.topicNotFound}</div>;
   }
 
   const question = lang === 'nb' ? topic.question : topic.question_en;
@@ -262,7 +338,7 @@ export default function TopicPage() {
     <div className="container mx-auto px-4 py-4 md:py-8">
       <Button variant="ghost" onClick={() => router.back()} className="mb-4 -ml-4">
         <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Polls
+        {t.backToPolls}
       </Button>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -286,7 +362,7 @@ export default function TopicPage() {
                  <Accordion type="single" collapsible className="w-full" defaultValue="description">
                      <AccordionItem value="description">
                         <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border-b-0">
-                            <Info className="h-5 w-5" /> Topic Details
+                            <Info className="h-5 w-5" /> {t.topicDetails}
                         </AccordionTrigger>
                         <AccordionContent className="p-4 pt-0">
                             <p className="text-base text-muted-foreground">{description}</p>
@@ -304,13 +380,13 @@ export default function TopicPage() {
 
             <div>
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold font-headline">Structured Debate</h2>
+                <h2 className="text-2xl font-bold font-headline">{t.structuredDebate}</h2>
                 <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
                    <Button variant={viewMode === 'list' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode('list')} className="h-8 gap-2">
-                       <ListTree /> List
+                       <ListTree /> {t.debateViewList}
                    </Button>
                     <Button variant={viewMode === 'chart' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode('chart')} className="h-8 gap-2">
-                       <Sun /> Chart
+                       <Sun /> {t.debateViewChart}
                    </Button>
                 </div>
               </div>
@@ -318,23 +394,23 @@ export default function TopicPage() {
               {viewMode === 'list' ? (
                 <DebateSection topicId={topic.id} initialArgs={debateArgs} onArgsChange={setDebateArgs} />
               ) : (
-                <ArgumentChart args={debateArgs} topicQuestion={topic.question} />
+                <ArgumentChart args={debateArgs} topicQuestion={topic.question} lang={lang} />
               )}
            </div>
            
            <Accordion type="single" collapsible className="w-full space-y-4">
                 <AccordionItem value="sources">
                     <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
-                        <FileText className="h-5 w-5" /> Sources & Context
+                        <FileText className="h-5 w-5" /> {t.sourcesContext}
                     </AccordionTrigger>
                     <AccordionContent className="p-6 border border-t-0 rounded-b-lg">
-                        <p className="text-base text-muted-foreground">Sources and external links will be available here.</p>
+                        <p className="text-base text-muted-foreground">{t.sourcesDescription}</p>
                     </AccordionContent>
                 </AccordionItem>
 
                 <AccordionItem value="history">
                     <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
-                        <History className="h-5 w-5" /> Vote History
+                        <History className="h-5 w-5" /> {t.voteHistory}
                     </AccordionTrigger>
                     <AccordionContent className="pt-0">
                          <VoteChart topic={topic} />
@@ -356,9 +432,9 @@ export default function TopicPage() {
           ) : (
             <Alert>
               <Info className="h-4 w-4" />
-              <AlertTitle>Log in to participate further</AlertTitle>
+              <AlertTitle>{t.loginToParticipateTitle}</AlertTitle>
               <AlertDescription>
-                To propose a new topic, you need to be logged in with your anonymous ID.
+                {t.loginToParticipateDescription}
               </AlertDescription>
             </Alert>
           )}

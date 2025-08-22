@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 interface ArgumentChartProps {
   args: Argument[];
   topicQuestion: string;
+  lang: 'en' | 'nb';
 }
 
 interface HierarchyNode extends d3.HierarchyNode<Argument> {
@@ -50,25 +51,13 @@ const CustomTooltip = ({ data }: { data: TooltipData['argument'] }) => {
 };
 
 
-export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
+export function ArgumentChart({ args, topicQuestion, lang }: ArgumentChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [tooltip, setTooltip] = useState<TooltipData>({ x: 0, y: 0, visible: false, argument: null });
-  const [lang, setLang] = useState('en');
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-        const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
-        setLang(selectedLang);
-    };
-    handleStorageChange();
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
-
+  
   useEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
         if (entries[0]) {
