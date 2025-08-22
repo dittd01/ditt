@@ -4,30 +4,34 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Default deny all reads and writes
+    // Default deny all reads and writes to all collections.
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // New Secure Collections
-    // These collections should only be accessed via server-side Admin SDKs
-    // (e.g., in Firebase Functions or Cloud Run).
-
-    // Stores the eligibility status of a person, keyed by their privacy-preserving hash.
-    // Contains no PII.
+    // Explicitly deny client-side access to sensitive collections.
+    // Access to these should only be granted via server-side Admin SDKs.
+    
+    // Stores the mapping from a person's hash to their eligibility status.
     match /eligibility/{person_hash} {
       allow read, write: if false;
     }
-
-    // Stores information about devices linked to a person.
-    // Contains no PII, only public keys and metadata.
+    
+    // Stores individual device credentials linked to a person_hash.
     match /devices/{deviceId} {
-        allow read, write: if false;
+      allow read, write: if false;
     }
 
-    // Stores temporary challenges for linking new devices.
-    match /links/{link_id} {
-        allow read, write: if false;
+    // Stores pending QR code link challenges.
+    match /links/{linkId} {
+      allow read, write: if false;
     }
+    
+    // In a real application, you would define rules for other collections.
+    // For example, you might allow authenticated users to read public poll data.
+    // match /topics/{topicId} {
+    //   allow read: if request.auth != null;
+    //   allow write: if false; // Writes should go through a function
+    // }
   }
 }
