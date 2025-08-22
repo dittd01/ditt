@@ -301,7 +301,7 @@ export default function TopicPage() {
                         </div>
                     </CardContent>
                     <CardFooter className="flex-col gap-4 border-t pt-6">
-                        <Button variant="outline" onClick={() => handleVote('abstain')}>{t.abstain}</Button>
+                        <Button variant="outline" onClick={() => handleVote('abstain')} className="hover:bg-accent">{t.abstain}</Button>
                     </CardFooter>
                 </Card>
             );
