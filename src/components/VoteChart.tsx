@@ -94,7 +94,7 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
   const ChartComponent = () => (
     <div className="h-[300px] w-full">
         <ResponsiveContainer>
-            <LineChart data={chartData}>
+            <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis
                     dataKey="date"
