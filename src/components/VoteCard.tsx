@@ -98,10 +98,12 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
         <div className="flex-1 flex flex-col p-4">
             <div className="flex-1">
                 {category && subcategory && topic.voteType !== 'election' && (
-                     <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-2">
-                        {iconName && <Icon name={iconName} className="h-4 w-4" />}
-                        <span>{categoryLabel} &middot; {subcategoryLabel}</span>
-                     </div>
+                     <Link href={`/all?cat=${topic.categoryId}&sub=${topic.subcategoryId}`} className="group/cat">
+                        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-2 group-hover/cat:text-primary transition-colors">
+                            {iconName && <Icon name={iconName} className="h-4 w-4" />}
+                            <span>{categoryLabel} &middot; {subcategoryLabel}</span>
+                        </div>
+                    </Link>
                 )}
                 <Link href={link} className="group" onClick={handleCardClick}>
                   <CardTitle className="text-base font-semibold leading-snug line-clamp-3 group-hover:text-primary">
