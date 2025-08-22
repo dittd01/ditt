@@ -139,7 +139,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
                     </Link>
                 )}
                 <Link href={link} className="group" onClick={handleCardClick}>
-                  <CardTitle className="text-base font-semibold leading-snug line-clamp-3 group-hover:text-primary">
+                  <CardTitle className="text-lg font-semibold leading-snug line-clamp-3 group-hover:text-primary">
                     {question}
                   </CardTitle>
                 </Link>
