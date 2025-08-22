@@ -220,6 +220,7 @@ export default function EditPollPage() {
         if (result.success) {
             form.reset({
                 ...form.getValues(), // Keep existing values like title, slug etc.
+                title: result.data.title,
                 description_md: result.data.description,
                 pros: result.data.pros,
                 cons: result.data.cons,
@@ -530,16 +531,13 @@ export default function EditPollPage() {
             <Card className="sticky top-20">
               <CardHeader>
                 <CardTitle>AI Copilot</CardTitle>
-                <CardDescription>Tools to help you craft a great poll.</CardDescription>
+                <CardDescription>Use AI to generate all poll content from just the title.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Button variant="default" className="w-full justify-start" onClick={handleAutoPopulate} disabled={isAiLoading}>
+                <Button variant="default" className="w-full" onClick={handleAutoPopulate} disabled={isAiLoading}>
                     {isAiLoading ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
                     Auto-populate from Title
                 </Button>
-                <Separator className="my-2" />
-                <Button variant="secondary" className="w-full justify-start"><ScanSearch className="mr-2" /> Duplicate Check</Button>
-                <Button variant="secondary" className="w-full justify-start"><ShieldAlert className="mr-2" /> Readability & Bias Audit</Button>
               </CardContent>
             </Card>
           </div>
@@ -548,3 +546,5 @@ export default function EditPollPage() {
     </Form>
   );
 }
+
+    
