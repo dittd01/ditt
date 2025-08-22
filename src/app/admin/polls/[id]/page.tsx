@@ -133,11 +133,12 @@ const DEFAULT_POPULATE_POLL_PROMPT = `You are an expert editor and political ana
 
 Follow these instructions precisely:
 
-1.  **Refine Title**: Rewrite the user's title to be a clear, neutral, and unbiased question that can be voted on.
-2.  **Generate Description**: Write a brief (2-3 sentences), neutral, and encyclopedic background for the topic. Do not take a stance.
-3.  **Generate Arguments**: Create exactly three distinct, strong, and concise arguments FOR the proposal (pros) and exactly three distinct, strong, and concise arguments AGAINST it (cons).
-4.  **Categorize**: Based on the provided taxonomy, assign the poll to the most relevant **category** and **subcategory**. Your output for the category and subcategory fields must be the **ID** (e.g., 'taxation', 'wealth_tax'), not the label.
-5.  **Generate Tags**: Provide an array of 3 to 5 relevant, single-word, lowercase tags for the topic.
+1.  **Detect Language**: Analyze the user's title and determine if it is primarily English or Norwegian. Set the 'language' field to 'en' for English or 'no' for Norwegian.
+2.  **Refine Title**: Rewrite the user's title to be a clear, neutral, and unbiased question that can be voted on.
+3.  **Generate Description**: Write a brief (2-3 sentences), neutral, and encyclopedic background for the topic. Do not take a stance.
+4.  **Generate Arguments**: Create exactly three distinct, strong, and concise arguments FOR the proposal (pros) and exactly three distinct, strong, and concise arguments AGAINST it (cons).
+5.  **Categorize**: Based on the provided taxonomy, assign the poll to the most relevant **category** and **subcategory**. Your output for the category and subcategory fields must be the **ID** (e.g., 'taxation', 'wealth_tax'), not the label.
+6.  **Generate Tags**: Provide an array of 3 to 5 relevant, single-word, lowercase tags for the topic.
 
 Return ONLY a single, valid JSON object matching the output schema.
 
@@ -260,6 +261,7 @@ export default function EditPollPage() {
                 description_md: result.data.description,
                 pros: result.data.pros,
                 cons: result.data.cons,
+                language: result.data.language,
                 categoryId: result.data.category,
                 subcategoryId: result.data.subcategory,
                 tags: result.data.tags,
@@ -331,7 +333,7 @@ export default function EditPollPage() {
                     <FormField control={form.control} name="language" render={({ field }) => (
                          <FormItem>
                             <FormLabel>Language</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
                                 <SelectContent>
                                     <SelectItem value="en">English</SelectItem>

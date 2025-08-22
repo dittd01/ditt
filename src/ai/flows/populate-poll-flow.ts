@@ -25,6 +25,7 @@ export type PopulatePollInput = z.infer<typeof PopulatePollInputSchema>;
 const PopulatePollOutputSchema = z.object({
   title: z.string().describe('A refined, neutral, and clear version of the poll question.'),
   description: z.string().describe('A brief, encyclopedic, and neutral background description for the poll topic.'),
+  language: z.enum(['en', 'no']).describe('The detected language of the original title, either English (en) or Norwegian (no).'),
   category: z.string().describe('The single most appropriate category ID from the provided taxonomy.'),
   subcategory: z.string().describe('The single most appropriate subcategory ID from the provided taxonomy for the chosen category.'),
   pros: z.array(z.string()).describe('An array of 3 distinct, compelling arguments in favor of the proposal.'),
@@ -37,11 +38,12 @@ const DEFAULT_POPULATE_POLL_PROMPT = `You are an expert editor and political ana
 
 Follow these instructions precisely:
 
-1.  **Refine Title**: Rewrite the user's title to be a clear, neutral, and unbiased question that can be voted on.
-2.  **Generate Description**: Write a brief (2-3 sentences), neutral, and encyclopedic background for the topic. Do not take a stance.
-3.  **Generate Arguments**: Create exactly three distinct, strong, and concise arguments FOR the proposal (pros) and exactly three distinct, strong, and concise arguments AGAINST it (cons).
-4.  **Categorize**: Based on the provided taxonomy, assign the poll to the most relevant **category** and **subcategory**. Your output for the category and subcategory fields must be the **ID** (e.g., 'taxation', 'wealth_tax'), not the label.
-5.  **Generate Tags**: Provide an array of 3 to 5 relevant, single-word, lowercase tags for the topic.
+1.  **Detect Language**: Analyze the user's title and determine if it is primarily English or Norwegian. Set the 'language' field to 'en' for English or 'no' for Norwegian.
+2.  **Refine Title**: Rewrite the user's title to be a clear, neutral, and unbiased question that can be voted on.
+3.  **Generate Description**: Write a brief (2-3 sentences), neutral, and encyclopedic background for the topic. Do not take a stance.
+4.  **Generate Arguments**: Create exactly three distinct, strong, and concise arguments FOR the proposal (pros) and exactly three distinct, strong, and concise arguments AGAINST it (cons).
+5.  **Categorize**: Based on the provided taxonomy, assign the poll to the most relevant **category** and **subcategory**. Your output for the category and subcategory fields must be the **ID** (e.g., 'taxation', 'wealth_tax'), not the label.
+6.  **Generate Tags**: Provide an array of 3 to 5 relevant, single-word, lowercase tags for the topic.
 
 Return ONLY a single, valid JSON object matching the output schema.
 
