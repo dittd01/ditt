@@ -398,7 +398,7 @@ export default function TopicPage() {
               )}
            </div>
            
-           <Accordion type="single" collapsible className="w-full space-y-4">
+           <Accordion type="single" collapsible className="w-full space-y-4" defaultValue="history">
                 <AccordionItem value="sources">
                     <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
                         <FileText className="h-5 w-5" /> {t.sourcesContext}
@@ -443,3 +443,5 @@ export default function TopicPage() {
     </div>
   );
 }
+
+    
