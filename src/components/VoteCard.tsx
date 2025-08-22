@@ -13,7 +13,7 @@ import { Skeleton } from './ui/skeleton';
 import { Icon } from './Icon';
 import { trackEvent } from '@/lib/analytics';
 import { useEffect, useRef, useState } from 'react';
-import { Progress } from './ui/progress';
+import { MiniTrendChart } from './MiniTrendChart';
 
 
 interface VoteCardProps {
@@ -124,12 +124,14 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
             </div>
             
              {topic.voteType === 'yesno' && (
-                <div className="space-y-2 mt-4">
+                <div className="space-y-1 mt-4">
                     <div className="flex justify-between text-xs font-medium text-muted-foreground">
                         <span>{lang === 'nb' ? 'Ja' : 'Yes'} {yesPercentage.toFixed(0)}%</span>
                         <span>{lang === 'nb' ? 'Nei' : 'No'} {(100 - yesPercentage).toFixed(0)}%</span>
                     </div>
-                    <Progress value={yesPercentage} className="h-2" />
+                     <div className="h-10 w-full">
+                       <MiniTrendChart topic={topic} />
+                     </div>
                 </div>
             )}
 
@@ -164,7 +166,7 @@ VoteCard.Skeleton = function VoteCardSkeleton() {
                          <Skeleton className="h-4 w-1/4" />
                          <Skeleton className="h-4 w-1/4" />
                     </div>
-                     <Skeleton className="h-2 w-full" />
+                     <Skeleton className="h-10 w-full" />
                 </div>
             </div>
             <CardFooter className="pt-0 p-4 border-t flex justify-between items-center">
