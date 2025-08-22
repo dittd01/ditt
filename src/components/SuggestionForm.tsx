@@ -111,7 +111,9 @@ export function SuggestionForm() {
         id: `topic_${Date.now()}`,
         slug: slug,
         question: reviewData.canonical_nb,
-        description: reviewData.canonical_description, // Use AI-generated description
+        question_en: reviewData.canonical_en,
+        description: reviewData.canonical_description,
+        description_en: reviewData.canonical_description,
         categoryId: reviewData.category,
         subcategoryId: reviewData.subcategory,
         imageUrl: 'https://placehold.co/600x400.png',
@@ -349,5 +351,3 @@ export function SuggestionForm() {
     </Card>
   );
 }
-
-    
