@@ -2,13 +2,14 @@
 import { ReactNode } from 'react';
 import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import Link from 'next/link';
-import { User, Shield, Bell } from 'lucide-react';
+import { User, Shield, Bell, Smartphone } from 'lucide-react';
 import { PageHeader } from '@/components/admin/PageHeader';
 
 export default function SettingsLayout({ children }: { children: ReactNode }) {
   const navItems = [
     { href: '/settings/profile', icon: User, label: 'Profile' },
     { href: '/settings/account', icon: Shield, label: 'Account' },
+    { href: '/settings/devices', icon: Smartphone, label: 'Devices' },
     { href: '/settings/notifications', icon: Bell, label: 'Notifications' },
   ];
 
