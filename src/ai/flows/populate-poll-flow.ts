@@ -19,7 +19,7 @@ const PopulatePollInputSchema = z.object({
   title: z.string().describe('The user-provided title for the poll.'),
   taxonomy_json: z.string().describe('A JSON string representing the MECE category/subcategory taxonomy.'),
 });
-type PopulatePollInput = z.infer<typeof PopulatePollInputSchema>;
+export type PopulatePollInput = z.infer<typeof PopulatePollInputSchema>;
 
 const PopulatePollOutputSchema = z.object({
   title: z.string().describe('A refined, neutral, and clear version of the poll question.'),

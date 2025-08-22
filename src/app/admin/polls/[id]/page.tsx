@@ -308,7 +308,7 @@ export default function EditPollPage() {
                      <FormField control={form.control} name="categoryId" render={({ field }) => (
                          <FormItem>
                             <FormLabel>Category</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl><SelectTrigger><SelectValue placeholder="Select a category..."/></SelectTrigger></FormControl>
                                 <SelectContent>
                                     {categories.filter(c => c.id !== 'election_2025').map(c => <SelectItem key={c.id} value={c.id}>{c.label}</SelectItem>)}
@@ -320,7 +320,7 @@ export default function EditPollPage() {
                     <FormField control={form.control} name="subcategoryId" render={({ field }) => (
                          <FormItem>
                             <FormLabel>Subcategory</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!watchCategoryId}>
+                            <Select onValueChange={field.onChange} value={field.value} disabled={!watchCategoryId}>
                                 <FormControl><SelectTrigger><SelectValue placeholder="Select a subcategory..."/></SelectTrigger></FormControl>
                                 <SelectContent>
                                     {availableSubcategories.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
@@ -547,4 +547,3 @@ export default function EditPollPage() {
   );
 }
 
-    
