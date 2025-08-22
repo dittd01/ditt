@@ -89,14 +89,15 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
 
   const handleBookmarkClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // prevent card link navigation
+    e.preventDefault(); // prevent link navigation
     let bookmarkedTopics: string[] = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
     
     if (isBookmarked) {
         bookmarkedTopics = bookmarkedTopics.filter(id => id !== topic.id);
-        toast({ title: "Bookmark Removed", description: `"${topic.question}" removed from your bookmarks.` });
+        toast({ title: "Bookmark Removed", description: `"${lang === 'nb' ? topic.question : topic.question_en}" removed from your bookmarks.` });
     } else {
         bookmarkedTopics.push(topic.id);
-        toast({ title: "Bookmark Added", description: `"${topic.question}" saved to your bookmarks.` });
+        toast({ title: "Bookmark Added", description: `"${lang === 'nb' ? topic.question : topic.question_en}" saved to your bookmarks.` });
     }
     
     localStorage.setItem('bookmarked_topics', JSON.stringify(bookmarkedTopics));
