@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users } from 'lucide-react';
+import { Users, ThumbsUp, ThumbsDown, InfoIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Topic, Category, Subcategory } from '@/lib/types';
 import { categories } from '@/lib/data';
@@ -84,8 +84,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
   const primaryVotes = yesVotes + noVotes;
   const yesPercentage = primaryVotes > 0 ? (yesVotes / primaryVotes) * 100 : 50;
   
-  const voteNowText = lang === 'nb' ? 'Stem nå' : 'Vote Now';
-  const changeVoteText = lang === 'nb' ? 'Endre stemme' : 'Change Vote';
+  const infoText = lang === 'nb' ? 'Info' : 'Info';
 
   const categoryLabel = lang === 'nb' ? category?.label_nb : category?.label;
   const subcategoryLabel = lang === 'nb' ? subcategory?.label_nb : subcategory?.label;
@@ -111,9 +110,12 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
             
              {topic.voteType === 'yesno' && (
                 <div className="space-y-6 mt-4">
-                    <div className="flex w-full h-[1.125rem] rounded-full overflow-hidden bg-chart-1/20">
-                        <div className="flex items-center justify-center bg-chart-2/80" style={{ width: `${yesPercentage}%`}}>
-                           <span className="text-[10px] font-bold text-white mix-blend-plus-lighter">{yesPercentage.toFixed(0)}%</span>
+                    <div className="flex w-full h-[1.125rem] rounded-full overflow-hidden bg-[--chart-1-hsl-alpha-20,hsl(var(--chart-1)/0.2)]" style={{ '--chart-1-hsl-alpha-20': `hsla(var(--chart-1), 0.2)` }}>
+                        <div className="flex items-center justify-center bg-[hsl(var(--chart-2))] transition-all duration-500" style={{ width: `${yesPercentage}%`}}>
+                           <span className="text-[10px] font-bold text-white mix-blend-plus-lighter">{yesPercentage > 5 && yesPercentage.toFixed(0) + '%'}</span>
+                        </div>
+                         <div className="flex items-center justify-center flex-1" >
+                           <span className="text-[10px] font-bold text-white mix-blend-plus-lighter">{yesPercentage < 95 && (100 - yesPercentage).toFixed(0) + '%'}</span>
                         </div>
                     </div>
                      <div className="h-24 w-full">
@@ -137,11 +139,20 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <Button asChild size="sm" className="h-9 text-sm" onClick={handleCardClick}>
-              <Link href={link}>
-                {hasVoted ? changeVoteText : voteNowText}
-              </Link>
-            </Button>
+             <div className="flex items-center gap-1">
+                <Button variant="outline" size="sm" className="h-9">
+                    <ThumbsUp className="h-4 w-4 text-[hsl(var(--chart-2))]" />
+                </Button>
+                <Button variant="outline" size="sm" className="h-9">
+                     <ThumbsDown className="h-4 w-4 text-[hsl(var(--chart-1))]" />
+                </Button>
+                <Button asChild size="sm" className="h-9 text-sm" onClick={handleCardClick} variant="outline">
+                    <Link href={link}>
+                        <InfoIcon className="mr-2 h-4 w-4" />
+                        {infoText}
+                    </Link>
+                </Button>
+            </div>
         </CardFooter>
     </Card>
   );
