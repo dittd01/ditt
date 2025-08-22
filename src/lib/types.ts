@@ -1,6 +1,7 @@
 
 
 import type { LucideIcon } from 'lucide-react';
+import type { CredentialDeviceType } from '@simplewebauthn/server';
 
 export type VoteOption = {
   id: string;
@@ -100,9 +101,11 @@ export interface Eligibility {
 export interface Device {
     person_hash: string;
     webauthn?: {
-        credentialId: string; // base64url encoded
+        credentialID: string; // base64url encoded
         publicKey: string; // base64url encoded
         signCount: number;
+        deviceType?: CredentialDeviceType;
+        transports?: AuthenticatorTransport[];
     };
     mobileKey?: {
         publicKey: string; // PEM format
