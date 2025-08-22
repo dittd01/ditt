@@ -112,7 +112,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
             
              {topic.voteType === 'yesno' && (
                 <div className="space-y-6 mt-4">
-                    <div className="w-full h-8 rounded-full overflow-hidden bg-[hsl(var(--chart-1))]">
+                    <div className="w-full h-10 rounded-full overflow-hidden bg-[hsl(var(--chart-1))]">
                         <div className="flex items-center justify-center bg-[hsl(var(--chart-2))] h-full transition-all duration-500" style={{ width: `${yesPercentage}%`}}>
                            <span className="text-[10px] font-bold text-white mix-blend-plus-lighter">{yesPercentage > 5 && yesPercentage.toFixed(0) + '%'}</span>
                         </div>
@@ -126,12 +126,12 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
         </div>
         <CardFooter className="pt-0 p-4 border-t flex flex-col items-center justify-center gap-3">
              <div className="flex items-center gap-1">
-                <Button variant="outline" size="sm" className="h-9">
+                <Button variant="outline" size="sm" className="h-9 hover:bg-primary hover:text-primary-foreground">
                     <ThumbsUp className="h-4 w-4 text-[hsl(var(--chart-2))]" />
                     <span className="ml-2">{yesText}</span>
                 </Button>
-                <Button variant="outline" size="sm" className="h-9">
-                     <ThumbsDown className="h-4 w-4 text-[hsl(var(--chart-1))]" />
+                <Button variant="outline" size="sm" className="h-9 hover:bg-destructive hover:text-destructive-foreground group">
+                     <ThumbsDown className="h-4 w-4 text-[hsl(var(--chart-1))] group-hover:text-destructive-foreground" />
                      <span className="ml-2">{noText}</span>
                 </Button>
                 <Button asChild size="sm" className="h-9 text-sm" onClick={handleCardClick} variant="outline">
