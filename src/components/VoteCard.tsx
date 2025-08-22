@@ -109,12 +109,15 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
             </div>
             
              {topic.voteType === 'yesno' && (
-                <div className="space-y-2 mt-4">
-                    <div className="flex justify-between text-xs font-medium text-muted-foreground">
-                        <span>{lang === 'nb' ? 'Ja' : 'Yes'} {yesPercentage.toFixed(0)}%</span>
-                        <span>{lang === 'nb' ? 'Nei' : 'No'} {(100 - yesPercentage).toFixed(0)}%</span>
+                <div className="space-y-3 mt-4">
+                    <div className="flex w-full h-6 rounded-full overflow-hidden bg-muted">
+                        <div className="flex items-center justify-center bg-green-500 text-white text-xs font-bold" style={{ width: `${yesPercentage}%`}}>
+                           {yesPercentage > 15 && `${lang === 'nb' ? 'Ja' : 'Yes'} ${yesPercentage.toFixed(0)}%`}
+                        </div>
+                        <div className="flex items-center justify-center bg-red-500 text-white text-xs font-bold" style={{ width: `${100 - yesPercentage}%`}}>
+                            {(100 - yesPercentage) > 15 && `${lang === 'nb' ? 'Nei' : 'No'} ${(100 - yesPercentage).toFixed(0)}%`}
+                        </div>
                     </div>
-                    <Progress value={yesPercentage} className="h-2" />
                      <div className="h-10 w-full">
                        <MiniTrendChart topic={topic} />
                      </div>
