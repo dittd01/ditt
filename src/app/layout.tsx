@@ -24,11 +24,32 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              window.addEventListener('beforeunload', () => {
-                if (localStorage.getItem('anonymousVoterId')) {
-                  localStorage.setItem('lastSeenTimestamp', Date.now().toString());
+              (function() {
+                function setInitialLanguage() {
+                  const storedLang = localStorage.getItem('selectedLanguage');
+                  if (storedLang) {
+                    document.documentElement.lang = storedLang;
+                    return;
+                  }
+
+                  const browserLang = navigator.language.split('-')[0];
+                  let initialLang = 'en';
+                  if (browserLang === 'nb' || browserLang === 'no') {
+                    initialLang = 'nb';
+                  }
+                  
+                  localStorage.setItem('selectedLanguage', initialLang);
+                  document.documentElement.lang = initialLang;
                 }
-              });
+
+                setInitialLanguage();
+
+                window.addEventListener('beforeunload', () => {
+                  if (localStorage.getItem('anonymousVoterId')) {
+                    localStorage.setItem('lastSeenTimestamp', Date.now().toString());
+                  }
+                });
+              })();
             `,
           }}
         />
