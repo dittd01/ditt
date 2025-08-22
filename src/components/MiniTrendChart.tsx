@@ -2,13 +2,42 @@
 'use client';
 
 import { useMemo } from 'react';
-import { AreaChart, Area, ResponsiveContainer, YAxis, XAxis, Tooltip, CartesianGrid } from 'recharts';
+import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, Tooltip } from 'recharts';
 import type { Topic } from '@/lib/types';
 import { useTheme } from 'next-themes';
 
 interface MiniTrendChartProps {
   topic: Topic;
 }
+
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const yesData = payload.find((p: any) => p.dataKey === 'yes_percent');
+    const noData = payload.find((p: any) => p.dataKey === 'no_percent');
+
+    return (
+      <div className="rounded-lg border bg-background p-2 shadow-sm">
+        <div className="grid grid-cols-1 gap-1 text-xs">
+          {yesData && (
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full" style={{ backgroundColor: yesData.stroke }}/>
+              <p className="text-muted-foreground">Yes: <span className="font-medium text-foreground">{yesData.value.toFixed(1)}%</span></p>
+            </div>
+          )}
+          {noData && (
+             <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full" style={{ backgroundColor: noData.stroke }}/>
+              <p className="text-muted-foreground">No: <span className="font-medium text-foreground">{noData.value.toFixed(1)}%</span></p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+};
+
 
 export function MiniTrendChart({ topic }: MiniTrendChartProps) {
   const { theme } = useTheme();
@@ -42,42 +71,37 @@ export function MiniTrendChart({ topic }: MiniTrendChartProps) {
 
   }, [topic]);
 
-  const gradientOffset = () => {
-    if (chartData.length === 0) return 0.5;
-    const lastPoint = chartData[chartData.length - 1];
-    const y = lastPoint.yes_percent / 100;
-    return y;
-  };
-  
-  const off = gradientOffset();
-
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <AreaChart
+      <LineChart
         data={chartData}
         margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
       >
-        <defs>
-            <linearGradient id="splitColor" x1="0" y1="0" x2="0" y2="1">
-              <stop offset={off} stopColor="hsl(var(--chart-2))" stopOpacity={0.4} />
-              <stop offset={off} stopColor="hsl(var(--chart-1))" stopOpacity={0.4} />
-            </linearGradient>
-        </defs>
         <YAxis domain={[0, 100]} hide={true} />
         <XAxis dataKey="date" hide={true} />
         <Tooltip
-            cursor={false}
+            cursor={{ stroke: 'hsl(var(--foreground))', strokeDasharray: '3 3' }}
             contentStyle={{ display: 'none' }}
+            wrapperStyle={{ zIndex: 50 }}
+            content={<CustomTooltip />}
         />
-        <Area
-          type="monotone"
-          dataKey="yes_percent"
-          stroke="hsl(var(--primary))"
-          strokeWidth={2}
-          fill="url(#splitColor)"
-          isAnimationActive={false}
+        <Line
+            type="monotone"
+            dataKey="yes_percent"
+            stroke="hsl(var(--chart-2))"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
         />
-      </AreaChart>
+        <Line
+            type="monotone"
+            dataKey="no_percent"
+            stroke="hsl(var(--chart-1))"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+        />
+      </LineChart>
     </ResponsiveContainer>
   );
 }
