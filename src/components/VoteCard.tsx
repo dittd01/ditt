@@ -112,9 +112,9 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
             
              {topic.voteType === 'yesno' && (
                 <div className="space-y-6 mt-4">
-                    <div className="w-full h-6 rounded-full overflow-hidden bg-[hsl(var(--chart-1))]">
+                    <div className="w-full h-8 rounded-full overflow-hidden bg-[hsl(var(--chart-1))]">
                         <div className="flex items-center justify-center bg-[hsl(var(--chart-2))] h-full transition-all duration-500" style={{ width: `${yesPercentage}%`}}>
-                           <span className="text-[11px] font-bold text-white mix-blend-plus-lighter">{yesPercentage > 5 && yesPercentage.toFixed(0) + '%'}</span>
+                           <span className="text-[10px] font-bold text-white mix-blend-plus-lighter">{yesPercentage > 5 && yesPercentage.toFixed(0) + '%'}</span>
                         </div>
                     </div>
                      <div className="h-24 w-full">
@@ -124,7 +124,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
             )}
 
         </div>
-        <CardFooter className="pt-0 p-4 border-t flex justify-center items-center">
+        <CardFooter className="pt-0 p-4 border-t flex flex-col items-center justify-center gap-3">
              <div className="flex items-center gap-1">
                 <Button variant="outline" size="sm" className="h-9">
                     <ThumbsUp className="h-4 w-4 text-[hsl(var(--chart-2))]" />
@@ -141,6 +141,19 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
                     </Link>
                 </Button>
             </div>
+             <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Users className="h-3 w-3" />
+                            <span>{topic.totalVotes.toLocaleString()}</span>
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>{tooltipText}</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
         </CardFooter>
     </Card>
   );
