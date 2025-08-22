@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link, { type LinkProps } from 'next/link';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,16 @@ import { cn } from '@/lib/utils';
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
+  const [lang, setLang] = useState('en');
+
+  useEffect(() => {
+    const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+    setLang(selectedLang);
+  }, []);
+
+  const exploreText = lang === 'nb' ? 'Utforsk' : 'Explore';
+  const categoriesText = lang === 'nb' ? 'Kategorier' : 'Categories';
+  const proposeText = lang === 'nb' ? 'Foreslå Tema' : 'Propose Topic';
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -47,18 +57,18 @@ export function MobileNav() {
                 onOpenChange={setOpen}
                 className="text-foreground"
               >
-                Explore
+                {exploreText}
               </MobileLink>
               <MobileLink
                 href="/propose"
                 onOpenChange={setOpen}
                 className="text-foreground"
               >
-                Propose Topic
+                {proposeText}
               </MobileLink>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="categories">
-                <AccordionTrigger className="text-sm">Categories</AccordionTrigger>
+                <AccordionTrigger className="text-sm">{categoriesText}</AccordionTrigger>
                 <AccordionContent>
                   <div className="flex flex-col space-y-2">
                     {categories.map((category) =>
@@ -70,7 +80,7 @@ export function MobileNav() {
                         >
                           <AccordionItem value={category.id}>
                             <AccordionTrigger className="pl-4 text-xs">
-                              {category.label}
+                              {lang === 'nb' ? category.label_nb : category.label}
                             </AccordionTrigger>
                             <AccordionContent className="pl-8">
                               {category.subcategories.map((item) => (
@@ -80,7 +90,7 @@ export function MobileNav() {
                                   className="block py-1 text-muted-foreground"
                                   onOpenChange={setOpen}
                                 >
-                                  {item.label}
+                                  {lang === 'nb' ? item.label_nb : item.label}
                                 </MobileLink>
                               ))}
                             </AccordionContent>
@@ -93,7 +103,7 @@ export function MobileNav() {
                             className="flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline"
                             onOpenChange={setOpen}
                         >
-                            {category.label}
+                            {lang === 'nb' ? category.label_nb : category.label}
                         </MobileLink>
                       )
                     )}

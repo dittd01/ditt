@@ -12,7 +12,7 @@ import { categories } from '@/lib/data';
 import { Skeleton } from './ui/skeleton';
 import { Icon } from './Icon';
 import { trackEvent } from '@/lib/analytics';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Progress } from './ui/progress';
 
 
@@ -39,11 +39,15 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
   const iconName = getCategoryIconName(topic.categoryId);
   const link = topic.voteType === 'election' ? '/election-2025' : `/t/${topic.slug}`;
   const cardRef = useRef<HTMLDivElement>(null);
-  
+  const [lang, setLang] = useState('en');
+
   const category = getCategory(topic.categoryId);
   const subcategory = getSubcategory(category, topic.subcategoryId);
 
   useEffect(() => {
+    const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+    setLang(selectedLang);
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -71,7 +75,12 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
   const noVotes = topic.votes?.no || 0;
   const primaryVotes = yesVotes + noVotes;
   const yesPercentage = primaryVotes > 0 ? (yesVotes / primaryVotes) * 100 : 50;
+  
+  const voteNowText = lang === 'nb' ? 'Stem nå' : 'Vote Now';
+  const changeVoteText = lang === 'nb' ? 'Endre stemme' : 'Change Vote';
 
+  const categoryLabel = lang === 'nb' ? category?.label_nb : category?.label;
+  const subcategoryLabel = lang === 'nb' ? subcategory?.label_nb : subcategory?.label;
 
   return (
     <Card ref={cardRef} className="flex h-full flex-col transition-all hover:shadow-lg hover:-translate-y-1">
@@ -96,7 +105,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
                 {category && subcategory && topic.voteType !== 'election' && (
                      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-2">
                         {iconName && <Icon name={iconName} className="h-4 w-4" />}
-                        <span>{category.label} &middot; {subcategory.label}</span>
+                        <span>{categoryLabel} &middot; {subcategoryLabel}</span>
                      </div>
                 )}
                 <Link href={link} className="group" onClick={handleCardClick}>
@@ -109,8 +118,8 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
              {topic.voteType === 'yesno' && (
                 <div className="space-y-2 mt-4">
                     <div className="flex justify-between text-xs font-medium text-muted-foreground">
-                        <span>Yes {yesPercentage.toFixed(0)}%</span>
-                        <span>No {(100 - yesPercentage).toFixed(0)}%</span>
+                        <span>{lang === 'nb' ? 'Ja' : 'Yes'} {yesPercentage.toFixed(0)}%</span>
+                        <span>{lang === 'nb' ? 'Nei' : 'No'} {(100 - yesPercentage).toFixed(0)}%</span>
                     </div>
                     <Progress value={yesPercentage} className="h-2" />
                 </div>
@@ -124,7 +133,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
               </div>
             <Button asChild size="sm" className="h-9 text-sm" onClick={handleCardClick}>
               <Link href={link}>
-                {hasVoted ? 'Change Vote' : 'Vote Now'}
+                {hasVoted ? changeVoteText : voteNowText}
               </Link>
             </Button>
         </CardFooter>

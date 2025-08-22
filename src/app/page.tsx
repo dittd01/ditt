@@ -23,12 +23,16 @@ function HomePageContent() {
   const [votedTopicIds, setVotedTopicIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [timeframe, setTimeframe] = useState<TimeFrame>('All');
+  const [lang, setLang] = useState('en');
   
   const initialSearch = searchParams.get('q') || '';
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
 
   useEffect(() => {
+    const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+    setLang(selectedLang);
+    
     const syncTopicsWithLocalStorage = () => {
       // Get custom topics from local storage
       const customTopics: Topic[] = JSON.parse(localStorage.getItem('custom_topics') || '[]');
@@ -157,20 +161,28 @@ function HomePageContent() {
 
   const showTimeframeFilter = !selectedCategory || selectedCategory === 'all';
 
+  const trendingTitle = lang === 'nb' ? 'Populære temaer' : 'Trending Topics';
+  const trendingSubtitle = lang === 'nb' ? 'De mest diskuterte og stemte sakene akkurat nå.' : 'The most discussed and voted on issues right now.';
+  const searchPlaceholder = lang === 'nb' ? 'Søk etter hvilket som helst tema...' : 'Search for any topic...';
+  const searchResultsTitle = lang === 'nb' ? `Søkeresultater for "${debouncedSearchQuery}"` : `Search Results for "${debouncedSearchQuery}"`;
+  const searchResultsCount = lang === 'nb' ? `${filteredTopics.length} temaer funnet.` : `${filteredTopics.length} topics found.`;
+  const noTopicsFound = lang === 'nb' ? 'Ingen temaer funnet som samsvarer med søket ditt.' : 'No topics found matching your search.';
+
+
   return (
     <div className="bg-background">
       <main className="container mx-auto px-4 py-8 sm:py-12">
          {!selectedCategory && (
             <div className="mb-12">
               <div className="text-center">
-                <h1 className="text-4xl font-bold font-headline tracking-tight">Trending Topics</h1>
-                <p className="text-lg text-muted-foreground mt-2">The most discussed and voted on issues right now.</p>
+                <h1 className="text-4xl font-bold font-headline tracking-tight">{trendingTitle}</h1>
+                <p className="text-lg text-muted-foreground mt-2">{trendingSubtitle}</p>
               </div>
               <div className="relative max-w-lg mx-auto mt-8">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
                       type="search"
-                      placeholder="Search for any topic..."
+                      placeholder={searchPlaceholder}
                       className="w-full pl-10 h-12 text-base"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -181,8 +193,8 @@ function HomePageContent() {
         
          {debouncedSearchQuery && (
             <div className="mb-8 text-center">
-              <h2 className="text-2xl font-bold">Search Results for "{debouncedSearchQuery}"</h2>
-              <p className="text-muted-foreground">{filteredTopics.length} topics found.</p>
+              <h2 className="text-2xl font-bold">{searchResultsTitle}</h2>
+              <p className="text-muted-foreground">{searchResultsCount}</p>
             </div>
          )}
 
@@ -214,7 +226,7 @@ function HomePageContent() {
           )}
            {!isLoading && filteredTopics.length === 0 && (
              <div className="md:col-span-2 lg:col-span-3 text-center py-16">
-                 <p className="text-muted-foreground">No topics found matching your search.</p>
+                 <p className="text-muted-foreground">{noTopicsFound}</p>
              </div>
            )}
         </div>

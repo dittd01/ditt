@@ -15,11 +15,21 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { categories } from '@/lib/data';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 export function MainNav() {
     const pathname = usePathname();
+    const [lang, setLang] = useState('en');
+
+    useEffect(() => {
+        const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+        setLang(selectedLang);
+    }, []);
   
+    const exploreText = lang === 'nb' ? 'Utforsk' : 'Explore';
+    const categoriesText = lang === 'nb' ? 'Kategorier' : 'Categories';
+    const proposeText = lang === 'nb' ? 'Foreslå Tema' : 'Propose Topic';
+
     return (
         <div className="hidden md:flex">
         <Link href="/" className="mr-6 flex items-center space-x-2">
@@ -31,22 +41,22 @@ export function MainNav() {
             <NavigationMenuItem>
               <NavigationMenuLink asChild active={pathname === '/all'}>
                 <Link href="/all" className={navigationMenuTriggerStyle()}>
-                  Explore
+                  {exploreText}
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
             
             <NavigationMenuItem>
-                <NavigationMenuTrigger>Categories</NavigationMenuTrigger>
+                <NavigationMenuTrigger>{categoriesText}</NavigationMenuTrigger>
                 <NavigationMenuContent>
                 <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
                     {categories.filter(c => c.id !== 'election_2025').map((category) => (
                     <ListItem
                         key={category.id}
-                        title={category.label}
+                        title={lang === 'nb' ? category.label_nb : category.label}
                         href={`/?cat=${category.id}`}
                     >
-                        {category.subcategories.map(s => s.label).slice(0,3).join(', ')}...
+                        {category.subcategories.map(s => lang === 'nb' ? s.label_nb : s.label).slice(0,3).join(', ')}...
                     </ListItem>
                     ))}
                 </ul>
@@ -56,7 +66,7 @@ export function MainNav() {
             <NavigationMenuItem>
               <NavigationMenuLink asChild active={pathname === '/propose'}>
                 <Link href="/propose" className={navigationMenuTriggerStyle()}>
-                  Propose Topic
+                  {proposeText}
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
