@@ -14,10 +14,12 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Loader2, AlertCircle, Fingerprint } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { handleBankIdCallback } from '../actions';
 import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
+import { startLogin } from '@/lib/passkey';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,7 +28,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleBankIdLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -44,65 +46,105 @@ export default function LoginPage() {
 
         // This is a simplified login mechanism for the prototype.
         // We store the secure person_hash as the anonymous ID.
-        // In the full implementation, this would be a short-lived JWT
-        // that is exchanged for a full session after biometric registration.
+        // In a real implementation, this would be a short-lived JWT.
         localStorage.setItem('anonymousVoterId', result.personHash);
-        localStorage.removeItem('lastSeenTimestamp'); 
-        window.dispatchEvent(new Event('authChange'));
-
-        // TODO: In the next step, redirect to biometric setup if isNewUser is true.
-        router.push('/');
-        router.refresh();
+        
+        if (result.isNewUser) {
+            router.push('/auth/setup-passkey');
+        } else {
+            localStorage.removeItem('lastSeenTimestamp'); 
+            window.dispatchEvent(new Event('authChange'));
+            router.push('/');
+            router.refresh();
+        }
 
     } else {
         setError(result.message || 'An unknown error occurred.');
         setLoading(false);
     }
   };
+  
+  const handlePasskeyLogin = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+        const result = await startLogin();
+        if(result.success && result.personHash) {
+            localStorage.setItem('anonymousVoterId', result.personHash);
+            localStorage.removeItem('lastSeenTimestamp'); 
+            window.dispatchEvent(new Event('authChange'));
+            router.push('/');
+            router.refresh();
+             toast({
+                title: "Login Successful",
+                description: "Welcome back!",
+            });
+        } else {
+            setError(result.message || 'Passkey login failed.');
+        }
+    } catch(e: any) {
+        setError(e.message || 'An unexpected error occurred during passkey login.');
+    } finally {
+        setLoading(false);
+    }
+  }
+
 
   return (
     <div className="flex min-h-[calc(100vh-theme(spacing.14))] items-center justify-center p-4">
       <Card className="w-full max-w-md">
-        <form onSubmit={handleLogin}>
           <CardHeader className="text-center">
-            <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit mb-4">
-              <ShieldCheck className="h-10 w-10 text-primary" />
+             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-background">
+                <div className="rounded-full bg-primary/10 p-3">
+                    <ShieldCheck className="h-10 w-10 text-primary" />
+                </div>
             </div>
             <CardTitle className="text-2xl font-headline">Verify Your Identity</CardTitle>
-            <CardDescription>
-              Use the sandbox BankID to log in. This ensures one person, one vote.
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {error && (
+              {error && (
                <Alert variant="destructive">
                  <AlertCircle className="h-4 w-4" />
-                 <AlertTitle>Verification Failed</AlertTitle>
+                 <AlertTitle>Authentication Failed</AlertTitle>
                  <AlertDescription>{error}</AlertDescription>
                </Alert>
             )}
-            <div className="space-y-2">
-              <Label htmlFor="fnr">Fødselsnummer (11 digits)</Label>
-              <Input 
-                id="fnr" 
-                type="text" 
-                placeholder="11111111111" 
-                required 
-                value={fnr} 
-                onChange={(e) => setFnr(e.target.value)} 
-                pattern="\d{11}"
-                title="Please enter 11 digits."
-              />
-               <p className="text-xs text-muted-foreground">Use any 11 digits for this sandbox.</p>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button type="submit" className="w-full" disabled={loading || fnr.length !== 11}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {loading ? 'Verifying...' : 'Verify with BankID'}
+
+            <Button onClick={handlePasskeyLogin} variant="outline" className="w-full h-12 text-base" disabled={loading}>
+                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Fingerprint className="mr-2" /> }
+                Sign in with Passkey
             </Button>
-          </CardFooter>
-        </form>
+            
+            <div className="flex items-center gap-4">
+                <Separator className="flex-1" />
+                <span className="text-xs text-muted-foreground">OR</span>
+                <Separator className="flex-1" />
+            </div>
+
+            <form onSubmit={handleBankIdLogin} className="space-y-4">
+                 <CardDescription className="text-center">
+                    Use BankID for your first login or to link a new device.
+                </CardDescription>
+                <div className="space-y-2">
+                <Label htmlFor="fnr">Fødselsnummer (11 digits)</Label>
+                <Input 
+                    id="fnr" 
+                    type="text" 
+                    placeholder="11111111111" 
+                    required 
+                    value={fnr} 
+                    onChange={(e) => setFnr(e.target.value)} 
+                    pattern="\\d{11}"
+                    title="Please enter 11 digits."
+                />
+                <p className="text-xs text-muted-foreground">Use any 11 digits for this sandbox.</p>
+                </div>
+                 <Button type="submit" className="w-full" disabled={loading || fnr.length !== 11}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {loading ? 'Verifying...' : 'Verify with BankID'}
+                </Button>
+            </form>
+          </CardContent>
       </Card>
     </div>
   );

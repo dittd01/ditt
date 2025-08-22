@@ -7,6 +7,14 @@ import { generateMockUser, type GenerateMockUserOutput } from '@/ai/flows/genera
 import { categories, allTopics } from '@/lib/data';
 import { calculateQVCost } from '@/lib/qv';
 import type { Topic } from '@/lib/types';
+import { 
+    generateRegistrationChallenge, 
+    verifyRegistration,
+    generateLoginChallenge,
+    verifyLogin
+} from '@/lib/auth-utils.server';
+import type { RegistrationResponse, AuthenticationResponse } from '@/lib/auth-utils.server';
+
 
 export async function moderateSuggestionAction(suggestion: string) {
   try {
@@ -118,4 +126,23 @@ export async function generateMockUserAction(): Promise<{ success: true, data: G
         console.error('Error generating mock user:', error);
         return { success: false, message: 'Failed to generate mock user data.' };
     }
+}
+
+
+// --- WebAuthn Actions ---
+
+export async function getRegistrationChallengeAction(personHash: string, username: string) {
+    return generateRegistrationChallenge(personHash, username);
+}
+
+export async function verifyRegistrationAction(personHash: string, response: RegistrationResponse) {
+    return await verifyRegistration(personHash, response);
+}
+
+export async function getLoginChallengeAction() {
+    return generateLoginChallenge();
+}
+
+export async function verifyLoginAction(response: AuthenticationResponse) {
+    return await verifyLogin(response);
 }
