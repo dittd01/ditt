@@ -20,6 +20,7 @@ import { Badge } from './ui/badge';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle, AlertActions } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { featureFlagsData } from '@/app/admin/data';
 
 const suggestionSchema = z.object({
   suggestion: z
@@ -32,7 +33,7 @@ const suggestionSchema = z.object({
 });
 
 type FormValues = z.infer<typeof suggestionSchema>;
-type FormStep = 'INPUT' | 'REVIEW' | 'SUCCESS';
+type FormStep = 'INPUT' | 'REVIEW' | 'SUCCESS' | 'PENDING';
 type AIReviewData = Omit<CurateTopicSuggestionOutput, 'action' | 'confidence' | 'policy_flags'>;
 
 export function SuggestionForm() {
@@ -42,6 +43,8 @@ export function SuggestionForm() {
   const [reviewData, setReviewData] = useState<AIReviewData | null>(null);
   const [newTopicSlug, setNewTopicSlug] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState<string | null>(null);
+
+  const requireAdminApproval = featureFlagsData.find(f => f.key === 'suggestions.require_admin_approval')?.enabled ?? false;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(suggestionSchema),
@@ -102,6 +105,26 @@ export function SuggestionForm() {
   const handleFinalSubmit = async () => {
     if (!reviewData) return;
     setIsLoading(true);
+
+    if (requireAdminApproval) {
+        const reviewQueue = JSON.parse(localStorage.getItem('manual_review_queue') || '[]');
+        reviewQueue.push({
+          id: Date.now(),
+          text: reviewData.canonical_nb,
+          verdict: 'AI-Approved',
+          status: 'Pending',
+          created: new Date().toISOString().split('T')[0],
+          // In a real app, you'd store the full reviewData object
+        });
+        localStorage.setItem('manual_review_queue', JSON.stringify(reviewQueue));
+        
+        window.dispatchEvent(new Event('topicAdded')); // to refresh admin queue
+        
+        setStep('PENDING');
+        setIsLoading(false);
+        return;
+    }
+
     // In a real app, this would call a `finalizeProposal` action.
     // For now, we simulate success and add the topic to local storage.
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -328,7 +351,7 @@ export function SuggestionForm() {
             <Button variant="ghost" onClick={handleStartOver} disabled={isLoading}>Back</Button>
             <Button onClick={handleFinalSubmit} disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Submit for Voting
+              {requireAdminApproval ? 'Submit for Admin Review' : 'Submit for Voting'}
             </Button>
           </CardFooter>
         </>
@@ -344,6 +367,18 @@ export function SuggestionForm() {
                 <Button asChild className="w-full">
                     <Link href={`/t/${newTopicSlug}`}>View Your Topic</Link>
                 </Button>
+                <Button variant="outline" className="w-full" onClick={handleStartOver}>Propose Another Topic</Button>
+            </CardContent>
+        </>
+       )}
+       
+       {step === 'PENDING' && (
+        <>
+            <CardHeader>
+                <CardTitle>Suggestion Submitted for Review</CardTitle>
+                <CardDescription>Thank you! Your topic has been sent to our moderators for review. You can track its status on your profile page.</CardDescription>
+            </CardHeader>
+            <CardContent>
                 <Button variant="outline" className="w-full" onClick={handleStartOver}>Propose Another Topic</Button>
             </CardContent>
         </>

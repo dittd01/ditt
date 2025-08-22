@@ -126,6 +126,7 @@ export const exportsData = [
 
 // Feature Flags Page
 export const featureFlagsData = [
+    { key: 'suggestions.require_admin_approval', desc: 'All new topic suggestions must be approved by an admin', enabled: true, rollout: '100%' },
     { key: 'suggestions.enabled', desc: 'Allow users to submit new topics', enabled: false, rollout: '0%' },
     { key: 'polls.shuffle_options', desc: 'Randomize order of Yes/No options', enabled: true, rollout: '100%' },
     { key: 'realtime.results.enabled', desc: 'Update poll results in real-time via websockets', enabled: true, rollout: '100%' },
