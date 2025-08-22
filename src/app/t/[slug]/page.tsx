@@ -108,7 +108,7 @@ export default function TopicPage() {
   const [voterId, setVoterId] = useState<string | null>(null);
   const [votedOn, setVotedOn] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
-  const [debateArgs, setDebateArgs] = useState<Argument[]>([]);
+  const [initialDebateArgs, setInitialDebateArgs] = useState<Argument[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'chart'>('list');
   const [lang, setLang] = useState<'en' | 'nb'>('en');
 
@@ -148,9 +148,8 @@ export default function TopicPage() {
         const initialTopicState = { ...foundTopic, votes: newVotes, totalVotes: newTotalVotes };
         setTopic(initialTopicState);
         
-        const storedArgs = localStorage.getItem(`debate_args_${foundTopic.id}`);
-        const baseArgs = storedArgs ? JSON.parse(storedArgs) : getArgumentsForTopic(foundTopic.id);
-        setDebateArgs(baseArgs);
+        const baseArgs = getArgumentsForTopic(foundTopic.id);
+        setInitialDebateArgs(baseArgs);
 
 
         const currentVoterId = localStorage.getItem('anonymousVoterId');
@@ -372,9 +371,9 @@ export default function TopicPage() {
               </div>
               
               {viewMode === 'list' ? (
-                <DebateSection topicId={topic.id} initialArgs={debateArgs} onArgsChange={setDebateArgs} lang={lang} />
+                <DebateSection topicId={topic.id} initialArgs={initialDebateArgs} lang={lang} />
               ) : (
-                <ArgumentChart args={debateArgs} topicQuestion={topic.question} lang={lang} />
+                <ArgumentChart args={initialDebateArgs} topicQuestion={topic.question} lang={lang} />
               )}
            </div>
            

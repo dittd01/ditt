@@ -14,7 +14,6 @@ import { currentUser } from '@/lib/user-data';
 interface DebateSectionProps {
   topicId: string;
   initialArgs: Argument[];
-  onArgsChange: (args: Argument[]) => void;
   lang: 'en' | 'nb';
 }
 
@@ -36,7 +35,7 @@ const translations = {
 }
 
 
-export function DebateSection({ topicId, initialArgs, onArgsChange, lang }: DebateSectionProps) {
+export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps) {
   const [debateArgs, setDebateArgs] = useState<Argument[]>(initialArgs);
   const [loading, setLoading] = useState(true);
   const [showComposer, setShowComposer] = useState<'for' | 'against' | null>(null);
@@ -57,12 +56,11 @@ export function DebateSection({ topicId, initialArgs, onArgsChange, lang }: Deba
 
 
   useEffect(() => {
-    // When local state changes, inform the parent component and save to localStorage
-    onArgsChange(debateArgs);
+    // When local state changes, save to localStorage
     if (!loading) { // Avoid writing initial state back to storage unnecessarily
         localStorage.setItem(`debate_args_${topicId}`, JSON.stringify(debateArgs));
     }
-  }, [debateArgs, onArgsChange, topicId, loading]);
+  }, [debateArgs, topicId, loading]);
 
   const topLevelFor = debateArgs.filter(a => a.parentId === 'root' && a.side === 'for').sort((a,b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
   const topLevelAgainst = debateArgs.filter(a => a.parentId === 'root' && a.side === 'against').sort((a,b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
