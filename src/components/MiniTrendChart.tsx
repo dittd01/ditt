@@ -2,14 +2,17 @@
 'use client';
 
 import { useMemo } from 'react';
-import { LineChart, Line, ResponsiveContainer, YAxis, Tooltip } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer, YAxis, XAxis, Tooltip, CartesianGrid } from 'recharts';
 import type { Topic } from '@/lib/types';
+import { useTheme } from 'next-themes';
 
 interface MiniTrendChartProps {
   topic: Topic;
 }
 
 export function MiniTrendChart({ topic }: MiniTrendChartProps) {
+  const { theme } = useTheme();
+
   const chartData = useMemo(() => {
     if (!topic.history || topic.history.length === 0) {
       return [{ yes_percent: 50, no_percent: 50 }];
@@ -39,38 +42,42 @@ export function MiniTrendChart({ topic }: MiniTrendChartProps) {
 
   }, [topic]);
 
+  const gradientOffset = () => {
+    if (chartData.length === 0) return 0.5;
+    const lastPoint = chartData[chartData.length - 1];
+    const y = lastPoint.yes_percent / 100;
+    return y;
+  };
+  
+  const off = gradientOffset();
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart
+      <AreaChart
         data={chartData}
-        margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+        margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
       >
-        <YAxis
-          domain={[0, 100]}
-          hide={true}
-        />
+        <defs>
+            <linearGradient id="splitColor" x1="0" y1="0" x2="0" y2="1">
+              <stop offset={off} stopColor="hsl(var(--chart-2))" stopOpacity={0.4} />
+              <stop offset={off} stopColor="hsl(var(--chart-1))" stopOpacity={0.4} />
+            </linearGradient>
+        </defs>
+        <YAxis domain={[0, 100]} hide={true} />
+        <XAxis dataKey="date" hide={true} />
         <Tooltip
             cursor={false}
             contentStyle={{ display: 'none' }}
         />
-        <Line
+        <Area
           type="monotone"
           dataKey="yes_percent"
-          stroke="hsl(var(--chart-2))"
+          stroke="hsl(var(--primary))"
           strokeWidth={2}
-          dot={false}
+          fill="url(#splitColor)"
           isAnimationActive={false}
         />
-         <Line
-          type="monotone"
-          dataKey="no_percent"
-          stroke="hsl(var(--chart-1))"
-          strokeWidth={2}
-          dot={false}
-          isAnimationActive={false}
-        />
-      </LineChart>
+      </AreaChart>
     </ResponsiveContainer>
   );
 }
