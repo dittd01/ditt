@@ -111,8 +111,8 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
             
              {topic.voteType === 'yesno' && (
                 <div className="space-y-6 mt-4">
-                    <div className="flex w-full h-3 rounded-full overflow-hidden bg-red-500/20">
-                        <div className="flex items-center justify-center bg-green-500/80" style={{ width: `${yesPercentage}%`}}>
+                    <div className="flex w-full h-[1.125rem] rounded-full overflow-hidden bg-chart-1/20">
+                        <div className="flex items-center justify-center bg-chart-2/80" style={{ width: `${yesPercentage}%`}}>
                            <span className="text-[10px] font-bold text-white mix-blend-plus-lighter">{yesPercentage.toFixed(0)}%</span>
                         </div>
                     </div>
