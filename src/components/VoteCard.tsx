@@ -125,9 +125,9 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
 
         </div>
         <CardFooter className="pt-0 p-4 border-t flex flex-col items-center justify-center gap-3">
-             <div className="flex items-center gap-1">
-                <Button variant="outline" size="sm" className="h-9 hover:bg-primary hover:text-primary-foreground">
-                    <ThumbsUp className="h-4 w-4 text-[hsl(var(--chart-2))]" />
+             <div className="flex items-center justify-center gap-1">
+                <Button variant="outline" size="sm" className="h-9 hover:bg-primary hover:text-primary-foreground group">
+                    <ThumbsUp className="h-4 w-4 text-[hsl(var(--chart-2))] group-hover:text-primary-foreground" />
                     <span className="ml-2">{yesText}</span>
                 </Button>
                 <Button variant="outline" size="sm" className="h-9 hover:bg-destructive hover:text-destructive-foreground group">
@@ -144,7 +144,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
              <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
                             <Users className="h-3 w-3" />
                             <span>{topic.totalVotes.toLocaleString()}</span>
                         </div>
