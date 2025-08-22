@@ -298,6 +298,16 @@ export default function EditPollPage() {
     setIsAiLoading(false);
   }
 
+  const handleToggleEditPrompt = () => {
+    if (isEditingPrompt) {
+      toast({
+        title: 'AI Instructions Saved',
+        description: 'Your custom instructions will be used for this session.',
+      });
+    }
+    setIsEditingPrompt(!isEditingPrompt);
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -567,7 +577,7 @@ export default function EditPollPage() {
                         <CardTitle>AI Copilot</CardTitle>
                         <CardDescription>Use AI to generate all poll content from just the title.</CardDescription>
                     </div>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsEditingPrompt(!isEditingPrompt)}>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleToggleEditPrompt}>
                         {isEditingPrompt ? <Save /> : <Edit />}
                     </Button>
                 </div>
