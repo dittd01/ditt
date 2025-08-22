@@ -45,8 +45,12 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
   const subcategory = getSubcategory(category, topic.subcategoryId);
 
   useEffect(() => {
-    const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
-    setLang(selectedLang);
+    const handleStorageChange = () => {
+        const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+        setLang(selectedLang);
+    };
+
+    handleStorageChange(); // Set initial language
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -61,9 +65,12 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
     if (cardRef.current) {
       observer.observe(cardRef.current);
     }
+    
+    window.addEventListener('storage', handleStorageChange);
 
     return () => {
       observer.disconnect();
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, [topic.id, topic.categoryId]);
   
