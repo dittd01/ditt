@@ -13,7 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, CheckCircle, XCircle, FileClock, Wand2, MessageSquareWarning, Send } from 'lucide-react';
+import { MoreHorizontal, CheckCircle, XCircle, FileClock, Wand2, ArrowRight } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -35,6 +35,7 @@ import { suggestionsData as staticSuggestions } from '@/app/admin/data';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Topic } from '@/lib/types';
+import { Input } from '@/components/ui/input';
 
 
 type Suggestion = {
@@ -44,6 +45,16 @@ type Suggestion = {
   status: string;
   created: string;
 };
+
+// Mock data for what the AI would generate for a selected suggestion
+const mockAiReviewData = {
+    canonical_nb: "Bør statlig støtte til kultur dobles?",
+    canonical_description: "This topic concerns the level of government funding allocated to cultural activities and artists. Increased funding could support artistic creation and cultural preservation, while opponents may argue for fiscal restraint or alternative funding models.",
+    key_pro_argument: "Increased funding can stimulate artistic innovation and make culture more accessible to the public.",
+    key_con_argument: "Doubling the culture budget would require cuts in other important sectors or increased taxes.",
+    category: "culture-media-sports",
+    subcategory: "culture_funding"
+}
 
 export default function SuggestionsQueuePage() {
   const [allSuggestions, setAllSuggestions] = useState<Suggestion[]>(staticSuggestions);
@@ -199,64 +210,57 @@ export default function SuggestionsQueuePage() {
       </div>
       
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
+        <DialogContent className="max-w-2xl">
             {selectedSuggestion && (
                 <>
                     <DialogHeader>
-                        <DialogTitle className="truncate">{selectedSuggestion.text}</DialogTitle>
+                        <DialogTitle>Review AI Suggestions</DialogTitle>
                         <DialogDescription>
-                            Review the details of this suggestion and take action.
+                            We've refined your proposal into a standardized format. Review the changes below before submitting it for a vote.
                         </DialogDescription>
                     </DialogHeader>
                     
-                    <ScrollArea className="flex-1 pr-6 -mr-6">
-                        <div className="space-y-6">
-                            {/* Details Box */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2"><FileClock /> Original Submission</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <p className="text-muted-foreground">{selectedSuggestion.text}</p>
-                                </CardContent>
-                            </Card>
-
-                            {/* AI Review Box */}
-                            <Card className="border-amber-500 bg-amber-50/50 dark:bg-amber-900/20">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400"><Wand2 /> AI Review</CardTitle>
-                                    <CardDescription>
-                                        This section contains the AI's detailed analysis, including policy checks, quality scores, and reasons for its verdict.
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                     <div>
-                                        <Label>AI Verdict</Label>
-                                        <p className="font-semibold capitalize">{selectedSuggestion.verdict}</p>
-                                    </div>
-                                    <div>
-                                        <Label>AI Suggested Rephrase</Label>
-                                        <Textarea readOnly value={`This is where the AI's suggested neutral rephrasing of "${selectedSuggestion.text}" would appear.`} />
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Actions Box */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2"><CheckCircle /> Moderation Actions</CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-2">
-                                    <Textarea placeholder="Add an optional moderation note for the user..." />
-                                </CardContent>
-                                <CardFooter className="flex justify-end gap-2">
-                                     <Button variant="secondary" onClick={() => setIsModalOpen(false)}><MessageSquareWarning className="mr-2" /> Close</Button>
-                                     <Button variant="destructive" onClick={() => rejectSuggestion(selectedSuggestion)}><XCircle className="mr-2" /> Reject</Button>
-                                     <Button onClick={() => approveSuggestion(selectedSuggestion)}><CheckCircle className="mr-2" /> Approve</Button>
-                                </CardFooter>
-                            </Card>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label>Suggested Question (Neutral)</Label>
+                            <Input value={mockAiReviewData.canonical_nb} readOnly />
+                            <p className="text-sm text-muted-foreground">This is the final question wording that will be used for the poll.</p>
                         </div>
-                    </ScrollArea>
+                        <div className="space-y-2">
+                            <Label>Suggested Description</Label>
+                            <Textarea value={mockAiReviewData.canonical_description} readOnly className="resize-none" />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Key Argument For</Label>
+                                <Textarea value={mockAiReviewData.key_pro_argument} readOnly className="resize-none" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Key Argument Against</Label>
+                                <Textarea value={mockAiReviewData.key_con_argument} readOnly className="resize-none" />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Assigned Category</Label>
+                            <div>
+                                <Badge variant="secondary">{mockAiReviewData.category}</Badge>
+                                <ArrowRight className="h-4 w-4 inline-block mx-2" />
+                                <Badge variant="secondary">{mockAiReviewData.subcategory}</Badge>
+                            </div>
+                        </div>
+                         <div className="space-y-2 pt-4">
+                             <Label htmlFor="moderation-notes">Moderation Notes (Optional)</Label>
+                             <Textarea id="moderation-notes" placeholder="Add an optional note for the user or for the audit log..." />
+                         </div>
+                    </div>
+                    
+                    <DialogFooter className="flex justify-between w-full">
+                         <Button variant="ghost" onClick={() => setIsModalOpen(false)}>Back</Button>
+                         <div className="flex gap-2">
+                             <Button variant="destructive" onClick={() => rejectSuggestion(selectedSuggestion)}><XCircle className="mr-2" /> Reject</Button>
+                             <Button onClick={() => approveSuggestion(selectedSuggestion)}><CheckCircle className="mr-2" /> Approve</Button>
+                         </div>
+                    </DialogFooter>
                 </>
             )}
         </DialogContent>
