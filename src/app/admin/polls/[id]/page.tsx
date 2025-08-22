@@ -48,6 +48,7 @@ import {
   Loader2,
   Edit,
   Save,
+  XCircle,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -147,6 +148,26 @@ Return ONLY a single, valid JSON object matching the output schema.
 "{{{title}}}"
 `;
 
+const defaultNewPollValues = {
+      title: '',
+      slug: '',
+      language: 'en' as const,
+      categoryId: '',
+      subcategoryId: '',
+      tags: [],
+      description_md: '',
+      background_md: '',
+      isDefaultOptions: true,
+      options: [
+        { id: 'yes', label: 'Yes' },
+        { id: 'no', label: 'No' },
+      ],
+      pros: [],
+      cons: [],
+      sources: [],
+      status: 'draft' as const,
+      featureFlags: { aiAssist: true, comments: true },
+};
 
 export default function EditPollPage() {
   const router = useRouter();
@@ -163,26 +184,7 @@ export default function EditPollPage() {
   
   const form = useForm<PollFormValues>({
     resolver: zodResolver(pollFormSchema),
-    defaultValues: isNew ? {
-      title: '',
-      slug: '',
-      language: 'en',
-      categoryId: '',
-      subcategoryId: '',
-      tags: [],
-      description_md: '',
-      background_md: '',
-      isDefaultOptions: true,
-      options: [
-        { id: 'yes', label: 'Yes' },
-        { id: 'no', label: 'No' },
-      ],
-      pros: [],
-      cons: [],
-      sources: [],
-      status: 'draft',
-      featureFlags: { aiAssist: true, comments: true },
-    } : {
+    defaultValues: isNew ? defaultNewPollValues : {
         title: pollData?.question,
         slug: pollData?.slug,
         language: 'en',
@@ -228,6 +230,14 @@ export default function EditPollPage() {
       title: "Poll Saved!",
       description: "Your changes have been saved successfully.",
     });
+  }
+
+  const handleClearForm = () => {
+    form.reset(defaultNewPollValues);
+    toast({
+        title: "Form Cleared",
+        description: "All fields have been reset to their default values.",
+    })
   }
 
   const handleAutoPopulate = async () => {
@@ -287,6 +297,7 @@ export default function EditPollPage() {
         >
           <div className="flex items-center gap-2">
             <Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Back</Button>
+            {isNew && <Button variant="ghost" type="button" onClick={handleClearForm}><XCircle className="mr-2 h-4 w-4" />Clear form</Button>}
             <Button variant="outline"><Eye className="mr-2 h-4 w-4" /> Preview</Button>
             <Button type="submit">Save Draft</Button>
           </div>
