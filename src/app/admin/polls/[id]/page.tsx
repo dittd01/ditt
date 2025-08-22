@@ -224,6 +224,13 @@ export default function EditPollPage() {
   }, [watchTitle, form, isNew]);
 
   const availableSubcategories = categories.find(c => c.id === watchCategoryId)?.subcategories || [];
+  
+  const getCategoryLabel = (id: string) => categories.find(c => c.id === id)?.label || id;
+  const getSubcategoryLabel = (catId: string, subId: string) => {
+    const cat = categories.find(c => c.id === catId);
+    return cat?.subcategories.find(s => s.id === subId)?.label || subId;
+  };
+
 
   function onSubmit(data: PollFormValues) {
     console.log(data);
@@ -347,24 +354,14 @@ export default function EditPollPage() {
                      <FormField control={form.control} name="categoryId" render={({ field }) => (
                          <FormItem>
                             <FormLabel>Category</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Select a category..."/></SelectTrigger></FormControl>
-                                <SelectContent>
-                                    {categories.filter(c => c.id !== 'election_2025').map(c => <SelectItem key={c.id} value={c.id}>{c.label}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
+                            <FormControl><Input readOnly value={getCategoryLabel(field.value)} placeholder="Set by AI" /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
                     <FormField control={form.control} name="subcategoryId" render={({ field }) => (
                          <FormItem>
                             <FormLabel>Subcategory</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value} disabled={!watchCategoryId}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Select a subcategory..."/></SelectTrigger></FormControl>
-                                <SelectContent>
-                                    {availableSubcategories.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
+                            <FormControl><Input readOnly value={getSubcategoryLabel(form.getValues('categoryId'), field.value)} placeholder="Set by AI" /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
@@ -373,12 +370,7 @@ export default function EditPollPage() {
                       <FormItem>
                           <FormLabel>Tags</FormLabel>
                            <FormControl>
-                               <Combobox
-                                   options={mockTags}
-                                   placeholder="Select tags..."
-                                   value={field.value}
-                                   onValueChange={field.onChange}
-                                />
+                               <Input readOnly value={field.value?.join(', ')} placeholder="Set by AI" />
                            </FormControl>
                           <FormMessage />
                       </FormItem>
