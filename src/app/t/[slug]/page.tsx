@@ -73,7 +73,7 @@ const translations = {
     yourRanking: 'din rangering',
     changeVoteDescription: 'Du kan endre stemmen din når som helst i stemmeperioden.',
     changeVoteButton: 'Endre din stemme',
-    castNewVoteTitle: 'Avgir en ny stemme',
+    castNewVoteTitle: 'Avgi en ny stemme',
     castNewVoteDescription: 'Du kan nå velge et annet alternativ.',
     authRequiredTitle: 'Autentisering kreves',
     authRequiredDescription: 'Du må være logget inn for å stemme.',
@@ -345,16 +345,8 @@ export default function TopicPage() {
         <div className="lg:col-span-2 space-y-8">
           <Card>
             <CardHeader className="p-4 md:p-6">
-              <div className="aspect-video relative mb-4">
-                <Image
-                  src={topic.imageUrl}
-                  alt={question}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 67vw, 650px"
-                  className="rounded-lg object-cover"
-                  data-ai-hint={topic.aiHint}
-                  priority
-                />
+              <div className="aspect-video relative mb-4 bg-muted rounded-lg">
+                <VoteChart topic={topic} showControls={false} />
               </div>
               <h1 className="text-2xl md:text-3xl font-bold font-headline">{question}</h1>
             </CardHeader>
@@ -443,5 +435,3 @@ export default function TopicPage() {
     </div>
   );
 }
-
-    
