@@ -59,7 +59,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { useEffect, useState } from 'react';
 import { populatePollAction } from '@/app/actions';
-import { DEFAULT_POPULATE_POLL_PROMPT } from '@/ai/flows/populate-poll-flow';
+import { Label } from '@/components/ui/label';
 
 const pollFormSchema = z.object({
   title: z.string().min(12, 'Title must be at least 12 characters.').max(120, 'Title must be 120 characters or less.'),
@@ -127,6 +127,26 @@ function generateSlug(text: string): string {
     .replace(/\s+/g, '-') // replace spaces with hyphens
     .replace(/-+/g, '-'); // remove consecutive hyphens
 }
+
+const DEFAULT_POPULATE_POLL_PROMPT = `You are an expert editor and political analyst for a neutral voting platform. Your task is to take a user's poll title and generate a complete, well-structured poll.
+
+Follow these instructions precisely:
+
+1.  **Refine Title**: Rewrite the user's title to be a clear, neutral, and unbiased question that can be voted on.
+2.  **Generate Description**: Write a brief (2-3 sentences), neutral, and encyclopedic background for the topic. Do not take a stance.
+3.  **Generate Arguments**: Create exactly three distinct, strong, and concise arguments FOR the proposal (pros) and exactly three distinct, strong, and concise arguments AGAINST it (cons).
+4.  **Categorize**: Based on the provided taxonomy, assign the poll to the most relevant **category** and **subcategory**. Your output for the category and subcategory fields must be the **ID** (e.g., 'taxation', 'wealth_tax'), not the label.
+5.  **Generate Tags**: Provide an array of 3 to 5 relevant, single-word, lowercase tags for the topic.
+
+Return ONLY a single, valid JSON object matching the output schema.
+
+**Taxonomy for Categorization:**
+{{{taxonomy_json}}}
+
+**User-provided Title:**
+"{{{title}}}"
+`;
+
 
 export default function EditPollPage() {
   const router = useRouter();

@@ -33,7 +33,7 @@ const PopulatePollOutputSchema = z.object({
 });
 export type PopulatePollOutput = z.infer<typeof PopulatePollOutputSchema>;
 
-export const DEFAULT_POPULATE_POLL_PROMPT = `You are an expert editor and political analyst for a neutral voting platform. Your task is to take a user's poll title and generate a complete, well-structured poll.
+const DEFAULT_POPULATE_POLL_PROMPT = `You are an expert editor and political analyst for a neutral voting platform. Your task is to take a user's poll title and generate a complete, well-structured poll.
 
 Follow these instructions precisely:
 
