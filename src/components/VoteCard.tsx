@@ -85,6 +85,8 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
   const yesPercentage = primaryVotes > 0 ? (yesVotes / primaryVotes) * 100 : 50;
   
   const infoText = lang === 'nb' ? 'Info' : 'Info';
+  const yesText = lang === 'nb' ? 'Ja' : 'Yes';
+  const noText = lang === 'nb' ? 'Nei' : 'No';
 
   const categoryLabel = lang === 'nb' ? category?.label_nb : category?.label;
   const subcategoryLabel = lang === 'nb' ? subcategory?.label_nb : subcategory?.label;
@@ -110,12 +112,9 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
             
              {topic.voteType === 'yesno' && (
                 <div className="space-y-6 mt-4">
-                    <div className="flex w-full h-[1.125rem] rounded-full overflow-hidden bg-[--chart-1-hsl-alpha-20,hsl(var(--chart-1)/0.2)]" style={{ '--chart-1-hsl-alpha-20': `hsla(var(--chart-1), 0.2)` }}>
-                        <div className="flex items-center justify-center bg-[hsl(var(--chart-2))] transition-all duration-500" style={{ width: `${yesPercentage}%`}}>
+                    <div className="w-full h-[1.125rem] rounded-full overflow-hidden bg-[hsl(var(--chart-1))]">
+                        <div className="flex items-center justify-center bg-[hsl(var(--chart-2))] h-full transition-all duration-500" style={{ width: `${yesPercentage}%`}}>
                            <span className="text-[10px] font-bold text-white mix-blend-plus-lighter">{yesPercentage > 5 && yesPercentage.toFixed(0) + '%'}</span>
-                        </div>
-                         <div className="flex items-center justify-center flex-1" >
-                           <span className="text-[10px] font-bold text-white mix-blend-plus-lighter">{yesPercentage < 95 && (100 - yesPercentage).toFixed(0) + '%'}</span>
                         </div>
                     </div>
                      <div className="h-24 w-full">
@@ -142,9 +141,11 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
              <div className="flex items-center gap-1">
                 <Button variant="outline" size="sm" className="h-9">
                     <ThumbsUp className="h-4 w-4 text-[hsl(var(--chart-2))]" />
+                    <span className="ml-2">{yesText}</span>
                 </Button>
                 <Button variant="outline" size="sm" className="h-9">
                      <ThumbsDown className="h-4 w-4 text-[hsl(var(--chart-1))]" />
+                     <span className="ml-2">{noText}</span>
                 </Button>
                 <Button asChild size="sm" className="h-9 text-sm" onClick={handleCardClick} variant="outline">
                     <Link href={link}>
