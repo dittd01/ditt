@@ -133,7 +133,7 @@ const DEFAULT_POPULATE_POLL_PROMPT = `You are an expert editor and political ana
 
 Follow these instructions precisely:
 
-1.  **Detect Language**: Analyze the user's title to determine if it is primarily English or Norwegian. Set the 'language' field to 'en' for English or 'no' for Norwegian.
+1.  **Detect Language**: Analyze the user's title and determine if it is primarily English or Norwegian. Set the 'language' field to 'en' for English or 'no' for Norwegian.
 2.  **Generate Content in Detected Language**: All subsequent text fields (title, description, pros, cons) **must** be generated in the language you detected in step 1.
 3.  **Refine Title**: Rewrite the user's title to be a clear, neutral, and unbiased question that can be voted on.
 4.  **Generate Description**: Write a brief (2-3 sentences), neutral, and encyclopedic background for the topic.
@@ -573,6 +573,10 @@ export default function EditPollPage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
+                <Button variant="default" className="w-full" onClick={handleAutoPopulate} disabled={isAiLoading}>
+                    {isAiLoading ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
+                    Auto-populate from Title
+                </Button>
                  <div className="space-y-2">
                     <Label htmlFor="ai-prompt">AI Instructions</Label>
                     <Textarea 
@@ -583,10 +587,6 @@ export default function EditPollPage() {
                         className={cn("text-xs text-muted-foreground h-48", !isEditingPrompt && "bg-muted/50 border-dashed")}
                     />
                 </div>
-                <Button variant="default" className="w-full" onClick={handleAutoPopulate} disabled={isAiLoading}>
-                    {isAiLoading ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
-                    Auto-populate from Title
-                </Button>
               </CardContent>
             </Card>
           </div>
