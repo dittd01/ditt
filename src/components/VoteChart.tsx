@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -128,7 +129,7 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
                         dataKey={`${option.id}_percent`}
                         name={option.label}
                         stroke={option.color}
-                        strokeWidth={1.5}
+                        strokeWidth={2}
                         dot={false}
                         activeDot={{ r: 4 }}
                     />
