@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -97,7 +96,6 @@ export default function EditUserPage() {
     const userId = params.id as string;
     const isNew = userId === 'new';
     
-    // In a real app, you'd fetch this data. For mock, we find it.
     const userData = isNew ? null : usersData.find(u => u.id === userId);
     const [devices, setDevices] = React.useState(initialMockDevices);
 
@@ -504,7 +502,7 @@ export default function EditUserPage() {
                          <Card>
                             <CardHeader>
                                 <CardTitle>Notifications</CardTitle>
-                            </Header>
+                            </CardHeader>
                             <CardContent className="space-y-4">
                                 <FormField control={form.control} name="notifications.newContent" render={({ field }) => (
                                     <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
@@ -542,3 +540,5 @@ export default function EditUserPage() {
         </Form>
     );
 }
+
+    
