@@ -81,10 +81,10 @@ export default function LoginPage() {
             });
         } else {
             setError(result.message || 'Passkey login failed.');
+            setLoading(false);
         }
     } catch(e: any) {
         setError(e.message || 'An unexpected error occurred during passkey login.');
-    } finally {
         setLoading(false);
     }
   }

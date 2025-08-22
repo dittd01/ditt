@@ -55,10 +55,10 @@ export default function SetupPasskeyPage() {
         router.push('/');
       } else {
         setError(result.message || 'An unknown error occurred.');
+        setLoading(false);
       }
     } catch (e: any) {
       setError(e.message || 'An unexpected error occurred.');
-    } finally {
       setLoading(false);
     }
   };
