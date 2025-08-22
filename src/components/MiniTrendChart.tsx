@@ -2,9 +2,8 @@
 'use client';
 
 import { useMemo } from 'react';
-import { AreaChart, Area, ResponsiveContainer, YAxis, Tooltip } from 'recharts';
+import { LineChart, Line, ResponsiveContainer, YAxis, Tooltip } from 'recharts';
 import type { Topic } from '@/lib/types';
-import { parseISO } from 'date-fns';
 
 interface MiniTrendChartProps {
   topic: Topic;
@@ -13,7 +12,7 @@ interface MiniTrendChartProps {
 export function MiniTrendChart({ topic }: MiniTrendChartProps) {
   const chartData = useMemo(() => {
     if (!topic.history || topic.history.length === 0) {
-      return [{ yes_percent: 50, no_percent: 50 }]; // Default if no history
+      return [{ yes_percent: 50, no_percent: 50 }];
     }
 
     const processedHistory = topic.history.map((hist) => {
@@ -24,54 +23,54 @@ export function MiniTrendChart({ topic }: MiniTrendChartProps) {
       if (total > 0) {
         return { 
           yes_percent: (yesVotes / total) * 100,
+          no_percent: (noVotes / total) * 100,
         };
       }
-      return { yes_percent: 50 };
+      return { yes_percent: 50, no_percent: 50 };
     });
 
     const currentYesVotes = topic.votes.yes || 0;
     const currentNoVotes = topic.votes.no || 0;
     const currentTotal = currentYesVotes + currentNoVotes;
     const currentYesPercentage = currentTotal > 0 ? (currentYesVotes / currentTotal) * 100 : 50;
+    const currentNoPercentage = currentTotal > 0 ? (currentNoVotes / currentTotal) * 100 : 50;
 
-    return [...processedHistory, { yes_percent: currentYesPercentage }];
+    return [...processedHistory, { yes_percent: currentYesPercentage, no_percent: currentNoPercentage }];
 
   }, [topic]);
 
-  const gradientId = `colorYes-${topic.id}`;
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <AreaChart
+      <LineChart
         data={chartData}
-        margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+        margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
       >
-        <defs>
-          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
-            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-          </linearGradient>
-        </defs>
         <YAxis
           domain={[0, 100]}
           hide={true}
-          axisLine={false}
-          tickLine={false}
         />
         <Tooltip
             cursor={false}
             contentStyle={{ display: 'none' }}
         />
-        <Area
+        <Line
           type="monotone"
           dataKey="yes_percent"
-          stroke="hsl(var(--primary))"
-          strokeWidth={1.5}
-          fillOpacity={1}
-          fill={`url(#${gradientId})`}
+          stroke="hsl(var(--chart-2))"
+          strokeWidth={2}
+          dot={false}
           isAnimationActive={false}
         />
-      </AreaChart>
+         <Line
+          type="monotone"
+          dataKey="no_percent"
+          stroke="hsl(var(--chart-1))"
+          strokeWidth={2}
+          dot={false}
+          isAnimationActive={false}
+        />
+      </LineChart>
     </ResponsiveContainer>
   );
 }
