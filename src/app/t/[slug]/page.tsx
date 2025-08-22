@@ -347,28 +347,21 @@ export default function TopicPage() {
             <CardHeader className="p-4 md:p-6">
               <h1 className="text-2xl md:text-3xl font-bold font-headline">{question}</h1>
             </CardHeader>
-            <CardContent className="p-0">
-               <div className="h-[300px] w-full">
-                <VoteChart topic={topic} showControls={false} />
-              </div>
-            </CardContent>
              <CardContent className="p-4 md:p-6">
                  <Accordion type="single" collapsible className="w-full" defaultValue="description">
                      <AccordionItem value="description">
-                        <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border-b-0">
+                        <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border-b-0 -mx-4 -mt-4">
                             <Info className="h-5 w-5" /> {t.topicDetails}
                         </AccordionTrigger>
-                        <AccordionContent className="p-4 pt-0">
+                        <AccordionContent className="p-4 pt-2 -mx-4 -mb-4">
                             <p className="text-base text-muted-foreground">{description}</p>
                         </AccordionContent>
                     </AccordionItem>
                  </Accordion>
              </CardContent>
           </Card>
-          
-           <div className="lg:hidden">
-             {renderVoteComponent()}
-           </div>
+           
+           {renderVoteComponent()}
            
            {votedOn && <LiveResults topic={topic} />}
 
@@ -417,10 +410,6 @@ export default function TopicPage() {
         </div>
 
         <div className="space-y-8 lg:sticky lg:top-24 self-start">
-           <div className="hidden lg:block">
-             {renderVoteComponent()}
-           </div>
-
           {voterId ? (
             <SuggestionForm />
           ) : (
