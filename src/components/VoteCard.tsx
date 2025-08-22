@@ -92,22 +92,6 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
 
   return (
     <Card ref={cardRef} className="flex h-full flex-col transition-all hover:shadow-lg hover:-translate-y-1">
-        <Link href={link} className="group" onClick={handleCardClick}>
-            <CardHeader className="p-0 border-b">
-                <div className="aspect-video relative bg-muted">
-                    {topic.imageUrl && (
-                        <Image
-                            src={topic.imageUrl}
-                            alt={question}
-                            fill
-                            sizes="350px"
-                            className="rounded-t-lg object-cover"
-                            data-ai-hint={topic.aiHint}
-                        />
-                    )}
-                </div>
-            </CardHeader>
-        </Link>
         <div className="flex-1 flex flex-col p-4">
             <div className="flex-1">
                 {category && subcategory && topic.voteType !== 'election' && (
