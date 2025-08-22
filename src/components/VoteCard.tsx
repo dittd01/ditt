@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, ThumbsUp, ThumbsDown, InfoIcon } from 'lucide-react';
+import { Users, ThumbsUp, ThumbsDown, InfoIcon, Bookmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Topic, Category, Subcategory } from '@/lib/types';
 import { categories } from '@/lib/data';
@@ -136,25 +136,30 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
                 </Button>
             </div>
             <div className="w-full flex justify-between items-center mt-2">
-                <Button asChild size="sm" className="h-8 text-sm px-4" onClick={handleCardClick} variant="ghost">
+                <Button asChild size="sm" className="h-8 text-sm px-4 hover:bg-accent/50" onClick={handleCardClick} variant="ghost">
                     <Link href={link}>
                         <InfoIcon className="mr-2 h-4 w-4" />
                         {infoText}
                     </Link>
                 </Button>
-                 <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <Users className="h-3 w-3" />
-                                <span>{topic.totalVotes.toLocaleString()}</span>
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>{tooltipText}</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
+                <div className="flex items-center gap-4">
+                     <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <Users className="h-3 w-3" />
+                                    <span>{topic.totalVotes.toLocaleString()}</span>
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{tooltipText}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                     <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                        <Bookmark className="h-4 w-4" />
+                    </Button>
+                </div>
             </div>
         </CardFooter>
     </Card>
