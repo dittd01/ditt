@@ -11,11 +11,11 @@ interface ImportanceSliderProps {
 }
 
 const importanceLevels = [
-  { label: 'Not important at all', color: 'bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600', selectedColor: 'bg-slate-500 text-white' },
-  { label: 'Slightly important', color: 'bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-900/50 dark:hover:bg-yellow-800/60 text-yellow-800 dark:text-yellow-300', selectedColor: 'bg-yellow-500 text-white' },
-  { label: 'Moderately important', color: 'bg-orange-100 hover:bg-orange-200 dark:bg-orange-900/50 dark:hover:bg-orange-800/60 text-orange-800 dark:text-orange-300', selectedColor: 'bg-orange-500 text-white' },
-  { label: 'Very important', color: 'bg-red-100 hover:bg-red-200 dark:bg-red-900/50 dark:hover:bg-red-800/60 text-red-800 dark:text-red-300', selectedColor: 'bg-red-500 text-white' },
-  { label: 'Critically important', color: 'bg-purple-100 hover:bg-purple-200 dark:bg-purple-900/50 dark:hover:bg-purple-800/60 text-purple-800 dark:text-purple-300', selectedColor: 'bg-purple-600 text-white' },
+  { label: 'Not important at all', color: 'bg-muted/50 hover:bg-muted', selectedColor: 'bg-muted-foreground text-background' },
+  { label: 'Slightly important', color: 'bg-primary/10 hover:bg-primary/20 text-primary', selectedColor: 'bg-primary/40 text-primary-foreground' },
+  { label: 'Moderately important', color: 'bg-primary/30 hover:bg-primary/40 text-primary', selectedColor: 'bg-primary/70 text-primary-foreground' },
+  { label: 'Very important', color: 'bg-primary/50 hover:bg-primary/60 text-primary-foreground', selectedColor: 'bg-primary text-primary-foreground' },
+  { label: 'Critically important', color: 'bg-destructive/70 hover:bg-destructive/80 text-destructive-foreground', selectedColor: 'bg-destructive text-destructive-foreground' },
 ];
 
 
