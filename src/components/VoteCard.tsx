@@ -83,6 +83,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
   const noVotes = topic.votes?.no || 0;
   const primaryVotes = yesVotes + noVotes;
   const yesPercentage = primaryVotes > 0 ? (yesVotes / primaryVotes) * 100 : 50;
+  const noPercentage = primaryVotes > 0 ? (noVotes / primaryVotes) * 100 : 50;
   
   const infoText = lang === 'nb' ? 'Info' : 'Info';
   const yesText = lang === 'nb' ? 'Ja' : 'Yes';
@@ -98,7 +99,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
         <div className="flex-1 flex flex-col p-4">
             <div className="flex-1">
                 {category && subcategory && topic.voteType !== 'election' && (
-                     <Link href={`/all?cat=${topic.categoryId}&sub=${topic.subcategoryId}`} className="group/cat">
+                     <Link href={`/?cat=${topic.categoryId}&sub=${topic.subcategoryId}`} className="group/cat">
                         <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-2 group-hover/cat:text-primary transition-colors">
                             {iconName && <Icon name={iconName} className="h-4 w-4" />}
                             <span>{categoryLabel} &middot; {subcategoryLabel}</span>
@@ -114,9 +115,12 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
             
              {topic.voteType === 'yesno' && (
                 <div className="space-y-6 mt-4">
-                    <div className="w-full h-10 rounded-full overflow-hidden bg-[hsl(var(--chart-1))]">
-                        <div className="flex items-center justify-center bg-[hsl(var(--chart-2))] h-full transition-all duration-500" style={{ width: `${yesPercentage}%`}}>
+                    <div className="w-full h-10 rounded-full overflow-hidden flex">
+                        <div className="flex items-center justify-center bg-[hsl(var(--chart-2))]" style={{ width: `${yesPercentage}%`}}>
                            <span className="text-[10px] font-bold text-white mix-blend-plus-lighter">{yesPercentage > 5 && yesPercentage.toFixed(0) + '%'}</span>
+                        </div>
+                        <div className="flex items-center justify-center bg-[hsl(var(--chart-1))]" style={{ width: `${noPercentage}%`}}>
+                           <span className="text-[10px] font-bold text-white mix-blend-plus-lighter">{noPercentage > 5 && noPercentage.toFixed(0) + '%'}</span>
                         </div>
                     </div>
                      <div className="h-24 w-full">
