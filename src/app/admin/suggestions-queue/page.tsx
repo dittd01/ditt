@@ -28,12 +28,10 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { suggestionsData as staticSuggestions } from '@/app/admin/data';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Topic } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 
@@ -68,10 +66,10 @@ export default function SuggestionsQueuePage() {
     
     // Combine static data with localStorage data, avoiding duplicates
     const combined = [...staticSuggestions];
-    const existingIds = new Set(combined.map(s => s.id));
+    const existingIds = new Set(combined.map(s => String(s.id)));
     
     manualReviewQueue.forEach(item => {
-      if (!existingIds.has(item.id)) {
+      if (!existingIds.has(String(item.id))) {
         combined.push(item);
       }
     });
@@ -85,10 +83,13 @@ export default function SuggestionsQueuePage() {
   }
 
   const removeFromQueue = (suggestionId: number | string) => {
+    // For prototype, we filter both static and local suggestions
+    setAllSuggestions(prev => prev.filter(s => s.id !== suggestionId));
+    
+    // Also remove from localStorage if it exists there
     const manualReviewQueue: Suggestion[] = JSON.parse(localStorage.getItem('manual_review_queue') || '[]');
     const updatedQueue = manualReviewQueue.filter(item => item.id !== suggestionId);
     localStorage.setItem('manual_review_queue', JSON.stringify(updatedQueue));
-    setAllSuggestions(prev => prev.filter(s => s.id !== suggestionId));
   }
 
   const addToUserHistory = (suggestion: Suggestion, newVerdict: 'Approved' | 'Rejected', reason: string) => {
@@ -114,17 +115,18 @@ export default function SuggestionsQueuePage() {
           id: `topic_${suggestion.id}`,
           slug: slug,
           question: suggestion.text,
-          question_en: suggestion.text, // Assuming EN is same as NB for simplicity
+          question_en: suggestion.text,
           description: "This topic was approved by an administrator.",
           description_en: "This topic was approved by an administrator.",
-          categoryId: 'taxation', // Mock data
-          subcategoryId: 'wealth_tax', // Mock data
+          categoryId: 'taxation',
+          subcategoryId: 'wealth_tax',
           imageUrl: 'https://placehold.co/600x400.png',
           aiHint: 'approved idea',
           status: 'live',
           voteType: 'yesno',
           votes: { yes: 0, no: 0, abstain: 0},
           totalVotes: 0, votesLastWeek: 0, votesLastMonth: 0, votesLastYear: 0, history: [],
+          averageImportance: 2.5,
           options: [
               { id: 'yes', label: 'Yes', color: 'hsl(var(--chart-2))' },
               { id: 'no', label: 'No', color: 'hsl(var(--chart-1))' },
@@ -198,8 +200,8 @@ export default function SuggestionsQueuePage() {
                                   <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><MoreHorizontal /></Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => approveSuggestion(s)}>Approve</DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => rejectSuggestion(s)}>Reject...</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); approveSuggestion(s); }}>Approve</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); rejectSuggestion(s); }}>Reject...</DropdownMenuItem>
                               </DropdownMenuContent>
                           </DropdownMenu>
                       </TableCell>

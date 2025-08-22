@@ -85,8 +85,8 @@ export function SuggestionForm() {
     // For this prototype, we'll simulate it by adding to localStorage.
     const reviewQueue = JSON.parse(localStorage.getItem('manual_review_queue') || '[]');
     const rejectedSuggestion = form.getValues('suggestion');
-    reviewQueue.push({
-      id: Date.now(),
+    reviewQueue.unshift({
+      id: `suggestion_${Date.now()}`,
       text: rejectedSuggestion,
       verdict: 'rejected_by_ai',
       status: 'Pending',
@@ -108,13 +108,12 @@ export function SuggestionForm() {
 
     if (requireAdminApproval) {
         const reviewQueue = JSON.parse(localStorage.getItem('manual_review_queue') || '[]');
-        reviewQueue.push({
-          id: Date.now(),
+        reviewQueue.unshift({
+          id: `suggestion_${Date.now()}`,
           text: reviewData.canonical_nb,
           verdict: 'AI-Approved',
           status: 'Pending',
           created: new Date().toISOString().split('T')[0],
-          // In a real app, you'd store the full reviewData object
         });
         localStorage.setItem('manual_review_queue', JSON.stringify(reviewQueue));
         
@@ -125,8 +124,6 @@ export function SuggestionForm() {
         return;
     }
 
-    // In a real app, this would call a `finalizeProposal` action.
-    // For now, we simulate success and add the topic to local storage.
     await new Promise(resolve => setTimeout(resolve, 500));
     
     const slug = reviewData.canonical_en.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -148,20 +145,19 @@ export function SuggestionForm() {
         votesLastWeek: 0,
         votesLastMonth: 0,
         votesLastYear: 0,
-        history: [], // Ensure history exists for new topics
+        history: [], 
+        averageImportance: 2.5,
         options: [
             { id: 'yes', label: 'Yes', color: 'hsl(var(--chart-2))' },
             { id: 'no', label: 'No', color: 'hsl(var(--chart-1))' },
             { id: 'abstain', label: 'Abstain', color: 'hsl(var(--muted))' }
         ],
-        // In a real app, you would also save the pro/con arguments to be displayed on the topic page
     };
     
     const customTopics = JSON.parse(localStorage.getItem('custom_topics') || '[]');
     customTopics.push(newTopic);
     localStorage.setItem('custom_topics', JSON.stringify(customTopics));
 
-    // Also add to user-specific suggestions
     const userSuggestions = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
     userSuggestions.unshift({
         id: newTopic.id,
