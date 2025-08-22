@@ -4,12 +4,12 @@
 
 import { useState, useEffect } from 'react';
 import type { Argument } from '@/lib/types';
-import { getArgumentsForTopic } from '@/lib/data';
 import { ArgumentCard } from './ArgumentCard';
 import { Button } from '../ui/button';
 import { PlusCircle } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { ArgumentComposer } from './ArgumentComposer';
+import { currentUser } from '@/lib/user-data';
 
 interface DebateSectionProps {
   topicId: string;
@@ -45,18 +45,27 @@ export function DebateSection({ topicId, initialArgs, onArgsChange, lang }: Deba
   const t = translations[lang];
 
   useEffect(() => {
-    // initialArgs are now passed as a prop, so we sync state with it.
-    setDebateArgs(initialArgs);
+    // Load arguments from localStorage on initial client render
+    const storedArgs = localStorage.getItem(`debate_args_${topicId}`);
+    if (storedArgs) {
+      setDebateArgs(JSON.parse(storedArgs));
+    } else {
+      setDebateArgs(initialArgs);
+    }
     setLoading(false);
-  }, [initialArgs]);
+  }, [topicId, initialArgs]);
+
 
   useEffect(() => {
-    // When local state changes, inform the parent component.
+    // When local state changes, inform the parent component and save to localStorage
     onArgsChange(debateArgs);
-  }, [debateArgs, onArgsChange]);
+    if (!loading) { // Avoid writing initial state back to storage unnecessarily
+        localStorage.setItem(`debate_args_${topicId}`, JSON.stringify(debateArgs));
+    }
+  }, [debateArgs, onArgsChange, topicId, loading]);
 
-  const topLevelFor = debateArgs.filter(a => a.parentId === 'root' && a.side === 'for').sort((a,b) => b.upvotes - a.upvotes);
-  const topLevelAgainst = debateArgs.filter(a => a.parentId === 'root' && a.side === 'against').sort((a,b) => b.upvotes - a.upvotes);
+  const topLevelFor = debateArgs.filter(a => a.parentId === 'root' && a.side === 'for').sort((a,b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
+  const topLevelAgainst = debateArgs.filter(a => a.parentId === 'root' && a.side === 'against').sort((a,b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
 
   const handleAddArgument = (side: 'for' | 'against') => {
     setReplyingToId(null);
@@ -96,7 +105,7 @@ export function DebateSection({ topicId, initialArgs, onArgsChange, lang }: Deba
       topicId: topicId,
       parentId: parentId,
       side: side,
-      author: { name: 'New User', avatarUrl: 'https://placehold.co/40x40.png' },
+      author: { name: currentUser.displayName, avatarUrl: currentUser.photoUrl },
       text: values.text,
       upvotes: 1,
       downvotes: 0,
@@ -104,28 +113,29 @@ export function DebateSection({ topicId, initialArgs, onArgsChange, lang }: Deba
       createdAt: new Date().toISOString(),
     };
 
-    const updatedArgs = [...debateArgs];
-    
-    if (!isTopLevel && parentId) {
-        const parentArgIndex = updatedArgs.findIndex(a => a.id === parentId);
-        if (parentArgIndex > -1) {
-            updatedArgs[parentArgIndex].replyCount += 1;
-        }
-    }
-    
-    // Add new argument to the start of the list to ensure it's visible.
-    updatedArgs.unshift(newArgument);
-    setDebateArgs(updatedArgs);
-    
-    const localStorageKey = `debate_args_${topicId}`;
-    localStorage.setItem(localStorageKey, JSON.stringify(updatedArgs));
+    setDebateArgs(currentArgs => {
+      const updatedArgs = [...currentArgs];
+      
+      if (!isTopLevel && parentId) {
+          const parentArgIndex = updatedArgs.findIndex(a => a.id === parentId);
+          if (parentArgIndex > -1) {
+              updatedArgs[parentArgIndex] = {
+                ...updatedArgs[parentArgIndex],
+                replyCount: updatedArgs[parentArgIndex].replyCount + 1,
+              };
+          }
+      }
+      
+      updatedArgs.unshift(newArgument);
+      return updatedArgs;
+    });
 
     setShowComposer(null);
     setReplyingToId(null);
   };
 
   const renderArgumentTree = (arg: Argument): React.ReactNode => {
-    const replies = debateArgs.filter(reply => reply.parentId === arg.id).sort((a,b) => b.upvotes - a.upvotes);
+    const replies = debateArgs.filter(reply => reply.parentId === arg.id).sort((a,b) => (b.upvotes-b.downvotes) - (a.upvotes-a.downvotes));
     return (
         <div key={arg.id} className="space-y-4">
             <ArgumentCard argument={arg} onCounter={handleCounter} />

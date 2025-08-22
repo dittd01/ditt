@@ -147,7 +147,8 @@ export default function TopicPage() {
         const initialTopicState = { ...foundTopic, votes: newVotes, totalVotes: newTotalVotes };
         setTopic(initialTopicState);
         
-        const baseArgs = getArgumentsForTopic(foundTopic.id);
+        const storedArgs = localStorage.getItem(`debate_args_${foundTopic.id}`);
+        const baseArgs = storedArgs ? JSON.parse(storedArgs) : getArgumentsForTopic(foundTopic.id);
         setDebateArgs(baseArgs);
 
 
