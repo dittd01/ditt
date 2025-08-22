@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -27,7 +28,7 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Loader2, Info, Sparkles, Upload, Wand2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Info, Sparkles, Upload, Wand2, Monitor, Smartphone, Trash2 } from 'lucide-react';
 import { usersData } from '@/app/admin/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
@@ -42,6 +43,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { generateMockUserAction } from '@/app/actions';
 import { format } from 'date-fns';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 
 
 const userFormSchema = z.object({
@@ -68,6 +71,11 @@ const roleDescriptions: Record<UserFormValues['role'], string> = {
     moderator: 'Can manage Topic Curation and the Suggestions Queue.',
     admin: 'Full access to all administrative features.',
 };
+
+const mockDevices = [
+    { id: 'dev1', type: 'Desktop', added: '2023-10-15', lastSeen: '2023-10-28 14:30', isCurrent: true },
+    { id: 'dev2', type: 'Mobile', added: '2023-09-01', lastSeen: '2023-10-25 08:15', isCurrent: false },
+]
 
 export default function EditUserPage() {
     const router = useRouter();
@@ -270,6 +278,43 @@ export default function EditUserPage() {
                                     )}
                                 />
                                  {isNew && <p className="text-sm text-muted-foreground">A link to set the password will be sent to the user's email.</p>}
+                            </CardContent>
+                        </Card>
+                         <Card>
+                            <CardHeader>
+                                <CardTitle>Linked Devices</CardTitle>
+                                <CardDescription>Devices this user has linked for passkey login.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Device</TableHead>
+                                            <TableHead>Added</TableHead>
+                                            <TableHead>Last Seen</TableHead>
+                                            <TableHead className="text-right">Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {mockDevices.map(device => (
+                                            <TableRow key={device.id}>
+                                                <TableCell className="flex items-center gap-2">
+                                                    {device.type === 'Desktop' ? <Monitor /> : <Smartphone />}
+                                                    <span>{device.type}</span>
+                                                    {device.isCurrent && <Badge variant="outline">Current</Badge>}
+                                                </TableCell>
+                                                <TableCell>{device.added}</TableCell>
+                                                <TableCell>{device.lastSeen}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button variant="destructive" size="sm">
+                                                        <Trash2 className="mr-2" />
+                                                        Revoke
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
                             </CardContent>
                         </Card>
                     </div>
