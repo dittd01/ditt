@@ -53,6 +53,7 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { format } from 'date-fns';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { useEffect } from 'react';
 
 const pollFormSchema = z.object({
   title: z.string().min(12, 'Title must be at least 12 characters.').max(120, 'Title must be 120 characters or less.'),
@@ -111,6 +112,15 @@ const mockTags = [
     { value: 'environment', label: 'Environment' },
     { value: 'foreign-policy', label: 'Foreign Policy' },
 ]
+
+function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '') // remove non-alphanumeric characters except spaces and hyphens
+    .trim()
+    .replace(/\s+/g, '-') // replace spaces with hyphens
+    .replace(/-+/g, '-'); // remove consecutive hyphens
+}
 
 export default function EditPollPage() {
   const router = useRouter();
@@ -171,6 +181,14 @@ export default function EditPollPage() {
   const watchCategoryId = form.watch('categoryId');
   const watchIsDefaultOptions = form.watch('isDefaultOptions');
   const watchStatus = form.watch('status');
+  const watchTitle = form.watch('title');
+
+  useEffect(() => {
+    if (isNew || form.getValues('slug') === '' || form.getValues('slug') === generateSlug(form.getValues('title'))) {
+      const newSlug = generateSlug(watchTitle);
+      form.setValue('slug', newSlug, { shouldValidate: true, shouldDirty: true });
+    }
+  }, [watchTitle, form, isNew]);
 
   const availableSubcategories = categories.find(c => c.id === watchCategoryId)?.subcategories || [];
 
@@ -217,6 +235,7 @@ export default function EditPollPage() {
                         <FormItem>
                             <FormLabel>Slug</FormLabel>
                             <FormControl><Input {...field} /></FormControl>
+                             <FormDescription>This is the URL-friendly version of the title.</FormDescription>
                             <FormMessage />
                         </FormItem>
                     )} />
