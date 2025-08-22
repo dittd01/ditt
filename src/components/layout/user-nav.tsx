@@ -23,12 +23,16 @@ const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
 export function UserNav() {
   const [voterId, setVoterId] = useState<string | null>(null);
+  const [lang, setLang] = useState('en');
   const router = useRouter();
   const { toast } = useToast();
 
   const user = currentUser;
 
   useEffect(() => {
+    const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+    setLang(selectedLang);
+
     const handleLogout = () => {
       localStorage.removeItem('anonymousVoterId');
       localStorage.removeItem('lastSeenTimestamp');
@@ -54,6 +58,10 @@ export function UserNav() {
     
     const handleStorageChange = () => {
       setVoterId(localStorage.getItem('anonymousVoterId'));
+      const newLang = localStorage.getItem('selectedLanguage') || 'en';
+      if (newLang !== lang) {
+        setLang(newLang);
+      }
     };
     
     handleStorageChange();
@@ -65,7 +73,7 @@ export function UserNav() {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('authChange', handleStorageChange);
     };
-  }, [router, toast]);
+  }, [router, toast, lang]);
 
   const handleLogoutClick = () => {
       localStorage.removeItem('anonymousVoterId');
@@ -75,6 +83,8 @@ export function UserNav() {
       router.push('/');
       router.refresh();
   }
+  
+  const loginText = lang === 'nb' ? 'Logg inn' : 'Log In';
 
   if (voterId) {
     return (
@@ -140,7 +150,7 @@ export function UserNav() {
 
   return (
     <Button asChild size="sm">
-      <Link href="/login">Logg inn</Link>
+      <Link href="/login">{loginText}</Link>
     </Button>
   )
 }

@@ -7,6 +7,7 @@ import { MainNav } from '@/components/layout/main-nav';
 import { MobileNav } from '@/components/layout/mobile-nav';
 import { UserNav } from './user-nav';
 import { ThemeToggle } from './theme-toggle';
+import { LanguageToggle } from './language-toggle';
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -30,6 +31,7 @@ export function SiteHeader() {
         <MainNav />
         <MobileNav />
         <div className="flex flex-1 items-center justify-end space-x-2">
+            <LanguageToggle />
             <ThemeToggle />
             <UserNav />
         </div>

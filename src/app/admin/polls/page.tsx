@@ -43,6 +43,7 @@ export default function PollsPage() {
   
   const [polls, setPolls] = useState<PollRowData[]>([]);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({ key: 'votes', direction: 'descending' });
+  const [lang, setLang] = useState('en');
 
   // Filters from URL
   const searchTerm = searchParams.get('q') || '';
@@ -53,6 +54,8 @@ export default function PollsPage() {
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 
   useEffect(() => {
+    const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+    setLang(selectedLang);
     setPolls(getPollsTableData());
   }, []);
   
@@ -173,7 +176,7 @@ export default function PollsPage() {
               <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
                    {categories.map(category => (
-                        <SelectItem key={category.id} value={category.id}>{category.label_nb}</SelectItem>
+                        <SelectItem key={category.id} value={category.id}>{lang === 'nb' ? category.label_nb : category.label}</SelectItem>
                     ))}
               </SelectContent>
           </Select>
@@ -184,7 +187,7 @@ export default function PollsPage() {
               <SelectContent>
                   <SelectItem value="all">All Subcategories</SelectItem>
                    {availableSubcategories.map(subcategory => (
-                        <SelectItem key={subcategory.id} value={subcategory.id}>{subcategory.label_nb}</SelectItem>
+                        <SelectItem key={subcategory.id} value={subcategory.id}>{lang === 'nb' ? subcategory.label_nb : subcategory.label}</SelectItem>
                     ))}
               </SelectContent>
           </Select>
