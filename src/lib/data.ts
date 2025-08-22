@@ -215,11 +215,13 @@ const standardTopics: Topic[] = subCategoryData.map((sub, index): Topic => {
         subcategoryId: sub.id,
         status: 'live',
         voteType: voteType,
+        averageImportance: Math.random() * 4,
     }
 });
 
 const electionTopic: Topic = {
     ...initialElectionTopic,
+    averageImportance: 4, // Max importance
     votesLastWeek: initialElectionTopic.totalVotes - (initialElectionTopic.history[1].total || 0),
     votesLastMonth: initialElectionTopic.totalVotes - (initialElectionTopic.history[0].total || 0),
     votesLastYear: initialElectionTopic.totalVotes,

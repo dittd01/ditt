@@ -1,11 +1,12 @@
 
+
 'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, ThumbsUp, ThumbsDown, InfoIcon, Bookmark } from 'lucide-react';
+import { Users, ThumbsUp, ThumbsDown, InfoIcon, Bookmark, BarChart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Topic, Category, Subcategory } from '@/lib/types';
 import { categories, allTopics } from '@/lib/data';
@@ -126,6 +127,9 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
   const subcategoryLabel = lang === 'nb' ? subcategory?.label_nb : subcategory?.label;
   const question = lang === 'nb' ? topic.question : topic.question_en;
   const tooltipText = lang === 'nb' ? 'Antall som har stemt' : 'Number of voters';
+  const importanceTooltipText = lang === 'nb' ? 'Gjennomsnittlig viktighet' : 'Average Importance';
+
+  const importanceLevel = Math.round(topic.averageImportance);
 
   return (
     <Card ref={cardRef} className="flex h-full flex-col transition-all hover:shadow-lg hover:-translate-y-1">
@@ -184,6 +188,32 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
                 <div className="flex items-center gap-4">
                      <TooltipProvider>
                         <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <BarChart className="h-3 w-3 -rotate-90" />
+                                    <div className="flex items-end gap-0.5">
+                                        {[...Array(5)].map((_, i) => (
+                                            <div
+                                                key={i}
+                                                className={cn(
+                                                'w-1 rounded-full',
+                                                i < importanceLevel + 1 ? 'bg-primary' : 'bg-muted',
+                                                i === 0 && 'h-1',
+                                                i === 1 && 'h-2',
+                                                i === 2 && 'h-3',
+                                                i === 3 && 'h-4',
+                                                i === 4 && 'h-5'
+                                                )}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{importanceTooltipText}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                     <Users className="h-3 w-3" />

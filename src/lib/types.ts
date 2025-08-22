@@ -35,6 +35,7 @@ export type Topic = {
   subcategoryId: string;
   status: 'live' | 'closed' | 'draft';
   voteType: 'yesno' | 'multi' | 'ranked' | 'election' | 'likert' | 'quadratic';
+  averageImportance: number;
 };
 
 export type Subcategory = {

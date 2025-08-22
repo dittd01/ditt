@@ -175,7 +175,7 @@ const electionHistory: VoteHistory[] = [
     { date: 'Today', total: totalElectionVotes, ...electionVotes },
 ];
 
-export const electionTopic: Omit<Topic, 'votesLastWeek' | 'votesLastMonth' | 'votesLastYear'> = {
+export const electionTopic: Omit<Topic, 'votesLastWeek' | 'votesLastMonth' | 'votesLastYear' | 'averageImportance'> = {
     id: 'election-2025-poll',
     slug: 'election-2025',
     question: 'Stortingsvalg 2025: Hvem får din stemme?',
