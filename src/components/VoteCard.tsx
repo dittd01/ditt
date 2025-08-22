@@ -8,13 +8,14 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Users, ThumbsUp, ThumbsDown, InfoIcon, Bookmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Topic, Category, Subcategory } from '@/lib/types';
-import { categories } from '@/lib/data';
+import { categories, allTopics } from '@/lib/data';
 import { Skeleton } from './ui/skeleton';
 import { Icon } from './Icon';
 import { trackEvent } from '@/lib/analytics';
 import { useEffect, useRef, useState } from 'react';
 import { MiniTrendChart } from './MiniTrendChart';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { useToast } from '@/hooks/use-toast';
 
 
 interface VoteCardProps {
@@ -37,27 +38,33 @@ const getCategoryIconName = (categoryId: string): string | null => {
 
 
 export function VoteCard({ topic, hasVoted }: VoteCardProps) {
+  const { toast } = useToast();
   const iconName = getCategoryIconName(topic.categoryId);
   const link = topic.voteType === 'election' ? '/election-2025' : `/t/${topic.slug}`;
   const cardRef = useRef<HTMLDivElement>(null);
   const [lang, setLang] = useState('en');
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   const category = getCategory(topic.categoryId);
   const subcategory = getSubcategory(category, topic.subcategoryId);
 
-  useEffect(() => {
+   useEffect(() => {
+    // Check if the topic is already bookmarked on mount
+    const bookmarkedTopics = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
+    setIsBookmarked(bookmarkedTopics.includes(topic.id));
+
     const handleStorageChange = () => {
         const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
         setLang(selectedLang);
     };
 
-    handleStorageChange(); // Set initial language
+    handleStorageChange();
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           trackEvent('view_card', { topicId: topic.id, category: topic.categoryId });
-          observer.disconnect(); // Track only once per page load
+          observer.disconnect(); 
         }
       },
       { threshold: 0.1 }
@@ -68,12 +75,37 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
     }
     
     window.addEventListener('storage', handleStorageChange);
+    // Add listener for bookmark changes from other components
+    window.addEventListener('bookmarkChange', () => {
+        const bookmarkedTopics = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
+        setIsBookmarked(bookmarkedTopics.includes(topic.id));
+    });
 
     return () => {
       observer.disconnect();
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [topic.id, topic.categoryId]);
+
+  const handleBookmarkClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // prevent card link navigation
+    let bookmarkedTopics: string[] = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
+    
+    if (isBookmarked) {
+        bookmarkedTopics = bookmarkedTopics.filter(id => id !== topic.id);
+        toast({ title: "Bookmark Removed", description: `"${topic.question}" removed from your bookmarks.` });
+    } else {
+        bookmarkedTopics.push(topic.id);
+        toast({ title: "Bookmark Added", description: `"${topic.question}" saved to your bookmarks.` });
+    }
+    
+    localStorage.setItem('bookmarked_topics', JSON.stringify(bookmarkedTopics));
+    setIsBookmarked(!isBookmarked);
+
+    // Dispatch a custom event to notify other components (like the profile page) of the change
+    window.dispatchEvent(new Event('bookmarkChange'));
+  };
+
   
   const handleCardClick = () => {
     trackEvent('open_card', { topicId: topic.id, from: 'homepage' });
@@ -131,7 +163,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
 
         </div>
         <CardFooter className="pt-0 p-4 border-t flex flex-col items-center justify-center gap-3">
-             <div className="flex w-full items-center justify-center gap-2">
+            <div className="flex w-full items-center justify-center gap-2">
                 <Button variant="outline" size="sm" className="h-9 flex-1 hover:bg-primary hover:text-primary-foreground group">
                     <ThumbsUp className="h-4 w-4 text-[hsl(var(--chart-2))] group-hover:text-primary-foreground" />
                     <span className="ml-2">{yesText}</span>
@@ -162,8 +194,8 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
-                     <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-accent/50">
-                        <Bookmark className="h-4 w-4" />
+                     <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-accent/50" onClick={handleBookmarkClick}>
+                        <Bookmark className={cn("h-4 w-4", isBookmarked && "fill-current text-primary")} />
                     </Button>
                 </div>
             </div>

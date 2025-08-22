@@ -4,8 +4,8 @@
 import { useParams } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Globe, Mail, MapPin, Milestone, CheckCircle, XCircle, CopyCheck } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Globe, Mail, MapPin, Milestone, CheckCircle, XCircle, CopyCheck, Bookmark } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -17,7 +17,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { currentUser } from '@/lib/user-data'; // Import the centralized user data
+import { currentUser } from '@/lib/user-data';
+import { allTopics } from '@/lib/data';
+import type { Topic } from '@/lib/types';
+
 
 type Suggestion = {
   id: number | string;
@@ -44,32 +47,36 @@ export default function ProfilePage() {
   const params = useParams();
   const username = params.username as string;
   const [userSuggestions, setUserSuggestions] = useState<Suggestion[]>([]);
+  const [bookmarkedTopics, setBookmarkedTopics] = useState<Topic[]>([]);
   
-  // In a real app, you would fetch user data based on the username
-  // For now, we'll just display the mock user if the username matches
   const user = username === currentUser.username ? currentUser : null;
 
   useEffect(() => {
-    const syncSuggestions = () => {
-      // Only load suggestions if the user is the current user
+    const syncUserData = () => {
       if (user) {
         const customSuggestions: Suggestion[] = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
         setUserSuggestions(customSuggestions);
+
+        const bookmarkedTopicIds: string[] = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
+        const bookmarked = allTopics.filter(topic => bookmarkedTopicIds.includes(topic.id));
+        setBookmarkedTopics(bookmarked);
       } else {
         setUserSuggestions([]);
+        setBookmarkedTopics([]);
       }
     };
 
-    syncSuggestions();
+    syncUserData();
     
-    // Rerender if storage changes (e.g. new suggestion added from another tab)
-    window.addEventListener('storage', syncSuggestions);
-    // Custom event to handle updates within the same tab
-    window.addEventListener('topicAdded', syncSuggestions);
+    // Rerender if storage changes
+    window.addEventListener('storage', syncUserData);
+    window.addEventListener('topicAdded', syncUserData);
+    window.addEventListener('bookmarkChange', syncUserData); // Listen for bookmark changes
 
     return () => {
-      window.removeEventListener('storage', syncSuggestions);
-      window.removeEventListener('topicAdded', syncSuggestions);
+      window.removeEventListener('storage', syncUserData);
+      window.removeEventListener('topicAdded', syncUserData);
+      window.removeEventListener('bookmarkChange', syncUserData);
     };
 
   }, [user]);
@@ -138,6 +145,40 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
       
+      {bookmarkedTopics.length > 0 && (
+         <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bookmark className="h-5 w-5"/>
+                  Bookmarked Topics
+                </CardTitle>
+                <CardDescription>Topics you've saved for later.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Topic</TableHead>
+                            <TableHead className="text-right">Total Votes</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {bookmarkedTopics.map((topic) => (
+                            <TableRow key={topic.id}>
+                                <TableCell className="font-medium">
+                                  <Link href={`/t/${topic.slug}`} className="hover:underline text-primary">
+                                    {topic.question}
+                                  </Link>
+                                </TableCell>
+                                <TableCell className="text-right">{topic.totalVotes.toLocaleString()}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+      )}
+
       {userSuggestions.length > 0 && (
          <Card>
             <CardHeader>
