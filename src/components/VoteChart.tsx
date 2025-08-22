@@ -235,8 +235,8 @@ export function VoteChart({ topic }: VoteChartProps) {
                                     dataKey={`${option.id}_percent`}
                                     name={option.label}
                                     stroke={option.color}
-                                    strokeWidth={2}
-                                    dot={{ r: 2, fill: option.color }}
+                                    strokeWidth={1}
+                                    dot={false}
                                     activeDot={{ r: 4 }}
                                 />
                             ))}
