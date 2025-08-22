@@ -1,4 +1,5 @@
 
+
 import type { LucideIcon } from 'lucide-react';
 
 export type VoteOption = {
@@ -36,12 +37,14 @@ export type Topic = {
 export type Subcategory = {
   id: string;
   label: string;
+  label_nb: string;
   categoryId: string;
 };
 
 export type Category = {
   id: string;
   label: string;
+  label_nb: string;
   icon: string;
   subcategories: Subcategory[];
 };

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -172,7 +173,7 @@ export default function PollsPage() {
               <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
                    {categories.map(category => (
-                        <SelectItem key={category.id} value={category.id}>{category.label}</SelectItem>
+                        <SelectItem key={category.id} value={category.id}>{category.label_nb}</SelectItem>
                     ))}
               </SelectContent>
           </Select>
@@ -183,7 +184,7 @@ export default function PollsPage() {
               <SelectContent>
                   <SelectItem value="all">All Subcategories</SelectItem>
                    {availableSubcategories.map(subcategory => (
-                        <SelectItem key={subcategory.id} value={subcategory.id}>{subcategory.label}</SelectItem>
+                        <SelectItem key={subcategory.id} value={subcategory.id}>{subcategory.label_nb}</SelectItem>
                     ))}
               </SelectContent>
           </Select>
