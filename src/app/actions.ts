@@ -4,7 +4,7 @@
 import { moderateVotingSuggestion } from '@/ai/flows/moderate-voting-suggestions';
 import { curateTopicSuggestion, type CurateTopicSuggestionInput, type CurateTopicSuggestionOutput } from '@/ai/flows/curate-topic-suggestion';
 import { generateMockUser, type GenerateMockUserOutput } from '@/ai/flows/generate-mock-user';
-import { populatePoll, type PopulatePollInput, type PopulatePollOutput } from '@/ai/flows/populate-poll-flow';
+import { populatePoll, type PopulatePollOutput } from '@/ai/flows/populate-poll-flow';
 import { categories, allTopics } from '@/lib/data';
 import { calculateQVCost } from '@/lib/qv';
 import type { Topic } from '@/lib/types';
@@ -15,6 +15,7 @@ import {
     verifyLogin
 } from '@/lib/auth-utils.server';
 import type { RegistrationResponse, AuthenticationResponse } from '@/lib/auth-utils.server';
+import { z } from 'zod';
 
 
 export async function moderateSuggestionAction(suggestion: string) {
@@ -129,6 +130,11 @@ export async function generateMockUserAction(): Promise<{ success: true, data: G
     }
 }
 
+const PopulatePollInputSchema = z.object({
+  title: z.string().describe('The user-provided title for the poll.'),
+});
+type PopulatePollInput = z.infer<typeof PopulatePollInputSchema>;
+
 export async function populatePollAction(input: PopulatePollInput): Promise<{ success: true, data: PopulatePollOutput } | { success: false, message: string }> {
     try {
         const taxonomy_json = JSON.stringify(categories.map(c => ({
@@ -136,8 +142,10 @@ export async function populatePollAction(input: PopulatePollInput): Promise<{ su
             label: c.label,
             subcategories: c.subcategories.map(s => ({ id: s.id, label: s.label }))
         })));
+        
+        const validatedInput = PopulatePollInputSchema.parse(input);
 
-        const result = await populatePoll({ ...input, taxonomy_json });
+        const result = await populatePoll({ ...validatedInput, taxonomy_json });
         return { success: true, data: result };
     } catch (error) {
         console.error('Error populating poll from AI:', error);

@@ -15,13 +15,13 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
-export const PopulatePollInputSchema = z.object({
+const PopulatePollInputSchema = z.object({
   title: z.string().describe('The user-provided title for the poll.'),
   taxonomy_json: z.string().describe('A JSON string representing the MECE category/subcategory taxonomy.'),
 });
-export type PopulatePollInput = z.infer<typeof PopulatePollInputSchema>;
+type PopulatePollInput = z.infer<typeof PopulatePollInputSchema>;
 
-export const PopulatePollOutputSchema = z.object({
+const PopulatePollOutputSchema = z.object({
   title: z.string().describe('A refined, neutral, and clear version of the poll question.'),
   description: z.string().describe('A brief, encyclopedic, and neutral background description for the poll topic.'),
   category: z.string().describe('The single most appropriate category ID from the provided taxonomy.'),
