@@ -39,7 +39,7 @@ export default function VerifyLinkPage() {
     const challenge = searchParams.get('challenge');
     const storedChallenge = localStorage.getItem('qr_link_challenge');
 
-    if (challenge && challenge === storedChallenge) {
+    if (challenge && storedChallenge && challenge === storedChallenge) {
       setStep('reauth');
       localStorage.removeItem('qr_link_challenge'); // Challenge is single-use
     } else {
@@ -206,5 +206,3 @@ export default function VerifyLinkPage() {
     </div>
   );
 }
-
-    
