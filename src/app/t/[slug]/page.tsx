@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, CheckCircle, Info, RefreshCw, Loader2, BarChart, FileText, History, MessageSquare, ListTree, Sun } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Info, RefreshCw, Loader2, BarChart, FileText, History, MessageSquare, ListTree, Sun, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SuggestionForm } from '@/components/SuggestionForm';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -288,30 +288,19 @@ export default function TopicPage() {
                     <CardHeader>
                         <CardTitle>{t.castVote}</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <RadioGroup onValueChange={setSelectedOption} value={selectedOption || ''} className="gap-4">
-                            <Label
-                                key={'yes'}
-                                htmlFor={'yes'}
-                                className="flex items-center space-x-4 border p-4 rounded-md cursor-pointer hover:bg-accent/50 has-[input:checked]:bg-accent/80 has-[input:checked]:border-primary text-base"
-                                >
-                                <RadioGroupItem value={'yes'} id={'yes'} />
-                                <span className="font-medium">{t.yes}</span>
-                            </Label>
-                             <Label
-                                key={'no'}
-                                htmlFor={'no'}
-                                className="flex items-center space-x-4 border p-4 rounded-md cursor-pointer hover:bg-accent/50 has-[input:checked]:bg-accent/80 has-[input:checked]:border-primary text-base"
-                                >
-                                <RadioGroupItem value={'no'} id={'no'} />
-                                <span className="font-medium">{t.no}</span>
-                            </Label>
-                        </RadioGroup>
+                    <CardContent className="flex flex-col items-center justify-center gap-4">
+                        <div className="flex w-full items-center justify-center gap-4">
+                           <Button variant="outline" size="lg" className="h-12 flex-1 text-lg hover:bg-primary hover:text-primary-foreground group" onClick={() => handleVote('yes')}>
+                               <ThumbsUp className="h-5 w-5 text-[hsl(var(--chart-2))] group-hover:text-primary-foreground" />
+                               <span className="ml-2">{t.yes}</span>
+                           </Button>
+                           <Button variant="outline" size="lg" className="h-12 flex-1 text-lg hover:bg-destructive hover:text-destructive-foreground group" onClick={() => handleVote('no')}>
+                               <ThumbsDown className="h-5 w-5 text-[hsl(var(--chart-1))] group-hover:text-destructive-foreground" />
+                                <span className="ml-2">{t.no}</span>
+                           </Button>
+                        </div>
                     </CardContent>
                     <CardFooter className="flex-col gap-4 border-t pt-6">
-                        <Button onClick={() => handleVote(selectedOption!)} disabled={!selectedOption} className="w-full h-12 text-lg">
-                        {t.submitVote}
-                        </Button>
                         <Button variant="outline" onClick={() => handleVote('abstain')}>{t.abstain}</Button>
                     </CardFooter>
                 </Card>
