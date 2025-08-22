@@ -182,7 +182,8 @@ export default function ProfilePage() {
       {userSuggestions.length > 0 && (
          <Card>
             <CardHeader>
-                <CardTitle>Topic Suggestions</CardTitle>
+                <CardTitle>Your Topic Suggestions</CardTitle>
+                 <CardDescription>The history of topics you've proposed.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Table>

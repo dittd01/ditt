@@ -34,6 +34,8 @@ import { useToast } from '@/hooks/use-toast';
 import { suggestionsData as staticSuggestions } from '@/app/admin/data';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import type { Topic } from '@/lib/types';
+
 
 type Suggestion = {
   id: number | string;
@@ -71,12 +73,79 @@ export default function SuggestionsQueuePage() {
     setIsModalOpen(true);
   }
 
-  const handleAction = (action: string) => {
-    toast({
-        title: `Action: ${action}`,
-        description: `Triggered "${action}" for suggestion: ${selectedSuggestion?.text}`,
-    });
-    setIsModalOpen(false);
+  const removeFromQueue = (suggestionId: number | string) => {
+    const manualReviewQueue: Suggestion[] = JSON.parse(localStorage.getItem('manual_review_queue') || '[]');
+    const updatedQueue = manualReviewQueue.filter(item => item.id !== suggestionId);
+    localStorage.setItem('manual_review_queue', JSON.stringify(updatedQueue));
+    setAllSuggestions(prev => prev.filter(s => s.id !== suggestionId));
+  }
+
+  const addToUserHistory = (suggestion: Suggestion, newVerdict: 'Approved' | 'Rejected', reason: string) => {
+      const userSuggestions = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
+      const slug = newVerdict === 'Approved' ? suggestion.text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : null;
+      
+      userSuggestions.unshift({
+          id: suggestion.id,
+          text: suggestion.text,
+          verdict: newVerdict,
+          reason: reason,
+          slug: slug
+      });
+      localStorage.setItem('user_suggestions', JSON.stringify(userSuggestions));
+      window.dispatchEvent(new Event('topicAdded'));
+  }
+
+  const approveSuggestion = (suggestion: Suggestion) => {
+      if (!suggestion) return;
+
+      const slug = suggestion.text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      const newTopic: Topic = {
+          id: `topic_${suggestion.id}`,
+          slug: slug,
+          question: suggestion.text,
+          question_en: suggestion.text, // Assuming EN is same as NB for simplicity
+          description: "This topic was approved by an administrator.",
+          description_en: "This topic was approved by an administrator.",
+          categoryId: 'taxation', // Mock data
+          subcategoryId: 'wealth_tax', // Mock data
+          imageUrl: 'https://placehold.co/600x400.png',
+          aiHint: 'approved idea',
+          status: 'live',
+          voteType: 'yesno',
+          votes: { yes: 0, no: 0, abstain: 0},
+          totalVotes: 0, votesLastWeek: 0, votesLastMonth: 0, votesLastYear: 0, history: [],
+          options: [
+              { id: 'yes', label: 'Yes', color: 'hsl(var(--chart-2))' },
+              { id: 'no', label: 'No', color: 'hsl(var(--chart-1))' },
+              { id: 'abstain', label: 'Abstain', color: 'hsl(var(--muted))' }
+          ],
+      };
+
+      const customTopics = JSON.parse(localStorage.getItem('custom_topics') || '[]');
+      customTopics.push(newTopic);
+      localStorage.setItem('custom_topics', JSON.stringify(customTopics));
+
+      removeFromQueue(suggestion.id);
+      addToUserHistory(suggestion, 'Approved', 'Approved by admin.');
+      
+      toast({
+          title: "Suggestion Approved",
+          description: `"${suggestion.text}" is now live.`,
+      });
+
+      setIsModalOpen(false);
+  };
+
+  const rejectSuggestion = (suggestion: Suggestion) => {
+      if (!suggestion) return;
+      removeFromQueue(suggestion.id);
+      addToUserHistory(suggestion, 'Rejected', 'Rejected by admin: Does not meet guidelines.');
+      toast({
+          variant: 'destructive',
+          title: "Suggestion Rejected",
+          description: `"${suggestion.text}" has been rejected.`,
+      });
+      setIsModalOpen(false);
   }
 
   return (
@@ -103,7 +172,7 @@ export default function SuggestionsQueuePage() {
                       <TableCell className="font-medium">{s.text}</TableCell>
                       <TableCell>
                         <Badge variant={s.verdict === 'reject' || s.verdict === 'rejected_by_ai' ? 'destructive' : 'outline'}>
-                          {s.verdict === 'rejected_by_ai' ? 'AI Rejected' : s.verdict}
+                          {s.verdict}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -118,9 +187,8 @@ export default function SuggestionsQueuePage() {
                                   <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><MoreHorizontal /></Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => handleAction('Approve')}>Approve</DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleAction('Reject')}>Reject...</DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleAction('Edit')}>Edit</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => approveSuggestion(s)}>Approve</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => rejectSuggestion(s)}>Reject...</DropdownMenuItem>
                               </DropdownMenuContent>
                           </DropdownMenu>
                       </TableCell>
@@ -154,11 +222,11 @@ export default function SuggestionsQueuePage() {
                             </Card>
 
                             {/* AI Review Box */}
-                            <Card className="border-amber-500 bg-amber-50/50">
+                            <Card className="border-amber-500 bg-amber-50/50 dark:bg-amber-900/20">
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2 text-amber-700"><Wand2 /> AI Review</CardTitle>
+                                    <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400"><Wand2 /> AI Review</CardTitle>
                                     <CardDescription>
-                                        This section will contain the AI's detailed analysis, including policy checks, quality scores, and reasons for its verdict.
+                                        This section contains the AI's detailed analysis, including policy checks, quality scores, and reasons for its verdict.
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -170,7 +238,6 @@ export default function SuggestionsQueuePage() {
                                         <Label>AI Suggested Rephrase</Label>
                                         <Textarea readOnly value={`This is where the AI's suggested neutral rephrasing of "${selectedSuggestion.text}" would appear.`} />
                                     </div>
-                                     <Button variant="secondary">Apply Rephrase & Preview</Button>
                                 </CardContent>
                             </Card>
 
@@ -180,12 +247,12 @@ export default function SuggestionsQueuePage() {
                                     <CardTitle className="flex items-center gap-2"><CheckCircle /> Moderation Actions</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-2">
-                                    <Textarea placeholder="Add an optional moderation note..." />
+                                    <Textarea placeholder="Add an optional moderation note for the user..." />
                                 </CardContent>
                                 <CardFooter className="flex justify-end gap-2">
-                                     <Button variant="secondary" onClick={() => handleAction('Request Changes')}><MessageSquareWarning className="mr-2" /> Request Changes</Button>
-                                     <Button variant="destructive" onClick={() => handleAction('Reject')}><XCircle className="mr-2" /> Reject</Button>
-                                     <Button onClick={() => handleAction('Approve')}><CheckCircle className="mr-2" /> Approve</Button>
+                                     <Button variant="secondary" onClick={() => setIsModalOpen(false)}><MessageSquareWarning className="mr-2" /> Close</Button>
+                                     <Button variant="destructive" onClick={() => rejectSuggestion(selectedSuggestion)}><XCircle className="mr-2" /> Reject</Button>
+                                     <Button onClick={() => approveSuggestion(selectedSuggestion)}><CheckCircle className="mr-2" /> Approve</Button>
                                 </CardFooter>
                             </Card>
                         </div>
