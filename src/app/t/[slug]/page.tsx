@@ -249,8 +249,8 @@ export default function TopicPage() {
     if (!topic) return null;
 
     if (votedOn) {
-      const votedForLabel = topic.voteType === 'ranked' 
-        ? t.yourRanking
+      const votedForLabel = (topic.voteType === 'ranked' || topic.voteType === 'likert')
+        ? [...topic.options, {id: 'abstain', label: t.abstain}].find((o) => o.id === votedOn)?.label || votedOn
         : [...topic.options, {id: 'abstain', label: t.abstain}].find((o) => o.id === votedOn)?.label || votedOn
 
       return (

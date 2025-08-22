@@ -136,6 +136,7 @@ const topicOptions = {
         { id: 'neutral', label: 'Neutral', color: 'hsl(var(--muted))' },
         { id: 'disagree', label: 'Disagree', color: 'hsl(var(--chart-4))' },
         { id: 'strongly_disagree', label: 'Strongly Disagree', color: 'hsl(var(--chart-1))' },
+        { id: 'abstain', label: 'Abstain', color: 'hsl(var(--muted))' }
     ],
     ranked: [
         { id: 'option_a', label: 'Option A', color: 'hsl(var(--chart-1))' },

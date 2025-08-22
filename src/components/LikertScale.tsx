@@ -17,29 +17,25 @@ export function LikertScale({ topic, onVote }: LikertScaleProps) {
 
   const handleSelect = (optionId: string) => {
     setSelectedOption(optionId);
+    // For Likert, we can consider the vote cast immediately on selection
+    onVote(optionId);
   };
   
-  const handleSubmit = () => {
-    if(selectedOption) {
-      onVote(selectedOption);
-    }
-  }
-
   return (
     <Card>
       <CardHeader>
         <CardTitle>Cast Your Anonymous Vote</CardTitle>
         <CardDescription>Select the option that best represents your view.</CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-wrap justify-center gap-2">
-        {topic.options.map((option) => (
+      <CardContent className="flex flex-wrap justify-center gap-2 p-4">
+        {topic.options.filter(opt => opt.id !== 'abstain').map((option) => (
           <Button
             key={option.id}
             variant={selectedOption === option.id ? 'default' : 'outline'}
             size="sm"
             onClick={() => handleSelect(option.id)}
             className={cn(
-              "transition-all h-auto py-2 px-3 leading-tight",
+              "transition-all h-auto flex-grow py-2 px-3 leading-tight",
               selectedOption === option.id && "ring-2 ring-primary ring-offset-2"
             )}
           >
@@ -47,10 +43,7 @@ export function LikertScale({ topic, onVote }: LikertScaleProps) {
           </Button>
         ))}
       </CardContent>
-       <CardFooter className="flex flex-col gap-4 pt-6">
-         <Button onClick={handleSubmit} disabled={!selectedOption} className="w-full h-12 text-lg">
-            Submit Vote
-          </Button>
+       <CardFooter className="flex flex-col gap-4 pt-6 border-t">
          <Button variant="outline" onClick={() => onVote('abstain')}>Abstain / No Opinion</Button>
       </CardFooter>
     </Card>
