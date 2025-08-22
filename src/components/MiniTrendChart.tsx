@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { AreaChart, Area, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer, YAxis } from 'recharts';
 import type { Topic } from '@/lib/types';
 import { parseISO } from 'date-fns';
 
@@ -47,6 +47,7 @@ export function MiniTrendChart({ topic }: MiniTrendChartProps) {
             <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
           </linearGradient>
         </defs>
+        <YAxis domain={[0, 100]} hide={true} />
         <Area
           type="monotone"
           dataKey="yes_percent"
