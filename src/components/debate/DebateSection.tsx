@@ -15,13 +15,34 @@ interface DebateSectionProps {
   topicId: string;
   initialArgs: Argument[];
   onArgsChange: (args: Argument[]) => void;
+  lang: 'en' | 'nb';
 }
 
-export function DebateSection({ topicId, initialArgs, onArgsChange }: DebateSectionProps) {
+const translations = {
+    en: {
+        arguments: 'Arguments',
+        for: 'For',
+        against: 'Against',
+        addArgument: 'Add Argument',
+        noArguments: 'No arguments for this side yet.',
+    },
+    nb: {
+        arguments: 'Argumenter',
+        for: 'For',
+        against: 'Mot',
+        addArgument: 'Legg til argument',
+        noArguments: 'Ingen argumenter for denne siden enda.',
+    }
+}
+
+
+export function DebateSection({ topicId, initialArgs, onArgsChange, lang }: DebateSectionProps) {
   const [debateArgs, setDebateArgs] = useState<Argument[]>(initialArgs);
   const [loading, setLoading] = useState(true);
   const [showComposer, setShowComposer] = useState<'for' | 'against' | null>(null);
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
+
+  const t = translations[lang];
 
   useEffect(() => {
     // initialArgs are now passed as a prop, so we sync state with it.
@@ -146,13 +167,13 @@ export function DebateSection({ topicId, initialArgs, onArgsChange }: DebateSect
             <div className="space-y-4">
                 <div className="flex justify-between items-center pb-2 border-b-2 border-green-500">
                     <h3 className="text-xl font-semibold text-green-700">
-                        Arguments
-                        <span className="block font-normal">For</span>
+                        {t.arguments}
+                        <span className="block font-normal">{t.for}</span>
                     </h3>
                     <div className="flex">
                         <Button variant="ghost" size="sm" className="text-green-700 hover:text-green-700 hover:bg-green-100" onClick={() => handleAddArgument('for')}>
                             <PlusCircle className="mr-2 h-4 w-4"/>
-                            Add Argument
+                            {t.addArgument}
                         </Button>
                     </div>
                 </div>
@@ -160,7 +181,7 @@ export function DebateSection({ topicId, initialArgs, onArgsChange }: DebateSect
                 <div className="space-y-4">
                     {topLevelFor.length > 0 
                         ? topLevelFor.map(renderArgumentTree) 
-                        : <p className="text-muted-foreground p-4 text-center">No arguments for this side yet.</p>
+                        : <p className="text-muted-foreground p-4 text-center">{t.noArguments}</p>
                     }
                 </div>
             </div>
@@ -169,13 +190,13 @@ export function DebateSection({ topicId, initialArgs, onArgsChange }: DebateSect
             <div className="space-y-4">
                  <div className="flex justify-between items-center pb-2 border-b-2 border-red-500">
                      <h3 className="text-xl font-semibold text-red-700">
-                        Arguments
-                        <span className="block font-normal">Against</span>
+                        {t.arguments}
+                        <span className="block font-normal">{t.against}</span>
                     </h3>
                      <div className="flex">
                         <Button variant="ghost" size="sm" className="text-red-700 hover:text-red-700 hover:bg-red-100" onClick={() => handleAddArgument('against')}>
                             <PlusCircle className="mr-2 h-4 w-4"/>
-                            Add Argument
+                            {t.addArgument}
                         </Button>
                     </div>
                 </div>
@@ -183,7 +204,7 @@ export function DebateSection({ topicId, initialArgs, onArgsChange }: DebateSect
                  <div className="space-y-4">
                     {topLevelAgainst.length > 0 
                         ? topLevelAgainst.map(renderArgumentTree)
-                        : <p className="text-muted-foreground p-4 text-center">No arguments against this side yet.</p>
+                        : <p className="text-muted-foreground p-4 text-center">{t.noArguments}</p>
                     }
                 </div>
             </div>

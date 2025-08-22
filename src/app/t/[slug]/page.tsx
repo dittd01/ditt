@@ -392,7 +392,7 @@ export default function TopicPage() {
               </div>
               
               {viewMode === 'list' ? (
-                <DebateSection topicId={topic.id} initialArgs={debateArgs} onArgsChange={setDebateArgs} />
+                <DebateSection topicId={topic.id} initialArgs={debateArgs} onArgsChange={setDebateArgs} lang={lang} />
               ) : (
                 <ArgumentChart args={debateArgs} topicQuestion={topic.question} lang={lang} />
               )}
