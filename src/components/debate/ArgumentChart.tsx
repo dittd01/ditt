@@ -3,7 +3,7 @@
 
 import React, { useMemo, useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-import type { Argument } from '@/lib/types';
+import type { Argument, Topic } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -56,6 +56,18 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
   const isMobile = useIsMobile();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [tooltip, setTooltip] = useState<TooltipData>({ x: 0, y: 0, visible: false, argument: null });
+  const [lang, setLang] = useState('en');
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+        const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+        setLang(selectedLang);
+    };
+    handleStorageChange();
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
@@ -206,7 +218,7 @@ export function ArgumentChart({ args, topicQuestion }: ArgumentChartProps) {
                 dominantBaseline="middle"
                 className="fill-card-foreground font-semibold text-xs md:text-sm pointer-events-none"
              >
-                Thesis
+                {lang === 'nb' ? 'Tese' : 'Thesis' }
              </text>
           </g>
         </svg>

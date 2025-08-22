@@ -45,10 +45,14 @@ export default function TopicPage() {
   const [isClient, setIsClient] = useState(false);
   const [debateArgs, setDebateArgs] = useState<Argument[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'chart'>('list');
+  const [lang, setLang] = useState('en');
 
   useEffect(() => {
     setIsClient(true);
     setLoading(true);
+    
+    const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+    setLang(selectedLang);
     
     // First, try to find the topic in the initial static list
     let foundTopic = initialTopics.find((t) => t.slug === slug);
@@ -251,6 +255,9 @@ export default function TopicPage() {
     return <div className="container mx-auto px-4 py-8 text-center">Topic not found.</div>;
   }
 
+  const question = lang === 'nb' ? topic.question : topic.question_en;
+  const description = lang === 'nb' ? topic.description : topic.description_en;
+
   return (
     <div className="container mx-auto px-4 py-4 md:py-8">
       <Button variant="ghost" onClick={() => router.back()} className="mb-4 -ml-4">
@@ -265,7 +272,7 @@ export default function TopicPage() {
               <div className="aspect-video relative mb-4">
                 <Image
                   src={topic.imageUrl}
-                  alt={topic.question}
+                  alt={question}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 67vw, 650px"
                   className="rounded-lg object-cover"
@@ -273,7 +280,7 @@ export default function TopicPage() {
                   priority
                 />
               </div>
-              <h1 className="text-2xl md:text-3xl font-bold font-headline">{topic.question}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold font-headline">{question}</h1>
             </CardHeader>
              <CardContent>
                  <Accordion type="single" collapsible className="w-full" defaultValue="description">
@@ -282,7 +289,7 @@ export default function TopicPage() {
                             <Info className="h-5 w-5" /> Topic Details
                         </AccordionTrigger>
                         <AccordionContent className="p-4 pt-0">
-                            <p className="text-base text-muted-foreground">{topic.description}</p>
+                            <p className="text-base text-muted-foreground">{description}</p>
                         </AccordionContent>
                     </AccordionItem>
                  </Accordion>

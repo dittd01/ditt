@@ -17,8 +17,10 @@ export type VoteHistory = {
 export type Topic = {
   id: string;
   slug: string;
-  question: string;
-  description: string;
+  question: string; // Default to Norwegian
+  question_en: string;
+  description: string; // Default to Norwegian
+  description_en: string;
   imageUrl: string;
   aiHint: string;
   options: VoteOption[];

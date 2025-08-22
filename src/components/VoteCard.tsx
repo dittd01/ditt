@@ -88,6 +88,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
 
   const categoryLabel = lang === 'nb' ? category?.label_nb : category?.label;
   const subcategoryLabel = lang === 'nb' ? subcategory?.label_nb : subcategory?.label;
+  const question = lang === 'nb' ? topic.question : topic.question_en;
 
   return (
     <Card ref={cardRef} className="flex h-full flex-col transition-all hover:shadow-lg hover:-translate-y-1">
@@ -97,7 +98,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
                     {topic.imageUrl && (
                         <Image
                             src={topic.imageUrl}
-                            alt={topic.question}
+                            alt={question}
                             fill
                             sizes="350px"
                             className="rounded-t-lg object-cover"
@@ -117,7 +118,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
                 )}
                 <Link href={link} className="group" onClick={handleCardClick}>
                   <CardTitle className="text-base font-semibold leading-snug line-clamp-3 group-hover:text-primary">
-                    {topic.question}
+                    {question}
                   </CardTitle>
                 </Link>
             </div>

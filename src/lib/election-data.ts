@@ -178,8 +178,10 @@ const electionHistory: VoteHistory[] = [
 export const electionTopic: Omit<Topic, 'votesLastWeek' | 'votesLastMonth' | 'votesLastYear'> = {
     id: 'election-2025-poll',
     slug: 'election-2025',
-    question: 'Election 2025: Who gets your vote?',
-    description: 'Cast your vote for the upcoming Stortingsvalg (parliamentary election). This is an anonymous, non-binding poll to gauge public sentiment. Results are for informational purposes only.',
+    question: 'Stortingsvalg 2025: Hvem får din stemme?',
+    question_en: 'Election 2025: Who gets your vote?',
+    description: 'Avgir din stemme for det kommende Stortingsvalget. Dette er en anonym, ikke-bindende avstemning for å måle opinionen. Resultatene er kun for informasjonsformål.',
+    description_en: 'Cast your vote for the upcoming Stortingsvalg (parliamentary election). This is an anonymous, non-binding poll to gauge public sentiment. Results are for informational purposes only.',
     imageUrl: 'https://placehold.co/600x400.png',
     aiHint: 'parliament building',
     options: electionOptions,
