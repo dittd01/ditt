@@ -44,6 +44,8 @@ import {
   GripVertical,
   Eye,
   ArrowLeft,
+  Sparkles,
+  Loader2,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -53,7 +55,8 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { format } from 'date-fns';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { populatePollAction } from '@/app/actions';
 
 const pollFormSchema = z.object({
   title: z.string().min(12, 'Title must be at least 12 characters.').max(120, 'Title must be 120 characters or less.'),
@@ -128,6 +131,7 @@ export default function EditPollPage() {
   const { toast } = useToast();
   const pollId = params.id as string;
 
+  const [isAiLoading, setIsAiLoading] = useState(false);
   const isNew = pollId === 'new';
   const pollData = isNew ? null : allTopics.find(p => p.id === pollId);
   
@@ -175,8 +179,8 @@ export default function EditPollPage() {
 
   const { fields: optionFields, append: appendOption, remove: removeOption } = useFieldArray({ control: form.control, name: "options" });
   const { fields: sourceFields, append: appendSource, remove: removeSource } = useFieldArray({ control: form.control, name: "sources" });
-  const { fields: proFields, append: appendPro } = useFieldArray({ control: form.control, name: "pros" });
-  const { fields: conFields, append: appendCon } = useFieldArray({ control: form.control, name: "cons" });
+  const { fields: proFields, append: appendPro, replace: replacePros } = useFieldArray({ control: form.control, name: "pros" });
+  const { fields: conFields, append: appendCon, replace: replaceCons } = useFieldArray({ control: form.control, name: "cons" });
 
   const watchCategoryId = form.watch('categoryId');
   const watchIsDefaultOptions = form.watch('isDefaultOptions');
@@ -198,6 +202,53 @@ export default function EditPollPage() {
       title: "Poll Saved!",
       description: "Your changes have been saved successfully.",
     });
+  }
+
+  const handleAutoPopulate = async () => {
+    const title = form.getValues('title');
+    if (!title) {
+        toast({
+            variant: 'destructive',
+            title: 'Title is required',
+            description: 'Please enter a title before using the AI Copilot.',
+        });
+        return;
+    }
+    setIsAiLoading(true);
+    try {
+        const result = await populatePollAction({ title });
+        if (result.success) {
+            form.reset({
+                ...form.getValues(), // Keep existing values like title, slug etc.
+                description_md: result.data.description,
+                pros: result.data.pros,
+                cons: result.data.cons,
+                categoryId: result.data.category,
+                subcategoryId: result.data.subcategory,
+                tags: result.data.tags,
+            });
+            replacePros(result.data.pros.map(p => p));
+            replaceCons(result.data.cons.map(c => c));
+
+            toast({
+                title: 'Content Generated!',
+                description: 'The poll details have been populated by AI.',
+            });
+        } else {
+            toast({
+                variant: 'destructive',
+                title: 'AI Generation Failed',
+                description: result.message,
+            });
+        }
+    } catch (e) {
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'An unexpected error occurred.',
+        });
+    }
+    setIsAiLoading(false);
   }
 
   return (
@@ -482,10 +533,10 @@ export default function EditPollPage() {
                 <CardDescription>Tools to help you craft a great poll.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Button variant="secondary" className="w-full justify-start"><Wand2 className="mr-2" /> Improve Title</Button>
-                <Button variant="secondary" className="w-full justify-start"><Wand2 className="mr-2" /> Neutralize & Expand</Button>
-                <Button variant="secondary" className="w-full justify-start"><ListChecks className="mr-2" /> Generate Pros/Cons</Button>
-                <Button variant="secondary" className="w-full justify-start"><Wand2 className="mr-2" /> Suggest Sources/Tags</Button>
+                <Button variant="default" className="w-full justify-start" onClick={handleAutoPopulate} disabled={isAiLoading}>
+                    {isAiLoading ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
+                    Auto-populate from Title
+                </Button>
                 <Separator className="my-2" />
                 <Button variant="secondary" className="w-full justify-start"><ScanSearch className="mr-2" /> Duplicate Check</Button>
                 <Button variant="secondary" className="w-full justify-start"><ShieldAlert className="mr-2" /> Readability & Bias Audit</Button>
