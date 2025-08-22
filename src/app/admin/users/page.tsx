@@ -1,4 +1,5 @@
 
+
 'use client';
 import { useState, useEffect, useMemo } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -21,10 +22,10 @@ import Link from 'next/link';
 import { useDebounce } from 'use-debounce';
 import { parse } from 'date-fns';
 
-type User = typeof staticUsersData[0] & { password?: string };
+export type User = (typeof staticUsersData)[0] & { password?: string, role?: string };
 
 type SortDescriptor = {
-    key: keyof Omit<User, 'id' | 'avatar' | 'username' | 'password'> | 'name' | 'username';
+    key: keyof Omit<User, 'id' | 'avatar' | 'username' | 'password' | 'role'> | 'name' | 'username' | 'role';
     direction: 'ascending' | 'descending';
 }
 
@@ -76,19 +77,20 @@ export default function UsersPage() {
             user.name.toLowerCase().includes(term) ||
             user.username.toLowerCase().includes(term) ||
             user.type.toLowerCase().includes(term) ||
-            user.locale.toLowerCase().includes(term)
+            user.locale.toLowerCase().includes(term) ||
+            (user.role && user.role.toLowerCase().includes(term))
         );
     });
 
     return filtered.sort((a, b) => {
-        const aValue = a[sortDescriptor.key];
-        const bValue = b[sortDescriptor.key];
+        const aValue = a[sortDescriptor.key as keyof User];
+        const bValue = b[sortDescriptor.key as keyof User];
 
         let cmp = 0;
         if (sortDescriptor.key === 'created' || sortDescriptor.key === 'last_seen') {
             const formatString = sortDescriptor.key === 'created' ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm';
-            const dateA = parse(aValue, formatString, new Date());
-            const dateB = parse(bValue, formatString, new Date());
+            const dateA = parse(aValue as string, formatString, new Date());
+            const dateB = parse(bValue as string, formatString, new Date());
             cmp = dateA.getTime() - dateB.getTime();
         } else if (typeof aValue === 'string' && typeof bValue === 'string') {
             cmp = aValue.localeCompare(bValue);
@@ -159,6 +161,7 @@ export default function UsersPage() {
                 <SortableHeader sortKey="name">User</SortableHeader>
                 <SortableHeader sortKey="username">Username</SortableHeader>
                 <TableHead>User ID (Masked)</TableHead>
+                <SortableHeader sortKey="role">Role</SortableHeader>
                 <TableHead>Password</TableHead>
                 <SortableHeader sortKey="type">Type</SortableHeader>
                 <SortableHeader sortKey="created">Created At</SortableHeader>
@@ -181,6 +184,7 @@ export default function UsersPage() {
                     </TableCell>
                     <TableCell>@{user.username}</TableCell>
                     <TableCell className="font-mono">{user.id}</TableCell>
+                    <TableCell className="capitalize">{user.role || 'voter'}</TableCell>
                     <TableCell className="font-mono">
                         <div className="flex items-center gap-2">
                             <span>

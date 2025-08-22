@@ -4,6 +4,7 @@ export const currentUser = {
   uid: 'mock-uid-123',
   username: 'testuser',
   displayName: 'Test User',
+  role: 'admin',
   bio: 'This is a mock bio for the test user. Building things with Next.js and Firebase.',
   website: 'https://example.com',
   location: 'Oslo, Norway',

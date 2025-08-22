@@ -35,7 +35,7 @@ export async function handleBankIdCallback(input: BankIDCallbackInput): Promise<
     const { fnr } = BankIDCallbackSchema.parse(input);
 
     // 1. Derive age and check eligibility
-    const age = deriveAgeFromFnr(fnr);
+    const age = await deriveAgeFromFnr(fnr);
     if (age < 18) {
       return {
         success: false,
@@ -44,7 +44,7 @@ export async function handleBankIdCallback(input: BankIDCallbackInput): Promise<
     }
 
     // 2. Compute the privacy-preserving person hash
-    const personHash = computePersonHash(fnr);
+    const personHash = await computePersonHash(fnr);
 
     // 3. Check if eligibility record already exists in Firestore (simulated)
     // const eligibilityRef = db.collection('eligibility').doc(personHash);

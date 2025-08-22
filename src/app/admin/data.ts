@@ -1,8 +1,10 @@
 
+
 import { allTopics, categories } from '@/lib/data';
 import type { Topic, Subcategory } from '@/lib/types';
 import { format, subDays } from 'date-fns';
 import { currentUser } from '@/lib/user-data';
+import type { User } from './users/page';
 
 // Overview Page
 export const kpiData = {
@@ -85,10 +87,11 @@ const generatedUsers = Array.from({ length: 50 }, (_, i) => {
         last_seen: format(lastSeenDate, 'yyyy-MM-dd HH:mm'),
         type: 'Mock',
         password: 'a1bc2d',
+        role: 'voter',
     };
 });
 
-const currentLoggedInUser = {
+const currentLoggedInUser: User = {
     id: currentUser.uid,
     name: currentUser.displayName,
     username: currentUser.username,
@@ -99,9 +102,10 @@ const currentLoggedInUser = {
     last_seen: format(new Date(), 'yyyy-MM-dd HH:mm'),
     type: 'Real',
     password: 'password',
+    role: currentUser.role,
 };
 
-export const usersData = [currentLoggedInUser, ...generatedUsers];
+export const usersData: User[] = [currentLoggedInUser, ...generatedUsers];
 
 
 // Health Page

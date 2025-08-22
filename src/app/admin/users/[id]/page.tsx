@@ -57,6 +57,7 @@ import { format } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import React from 'react';
+import type { User } from '@/app/admin/users/page';
 
 
 const userFormSchema = z.object({
@@ -117,7 +118,7 @@ export default function EditUserPage() {
             username: userData?.username,
             email: `${userData?.username}@example.com`,
             bio: 'A mock bio for this user.',
-            role: 'voter',
+            role: (userData as User)?.role || 'voter',
             type: userData?.type.toLowerCase() as 'real' | 'mock' || 'real',
             status: 'active',
             notifications: { newContent: true, weeklyDigest: true },
@@ -129,11 +130,12 @@ export default function EditUserPage() {
     function onSubmit(data: UserFormValues) {
         if (isNew) {
             const randomHex = [...Array(4)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
-            const newUser = {
+            const newUser: User = {
                 id: `voter...${randomHex}`,
                 name: data.displayName,
                 username: data.username,
                 password: data.password,
+                role: data.role,
                 avatar: `https://placehold.co/40x40.png?text=${data.displayName.split(' ').map(n => n[0]).join('')}`,
                 created: format(new Date(), 'yyyy-MM-dd'),
                 locale: 'en-US',
@@ -429,7 +431,7 @@ export default function EditUserPage() {
                                                         )}>
                                                             <div className="flex w-full items-center gap-2">
                                                                 <FormControl>
-                                                                    <RadioGroupItem value={roleKey} />
+                                                                    <RadioGroupItem value={roleKey as UserFormValues['role']} />
                                                                 </FormControl>
                                                                 <span className="font-semibold text-foreground">
                                                                     {roleKey.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
@@ -502,7 +504,7 @@ export default function EditUserPage() {
                          <Card>
                             <CardHeader>
                                 <CardTitle>Notifications</CardTitle>
-                            </CardHeader>
+                            </Header>
                             <CardContent className="space-y-4">
                                 <FormField control={form.control} name="notifications.newContent" render={({ field }) => (
                                     <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">

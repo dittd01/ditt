@@ -61,7 +61,7 @@ function normalizeFnr(fnr: string): string {
  * @param fnr The user's Fødselsnummer.
  * @returns A hex-encoded HMAC-SHA256 hash.
  */
-export function computePersonHash(fnr: string): string {
+export async function computePersonHash(fnr: string): Promise<string> {
     const normalized = normalizeFnr(fnr);
     const hmac = createHmac('sha256', KMS_PEPPER);
     hmac.update(normalized);
@@ -77,7 +77,7 @@ export function computePersonHash(fnr: string): string {
  * @param fnr The user's Fødselsnummer.
  * @returns The user's age in years.
  */
-export function deriveAgeFromFnr(fnr: string): number {
+export async function deriveAgeFromFnr(fnr: string): Promise<number> {
     const normalized = normalizeFnr(fnr);
     if (normalized.length !== 11) {
         throw new Error('Invalid Fnr length.');
