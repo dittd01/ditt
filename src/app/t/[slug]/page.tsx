@@ -25,6 +25,7 @@ import { RelatedTopics } from '@/components/RelatedTopics';
 import { trackEvent } from '@/lib/analytics';
 import { DebateSection } from '@/components/debate/DebateSection';
 import { ArgumentChart } from '@/components/debate/ArgumentChart';
+import { ImportanceSlider } from '@/components/ImportanceSlider';
 
 const VoteChart = dynamic(() => import('@/components/VoteChart').then(mod => mod.VoteChart), {
   ssr: false,
@@ -354,6 +355,8 @@ export default function TopicPage() {
            {renderVoteComponent()}
            
            {votedOn && <LiveResults topic={topic} />}
+           
+           {voterId && <ImportanceSlider topicId={topic.id} />}
 
             <div>
               <div className="flex justify-between items-center mb-6">
