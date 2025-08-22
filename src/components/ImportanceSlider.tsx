@@ -3,8 +3,8 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Slider } from '@/components/ui/slider';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface ImportanceSliderProps {
   topicId: string;
@@ -19,7 +19,7 @@ const importanceLabels = [
 ];
 
 export function ImportanceSlider({ topicId }: ImportanceSliderProps) {
-  const [importance, setImportance] = useState(2); // Default to "Moderately important"
+  const [importance, setImportance] = useState<number | null>(null);
 
   useEffect(() => {
     // Load saved importance rating from localStorage on mount
@@ -29,8 +29,8 @@ export function ImportanceSlider({ topicId }: ImportanceSliderProps) {
     }
   }, [topicId]);
 
-  const handleValueChange = (value: number[]) => {
-    const newImportance = value[0];
+  const handleSelect = (index: number) => {
+    const newImportance = index;
     setImportance(newImportance);
     // Save the new rating to localStorage
     localStorage.setItem(`importance_for_${topicId}`, newImportance.toString());
@@ -41,23 +41,21 @@ export function ImportanceSlider({ topicId }: ImportanceSliderProps) {
       <CardHeader>
         <CardTitle>How important is this issue to you?</CardTitle>
         <CardDescription>
-          Rate the importance of this topic to help us understand what matters most to voters.
+          Your rating helps us understand what matters most to voters. This is saved privately and is not a public vote.
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-2">
-        <div className="space-y-4">
-          <Slider
-            value={[importance]}
-            onValueChange={handleValueChange}
-            min={0}
-            max={importanceLabels.length - 1}
-            step={1}
-          />
-          <div className="text-center">
-            <Label className="text-muted-foreground font-medium">
-              {importanceLabels[importance]}
-            </Label>
-          </div>
+        <div className="flex flex-wrap gap-2">
+          {importanceLabels.map((label, index) => (
+            <Button
+              key={index}
+              variant={importance === index ? 'default' : 'outline'}
+              onClick={() => handleSelect(index)}
+              className="flex-grow"
+            >
+              {label}
+            </Button>
+          ))}
         </div>
       </CardContent>
     </Card>
