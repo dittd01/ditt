@@ -17,6 +17,11 @@ export function LiveResults({ topic }: LiveResultsProps) {
         return (voteCount / topic.totalVotes) * 100;
     };
 
+    const colorMap: Record<string, string> = {
+        'yes': 'bg-[hsl(var(--chart-2))]',
+        'no': 'bg-[hsl(var(--chart-1))]',
+    }
+
     // Filter out 'abstain' from being displayed in the main results
     const displayOptions = topic.options.filter(option => option.id !== 'abstain');
     const abstainVotes = topic.votes['abstain'] || 0;
@@ -33,7 +38,7 @@ export function LiveResults({ topic }: LiveResultsProps) {
                             <span className="text-muted-foreground">{option.label}</span>
                             <span className="font-medium">{getPercentage(option.id).toFixed(1)}%</span>
                         </div>
-                        <Progress value={getPercentage(option.id)} className="h-2" />
+                        <Progress value={getPercentage(option.id)} className="h-2" colorClassName={colorMap[option.id] || 'bg-primary'} />
                     </div>
                 ))}
                 <div className="text-sm text-center text-muted-foreground pt-2">
