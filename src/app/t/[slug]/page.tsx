@@ -65,7 +65,7 @@ const translations = {
   nb: {
     backToPolls: 'Tilbake til avstemninger',
     topicDetails: 'Emnedetaljer',
-    castVote: 'Avgir din anonyme stemme',
+    castVote: 'Avgi din anonyme stemme',
     submitVote: 'Send inn stemme',
     abstain: 'Avstå / Ingen mening',
     youHaveVoted: 'Du har stemt',
