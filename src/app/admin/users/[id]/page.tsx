@@ -177,7 +177,7 @@ export default function EditUserPage() {
         } else {
             toast({ title: 'Error', description: result.message, variant: 'destructive' });
         }
-    }
+    };
 
     const handleRevokeDevice = (deviceId: string) => {
         setDevices(prevDevices => prevDevices.filter(d => d.id !== deviceId));
@@ -185,7 +185,7 @@ export default function EditUserPage() {
             title: 'Device Revoked',
             description: `Access for device ${deviceId} has been revoked.`,
         });
-    }
+    };
 
     return (
         <Form {...form}>
