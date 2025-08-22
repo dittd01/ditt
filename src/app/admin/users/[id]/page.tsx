@@ -41,10 +41,22 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { generateMockUserAction } from '@/app/actions';
 import { format } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import React from 'react';
 
 
 const userFormSchema = z.object({
@@ -72,7 +84,7 @@ const roleDescriptions: Record<UserFormValues['role'], string> = {
     admin: 'Full access to all administrative features.',
 };
 
-const mockDevices = [
+const initialMockDevices = [
     { id: 'dev1', type: 'Desktop', added: '2023-10-15', lastSeen: '2023-10-28 14:30', isCurrent: true },
     { id: 'dev2', type: 'Mobile', added: '2023-09-01', lastSeen: '2023-10-25 08:15', isCurrent: false },
 ]
@@ -86,6 +98,7 @@ export default function EditUserPage() {
     
     // In a real app, you'd fetch this data. For mock, we find it.
     const userData = isNew ? null : usersData.find(u => u.id === userId);
+    const [devices, setDevices] = React.useState(initialMockDevices);
 
     const form = useForm<UserFormValues>({
         resolver: zodResolver(userFormSchema),
@@ -162,6 +175,14 @@ export default function EditUserPage() {
         } else {
             toast({ title: 'Error', description: result.message, variant: 'destructive' });
         }
+    }
+
+    const handleRevokeDevice = (deviceId: string) => {
+        setDevices(prevDevices => prevDevices.filter(d => d.id !== deviceId));
+        toast({
+            title: 'Device Revoked',
+            description: `Access for device ${deviceId} has been revoked.`,
+        });
     }
 
     return (
@@ -296,7 +317,7 @@ export default function EditUserPage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {mockDevices.map(device => (
+                                        {devices.map(device => (
                                             <TableRow key={device.id}>
                                                 <TableCell className="flex items-center gap-2">
                                                     {device.type === 'Desktop' ? <Monitor /> : <Smartphone />}
@@ -306,10 +327,28 @@ export default function EditUserPage() {
                                                 <TableCell>{device.added}</TableCell>
                                                 <TableCell>{device.lastSeen}</TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button variant="destructive" size="sm">
-                                                        <Trash2 className="mr-2" />
-                                                        Revoke
-                                                    </Button>
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild>
+                                                            <Button variant="destructive" size="sm" disabled={device.isCurrent}>
+                                                                <Trash2 className="mr-2" />
+                                                                Revoke
+                                                            </Button>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle>Are you sure you want to revoke this device?</AlertDialogTitle>
+                                                                <AlertDialogDescription>
+                                                                    This will remove the passkey associated with this device. The user will no longer be able to log in from it unless they re-link it.
+                                                                </AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                <AlertDialogAction onClick={() => handleRevokeDevice(device.id)}>
+                                                                    Revoke Device
+                                                                </AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
