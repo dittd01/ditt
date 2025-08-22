@@ -14,11 +14,13 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ShieldCheck, Loader2, AlertCircle, Fingerprint, CheckCircle, ShieldAlert } from 'lucide-react';
+import { ShieldCheck, Loader2, AlertCircle, Fingerprint, CheckCircle, ShieldAlert, BadgeHelp } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { handleBankIdCallback } from '@/app/auth/actions';
 import { useToast } from '@/hooks/use-toast';
 import { startRegistration } from '@/lib/passkey';
+import { featureFlagsData } from '@/app/admin/data';
+import { Separator } from '@/components/ui/separator';
 
 export default function VerifyLinkPage() {
   const router = useRouter();
@@ -30,6 +32,8 @@ export default function VerifyLinkPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [personHash, setPersonHash] = useState<string | null>(null);
+  
+  const vippsEnabled = featureFlagsData.find(f => f.key === 'auth.vipps_reauth.enabled')?.enabled ?? false;
 
   useEffect(() => {
     const challenge = searchParams.get('challenge');
@@ -63,6 +67,25 @@ export default function VerifyLinkPage() {
     }
     setLoading(false);
   };
+
+  const handleVippsReauth = async () => {
+    setLoading(true);
+    setError(null);
+    // Simulate Vipps Login flow
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // In a real app, this hash would come from the Vipps callback.
+    // We'll reuse the one from the URL challenge for this prototype.
+    const mockPersonHash = 'simulated-hash-from-qr-user-session';
+    setPersonHash(mockPersonHash);
+    
+    toast({
+        title: "Vipps Verification Successful",
+        description: "Your identity has been confirmed.",
+    });
+    setStep('setup_passkey');
+    setLoading(false);
+  }
   
    const handleSetupPasskey = async () => {
     if (!personHash) return;
@@ -94,10 +117,27 @@ export default function VerifyLinkPage() {
           <>
             <CardHeader className="text-center">
               <CardTitle>Re-verify to Link Device</CardTitle>
-              <CardDescription>To protect your account, please re-verify your identity with BankID.</CardDescription>
+              <CardDescription>To protect your account, please re-verify your identity.</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+               {vippsEnabled && (
+                  <>
+                    <Button onClick={handleVippsReauth} variant="outline" className="w-full h-12 text-base" disabled={loading}>
+                        {loading ? <Loader2 className="mr-2 animate-spin" /> : <BadgeHelp className="mr-2" /> }
+                        Continue with Vipps
+                    </Button>
+                    <div className="flex items-center gap-4">
+                        <Separator className="flex-1" />
+                        <span className="text-xs text-muted-foreground">OR</span>
+                        <Separator className="flex-1" />
+                    </div>
+                  </>
+                )}
+
               <form onSubmit={handleBankIdReauth} className="space-y-4">
+                 <CardDescription className="text-center !mt-0">
+                    Use BankID for highest security.
+                </CardDescription>
                 <div className="space-y-2">
                   <Label htmlFor="fnr">Fødselsnummer (11 digits)</Label>
                   <Input id="fnr" type="text" placeholder="11111111111" required value={fnr} onChange={(e) => setFnr(e.target.value)} pattern="\\d{11}" title="Please enter 11 digits." />
@@ -166,3 +206,5 @@ export default function VerifyLinkPage() {
     </div>
   );
 }
+
+    

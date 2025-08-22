@@ -126,6 +126,7 @@ export const featureFlagsData = [
     { key: 'polls.shuffle_options', desc: 'Randomize order of Yes/No options', enabled: true, rollout: '100%' },
     { key: 'realtime.results.enabled', desc: 'Update poll results in real-time via websockets', enabled: true, rollout: '100%' },
     { key: 'ai.moderation.enabled', desc: 'Use AI to moderate suggestions', enabled: true, rollout: '100%' },
+    { key: 'auth.vipps_reauth.enabled', desc: 'Enable Vipps as a low-cost re-auth option for device linking', enabled: true, rollout: '100%' },
 ];
 
 // Audit Logs Page
@@ -190,3 +191,5 @@ export function getPollsTableData(): PollRowData[] {
 
 // Re-export categories for convenience in other admin components
 export { categories };
+
+    
