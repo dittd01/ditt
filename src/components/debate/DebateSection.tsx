@@ -165,13 +165,13 @@ export function DebateSection({ topicId, initialArgs, onArgsChange, lang }: Deba
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             {/* Arguments For Column */}
             <div className="space-y-4">
-                <div className="flex justify-between items-center pb-2 border-b-2 border-green-500">
-                    <h3 className="text-xl font-semibold text-green-700">
+                <div className="flex justify-between items-center pb-2 border-b-2 border-[hsl(var(--chart-2))]">
+                    <h3 className="text-xl font-semibold text-[hsl(var(--chart-2))]">
                         {t.arguments}
                         <span className="block font-normal">{t.for}</span>
                     </h3>
                     <div className="flex">
-                        <Button variant="ghost" size="sm" className="text-green-700 hover:text-green-700 hover:bg-green-100" onClick={() => handleAddArgument('for')}>
+                        <Button variant="ghost" size="sm" className="text-[hsl(var(--chart-2))] hover:text-[hsl(var(--chart-2))] hover:bg-green-500/10" onClick={() => handleAddArgument('for')}>
                             <PlusCircle className="mr-2 h-4 w-4"/>
                             {t.addArgument}
                         </Button>
@@ -188,13 +188,13 @@ export function DebateSection({ topicId, initialArgs, onArgsChange, lang }: Deba
 
             {/* Arguments Against Column */}
             <div className="space-y-4">
-                 <div className="flex justify-between items-center pb-2 border-b-2 border-red-500">
-                     <h3 className="text-xl font-semibold text-red-700">
+                 <div className="flex justify-between items-center pb-2 border-b-2 border-[hsl(var(--chart-1))]">
+                     <h3 className="text-xl font-semibold text-[hsl(var(--chart-1))]">
                         {t.arguments}
                         <span className="block font-normal">{t.against}</span>
                     </h3>
                      <div className="flex">
-                        <Button variant="ghost" size="sm" className="text-red-700 hover:text-red-700 hover:bg-red-100" onClick={() => handleAddArgument('against')}>
+                        <Button variant="ghost" size="sm" className="text-[hsl(var(--chart-1))] hover:text-[hsl(var(--chart-1))] hover:bg-red-500/10" onClick={() => handleAddArgument('against')}>
                             <PlusCircle className="mr-2 h-4 w-4"/>
                             {t.addArgument}
                         </Button>
