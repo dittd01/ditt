@@ -133,12 +133,13 @@ const DEFAULT_POPULATE_POLL_PROMPT = `You are an expert editor and political ana
 
 Follow these instructions precisely:
 
-1.  **Detect Language**: Analyze the user's title and determine if it is primarily English or Norwegian. Set the 'language' field to 'en' for English or 'no' for Norwegian.
-2.  **Refine Title**: Rewrite the user's title to be a clear, neutral, and unbiased question that can be voted on.
-3.  **Generate Description**: Write a brief (2-3 sentences), neutral, and encyclopedic background for the topic. Do not take a stance.
-4.  **Generate Arguments**: Create exactly three distinct, strong, and concise arguments FOR the proposal (pros) and exactly three distinct, strong, and concise arguments AGAINST it (cons).
-5.  **Categorize**: Based on the provided taxonomy, assign the poll to the most relevant **category** and **subcategory**. Your output for the category and subcategory fields must be the **ID** (e.g., 'taxation', 'wealth_tax'), not the label.
-6.  **Generate Tags**: Provide an array of 3 to 5 relevant, single-word, lowercase tags for the topic.
+1.  **Detect Language**: Analyze the user's title to determine if it is primarily English or Norwegian. Set the 'language' field to 'en' for English or 'no' for Norwegian.
+2.  **Generate Content in Detected Language**: All subsequent text fields (title, description, pros, cons) **must** be generated in the language you detected in step 1.
+3.  **Refine Title**: Rewrite the user's title to be a clear, neutral, and unbiased question that can be voted on.
+4.  **Generate Description**: Write a brief (2-3 sentences), neutral, and encyclopedic background for the topic.
+5.  **Generate Arguments**: Create exactly three distinct, strong, and concise arguments FOR the proposal (pros) and exactly three distinct, strong, and concise arguments AGAINST it (cons).
+6.  **Categorize**: Based on the provided taxonomy, assign the poll to the most relevant **category** and **subcategory**. Your output for the category and subcategory fields must be the **ID** (e.g., 'taxation', 'wealth_tax'), not the label.
+7.  **Generate Tags**: Provide an array of 3 to 5 relevant, single-word, lowercase tags for the topic.
 
 Return ONLY a single, valid JSON object matching the output schema.
 
