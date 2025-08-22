@@ -345,12 +345,14 @@ export default function TopicPage() {
         <div className="lg:col-span-2 space-y-8">
           <Card>
             <CardHeader className="p-4 md:p-6">
-              <div className="aspect-video relative mb-4 bg-muted rounded-lg">
-                <VoteChart topic={topic} showControls={false} />
-              </div>
               <h1 className="text-2xl md:text-3xl font-bold font-headline">{question}</h1>
             </CardHeader>
-             <CardContent>
+            <CardContent className="p-0">
+               <div className="aspect-video relative rounded-lg">
+                <VoteChart topic={topic} showControls={false} />
+              </div>
+            </CardContent>
+             <CardContent className="p-4 md:p-6">
                  <Accordion type="single" collapsible className="w-full" defaultValue="description">
                      <AccordionItem value="description">
                         <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border-b-0">
