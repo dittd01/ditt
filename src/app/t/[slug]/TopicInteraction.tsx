@@ -198,7 +198,7 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
       return <TopicInteraction.Skeleton />;
     }
 
-    if (votedOn) {
+    if (votedOn && topic.voteType !== 'yesno') {
       const votedForLabel = (topic.voteType === 'ranked' || topic.voteType === 'likert')
         ? [...topic.options, {id: 'abstain', label: t.abstain}].find((o) => o.id === votedOn)?.label || votedOn
         : [...topic.options, {id: 'abstain', label: t.abstain}].find((o) => o.id === votedOn)?.label || votedOn;
@@ -246,7 +246,7 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                                 votedOn && votedOn !== 'yes' && 'opacity-60 pointer-events-none'
                               )}
                               onClick={() => handleVote('yes')}
-                              disabled={votedOn === 'no'}
+                              disabled={!!votedOn && votedOn !== 'yes'}
                             >
                                 <ThumbsUp className={cn('h-4 w-4 text-primary group-hover:text-primary-foreground', votedOn === 'yes' && 'text-primary-foreground')} />
                                 <span className="ml-2">{t.yes}</span>
@@ -261,12 +261,17 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                                 votedOn && votedOn !== 'no' && 'opacity-60 pointer-events-none'
                               )}
                               onClick={() => handleVote('no')}
-                              disabled={votedOn === 'yes'}
+                              disabled={!!votedOn && votedOn !== 'no'}
                             >
                                  <ThumbsDown className={cn('h-4 w-4 text-destructive group-hover:text-destructive-foreground', votedOn === 'no' && 'text-destructive-foreground')} />
                                  <span className="ml-2">{t.no}</span>
                             </Button>
                         </div>
+                        {votedOn && votedOn !== 'abstain' && (
+                            <p className="text-sm text-muted-foreground pt-2">
+                                {t.youVotedFor} <strong>{votedOn === 'yes' ? t.yes : t.no}</strong>
+                            </p>
+                        )}
                     </CardContent>
                     <CardFooter className="flex-col gap-4 border-t pt-6">
                         <Button variant="outline" onClick={() => handleVote('abstain')} className="hover:bg-accent">{t.abstain}</Button>
