@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { CheckCircle, RefreshCw, ThumbsUp, ThumbsDown, ListTree, Sun } from 'lucide-react';
+import { CheckCircle, RefreshCw, ThumbsUp, ThumbsDown, ListTree, Sun, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { LikertScale } from '@/components/LikertScale';
@@ -18,7 +18,7 @@ import { ArgumentChart } from '@/components/debate/ArgumentChart';
 import { ImportanceSlider } from '@/components/ImportanceSlider';
 import { cn } from '@/lib/utils';
 import type { Topic, Argument } from '@/lib/types';
-import { Info } from 'lucide-react';
+import { castVoteAction } from './actions';
 
 // Translations object for multilingual support.
 const translations = {
@@ -105,7 +105,7 @@ export function TopicInteraction({ topic: initialTopic, initialDebateArgs }: Top
     }
   }, [topic.id]);
 
-  const handleVote = (voteData: string | string[]) => {
+  const handleVote = async (voteData: string | string[]) => {
     if (!voterId) {
       toast({
         variant: 'destructive',
@@ -117,40 +117,76 @@ export function TopicInteraction({ topic: initialTopic, initialDebateArgs }: Top
     }
     
     const currentVote = Array.isArray(voteData) ? voteData[0] : voteData;
-    if (!currentVote) return;
+    if (!currentVote || votedOn === currentVote) return;
 
-    const previouslyVotedOn = localStorage.getItem(`voted_on_${topic.id}`);
-    if (previouslyVotedOn === currentVote) return;
-
-    trackEvent(previouslyVotedOn ? 'vote_changed' : 'vote_cast', { topicId: topic.id, from: previouslyVotedOn, to: currentVote });
+    const previouslyVotedOn = votedOn;
+    
+    // --- Optimistic UI Update ---
+    // Why: Update the UI immediately for a responsive user experience,
+    // without waiting for the server to respond. We will revert this
+    // change if the server call fails.
+    setVotedOn(currentVote);
+    localStorage.setItem(`voted_on_${topic.id}`, currentVote); // Keep localStorage for persistence on refresh for now
 
     setTopic(currentTopic => {
         const newVotes = { ...currentTopic.votes };
         if (previouslyVotedOn) {
             newVotes[previouslyVotedOn] = Math.max(0, (newVotes[previouslyVotedOn] || 1) - 1);
-            localStorage.setItem(`votes_for_${topic.id}_${previouslyVotedOn}`, newVotes[previouslyVotedOn].toString());
         }
         newVotes[currentVote] = (newVotes[currentVote] || 0) + 1;
-        localStorage.setItem(`votes_for_${topic.id}_${currentVote}`, newVotes[currentVote].toString());
-
-        const newTotalVotes = currentTopic.options
-            .filter(o => o.id !== 'abstain')
-            .reduce((sum, option) => sum + (newVotes[option.id] || 0), 0);
-
+        const newTotalVotes = Object.values(newVotes).reduce((sum, v) => sum + v, 0);
         return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
     });
+    
+    // --- Server Action Call ---
+    try {
+      trackEvent(previouslyVotedOn ? 'vote_changed' : 'vote_cast', { topicId: topic.id, from: previouslyVotedOn, to: currentVote });
       
-    localStorage.setItem(`voted_on_${topic.id}`, currentVote);
-    setVotedOn(currentVote);
+      const result = await castVoteAction({ topicId: topic.id, voteOption: currentVote, voterId });
 
-    const voteLabel = Array.isArray(voteData) 
-      ? t.yourRanking
-      : [...topic.options, {id: 'abstain', label: 'Abstain'}].find((o) => o.id === currentVote)?.label || currentVote;
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      
+      // On success, show a confirmation toast. The optimistic UI is already correct.
+      const voteLabel = Array.isArray(voteData) 
+        ? t.yourRanking
+        : [...topic.options, {id: 'abstain', label: 'Abstain'}].find((o) => o.id === currentVote)?.label || currentVote;
+        
+      toast({
+          title: previouslyVotedOn ? t.voteChangedTitle : t.voteCastTitle,
+          description: t.voteRecordedDescription(voteLabel),
+      });
 
-    toast({
-        title: previouslyVotedOn ? t.voteChangedTitle : t.voteCastTitle,
-        description: t.voteRecordedDescription(voteLabel),
-    });
+    } catch (error: any) {
+      // --- Error Handling & UI Rollback ---
+      // Why: If the server call fails, we must revert the UI to its
+      // previous state to maintain data integrity and inform the user.
+      toast({
+        variant: 'destructive',
+        title: 'Vote Failed',
+        description: error.message || 'Could not record your vote. Please try again.',
+      });
+
+      // Revert the state
+      setVotedOn(previouslyVotedOn);
+      if (previouslyVotedOn) {
+        localStorage.setItem(`voted_on_${topic.id}`, previouslyVotedOn);
+      } else {
+        localStorage.removeItem(`voted_on_${topic.id}`);
+      }
+
+      // Revert vote counts
+      setTopic(currentTopic => {
+          const newVotes = { ...currentTopic.votes };
+          newVotes[currentVote] = Math.max(0, (newVotes[currentVote] || 1) - 1);
+          if (previouslyVotedOn) {
+              newVotes[previouslyVotedOn] = (newVotes[previouslyVotedOn] || 0) + 1;
+          }
+          const newTotalVotes = Object.values(newVotes).reduce((sum, v) => sum + v, 0);
+          return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
+      });
+    }
   };
   
   const handleRevote = () => {
