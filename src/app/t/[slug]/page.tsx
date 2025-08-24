@@ -72,10 +72,10 @@ export default async function TopicPage({ params }: TopicPageProps) {
               <div className="space-y-4">
                   {topic.pros && topic.pros.length > 0 ? (
                       topic.pros.map((pro, index) => (
-                          <Card key={index} className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/50">
+                          <Card key={index} className="bg-primary/10 border-primary/20">
                               <CardContent className="p-4 flex items-start gap-4">
-                                  <ThumbsUp className="h-5 w-5 text-green-600 dark:text-green-500 mt-1 shrink-0" />
-                                  <p className="text-green-900 dark:text-green-200">{pro}</p>
+                                  <ThumbsUp className="h-5 w-5 text-primary mt-1 shrink-0" />
+                                  <p className="text-primary/90">{pro}</p>
                               </CardContent>
                           </Card>
                       ))
@@ -89,10 +89,10 @@ export default async function TopicPage({ params }: TopicPageProps) {
               <div className="space-y-4">
                   {topic.cons && topic.cons.length > 0 ? (
                       topic.cons.map((con, index) => (
-                           <Card key={index} className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50">
+                           <Card key={index} className="bg-destructive/10 border-destructive/20">
                               <CardContent className="p-4 flex items-start gap-4">
-                                  <ThumbsDown className="h-5 w-5 text-red-600 dark:text-red-500 mt-1 shrink-0" />
-                                  <p className="text-red-900 dark:text-red-200">{con}</p>
+                                  <ThumbsDown className="h-5 w-5 text-destructive mt-1 shrink-0" />
+                                  <p className="text-destructive/90">{con}</p>
                               </CardContent>
                           </Card>
                       ))
@@ -105,19 +105,19 @@ export default async function TopicPage({ params }: TopicPageProps) {
           <Suspense fallback={<TopicInteraction.Skeleton />}>
             <TopicInteraction topic={topic} />
           </Suspense>
-          
+
           <Accordion type="single" collapsible className="w-full" defaultValue="history">
-              <AccordionItem value="history" className="border-none">
-                  <AccordionTrigger className="text-xl font-semibold p-4 border rounded-lg bg-card text-card-foreground shadow-sm hover:no-underline">
-                       <div className="flex items-center gap-2">
-                          <History className="h-5 w-5" />
-                          {t.voteHistory}
-                       </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="pt-6">
-                      <VoteChart topic={topic} />
-                  </AccordionContent>
-              </AccordionItem>
+            <AccordionItem value="history" className="border-none">
+                <AccordionTrigger className="text-xl font-semibold p-4 border rounded-lg bg-card text-card-foreground shadow-sm hover:no-underline">
+                      <div className="flex items-center gap-2">
+                        <History className="h-5 w-5" />
+                        {t.voteHistory}
+                      </div>
+                </AccordionTrigger>
+                <AccordionContent className="pt-6">
+                    <VoteChart topic={topic} />
+                </AccordionContent>
+            </AccordionItem>
           </Accordion>
 
           <Separator className="my-12" />
@@ -130,26 +130,26 @@ export default async function TopicPage({ params }: TopicPageProps) {
          </section>
 
           {(topic.sources && topic.sources.length > 0) && (
-              <Accordion type="single" collapsible className="w-full">
-                  <AccordionItem value="sources" className="border rounded-lg bg-card text-card-foreground shadow-sm">
-                      <AccordionTrigger className="flex justify-start items-center gap-2 p-4 text-base font-semibold hover:no-underline">
-                          <FileText className="h-5 w-5" />
-                          {t.sources}
-                      </AccordionTrigger>
-                      <AccordionContent className="p-6 pt-0 space-y-6">
-                          <ul className="space-y-2 pt-4 border-t">
-                              {topic.sources.map((source, index) => (
-                                  <li key={index}>
-                                      <a href={source.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
-                                          <LinkIcon className="h-4 w-4 shrink-0" />
-                                          <span className="truncate">{source.title}</span>
-                                      </a>
-                                  </li>
-                              ))}
-                          </ul>
-                      </AccordionContent>
-                  </AccordionItem>
-              </Accordion>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="sources" className="border rounded-lg bg-card text-card-foreground shadow-sm">
+                <AccordionTrigger className="flex justify-start items-center gap-2 p-4 text-base font-semibold hover:no-underline">
+                  <FileText className="h-5 w-5" />
+                  {t.sources}
+                </AccordionTrigger>
+                <AccordionContent className="p-6 pt-0 space-y-6">
+                  <ul className="space-y-2 pt-4 border-t">
+                    {topic.sources.map((source, index) => (
+                      <li key={index}>
+                        <a href={source.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                          <LinkIcon className="h-4 w-4 shrink-0" />
+                          <span className="truncate">{source.title}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           )}
 
           <Card>
