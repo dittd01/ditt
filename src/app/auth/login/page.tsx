@@ -19,6 +19,7 @@ import { handleBankIdCallback } from '../actions';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { startLogin } from '@/lib/passkey';
+import { currentUser } from '@/lib/user-data';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,6 +33,30 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
+    // --- MOCK LOGIN FOR OFFLINE DEVELOPMENT ---
+    // Why: This section bypasses the real server-side authentication flow
+    // to allow for seamless development without an internet connection.
+    // It simulates a successful login by directly setting the user's
+    // anonymous ID and redirecting them.
+    //
+    // TO RESTORE ONLINE FUNCTIONALITY:
+    // 1. Remove the code block below.
+    // 2. Uncomment the original `handleBankIdCallback` call.
+
+    console.log("Simulating OFFLINE BankID Login...");
+    localStorage.setItem('anonymousVoterId', currentUser.uid);
+    localStorage.removeItem('lastSeenTimestamp'); 
+    window.dispatchEvent(new Event('authChange'));
+    toast({
+        title: "Offline Login Successful",
+        description: "Logged in as the default mock user.",
+    });
+    router.push('/');
+    router.refresh();
+    return; // End of mock block
+
+    /*
+    // --- ORIGINAL ONLINE AUTHENTICATION LOGIC ---
     // This simulates the OIDC flow.
     // In a real app, clicking the button would redirect to BankID.
     // Here, we directly call the "callback" function with the FNR.
@@ -61,11 +86,35 @@ export default function LoginPage() {
         setError(result.message || 'An unknown error occurred.');
         setLoading(false);
     }
+    */
   };
   
   const handlePasskeyLogin = async () => {
     setLoading(true);
     setError(null);
+    
+    // --- MOCK LOGIN FOR OFFLINE DEVELOPMENT ---
+    // Why: This section bypasses the real server-side passkey flow
+    // to allow for seamless development without an internet connection.
+    //
+    // TO RESTORE ONLINE FUNCTIONALITY:
+    // 1. Remove the code block below.
+    // 2. Uncomment the original `startLogin` call.
+    
+    console.log("Simulating OFFLINE Passkey Login...");
+    localStorage.setItem('anonymousVoterId', currentUser.uid);
+    localStorage.removeItem('lastSeenTimestamp'); 
+    window.dispatchEvent(new Event('authChange'));
+    toast({
+        title: "Offline Login Successful",
+        description: "Logged in as the default mock user.",
+    });
+    router.push('/');
+    router.refresh();
+    return; // End of mock block
+    
+    /*
+    // --- ORIGINAL ONLINE AUTHENTICATION LOGIC ---
     try {
         const result = await startLogin();
         if(result.success && result.personHash) {
@@ -86,6 +135,7 @@ export default function LoginPage() {
         setError(e.message || 'An unexpected error occurred during passkey login.');
         setLoading(false);
     }
+    */
   }
 
 
