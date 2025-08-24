@@ -257,7 +257,7 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                               size="sm"
                               className={cn(
                                 'h-9 flex-1 group',
-                                'text-destructive hover:bg-destructive/5 border-destructive/20',
+                                'text-destructive hover:bg-destructive/10 border-destructive/20',
                                 votedOn === 'no' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : 'hover:bg-destructive/10'
                               )}
                               onClick={() => handleVote('no')}
