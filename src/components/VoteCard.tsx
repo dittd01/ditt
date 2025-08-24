@@ -17,6 +17,7 @@ import { useEffect, useRef, useState } from 'react';
 import { MiniTrendChart } from './MiniTrendChart';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 
 interface VoteCardProps {
@@ -38,8 +39,12 @@ const getCategoryIconName = (categoryId: string): string | null => {
 }
 
 
-export function VoteCard({ topic, hasVoted }: VoteCardProps) {
+export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: VoteCardProps) {
   const { toast } = useToast();
+  const router = useRouter();
+  const [topic, setTopic] = useState(initialTopic);
+  const [hasVoted, setHasVoted] = useState(initialHasVoted);
+  
   const iconName = getCategoryIconName(topic.categoryId);
   const link = topic.voteType === 'election' ? '/election-2025' : `/t/${topic.slug}`;
   const cardRef = useRef<HTMLDivElement>(null);
@@ -54,12 +59,25 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
     const bookmarkedTopics = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
     setIsBookmarked(bookmarkedTopics.includes(topic.id));
 
-    const handleStorageChange = () => {
-        const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
-        setLang(selectedLang);
+    const handleStorageChange = (event: StorageEvent) => {
+        if (event.key === 'selectedLanguage') {
+            setLang(event.newValue || 'en');
+        }
+        if (event.key === `voted_on_${topic.id}`) {
+             setHasVoted(!!event.newValue);
+        }
+        if (event.key === `votes_for_${topic.id}_yes` || event.key === `votes_for_${topic.id}_no`) {
+            setTopic(prevTopic => {
+                const newVotes = {...prevTopic.votes};
+                if(event.key === `votes_for_${topic.id}_yes`) newVotes.yes = parseInt(event.newValue || '0', 10);
+                if(event.key === `votes_for_${topic.id}_no`) newVotes.no = parseInt(event.newValue || '0', 10);
+                const newTotalVotes = (newVotes.yes || 0) + (newVotes.no || 0);
+                return {...prevTopic, votes: newVotes, totalVotes: newTotalVotes};
+            });
+        }
     };
-
-    handleStorageChange();
+    
+    setLang(localStorage.getItem('selectedLanguage') || 'en');
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -83,7 +101,9 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
     });
 
     return () => {
-      observer.disconnect();
+      if(cardRef.current) {
+        observer.disconnect();
+      }
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [topic.id, topic.categoryId]);
@@ -108,16 +128,83 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
     window.dispatchEvent(new Event('bookmarkChange'));
   };
 
-  
   const handleCardClick = () => {
     trackEvent('open_card', { topicId: topic.id, from: 'homepage' });
   };
   
+  const handleVote = (voteOption: 'yes' | 'no') => {
+    const voterId = localStorage.getItem('anonymousVoterId');
+    if (!voterId) {
+        toast({
+            variant: 'destructive',
+            title: 'Authentication Required',
+            description: 'You must be logged in to vote.',
+        });
+        router.push('/auth/login');
+        return;
+    }
+
+    const previouslyVotedOn = localStorage.getItem(`voted_on_${topic.id}`);
+    if (previouslyVotedOn === voteOption) {
+        toast({
+            title: 'Already Voted',
+            description: 'You have already cast this vote.',
+        });
+        return;
+    }
+
+    if (previouslyVotedOn) {
+        trackEvent('vote_changed', { topicId: topic.id, from: previouslyVotedOn, to: voteOption });
+    } else {
+        trackEvent('vote_cast', { topicId: topic.id, choice: voteOption });
+    }
+
+    // Optimistically update the state
+    setTopic(currentTopic => {
+        const newVotes = { ...currentTopic.votes };
+
+        // Decrement the old vote if changing vote
+        if (previouslyVotedOn && newVotes[previouslyVotedOn] !== undefined) {
+            newVotes[previouslyVotedOn] = Math.max(0, newVotes[previouslyVotedOn] - 1);
+        }
+
+        // Increment the new vote
+        newVotes[voteOption] = (newVotes[voteOption] || 0) + 1;
+        
+        // Update local storage
+        localStorage.setItem(`votes_for_${topic.id}_${voteOption}`, newVotes[voteOption].toString());
+        if (previouslyVotedOn) {
+             localStorage.setItem(`votes_for_${topic.id}_${previouslyVotedOn}`, newVotes[previouslyVotedOn].toString());
+        }
+
+        const newTotalVotes = (newVotes.yes || 0) + (newVotes.no || 0);
+
+        return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
+    });
+
+    localStorage.setItem(`voted_on_${topic.id}`, voteOption);
+    setHasVoted(true);
+
+    const voteLabel = voteOption === 'yes' ? (lang === 'nb' ? 'Ja' : 'Yes') : (lang === 'nb' ? 'Nei' : 'No');
+
+    toast({
+        title: previouslyVotedOn ? 'Vote Changed!' : 'Vote Cast!',
+        description: `Your anonymous vote for "${voteLabel}" has been recorded.`,
+    });
+    
+    // Dispatch a storage event to notify other components/tabs
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: `voted_on_${topic.id}`,
+      newValue: voteOption,
+    }));
+  };
+
+  
   const yesVotes = topic.votes?.yes || 0;
   const noVotes = topic.votes?.no || 0;
   const primaryVotes = yesVotes + noVotes;
-  const yesPercentage = primaryVotes > 0 ? (yesVotes / primaryVotes) * 100 : 50;
-  const noPercentage = primaryVotes > 0 ? (noVotes / primaryVotes) * 100 : 50;
+  const yesPercentage = primaryVotes > 0 ? (yesVotes / primaryVotes) * 100 : hasVoted ? (topic.votes?.yes ? 100 : 0) : 50;
+  const noPercentage = primaryVotes > 0 ? (noVotes / primaryVotes) * 100 : hasVoted ? (topic.votes?.no ? 100 : 0) : 50;
   
   const infoText = lang === 'nb' ? 'Info' : 'Info';
   const yesText = lang === 'nb' ? 'Ja' : 'Yes';
@@ -169,11 +256,11 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
         </div>
         <CardFooter className="pt-0 p-4 border-t flex flex-col items-center justify-center gap-3">
             <div className="flex w-full items-center justify-center gap-2">
-                <Button variant="outline" size="sm" className="h-9 flex-1 hover:bg-primary hover:text-primary-foreground group">
+                <Button variant="outline" size="sm" className="h-9 flex-1 hover:bg-primary hover:text-primary-foreground group" onClick={() => handleVote('yes')}>
                     <ThumbsUp className="h-4 w-4 text-[hsl(var(--chart-2))] group-hover:text-primary-foreground" />
                     <span className="ml-2">{yesText}</span>
                 </Button>
-                <Button variant="outline" size="sm" className="h-9 flex-1 hover:bg-destructive hover:text-destructive-foreground group">
+                <Button variant="outline" size="sm" className="h-9 flex-1 hover:bg-destructive hover:text-destructive-foreground group" onClick={() => handleVote('no')}>
                      <ThumbsDown className="h-4 w-4 text-[hsl(var(--chart-1))] group-hover:text-destructive-foreground" />
                      <span className="ml-2">{noText}</span>
                 </Button>
