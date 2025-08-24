@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { currentUser } from '@/lib/user-data';
-import { allTopics } from '@/lib/data';
+import { allTopics as initialTopics } from '@/lib/data';
 import type { Topic } from '@/lib/types';
 
 
@@ -36,9 +36,24 @@ const getVerdictIcon = (verdict: Suggestion['verdict']) => {
         case 'Merged':
             return <CopyCheck className="h-4 w-4 text-blue-500" />;
         case 'Rejected':
+        case 'rejected_by_ai':
             return <XCircle className="h-4 w-4 text-red-500" />;
         default:
             return null;
+    }
+}
+
+const getVerdictVariant = (verdict: Suggestion['verdict']): 'default' | 'destructive' | 'secondary' => {
+     switch (verdict) {
+        case 'Approved':
+            return 'default';
+        case 'Merged':
+            return 'secondary';
+        case 'Rejected':
+        case 'rejected_by_ai':
+            return 'destructive';
+        default:
+            return 'secondary';
     }
 }
 
@@ -51,26 +66,29 @@ export default function ProfilePage() {
   const user = username === currentUser.username ? currentUser : null;
 
   useEffect(() => {
+    if (!user) return;
+    
     const syncUserData = () => {
-      if (user) {
-        const customSuggestions: Suggestion[] = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
-        setUserSuggestions(customSuggestions);
+      // Sync suggestions
+      const customSuggestions: Suggestion[] = JSON.parse(localStorage.getItem('user_suggestions') || '[]');
+      setUserSuggestions(customSuggestions);
 
-        const bookmarkedTopicIds: string[] = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
-        const bookmarked = allTopics.filter(topic => bookmarkedTopicIds.includes(topic.id));
-        setBookmarkedTopics(bookmarked);
-      } else {
-        setUserSuggestions([]);
-        setBookmarkedTopics([]);
-      }
+      // Sync bookmarks
+      const bookmarkedTopicIds: string[] = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
+      const customTopics: Topic[] = JSON.parse(localStorage.getItem('custom_topics') || '[]');
+      const combinedTopics = [...initialTopics, ...customTopics];
+      const uniqueTopics = Array.from(new Map(combinedTopics.map(t => [t.id, t])).values());
+
+      const bookmarked = uniqueTopics.filter(topic => bookmarkedTopicIds.includes(topic.id));
+      setBookmarkedTopics(bookmarked);
     };
 
     syncUserData();
     
-    // Rerender if storage changes
+    // Rerender if storage changes from another tab or from our custom events
     window.addEventListener('storage', syncUserData);
     window.addEventListener('topicAdded', syncUserData);
-    window.addEventListener('bookmarkChange', syncUserData); // Listen for bookmark changes
+    window.addEventListener('bookmarkChange', syncUserData);
 
     return () => {
       window.removeEventListener('storage', syncUserData);
@@ -206,9 +224,9 @@ export default function ProfilePage() {
                                   )}
                                 </TableCell>
                                 <TableCell>
-                                    <Badge variant={s.verdict === 'Rejected' ? 'destructive' : s.verdict === 'Merged' ? 'secondary' : 'default'} className="gap-1.5 pl-2">
+                                    <Badge variant={getVerdictVariant(s.verdict)} className="gap-1.5 pl-2 capitalize">
                                         {getVerdictIcon(s.verdict)}
-                                        {s.verdict}
+                                        {s.verdict.replace(/_/g, ' ')}
                                     </Badge>
                                 </TableCell>
                                 <TableCell>{s.reason}</TableCell>
