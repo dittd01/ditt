@@ -94,11 +94,20 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
   }, [topic, timeframe, showControls]);
   
   const barChartData = useMemo(() => {
+    const yes = topic.votes.yes || 0;
+    const no = topic.votes.no || 0;
+    const abstain = topic.votes.abstain || 0;
+    const total = yes + no + abstain;
+
+    if (total === 0) {
+        return [{ name: 'Votes', yes_percent: 0, no_percent: 0, abstain_percent: 0 }];
+    }
+
     return [{
         name: 'Votes',
-        yes: topic.votes.yes || 0,
-        no: topic.votes.no || 0,
-        abstain: topic.votes.abstain || 0,
+        yes_percent: (yes / total) * 100,
+        no_percent: (no / total) * 100,
+        abstain_percent: (abstain / total) * 100,
     }]
   }, [topic.votes]);
 
@@ -159,7 +168,7 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
      <div className="h-[120px] w-full">
         <ResponsiveContainer>
             <BarChart data={barChartData} layout="vertical" margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
-                <XAxis type="number" hide />
+                <XAxis type="number" hide domain={[0, 100]} />
                 <YAxis type="category" dataKey="name" hide />
                 <Tooltip
                     cursor={{ fill: 'hsl(var(--muted))' }}
@@ -168,16 +177,32 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
                         borderColor: 'hsl(var(--border))',
                         borderRadius: 'var(--radius)',
                     }}
+                    formatter={(value: number) => [`${value.toFixed(1)}%`, 'Percentage']}
                 />
                 <Legend />
-                <Bar dataKey="yes" stackId="a" fill="hsl(var(--chart-2))" name="Yes">
-                    <LabelList dataKey="yes" position="center" className="fill-primary-foreground font-semibold" />
+                <Bar dataKey="yes_percent" stackId="a" fill="hsl(var(--chart-2))" name="Yes">
+                    <LabelList 
+                        dataKey="yes_percent" 
+                        position="center" 
+                        className="fill-primary-foreground font-semibold" 
+                        formatter={(value: number) => value > 5 ? `${value.toFixed(0)}%` : ''} 
+                    />
                 </Bar>
-                <Bar dataKey="no" stackId="a" fill="hsl(var(--chart-1))" name="No">
-                     <LabelList dataKey="no" position="center" className="fill-destructive-foreground font-semibold" />
+                <Bar dataKey="no_percent" stackId="a" fill="hsl(var(--chart-1))" name="No">
+                     <LabelList 
+                        dataKey="no_percent" 
+                        position="center" 
+                        className="fill-destructive-foreground font-semibold" 
+                        formatter={(value: number) => value > 5 ? `${value.toFixed(0)}%` : ''} 
+                    />
                 </Bar>
-                <Bar dataKey="abstain" stackId="a" fill="hsl(var(--muted))" name="Abstain">
-                     <LabelList dataKey="abstain" position="center" className="fill-muted-foreground font-semibold" />
+                <Bar dataKey="abstain_percent" stackId="a" fill="hsl(var(--muted))" name="Abstain">
+                     <LabelList 
+                        dataKey="abstain_percent" 
+                        position="center" 
+                        className="fill-muted-foreground font-semibold" 
+                        formatter={(value: number) => value > 5 ? `${value.toFixed(0)}%` : ''} 
+                    />
                 </Bar>
             </BarChart>
         </ResponsiveContainer>
