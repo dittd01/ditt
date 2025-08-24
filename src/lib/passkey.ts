@@ -38,12 +38,10 @@ export async function startRegistration(personHash: string): Promise<{ success: 
     // 1. Get a challenge from the server
     const options = await getRegistrationChallengeAction(personHash);
     
-    // SimpleWebAuthn's startRegistration expects `challenge` and `user.id` to be ArrayBuffers
-    // but the server sends them as base64url strings for JSON compatibility.
-    // We need to convert them back.
+    // The server sends the challenge as a base64url-encoded string.
+    // The browser's WebAuthn API expects `challenge` to be an ArrayBuffer.
     options.challenge = base64URLToBuffer(options.challenge as unknown as string);
-    options.user.id = base64URLToBuffer(options.user.id as unknown as string);
-
+    // The user.id should remain a string as received from the server.
     
     // 2. Prompt the user to create a passkey
     const attestationResponse: RegistrationResponseJSON = await browserStartRegistration(options);
