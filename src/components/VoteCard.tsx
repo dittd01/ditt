@@ -271,6 +271,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                   size="sm"
                   className={cn(
                     'h-9 flex-1 group',
+                    'text-destructive border-destructive/20 hover:bg-destructive/10',
                     votedOn === 'no' && 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
                     votedOn && votedOn !== 'no' && 'opacity-60 pointer-events-none'
                   )}
@@ -357,5 +358,7 @@ VoteCard.Skeleton = function VoteCardSkeleton() {
         </Card>
     )
 }
+
+    
 
     
