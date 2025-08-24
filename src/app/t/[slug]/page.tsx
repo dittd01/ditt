@@ -58,7 +58,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
   // The Server Component's job is to structure the page and pass initial data
   // down to the Client Components that will handle user interaction.
   return (
-    <div className="container mx-auto px-4 py-4 md:py-8">
+    <div className="container mx-auto max-w-4xl px-4 py-4 md:py-8">
       {/* Main Page Header */}
       <Card className="mb-8">
         <CardHeader className="p-4 md:p-6">
@@ -78,11 +78,11 @@ export default async function TopicPage({ params }: TopicPageProps) {
         </CardContent>
       </Card>
       
-      {/* Two-Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8">
-        
-        {/* Left Column: Main Content (Debate) */}
-        <div className="lg:col-span-2 space-y-8">
+      <div className="space-y-8">
+          <Suspense fallback={<TopicInteraction.Skeleton />}>
+              <TopicInteraction topic={topic} />
+          </Suspense>
+
            <section>
               <h2 className="text-2xl font-bold font-headline mb-6">{t.structuredDebate}</h2>
                <Suspense fallback={<DebateSection.Skeleton />}>
@@ -90,22 +90,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
                </Suspense>
            </section>
 
-            <RelatedTopics topicId={topic.id} subcategoryId={topic.subcategoryId} />
-
-            <Separator className="my-12" />
-
-            <div className="max-w-3xl mx-auto w-full">
-                <SuggestionForm />
-            </div>
-        </div>
-
-        {/* Right Column: Sticky Sidebar (Voting & Data) */}
-        <div className="lg:col-span-1 space-y-8 lg:sticky lg:top-20 h-fit">
-           <Suspense fallback={<TopicInteraction.Skeleton />}>
-              <TopicInteraction topic={topic} />
-          </Suspense>
-
-           <Accordion type="single" collapsible className="w-full space-y-4" defaultValue="history">
+           <Accordion type="single" collapsible className="w-full space-y-4">
             <AccordionItem value="sources">
               <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
                 <FileText className="h-5 w-5" /> {t.sourcesContext}
@@ -124,7 +109,14 @@ export default async function TopicPage({ params }: TopicPageProps) {
               </AccordionContent>
             </AccordionItem>
           </Accordion>
-        </div>
+          
+           <RelatedTopics topicId={topic.id} subcategoryId={topic.subcategoryId} />
+
+            <Separator className="my-12" />
+
+            <div className="max-w-3xl mx-auto w-full">
+                <SuggestionForm />
+            </div>
       </div>
     </div>
   );
