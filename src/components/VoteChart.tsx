@@ -18,8 +18,7 @@ import {
 } from 'recharts';
 import type { Topic } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { parseISO, format } from 'date-fns';
 
 type VoteChartProps = {
@@ -29,7 +28,6 @@ type VoteChartProps = {
 
 export function VoteChart({ topic, showControls = true }: VoteChartProps) {
   const [timeframe, setTimeframe] = useState('All');
-  const [view, setView] = useState<'percentage' | 'count'>('percentage');
 
   const chartData = useMemo(() => {
     const now = new Date();
@@ -104,127 +102,124 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
     }]
   }, [topic.votes]);
 
-  const ChartComponent = () => (
-    <div className="space-y-8">
-        <div className="h-[300px] w-full">
-            <ResponsiveContainer>
-                <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis
-                        dataKey="date"
-                        stroke="hsl(var(--muted-foreground))"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
+  const renderLineChart = (view: 'percentage' | 'count') => (
+     <div className="h-[300px] w-full">
+        <ResponsiveContainer>
+            <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis
+                    dataKey="date"
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                />
+                <YAxis
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    domain={view === 'percentage' ? [0, 100] : undefined}
+                    tickFormatter={(value) => view === 'percentage' ? `${value}%` : new Intl.NumberFormat('en-US', {
+                        notation: "compact",
+                        compactDisplay: "short"
+                    }).format(value)}
+                />
+                <Tooltip
+                    cursor={{ fill: 'hsl(var(--muted))' }}
+                    contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        borderColor: 'hsl(var(--border))',
+                        borderRadius: 'var(--radius)',
+                    }}
+                     formatter={(value: number, name: string) => [
+                        view === 'percentage' ? `${value.toFixed(1)}%` : value.toLocaleString(),
+                        name
+                    ]}
+                />
+                <Legend />
+                {topic.options.filter(opt => opt.id !== 'abstain').map((option) => (
+                    <Line
+                        key={option.id}
+                        type="monotone"
+                        dataKey={view === 'percentage' ? `${option.id}_percent` : option.id}
+                        name={option.label}
+                        stroke={option.color}
+                        strokeWidth={2}
+                        dot={false}
+                        activeDot={{ r: 4 }}
                     />
-                    <YAxis
-                        stroke="hsl(var(--muted-foreground))"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                        domain={view === 'percentage' ? [0, 100] : undefined}
-                        tickFormatter={(value) => view === 'percentage' ? `${value}%` : new Intl.NumberFormat('en-US', {
-                            notation: "compact",
-                            compactDisplay: "short"
-                        }).format(value)}
-                    />
-                    <Tooltip
-                        cursor={{ fill: 'hsl(var(--muted))' }}
-                        contentStyle={{
-                            backgroundColor: 'hsl(var(--background))',
-                            borderColor: 'hsl(var(--border))',
-                            borderRadius: 'var(--radius)',
-                        }}
-                         formatter={(value: number, name: string) => [
-                            view === 'percentage' ? `${value.toFixed(1)}%` : value.toLocaleString(),
-                            name
-                        ]}
-                    />
-                    <Legend />
-                    {topic.options.filter(opt => opt.id !== 'abstain').map((option) => (
-                        <Line
-                            key={option.id}
-                            type="monotone"
-                            dataKey={view === 'percentage' ? `${option.id}_percent` : option.id}
-                            name={option.label}
-                            stroke={option.color}
-                            strokeWidth={2}
-                            dot={false}
-                            activeDot={{ r: 4 }}
-                        />
-                    ))}
-                </LineChart>
-            </ResponsiveContainer>
-        </div>
-        <div className="h-[120px] w-full">
-            <ResponsiveContainer>
-                <BarChart data={barChartData} layout="vertical" margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
-                    <XAxis type="number" hide />
-                    <YAxis type="category" dataKey="name" hide />
-                    <Tooltip
-                        cursor={{ fill: 'hsl(var(--muted))' }}
-                         contentStyle={{
-                            backgroundColor: 'hsl(var(--background))',
-                            borderColor: 'hsl(var(--border))',
-                            borderRadius: 'var(--radius)',
-                        }}
-                    />
-                    <Legend />
-                    <Bar dataKey="yes" stackId="a" fill="hsl(var(--chart-2))" name="Yes">
-                        <LabelList dataKey="yes" position="center" className="fill-primary-foreground font-semibold" />
-                    </Bar>
-                    <Bar dataKey="no" stackId="a" fill="hsl(var(--chart-1))" name="No">
-                         <LabelList dataKey="no" position="center" className="fill-destructive-foreground font-semibold" />
-                    </Bar>
-                    <Bar dataKey="abstain" stackId="a" fill="hsl(var(--muted))" name="Abstain">
-                         <LabelList dataKey="abstain" position="center" className="fill-muted-foreground font-semibold" />
-                    </Bar>
-                </BarChart>
-            </ResponsiveContainer>
-        </div>
+                ))}
+            </LineChart>
+        </ResponsiveContainer>
     </div>
-  );
+  )
 
-  if (!showControls) {
-    return <ChartComponent />;
-  }
+  const renderBarChart = () => (
+     <div className="h-[120px] w-full">
+        <ResponsiveContainer>
+            <BarChart data={barChartData} layout="vertical" margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
+                <XAxis type="number" hide />
+                <YAxis type="category" dataKey="name" hide />
+                <Tooltip
+                    cursor={{ fill: 'hsl(var(--muted))' }}
+                     contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        borderColor: 'hsl(var(--border))',
+                        borderRadius: 'var(--radius)',
+                    }}
+                />
+                <Legend />
+                <Bar dataKey="yes" stackId="a" fill="hsl(var(--chart-2))" name="Yes">
+                    <LabelList dataKey="yes" position="center" className="fill-primary-foreground font-semibold" />
+                </Bar>
+                <Bar dataKey="no" stackId="a" fill="hsl(var(--chart-1))" name="No">
+                     <LabelList dataKey="no" position="center" className="fill-destructive-foreground font-semibold" />
+                </Bar>
+                <Bar dataKey="abstain" stackId="a" fill="hsl(var(--muted))" name="Abstain">
+                     <LabelList dataKey="abstain" position="center" className="fill-muted-foreground font-semibold" />
+                </Bar>
+            </BarChart>
+        </ResponsiveContainer>
+    </div>
+  )
 
   return (
     <Card>
-       <Tabs defaultValue={view} onValueChange={(v) => setView(v as 'percentage' | 'count')}>
         <CardHeader>
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
             <CardTitle>Vote History</CardTitle>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-                 <TabsList className="grid w-full grid-cols-2 sm:w-[200px]">
-                    <TabsTrigger value="percentage">Percentage</TabsTrigger>
-                    <TabsTrigger value="count">Count</TabsTrigger>
-                </TabsList>
-                <div className="flex gap-1 bg-muted p-1 rounded-md w-full sm:w-auto">
-                    {['W', '1M', '1Y', 'All'].map((tf) => (
-                    <Button
-                        key={tf}
-                        size="sm"
-                        variant={timeframe === tf ? 'default' : 'ghost'}
-                        onClick={() => setTimeframe(tf)}
-                        className="px-2 h-7 flex-1 sm:flex-initial"
-                    >
-                        {tf}
-                    </Button>
-                    ))}
-                </div>
-            </div>
+            {showControls && (
+              <div className="flex gap-1 bg-muted p-1 rounded-md w-full sm:w-auto">
+                  {['W', '1M', '1Y', 'All'].map((tf) => (
+                  <Button
+                      key={tf}
+                      size="sm"
+                      variant={timeframe === tf ? 'default' : 'ghost'}
+                      onClick={() => setTimeframe(tf)}
+                      className="px-2 h-7 flex-1 sm:flex-initial"
+                  >
+                      {tf}
+                  </Button>
+                  ))}
+              </div>
+            )}
             </div>
         </CardHeader>
-        <CardContent>
-            <TabsContent value="percentage">
-                <ChartComponent />
-            </TabsContent>
-            <TabsContent value="count">
-                <ChartComponent />
-            </TabsContent>
+        <CardContent className="space-y-8">
+            <div>
+              <CardDescription className="mb-4 text-center font-medium">Percentage Over Time</CardDescription>
+              {renderLineChart('percentage')}
+            </div>
+             <div>
+              <CardDescription className="mb-4 text-center font-medium">Vote Count Over Time</CardDescription>
+              {renderLineChart('count')}
+            </div>
+            <div>
+              <CardDescription className="mb-4 text-center font-medium">Current Vote Distribution</CardDescription>
+              {renderBarChart()}
+            </div>
         </CardContent>
-      </Tabs>
     </Card>
   );
 }
