@@ -1,6 +1,6 @@
 
 
-import { allTopics, categories } from '@/lib/data';
+import { allTopics, categories, mockUserNames } from '@/lib/data';
 import type { Topic, Subcategory } from '@/lib/types';
 import { format, subDays } from 'date-fns';
 import { currentUser } from '@/lib/user-data';
@@ -63,12 +63,6 @@ export const topicsData = [
 ];
 
 // Users Page
-const mockUserNames = [
-    'Anne Olsen', 'Per Hansen', 'Ingrid Johansen', 'Lars Nilsen', 'Kari Berg', 'Ole Larsen',
-    'Sigrid Andersen', 'Torbjorn Kristiansen', 'Marit Dahl', 'Hans Pettersen', 'Solveig Jensen',
-    'Knut Lien', 'Astrid Moen', 'Jan Eriksen', 'Berit Andreassen', 'Arne Solberg'
-];
-
 const generatedUsers = Array.from({ length: 50 }, (_, i) => {
     const createdDate = subDays(new Date(), Math.floor(Math.random() * 90));
     const lastSeenDate = subDays(createdDate, Math.floor(Math.random() * -30)); // last seen is after created
@@ -153,6 +147,7 @@ export interface PollRowData {
     status: string;
     votes: number;
     updated: string;
+    author: string;
 }
 
 const getCategoryInfo = (categoryId: string, subcategoryId: string) => {
@@ -189,12 +184,11 @@ export function getPollsTableData(): PollRowData[] {
       subcategoryId: subId,
       status: topic.status.charAt(0).toUpperCase() + topic.status.slice(1),
       votes: topic.totalVotes,
-      updated: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString().split('T')[0] 
+      updated: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString().split('T')[0],
+      author: topic.author || 'System',
     };
   });
 }
 
 // Re-export categories for convenience in other admin components
 export { categories };
-
-    

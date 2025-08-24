@@ -93,7 +93,10 @@ export default function PollsPage() {
   
   const sortedAndFilteredPolls = useMemo(() => {
     let filteredPolls = polls.filter(poll => {
-      const searchMatch = debouncedSearchTerm ? poll.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) : true;
+      const searchMatch = debouncedSearchTerm ? (
+        poll.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        poll.author.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+      ) : true;
       const statusMatch = statusFilter === 'all' || poll.status.toLowerCase() === statusFilter;
       const categoryMatch = categoryFilter === 'all' || poll.categoryId === categoryFilter;
       const subcategoryMatch = subcategoryFilter === 'all' || poll.subcategoryId === subcategoryFilter;
@@ -163,7 +166,7 @@ export default function PollsPage() {
       
       <div className="flex flex-wrap items-center gap-4">
           <Input 
-            placeholder="Search by title..." 
+            placeholder="Search by title or author..." 
             className="w-full sm:w-auto sm:flex-1"
             defaultValue={searchTerm}
             onChange={(e) => handleFilterChange('q', e.target.value)}
@@ -207,9 +210,9 @@ export default function PollsPage() {
       <Table>
         <TableHeader>
             <TableRow>
-                <SortableHeader sortKey="category">Category</SortableHeader>
-                <SortableHeader sortKey="subcategory">Subcategory</SortableHeader>
                 <SortableHeader sortKey="title" className="w-[40%]">Title</SortableHeader>
+                <SortableHeader sortKey="author">Author</SortableHeader>
+                <SortableHeader sortKey="category">Category</SortableHeader>
                 <SortableHeader sortKey="status">Status</SortableHeader>
                 <SortableHeader sortKey="votes">Total Votes</SortableHeader>
                 <SortableHeader sortKey="updated">Last Updated</SortableHeader>
@@ -219,9 +222,9 @@ export default function PollsPage() {
         <TableBody>
             {sortedAndFilteredPolls.map((poll) => (
                  <TableRow key={poll.id}>
-                    <TableCell>{poll.category}</TableCell>
-                    <TableCell>{poll.subcategory}</TableCell>
                     <TableCell className="font-medium">{poll.title}</TableCell>
+                    <TableCell>{poll.author}</TableCell>
+                    <TableCell>{poll.category}</TableCell>
                     <TableCell><Badge variant={poll.status === 'Live' ? 'default' : 'secondary'}>{poll.status}</Badge></TableCell>
                     <TableCell>{poll.votes.toLocaleString()}</TableCell>
                     <TableCell>{poll.updated}</TableCell>

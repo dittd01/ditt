@@ -4,6 +4,7 @@ import type { Topic, Category, VoteHistory, Argument } from './types';
 import { electionTopic as initialElectionTopic, parties as partyDetails } from './election-data';
 import type { LucideIcon } from 'lucide-react';
 import { subDays, subHours, subMonths, subYears, format } from 'date-fns';
+import { currentUser } from '@/lib/user-data';
 
 function generateSlug(text: string): string {
   return text
@@ -176,6 +177,11 @@ const generateVoteHistory = (options: {id: string}[], days: number): VoteHistory
     return history;
 }
 
+export const mockUserNames = [
+    'Anne Olsen', 'Per Hansen', 'Ingrid Johansen', 'Lars Nilsen', 'Kari Berg', 'Ole Larsen',
+    'Sigrid Andersen', 'Torbjorn Kristiansen', 'Marit Dahl', 'Hans Pettersen', 'Solveig Jensen',
+    'Knut Lien', 'Astrid Moen', 'Jan Eriksen', 'Berit Andreassen', 'Arne Solberg'
+];
 
 const standardTopics: Topic[] = subCategoryData.map((sub, index): Topic => {
     const voteType = (sub.voteType || 'yesno') as Topic['voteType'];
@@ -194,6 +200,9 @@ const standardTopics: Topic[] = subCategoryData.map((sub, index): Topic => {
     const votesLastWeek = (latestVotes.total || 0) - (history[history.length - 8]?.total || 0);
     const votesLastMonth = (latestVotes.total || 0) - (history[history.length - 31]?.total || 0);
     const votesLastYear = (latestVotes.total || 0) - (history[history.length - 366]?.total || 0);
+
+    const author = index % 3 === 0 ? currentUser.displayName : mockUserNames[index % mockUserNames.length];
+
 
     return {
         id: (index + 1).toString(),
@@ -216,6 +225,7 @@ const standardTopics: Topic[] = subCategoryData.map((sub, index): Topic => {
         status: 'live',
         voteType: voteType,
         averageImportance: Math.random() * 4,
+        author: author,
     }
 });
 
@@ -225,6 +235,7 @@ const electionTopic: Topic = {
     votesLastWeek: initialElectionTopic.totalVotes - (initialElectionTopic.history[1].total || 0),
     votesLastMonth: initialElectionTopic.totalVotes - (initialElectionTopic.history[0].total || 0),
     votesLastYear: initialElectionTopic.totalVotes,
+    author: 'System',
 }
 
 export const allTopics: Topic[] = [electionTopic, ...standardTopics];

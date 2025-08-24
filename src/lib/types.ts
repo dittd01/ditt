@@ -36,6 +36,7 @@ export type Topic = {
   status: 'live' | 'closed' | 'draft';
   voteType: 'yesno' | 'multi' | 'ranked' | 'election' | 'likert' | 'quadratic';
   averageImportance: number;
+  author?: string;
 };
 
 export type Subcategory = {
