@@ -242,11 +242,9 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                               className={cn(
                                 'h-9 flex-1 group',
                                 'text-primary hover:bg-primary hover:text-primary-foreground',
-                                votedOn === 'yes' && 'bg-primary text-primary-foreground',
-                                votedOn && votedOn !== 'yes' && 'opacity-50 pointer-events-none'
+                                votedOn === 'yes' && 'bg-primary text-primary-foreground'
                               )}
                               onClick={() => handleVote('yes')}
-                              disabled={!!votedOn && votedOn !== 'yes'}
                             >
                                 <ThumbsUp className="h-4 w-4" />
                                 <span className="ml-2">{t.yes}</span>
@@ -257,11 +255,9 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                               className={cn(
                                 'h-9 flex-1 group',
                                 'text-destructive hover:bg-destructive hover:text-destructive-foreground',
-                                votedOn === 'no' && 'bg-destructive text-destructive-foreground',
-                                votedOn && votedOn !== 'no' && 'opacity-50 pointer-events-none'
+                                votedOn === 'no' && 'bg-destructive text-destructive-foreground'
                               )}
                               onClick={() => handleVote('no')}
-                              disabled={!!votedOn && votedOn !== 'no'}
                             >
                                  <ThumbsDown className="h-4 w-4" />
                                  <span className="ml-2">{t.no}</span>
