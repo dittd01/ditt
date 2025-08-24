@@ -39,7 +39,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
   const t = {
     backToPolls: 'Back to Polls',
     topicDetails: 'Topic Details',
-    sourcesContext: 'Background & Sources',
+    sourcesContext: 'Sources',
     voteHistory: 'Vote History',
     structuredDebate: 'Structured Debate',
     argumentsFor: 'Arguments For',
@@ -70,9 +70,9 @@ export default async function TopicPage({ params }: TopicPageProps) {
                     <AccordionItem value="sources" className="border-none">
                         <AccordionTrigger className="text-base font-semibold flex justify-start items-center gap-2 p-4">
                             <FileText className="h-5 w-5" />
-                            {t.sources}
+                            {t.sourcesContext}
                         </AccordionTrigger>
-                        <AccordionContent className="p-6 border-t rounded-b-lg space-y-6">
+                        <AccordionContent className="p-6 pt-0 border-t rounded-b-lg space-y-6">
                             <ul className="space-y-2">
                                 {topic.sources.map((source, index) => (
                                     <li key={index}>
@@ -133,6 +133,10 @@ export default async function TopicPage({ params }: TopicPageProps) {
               </div>
           </section>
           
+          <Suspense fallback={<TopicInteraction.Skeleton />}>
+            <TopicInteraction topic={topic} />
+          </Suspense>
+
           <Separator className="my-12" />
 
          <section>
@@ -149,10 +153,6 @@ export default async function TopicPage({ params }: TopicPageProps) {
           </div>
         </div>
         <aside className="lg:col-span-1 space-y-8 lg:sticky lg:top-20 self-start">
-            <Suspense fallback={<TopicInteraction.Skeleton />}>
-              <TopicInteraction topic={topic} />
-            </Suspense>
-
            <Accordion type="single" collapsible className="w-full space-y-4">
               <AccordionItem value="history">
               <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
