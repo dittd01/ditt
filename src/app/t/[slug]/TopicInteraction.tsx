@@ -244,7 +244,7 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                               size="sm"
                               className={cn(
                                 'h-9 flex-1 group',
-                                'text-primary hover:bg-primary/5 border-primary/20',
+                                'text-primary border-primary/20',
                                 votedOn === 'yes' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'hover:bg-primary/10'
                               )}
                               onClick={() => handleVote('yes')}
@@ -257,7 +257,7 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                               size="sm"
                               className={cn(
                                 'h-9 flex-1 group',
-                                'text-destructive hover:bg-destructive/10 border-destructive/20',
+                                'text-destructive border-destructive/20',
                                 votedOn === 'no' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : 'hover:bg-destructive/10'
                               )}
                               onClick={() => handleVote('no')}
