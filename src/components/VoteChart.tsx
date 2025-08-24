@@ -29,7 +29,7 @@ type VoteChartProps = {
 
 export function VoteChart({ topic, showControls = true }: VoteChartProps) {
   const [timeframe, setTimeframe] = useState('All');
-  const [view, setView] = useState<'count' | 'percentage'>('percentage');
+  const [view, setView] = useState<'percentage' | 'count'>('percentage');
 
   const chartData = useMemo(() => {
     const now = new Date();
@@ -122,7 +122,8 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
-                        tickFormatter={(value) => new Intl.NumberFormat('en-US', {
+                        domain={view === 'percentage' ? [0, 100] : undefined}
+                        tickFormatter={(value) => view === 'percentage' ? `${value}%` : new Intl.NumberFormat('en-US', {
                             notation: "compact",
                             compactDisplay: "short"
                         }).format(value)}
@@ -134,14 +135,17 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
                             borderColor: 'hsl(var(--border))',
                             borderRadius: 'var(--radius)',
                         }}
-                         formatter={(value: number, name: string) => [value.toLocaleString(), name]}
+                         formatter={(value: number, name: string) => [
+                            view === 'percentage' ? `${value.toFixed(1)}%` : value.toLocaleString(),
+                            name
+                        ]}
                     />
                     <Legend />
                     {topic.options.filter(opt => opt.id !== 'abstain').map((option) => (
                         <Line
                             key={option.id}
                             type="monotone"
-                            dataKey={option.id}
+                            dataKey={view === 'percentage' ? `${option.id}_percent` : option.id}
                             name={option.label}
                             stroke={option.color}
                             strokeWidth={2}
@@ -187,11 +191,15 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
 
   return (
     <Card>
-       <Tabs defaultValue={view} onValueChange={(v) => setView(v as 'count' | 'percentage')}>
+       <Tabs defaultValue={view} onValueChange={(v) => setView(v as 'percentage' | 'count')}>
         <CardHeader>
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
             <CardTitle>Vote History</CardTitle>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+                 <TabsList className="grid w-full grid-cols-2 sm:w-[200px]">
+                    <TabsTrigger value="percentage">Percentage</TabsTrigger>
+                    <TabsTrigger value="count">Count</TabsTrigger>
+                </TabsList>
                 <div className="flex gap-1 bg-muted p-1 rounded-md w-full sm:w-auto">
                     {['W', '1M', '1Y', 'All'].map((tf) => (
                     <Button
@@ -209,7 +217,12 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
             </div>
         </CardHeader>
         <CardContent>
-             <ChartComponent />
+            <TabsContent value="percentage">
+                <ChartComponent />
+            </TabsContent>
+            <TabsContent value="count">
+                <ChartComponent />
+            </TabsContent>
         </CardContent>
       </Tabs>
     </Card>
