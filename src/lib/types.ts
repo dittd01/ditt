@@ -22,6 +22,10 @@ export type Topic = {
   question_en: string;
   description: string; // Default to Norwegian
   description_en: string;
+  background_md?: string;
+  pros?: string[];
+  cons?: string[];
+  sources?: { title: string; url: string }[];
   imageUrl: string;
   aiHint: string;
   options: VoteOption[];

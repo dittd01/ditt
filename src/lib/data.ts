@@ -1,5 +1,4 @@
 
-
 import type { Topic, Category, VoteHistory, Argument } from './types';
 import { electionTopic as initialElectionTopic, parties as partyDetails } from './election-data';
 import type { LucideIcon } from 'lucide-react';
@@ -211,6 +210,13 @@ const standardTopics: Topic[] = subCategoryData.map((sub, index): Topic => {
         question_en: sub.topic_en,
         description: `Dette er en offentlig avstemning om ${sub.label_nb.toLowerCase()} under kategorien ${categoryDataWithIds.find(c => c.id === sub.categoryId)?.label_nb}. Din anonyme stemme bidrar til den offentlige opinionen i denne saken.`,
         description_en: `This is a public poll regarding ${sub.label.toLowerCase()} under the ${categoryDataWithIds.find(c => c.id === sub.categoryId)?.label} category. Your anonymous vote contributes to the public sentiment on this issue.`,
+        background_md: "This topic has been a subject of public debate for several years, with significant attention from major political parties and media outlets. Recent polling data shows a divided public opinion.",
+        pros: ["Boosts economic growth by encouraging investment.", "Simplifies the tax code for individuals and businesses.", "Aligns Norway with international tax norms."],
+        cons: ["Increases wealth inequality.", "Reduces public revenue for essential services.", "May not significantly impact investment decisions."],
+        sources: [
+            { title: "Official Government Report on the matter", url: "https://www.regjeringen.no/" },
+            { title: "Statistics Norway - Related Data", url: "https://www.ssb.no/" }
+        ],
         imageUrl: sub.imageUrl,
         aiHint: sub.aiHint,
         options: options,
