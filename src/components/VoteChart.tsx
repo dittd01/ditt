@@ -12,6 +12,9 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  BarChart,
+  Bar,
+  LabelList,
 } from 'recharts';
 import type { Topic } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -91,51 +94,88 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
     }
     
   }, [topic, timeframe, showControls]);
+  
+  const barChartData = useMemo(() => {
+    return [{
+        name: 'Votes',
+        yes: topic.votes.yes || 0,
+        no: topic.votes.no || 0,
+        abstain: topic.votes.abstain || 0,
+    }]
+  }, [topic.votes]);
 
   const ChartComponent = () => (
-    <div className="h-[300px] w-full">
-        <ResponsiveContainer>
-            <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis
-                    dataKey="date"
-                    stroke="hsl(var(--muted-foreground))"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                />
-                <YAxis
-                    stroke="hsl(var(--muted-foreground))"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => `${value}%`}
-                    domain={[0, 100]}
-                />
-                <Tooltip
-                    cursor={{ fill: 'hsl(var(--muted))' }}
-                    contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        borderColor: 'hsl(var(--border))',
-                        borderRadius: 'var(--radius)',
-                    }}
-                    formatter={(value: number) => [`${value.toFixed(2)}%`, 'Percentage']}
-                />
-                <Legend />
-                {topic.options.filter(opt => opt.id !== 'abstain').map((option) => (
-                    <Line
-                        key={option.id}
-                        type="monotone"
-                        dataKey={`${option.id}_percent`}
-                        name={option.label}
-                        stroke={option.color}
-                        strokeWidth={2}
-                        dot={false}
-                        activeDot={{ r: 4 }}
+    <div className="space-y-8">
+        <div className="h-[300px] w-full">
+            <ResponsiveContainer>
+                <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis
+                        dataKey="date"
+                        stroke="hsl(var(--muted-foreground))"
+                        fontSize={12}
+                        tickLine={false}
+                        axisLine={false}
                     />
-                ))}
-            </LineChart>
-        </ResponsiveContainer>
+                    <YAxis
+                        stroke="hsl(var(--muted-foreground))"
+                        fontSize={12}
+                        tickLine={false}
+                        axisLine={false}
+                        tickFormatter={(value) => `${value}%`}
+                        domain={[0, 100]}
+                    />
+                    <Tooltip
+                        cursor={{ fill: 'hsl(var(--muted))' }}
+                        contentStyle={{
+                            backgroundColor: 'hsl(var(--background))',
+                            borderColor: 'hsl(var(--border))',
+                            borderRadius: 'var(--radius)',
+                        }}
+                        formatter={(value: number) => [`${value.toFixed(2)}%`, 'Percentage']}
+                    />
+                    <Legend />
+                    {topic.options.filter(opt => opt.id !== 'abstain').map((option) => (
+                        <Line
+                            key={option.id}
+                            type="monotone"
+                            dataKey={`${option.id}_percent`}
+                            name={option.label}
+                            stroke={option.color}
+                            strokeWidth={2}
+                            dot={false}
+                            activeDot={{ r: 4 }}
+                        />
+                    ))}
+                </LineChart>
+            </ResponsiveContainer>
+        </div>
+        <div className="h-[120px] w-full">
+            <ResponsiveContainer>
+                <BarChart data={barChartData} layout="vertical" margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
+                    <XAxis type="number" hide />
+                    <YAxis type="category" dataKey="name" hide />
+                    <Tooltip
+                        cursor={{ fill: 'hsl(var(--muted))' }}
+                         contentStyle={{
+                            backgroundColor: 'hsl(var(--background))',
+                            borderColor: 'hsl(var(--border))',
+                            borderRadius: 'var(--radius)',
+                        }}
+                    />
+                    <Legend />
+                    <Bar dataKey="yes" stackId="a" fill="hsl(var(--chart-2))" name="Yes">
+                        <LabelList dataKey="yes" position="center" className="fill-primary-foreground font-semibold" />
+                    </Bar>
+                    <Bar dataKey="no" stackId="a" fill="hsl(var(--chart-1))" name="No">
+                         <LabelList dataKey="no" position="center" className="fill-destructive-foreground font-semibold" />
+                    </Bar>
+                    <Bar dataKey="abstain" stackId="a" fill="hsl(var(--muted))" name="Abstain">
+                         <LabelList dataKey="abstain" position="center" className="fill-muted-foreground font-semibold" />
+                    </Bar>
+                </BarChart>
+            </ResponsiveContainer>
+        </div>
     </div>
   );
 
