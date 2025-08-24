@@ -15,13 +15,23 @@ import { startRegistration as browserStartRegistration, startAuthentication as b
  * crypto APIs require binary data in ArrayBuffer format, while servers typically send
  * this data in a URL-safe string format.
  *
- * @param base64urlString The Base64URL-encoded string from the server.
- * @returns An ArrayBuffer representation of the input string.
+ * This function has been made robust to handle cases where the input is already an ArrayBuffer,
+ * which can happen due to serialization from Next.js Server Actions.
+ *
+ * @param base64urlString The Base64URL-encoded string from the server, or an ArrayBuffer.
+ * @returns An ArrayBuffer representation of the input.
  */
-function base64URLToBuffer(base64urlString: string): ArrayBuffer {
-    // 1. Sanity check: Ensure the input is a non-empty string.
+function base64URLToBuffer(base64urlString: string | ArrayBuffer): ArrayBuffer {
+    // Why: This is the core of the fix. Server Actions can serialize Buffers directly
+    // to ArrayBuffers. This check makes the function idempotent and prevents a TypeError
+    // if the data is already in the desired format.
+    if (base64urlString instanceof ArrayBuffer) {
+        return base64urlString;
+    }
+
+    // 1. Sanity check: Ensure the input is a non-empty string if it's not an ArrayBuffer.
     if (typeof base64urlString !== 'string' || base64urlString.length === 0) {
-        throw new Error('Invalid input: base64URLToBuffer expects a non-empty string.');
+        throw new Error('Invalid input: base64URLToBuffer expects a non-empty string or an ArrayBuffer.');
     }
     // 2. Convert Base64URL to standard Base64 by replacing URL-safe characters.
     const base64 = base64urlString.replace(/-/g, '+').replace(/_/g, '/');
@@ -55,10 +65,12 @@ export async function startRegistration(personHash: string): Promise<{ success: 
     // 1. Get registration options (including the challenge) from the server.
     const options: PublicKeyCredentialCreationOptionsJSON = await getRegistrationChallengeAction(personHash);
     
-    // 2. Convert server-sent strings to ArrayBuffers for the browser's `create()` method.
-    //    The WebAuthn API requires `challenge` and `user.id` to be ArrayBuffers.
-    options.challenge = base64URLToBuffer(options.challenge);
-    options.user.id = base64URLToBuffer(options.user.id);
+    // 2. Convert server-sent data to ArrayBuffers for the browser's `create()` method.
+    // Why: We cast to `any` because we know our `base64URLToBuffer` is robust enough
+    // to handle the incoming data type, which might already be an ArrayBuffer. This
+    // satisfies the TypeScript compiler while centralizing the conversion logic.
+    options.challenge = base64URLToBuffer(options.challenge as any);
+    options.user.id = base64URLToBuffer(options.user.id as any);
     
     // If the server suggests credentials to exclude (to prevent re-registration of the same device),
     // their IDs must also be converted from Base64URL strings to ArrayBuffers.
@@ -110,7 +122,9 @@ export async function startLogin(): Promise<{ success: boolean; message?: string
     
     // 2. Convert the server's challenge from a Base64URL string to an ArrayBuffer for the browser API.
     if (options.challenge) {
-        options.challenge = base64URLToBuffer(options.challenge);
+        // Why: Cast to `any` to align with the fix in `startRegistration`. Our utility function
+        // is robust enough to handle the actual data type provided by the server action.
+        options.challenge = base64URLToBuffer(options.challenge as any);
     }
 
     // 3. Invoke the browser's WebAuthn API to use the passkey. This prompts the user for biometrics.
