@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -42,6 +43,7 @@ const translations = {
     loginToParticipateDescription: 'To propose a new topic, you need to be logged in with your anonymous ID.',
     yes: 'Yes',
     no: 'No',
+    youAbstained: 'You have abstained from this vote.',
   },
   nb: {
     castVote: 'Avgi din anonyme stemme',
@@ -63,6 +65,7 @@ const translations = {
     loginToParticipateDescription: 'For å foreslå et nytt emne, må du være logget inn med din anonyme ID.',
     yes: 'Ja',
     no: 'Nei',
+    youAbstained: 'Du har avstått fra denne avstemningen.',
   }
 };
 
@@ -241,12 +244,12 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                               size="sm"
                               className={cn(
                                 'h-9 flex-1 group',
-                                'text-primary hover:bg-primary hover:text-primary-foreground',
-                                votedOn === 'yes' && 'bg-primary text-primary-foreground'
+                                'text-primary hover:bg-primary/5 border-primary/20',
+                                votedOn === 'yes' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'hover:bg-primary/10'
                               )}
                               onClick={() => handleVote('yes')}
                             >
-                                <ThumbsUp className="h-4 w-4" />
+                                <ThumbsUp className={cn('h-4 w-4', votedOn === 'yes' ? 'text-primary-foreground' : 'text-primary')} />
                                 <span className="ml-2">{t.yes}</span>
                             </Button>
                             <Button
@@ -254,12 +257,12 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                               size="sm"
                               className={cn(
                                 'h-9 flex-1 group',
-                                'text-destructive hover:bg-destructive hover:text-destructive-foreground',
-                                votedOn === 'no' && 'bg-destructive text-destructive-foreground'
+                                'text-destructive hover:bg-destructive/5 border-destructive/20',
+                                votedOn === 'no' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : 'hover:bg-destructive/10'
                               )}
                               onClick={() => handleVote('no')}
                             >
-                                 <ThumbsDown className="h-4 w-4" />
+                                 <ThumbsDown className={cn('h-4 w-4', votedOn === 'no' ? 'text-destructive-foreground' : 'text-destructive')} />
                                  <span className="ml-2">{t.no}</span>
                             </Button>
                         </div>
@@ -271,6 +274,9 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                     </CardContent>
                     <CardFooter className="flex-col gap-4 border-t pt-6">
                         <Button variant="outline" onClick={() => handleVote('abstain')} className="hover:bg-[#888] hover:text-white">{t.abstain}</Button>
+                        {votedOn === 'abstain' && (
+                             <p className="text-sm text-muted-foreground">{t.youAbstained}</p>
+                        )}
                     </CardFooter>
                 </Card>
             );
