@@ -122,8 +122,10 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
-                        tickFormatter={(value) => `${value}%`}
-                        domain={[0, 100]}
+                        tickFormatter={(value) => new Intl.NumberFormat('en-US', {
+                            notation: "compact",
+                            compactDisplay: "short"
+                        }).format(value)}
                     />
                     <Tooltip
                         cursor={{ fill: 'hsl(var(--muted))' }}
@@ -132,14 +134,14 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
                             borderColor: 'hsl(var(--border))',
                             borderRadius: 'var(--radius)',
                         }}
-                        formatter={(value: number) => [`${value.toFixed(2)}%`, 'Percentage']}
+                         formatter={(value: number, name: string) => [value.toLocaleString(), name]}
                     />
                     <Legend />
                     {topic.options.filter(opt => opt.id !== 'abstain').map((option) => (
                         <Line
                             key={option.id}
                             type="monotone"
-                            dataKey={`${option.id}_percent`}
+                            dataKey={option.id}
                             name={option.label}
                             stroke={option.color}
                             strokeWidth={2}
