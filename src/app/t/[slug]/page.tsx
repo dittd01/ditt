@@ -68,29 +68,34 @@ export default async function TopicPage({ params }: TopicPageProps) {
             {(topic.sources && topic.sources.length > 0) && (
                 <Accordion type="single" collapsible className="w-full border-t">
                     <AccordionItem value="sources" className="border-none">
-                        <AccordionTrigger className="text-base font-semibold flex items-center gap-2 p-4">
+                        <AccordionTrigger className="text-base font-semibold flex justify-start items-center gap-2 p-4">
                             <FileText className="h-5 w-5" />
                             {t.sources}
                         </AccordionTrigger>
                         <AccordionContent className="p-6 border-t rounded-b-lg space-y-6">
-                            {topic.sources && topic.sources.length > 0 && (
-                                <div className="space-y-3">
-                                    <ul className="space-y-2">
-                                        {topic.sources.map((source, index) => (
-                                            <li key={index}>
-                                                <a href={source.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
-                                                    <LinkIcon className="h-4 w-4 shrink-0" />
-                                                    <span className="truncate">{source.title}</span>
-                                                </a>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
+                            <ul className="space-y-2">
+                                {topic.sources.map((source, index) => (
+                                    <li key={index}>
+                                        <a href={source.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                                            <LinkIcon className="h-4 w-4 shrink-0" />
+                                            <span className="truncate">{source.title}</span>
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
             )}
+          </Card>
+
+          <Card>
+            <CardHeader>
+                <CardTitle>{t.topicDetails}</CardTitle>
+            </CardHeader>
+             <CardContent className="p-4 md:p-6 pt-0">
+                    <p className="text-base text-muted-foreground">{description}</p>
+                </CardContent>
           </Card>
           
            <section>
@@ -147,16 +152,6 @@ export default async function TopicPage({ params }: TopicPageProps) {
             <Suspense fallback={<TopicInteraction.Skeleton />}>
               <TopicInteraction topic={topic} />
             </Suspense>
-            <Card>
-                <CardHeader className="p-4 md:p-6">
-                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                        <Info className="h-5 w-5" /> Topic Details
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 md:p-6 pt-0">
-                    <p className="text-base text-muted-foreground">{description}</p>
-                </CardContent>
-            </Card>
 
            <Accordion type="single" collapsible className="w-full space-y-4">
               <AccordionItem value="history">
