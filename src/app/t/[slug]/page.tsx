@@ -59,7 +59,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
           <Card>
             <CardHeader className="p-4 md:p-6">
               <h1 className="text-2xl md:text-3xl font-bold font-headline">{question}</h1>
-              {topic.background_md && (
+               {topic.background_md && (
                 <CardDescription className="pt-2 text-base">
                     {topic.background_md}
                 </CardDescription>
@@ -70,6 +70,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
                     <AccordionItem value="sources" className="border-none">
                         <AccordionTrigger className="text-base font-semibold flex items-center gap-2 p-4">
                             <FileText className="h-5 w-5" />
+                            {t.sources}
                         </AccordionTrigger>
                         <AccordionContent className="p-6 border-t rounded-b-lg space-y-6">
                             {topic.sources && topic.sources.length > 0 && (
