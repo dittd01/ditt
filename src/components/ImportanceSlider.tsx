@@ -16,7 +16,7 @@ const importanceLevels = [
     { label: 'Slightly important', color: 'bg-primary/10 hover:bg-primary/20', selectedColor: 'bg-primary/40 text-primary-foreground' },
     { label: 'Moderately important', color: 'bg-primary/30 hover:bg-primary/40', selectedColor: 'bg-primary/70 text-primary-foreground' },
     { label: 'Very important', color: 'bg-primary/60 hover:bg-primary/70', selectedColor: 'bg-primary text-primary-foreground' },
-    { label: 'Critically important', color: 'bg-primary/90 hover:bg-primary', selectedColor: 'bg-primary text-primary-foreground ring-2 ring-ring' },
+    { label: 'Critically important', color: 'bg-primary/60 hover:bg-primary/70', selectedColor: 'bg-primary text-primary-foreground ring-2 ring-ring' },
 ];
 
 // Dummy data for distribution. In a real app, this would come from an API.
