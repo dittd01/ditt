@@ -102,23 +102,21 @@ export default async function TopicPage({ params }: TopicPageProps) {
               </div>
           </section>
 
-          <Accordion type="single" collapsible className="w-full" defaultValue="history">
-            <AccordionItem value="history" className="border-none">
-                <AccordionTrigger className="text-xl font-semibold p-4 border rounded-lg bg-card text-card-foreground shadow-sm hover:no-underline">
-                      <div className="flex items-center gap-2">
-                        <History className="h-5 w-5" />
-                        {t.voteHistory}
-                      </div>
-                </AccordionTrigger>
-                <AccordionContent className="pt-6">
-                    <VoteChart topic={topic} />
-                </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-          
           <Suspense fallback={<TopicInteraction.Skeleton />}>
             <TopicInteraction topic={topic} />
           </Suspense>
+
+          <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <History className="h-5 w-5" />
+                    {t.voteHistory}
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+                <VoteChart topic={topic} />
+            </CardContent>
+          </Card>
 
           <Separator className="my-12" />
           
@@ -129,6 +127,15 @@ export default async function TopicPage({ params }: TopicPageProps) {
              </Suspense>
          </section>
 
+          <Card>
+            <CardHeader>
+                <CardTitle>{t.topicDetails}</CardTitle>
+            </CardHeader>
+             <CardContent className="p-4 md:p-6 pt-0">
+                    <p className="text-base text-muted-foreground">{description}</p>
+                </CardContent>
+          </Card>
+          
           {(topic.sources && topic.sources.length > 0) && (
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="sources" className="border rounded-lg bg-card text-card-foreground shadow-sm">
@@ -151,15 +158,6 @@ export default async function TopicPage({ params }: TopicPageProps) {
               </AccordionItem>
             </Accordion>
           )}
-
-          <Card>
-            <CardHeader>
-                <CardTitle>{t.topicDetails}</CardTitle>
-            </CardHeader>
-             <CardContent className="p-4 md:p-6 pt-0">
-                    <p className="text-base text-muted-foreground">{description}</p>
-                </CardContent>
-          </Card>
 
           <Separator className="my-12" />
 
