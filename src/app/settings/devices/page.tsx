@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -33,34 +33,40 @@ import {
 import { Smartphone, Monitor, QrCode, Trash2, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import Image from 'next/image';
-
-const mockDevices = [
-    {
-        id: 'device_1',
-        platform: 'mobile',
-        createdAt: new Date().toISOString(),
-        lastSeenAt: new Date().toISOString(),
-        isCurrent: true,
-    },
-    {
-        id: 'device_2',
-        platform: 'desktop',
-        createdAt: new Date(new Date().setDate(new Date().getDate() - 10)).toISOString(),
-        lastSeenAt: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString(),
-        isCurrent: false,
-    }
-]
+import { getDevicesForUserAction } from '@/app/actions';
+import type { Device } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 
 export default function DevicesSettingsPage() {
-    const [devices, setDevices] = useState(mockDevices);
+    const [devices, setDevices] = useState<Device[]>([]);
     const [isLinking, setIsLinking] = useState(false);
     const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
     const [showQrDialog, setShowQrDialog] = useState(false);
+    const [currentDeviceId, setCurrentDeviceId] = useState<string | null>(null);
+    const { toast } = useToast();
+    
+    useEffect(() => {
+        const personHash = localStorage.getItem('anonymousVoterId');
+        const currentId = localStorage.getItem('passkey_credential_id');
+        setCurrentDeviceId(currentId);
+        
+        async function fetchDevices() {
+            if (personHash) {
+                const fetchedDevices = await getDevicesForUserAction(personHash);
+                setDevices(fetchedDevices);
+            }
+        }
+        fetchDevices();
+    }, []);
 
     const handleRevoke = (deviceId: string) => {
-        // Simulate API call
+        // Simulate API call to revoke device
         console.log(`Revoking device ${deviceId}`);
-        setDevices(devices.filter(d => d.id !== deviceId));
+        setDevices(devices.filter(d => d.webauthn?.credentialID !== deviceId));
+        toast({
+            title: "Device Revoked",
+            description: "The passkey for this device has been removed."
+        })
     }
     
     const handleLinkDevice = async () => {
@@ -74,7 +80,7 @@ export default function DevicesSettingsPage() {
         const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(linkUrl)}`;
         setQrCodeUrl(qrApiUrl);
 
-        // Simulate storing the challenge on the server
+        // Simulate storing the challenge on the server (or in a way the linking device can verify)
         localStorage.setItem('qr_link_challenge', challenge);
         
         setShowQrDialog(true);
@@ -110,12 +116,12 @@ export default function DevicesSettingsPage() {
                     </TableHeader>
                     <TableBody>
                         {devices.map(device => (
-                            <TableRow key={device.id}>
+                            <TableRow key={device.webauthn?.credentialID}>
                                 <TableCell>
                                     <div className="flex items-center gap-2">
-                                        {device.platform === 'mobile' ? <Smartphone/> : <Monitor />}
+                                        {device.platform === 'web' ? <Monitor/> : <Smartphone />}
                                         <span className="font-medium capitalize">{device.platform}</span>
-                                        {device.isCurrent && <span className="text-xs text-muted-foreground">(Current)</span>}
+                                        {currentDeviceId === device.webauthn?.credentialID && <span className="text-xs text-muted-foreground">(Current)</span>}
                                     </div>
                                 </TableCell>
                                 <TableCell>{format(new Date(device.createdAt), 'PP')}</TableCell>
@@ -123,7 +129,7 @@ export default function DevicesSettingsPage() {
                                 <TableCell>
                                      <AlertDialog>
                                         <AlertDialogTrigger asChild>
-                                            <Button variant="ghost" size="icon" disabled={device.isCurrent}>
+                                            <Button variant="ghost" size="icon" disabled={currentDeviceId === device.webauthn?.credentialID}>
                                                 <Trash2 className="text-destructive"/>
                                             </Button>
                                         </AlertDialogTrigger>
@@ -136,7 +142,7 @@ export default function DevicesSettingsPage() {
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>
                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => handleRevoke(device.id)}>
+                                            <AlertDialogAction onClick={() => handleRevoke(device.webauthn!.credentialID)}>
                                                 Yes, Revoke Access
                                             </AlertDialogAction>
                                             </AlertDialogFooter>

@@ -51,12 +51,13 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { generateMockUserAction } from '@/app/actions';
+import { getDevicesForUserAction, generateMockUserAction } from '@/app/actions';
 import { format } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { User } from '@/app/admin/users/page';
+import type { Device } from '@/lib/types';
 
 
 const userFormSchema = z.object({
@@ -84,11 +85,6 @@ const roleDescriptions: Record<UserFormValues['role'], string> = {
     admin: 'Full access to all administrative features.',
 };
 
-const initialMockDevices = [
-    { id: 'dev1', type: 'Desktop', added: '2023-10-15', lastSeen: '2023-10-28 14:30', isCurrent: true },
-    { id: 'dev2', type: 'Mobile', added: '2023-09-01', lastSeen: '2023-10-25 08:15', isCurrent: false },
-]
-
 export default function EditUserPage() {
     const router = useRouter();
     const params = useParams();
@@ -97,7 +93,20 @@ export default function EditUserPage() {
     const isNew = userId === 'new';
     
     const userData = isNew ? null : usersData.find(u => u.id === userId);
-    const [devices, setDevices] = React.useState(initialMockDevices);
+    const [devices, setDevices] = useState<Device[]>([]);
+
+    useEffect(() => {
+      async function fetchDevices() {
+        if (userData?.id) {
+          // This uses the personHash (mocked as user.id here) to fetch devices
+          const fetchedDevices = await getDevicesForUserAction(userData.id);
+          setDevices(fetchedDevices);
+        }
+      }
+      if (!isNew) {
+          fetchDevices();
+      }
+    }, [userData, isNew]);
 
     const form = useForm<UserFormValues>({
         resolver: zodResolver(userFormSchema),
@@ -178,10 +187,10 @@ export default function EditUserPage() {
     };
 
     const handleRevokeDevice = (deviceId: string) => {
-        setDevices(prevDevices => prevDevices.filter(d => d.id !== deviceId));
+        setDevices(prevDevices => prevDevices.filter(d => d.webauthn?.credentialID !== deviceId));
         toast({
             title: 'Device Revoked',
-            description: `Access for device ${deviceId} has been revoked.`,
+            description: `Access for device has been revoked.`,
         });
     };
 
@@ -318,18 +327,17 @@ export default function EditUserPage() {
                                     </TableHeader>
                                     <TableBody>
                                         {devices.map(device => (
-                                            <TableRow key={device.id}>
+                                            <TableRow key={device.webauthn?.credentialID}>
                                                 <TableCell className="flex items-center gap-2">
-                                                    {device.type === 'Desktop' ? <Monitor /> : <Smartphone />}
-                                                    <span>{device.type}</span>
-                                                    {device.isCurrent && <Badge variant="outline">Current</Badge>}
+                                                    {device.platform === 'web' ? <Monitor /> : <Smartphone />}
+                                                    <span className="capitalize">{device.platform}</span>
                                                 </TableCell>
-                                                <TableCell>{device.added}</TableCell>
-                                                <TableCell>{device.lastSeen}</TableCell>
+                                                <TableCell>{format(new Date(device.createdAt), 'PP')}</TableCell>
+                                                <TableCell>{format(new Date(device.lastSeenAt), 'PPp')}</TableCell>
                                                 <TableCell className="text-right">
                                                     <AlertDialog>
                                                         <AlertDialogTrigger asChild>
-                                                            <Button variant="destructive" size="sm" disabled={device.isCurrent}>
+                                                            <Button variant="destructive" size="sm">
                                                                 <Trash2 className="mr-2" />
                                                                 Revoke
                                                             </Button>
@@ -343,7 +351,7 @@ export default function EditUserPage() {
                                                             </AlertDialogHeader>
                                                             <AlertDialogFooter>
                                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                <AlertDialogAction onClick={() => handleRevokeDevice(device.id)}>
+                                                                <AlertDialogAction onClick={() => handleRevokeDevice(device.webauthn!.credentialID)}>
                                                                     Revoke Device
                                                                 </AlertDialogAction>
                                                             </AlertDialogFooter>

@@ -68,7 +68,6 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-        // For discoverable credentials, we don't need a username upfront.
         const result = await startLogin();
         if(result.success && result.personHash) {
             localStorage.setItem('anonymousVoterId', result.personHash);
@@ -124,7 +123,7 @@ export default function LoginPage() {
 
             <form onSubmit={handleBankIdLogin} className="space-y-4">
                  <CardDescription className="text-center !mt-0">
-                    Use BankID for your first login or if you don't have a passkey.
+                    Use BankID for your first login or if you don't have a passkey on this device.
                 </CardDescription>
                 <div className="space-y-2">
                 <Label htmlFor="fnr">Fødselsnummer (11 digits)</Label>
@@ -135,7 +134,7 @@ export default function LoginPage() {
                     required 
                     value={fnr} 
                     onChange={(e) => setFnr(e.target.value)} 
-                    pattern="\\d{11}"
+                    pattern="\d{11}"
                     title="Please enter 11 digits."
                 />
                 <p className="text-xs text-muted-foreground">Use any 11 digits for this sandbox.</p>

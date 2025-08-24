@@ -7,6 +7,7 @@ import {
   verifyLoginAction
 } from '@/app/actions';
 import type { RegistrationResponseJSON, AuthenticationResponseJSON } from '@simplewebauthn/types';
+import { startRegistration as browserStartRegistration, startAuthentication as browserStartAuthentication } from '@simplewebauthn/browser';
 
 // Helper function to convert buffer-like data to Base64URL
 const bufferToBase64URL = (buffer: ArrayBuffer): string => {
@@ -34,11 +35,8 @@ const base64URLToBuffer = (base64urlString: string): ArrayBuffer => {
  */
 export async function startRegistration(personHash: string): Promise<{ success: boolean; message?: string }> {
   try {
-    // In a real app, the username would be dynamic.
-    const username = `user_${personHash.substring(0, 8)}`;
-
     // 1. Get a challenge from the server
-    const options = await getRegistrationChallengeAction(personHash, username);
+    const options = await getRegistrationChallengeAction(personHash);
     
     // SimpleWebAuthn's startRegistration expects `challenge` to be a Uint8Array
     // but the server sends it as a base64url string for JSON compatibility.
@@ -49,13 +47,14 @@ export async function startRegistration(personHash: string): Promise<{ success: 
     }
     
     // 2. Prompt the user to create a passkey
-    const { startRegistration } = await import('@simplewebauthn/browser');
-    const attestationResponse: RegistrationResponseJSON = await startRegistration(options);
+    const attestationResponse: RegistrationResponseJSON = await browserStartRegistration(options);
     
     // 3. Send the response back to the server for verification
     const verificationResult = await verifyRegistrationAction(personHash, attestationResponse);
 
     if (verificationResult && verificationResult.verified) {
+      // Store credential ID to identify current device
+      localStorage.setItem('passkey_credential_id', attestationResponse.id);
       return { success: true };
     } else {
       return { success: false, message: 'Verification failed. ' + verificationResult.error };
@@ -63,7 +62,7 @@ export async function startRegistration(personHash: string): Promise<{ success: 
   } catch (error: any) {
     console.error('Registration failed:', error);
     if (error.name === 'InvalidStateError') {
-      return { success: false, message: 'This passkey has already been registered.' };
+      return { success: false, message: 'This passkey has already been registered on another account.' };
     }
     return { success: false, message: error.message || 'An unknown error occurred.' };
   }
@@ -74,21 +73,21 @@ export async function startRegistration(personHash: string): Promise<{ success: 
  */
 export async function startLogin(): Promise<{ success: boolean; message?: string, personHash?: string }> {
   try {
-    // 1. Get a challenge from the server. For discoverable credentials, we don't pass a username.
+    // 1. Get a challenge from the server for discoverable credentials.
     const options = await getLoginChallengeAction();
     
     // Convert challenge from Base64URL to ArrayBuffer
     options.challenge = base64URLToBuffer(options.challenge as unknown as string);
-    // For discoverable credentials, allowCredentials is not set, so no conversion needed here.
 
     // 2. Prompt the user to use their passkey
-    const { startAuthentication } = await import('@simplewebauthn/browser');
-    const assertionResponse: AuthenticationResponseJSON = await startAuthentication(options);
+    const assertionResponse: AuthenticationResponseJSON = await browserStartAuthentication(options);
 
     // 3. Send the response to the server for verification
     const verificationResult = await verifyLoginAction(assertionResponse);
 
     if (verificationResult && verificationResult.verified) {
+      // Store credential ID to identify current device
+      localStorage.setItem('passkey_credential_id', assertionResponse.id);
       return { success: true, personHash: verificationResult.personHash };
     } else {
        return { success: false, message: 'Verification failed. ' + verificationResult.error };

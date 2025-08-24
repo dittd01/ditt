@@ -35,6 +35,7 @@ export function UserNav() {
 
     const handleLogout = () => {
       localStorage.removeItem('anonymousVoterId');
+      localStorage.removeItem('passkey_credential_id');
       localStorage.removeItem('lastSeenTimestamp');
       setVoterId(null);
       window.dispatchEvent(new Event('authChange'));
@@ -77,6 +78,7 @@ export function UserNav() {
 
   const handleLogoutClick = () => {
       localStorage.removeItem('anonymousVoterId');
+      localStorage.removeItem('passkey_credential_id');
       localStorage.removeItem('lastSeenTimestamp');
       setVoterId(null);
       window.dispatchEvent(new Event('authChange'));
@@ -102,7 +104,7 @@ export function UserNav() {
             <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">@{user.username}</p>
                 <p className="text-xs leading-none text-muted-foreground truncate">
-                ID: {voterId}
+                ID: {voterId.substring(0, 15)}...
                 </p>
             </div>
             </DropdownMenuLabel>

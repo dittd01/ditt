@@ -12,9 +12,10 @@ import {
     generateRegistrationChallenge, 
     verifyRegistration,
     generateLoginChallenge,
-    verifyLogin
+    verifyLogin,
+    getDevicesForUser
 } from '@/lib/auth-utils.server';
-import type { RegistrationResponse, AuthenticationResponse } from '@/lib/auth-utils.server';
+import type { RegistrationResponseJSON, AuthenticationResponseJSON } from '@simplewebauthn/types';
 import { z } from 'zod';
 
 
@@ -158,18 +159,22 @@ export async function populatePollAction(input: { title: string, customPrompt?: 
 
 // --- WebAuthn Actions ---
 
-export async function getRegistrationChallengeAction(personHash: string, username: string) {
-    return generateRegistrationChallenge(personHash, username);
+export async function getRegistrationChallengeAction(personHash: string) {
+    return generateRegistrationChallenge(personHash);
 }
 
-export async function verifyRegistrationAction(personHash: string, response: RegistrationResponse) {
+export async function verifyRegistrationAction(personHash: string, response: RegistrationResponseJSON) {
     return await verifyRegistration(personHash, response);
 }
 
-export async function getLoginChallengeAction(username?: string) {
-    return generateLoginChallenge(username);
+export async function getLoginChallengeAction() {
+    return generateLoginChallenge();
 }
 
-export async function verifyLoginAction(response: AuthenticationResponse) {
+export async function verifyLoginAction(response: AuthenticationResponseJSON) {
     return await verifyLogin(response);
+}
+
+export async function getDevicesForUserAction(personHash: string) {
+    return getDevicesForUser(personHash);
 }
