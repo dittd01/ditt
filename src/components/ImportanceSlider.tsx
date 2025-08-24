@@ -59,20 +59,68 @@ export function ImportanceSlider({ topicId }: ImportanceSliderProps) {
       </CardHeader>
       <CardContent className="pt-2">
         {importance === null ? (
-            <div className="flex flex-wrap gap-2">
-              {importanceLevels.map((level, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  onClick={() => handleSelect(index)}
-                  className={cn(
-                    "flex-grow transition-all duration-150 border-0 text-foreground",
-                     level.color
-                  )}
-                >
-                  {level.label}
-                </Button>
-              ))}
+            <div className="space-y-2">
+                <div className="flex gap-2">
+                     <Button
+                        key={0}
+                        variant="outline"
+                        onClick={() => handleSelect(0)}
+                        className={cn(
+                            "flex-grow transition-all duration-150 border-0 text-foreground",
+                            importanceLevels[0].color
+                        )}
+                        >
+                        {importanceLevels[0].label}
+                    </Button>
+                     <Button
+                        key={1}
+                        variant="outline"
+                        onClick={() => handleSelect(1)}
+                        className={cn(
+                            "flex-grow transition-all duration-150 border-0 text-foreground",
+                            importanceLevels[1].color
+                        )}
+                        >
+                        {importanceLevels[1].label}
+                    </Button>
+                </div>
+                 <div className="flex gap-2">
+                     <Button
+                        key={2}
+                        variant="outline"
+                        onClick={() => handleSelect(2)}
+                        className={cn(
+                            "flex-grow transition-all duration-150 border-0 text-foreground",
+                            importanceLevels[2].color
+                        )}
+                        >
+                        {importanceLevels[2].label}
+                    </Button>
+                </div>
+                 <div className="flex gap-2">
+                     <Button
+                        key={3}
+                        variant="outline"
+                        onClick={() => handleSelect(3)}
+                        className={cn(
+                            "flex-grow transition-all duration-150 border-0 text-foreground",
+                            importanceLevels[3].color
+                        )}
+                        >
+                        {importanceLevels[3].label}
+                    </Button>
+                     <Button
+                        key={4}
+                        variant="outline"
+                        onClick={() => handleSelect(4)}
+                        className={cn(
+                            "flex-grow transition-all duration-150 border-0 text-foreground",
+                            importanceLevels[4].color
+                        )}
+                        >
+                        {importanceLevels[4].label}
+                    </Button>
+                </div>
             </div>
         ) : (
             <div className="space-y-4">
