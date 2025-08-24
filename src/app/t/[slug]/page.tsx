@@ -27,6 +27,7 @@ import { DebateSection } from '@/components/debate/DebateSection';
 import { ArgumentChart } from '@/components/debate/ArgumentChart';
 import { ImportanceSlider } from '@/components/ImportanceSlider';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 const VoteChart = dynamic(() => import('@/components/VoteChart').then(mod => mod.VoteChart), {
   ssr: false,
@@ -350,7 +351,7 @@ export default function TopicPage() {
         {t.backToPolls}
       </Button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="space-y-8">
         <div className="lg:col-span-2 space-y-8">
           <Card>
             <CardHeader className="p-4 md:p-6">
@@ -417,10 +418,11 @@ export default function TopicPage() {
             </Accordion>
 
             <RelatedTopics topicId={topic.id} subcategoryId={topic.subcategoryId} />
-
         </div>
+        
+        <Separator className="my-12" />
 
-        <div className="space-y-8 lg:sticky lg:top-24 self-start">
+        <div className="max-w-2xl mx-auto">
           {voterId ? (
             <SuggestionForm />
           ) : (
