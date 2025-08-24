@@ -56,7 +56,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
     <div className="container mx-auto max-w-4xl px-4 py-4 md:py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          <Card>
+          <Card className="bg-muted">
             <CardHeader className="p-4 md:p-6">
               <h1 className="text-2xl md:text-3xl font-bold font-headline">{question}</h1>
                {topic.background_md && (
@@ -72,7 +72,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
               <div className="space-y-4">
                   {topic.pros && topic.pros.length > 0 ? (
                       topic.pros.map((pro, index) => (
-                          <Card key={index} className="bg-primary/10 border-primary/20">
+                          <Card key={index} className="bg-primary/5 border-primary/20">
                               <CardContent className="p-4 flex items-start gap-4">
                                   <ThumbsUp className="h-5 w-5 text-primary mt-1 shrink-0" />
                                   <p className="text-primary/90">{pro}</p>
@@ -89,7 +89,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
               <div className="space-y-4">
                   {topic.cons && topic.cons.length > 0 ? (
                       topic.cons.map((con, index) => (
-                           <Card key={index} className="bg-destructive/10 border-destructive/20">
+                           <Card key={index} className="bg-destructive/5 border-destructive/20">
                               <CardContent className="p-4 flex items-start gap-4">
                                   <ThumbsDown className="h-5 w-5 text-destructive mt-1 shrink-0" />
                                   <p className="text-destructive/90">{con}</p>
@@ -101,10 +101,6 @@ export default async function TopicPage({ params }: TopicPageProps) {
                   )}
               </div>
           </section>
-
-          <Suspense fallback={<TopicInteraction.Skeleton />}>
-            <TopicInteraction topic={topic} />
-          </Suspense>
 
           <Accordion type="single" collapsible className="w-full" defaultValue="history">
             <AccordionItem value="history" className="border-none">
@@ -119,6 +115,10 @@ export default async function TopicPage({ params }: TopicPageProps) {
                 </AccordionContent>
             </AccordionItem>
           </Accordion>
+          
+          <Suspense fallback={<TopicInteraction.Skeleton />}>
+            <TopicInteraction topic={topic} />
+          </Suspense>
 
           <Separator className="my-12" />
           
