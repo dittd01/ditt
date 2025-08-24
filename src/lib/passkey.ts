@@ -72,20 +72,14 @@ export async function startRegistration(personHash: string): Promise<{ success: 
 /**
  * Begins the passkey login process.
  */
-export async function startLogin(username: string): Promise<{ success: boolean; message?: string, personHash?: string }> {
+export async function startLogin(): Promise<{ success: boolean; message?: string, personHash?: string }> {
   try {
-    // 1. Get a challenge from the server
-    const options = await getLoginChallengeAction(username);
+    // 1. Get a challenge from the server. For discoverable credentials, we don't pass a username.
+    const options = await getLoginChallengeAction();
     
     // Convert challenge from Base64URL to ArrayBuffer
     options.challenge = base64URLToBuffer(options.challenge as unknown as string);
-    // Convert allowCredentials from Base64URL to ArrayBuffer
-    if (options.allowCredentials) {
-        for (const cred of options.allowCredentials) {
-            cred.id = base64URLToBuffer(cred.id as unknown as string);
-        }
-    }
-
+    // For discoverable credentials, allowCredentials is not set, so no conversion needed here.
 
     // 2. Prompt the user to use their passkey
     const { startAuthentication } = await import('@simplewebauthn/browser');
