@@ -144,13 +144,13 @@ export async function generateRegistrationChallenge(personHash: string) {
     const opts: GenerateRegistrationOptionsOpts = {
         rpName,
         rpID,
-        userID: personHash,
+        userID: Buffer.from(personHash, 'utf8'), // **FIX**: userID must be a Buffer
         userName: user.username,
         timeout: 60000,
         attestationType: 'none',
         // Prevent users from creating multiple credentials on the same device
         excludeCredentials: user.devices.map(dev => ({
-            id: dev.webauthn!.credentialID,
+            id: Buffer.from(dev.webauthn!.credentialID, 'base64url'), // **FIX**: ID must be a Buffer
             type: 'public-key',
             transports: dev.webauthn?.transports,
         })),
@@ -193,7 +193,7 @@ export async function verifyRegistration(personHash: string, response: Registrat
             const newDevice: Device = {
                 person_hash: personHash,
                 webauthn: {
-                    credentialID: credentialID,
+                    credentialID: Buffer.from(credentialID).toString('base64url'),
                     publicKey: Buffer.from(credentialPublicKey).toString('base64url'),
                     signCount: counter,
                 },
@@ -262,7 +262,7 @@ export async function verifyLogin(response: AuthenticationResponseJSON) {
         expectedOrigin: origin,
         expectedRPID: rpID,
         authenticator: {
-            credentialID: device.webauthn.credentialID,
+            credentialID: Buffer.from(device.webauthn.credentialID, 'base64url'),
             credentialPublicKey: Buffer.from(device.webauthn.publicKey, 'base64url'),
             counter: device.webauthn.signCount,
         },
@@ -289,3 +289,5 @@ export async function verifyLogin(response: AuthenticationResponseJSON) {
         return { verified: false, error: e.message };
     }
 }
+
+    

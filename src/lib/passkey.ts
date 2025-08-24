@@ -12,18 +12,19 @@ import { startRegistration as browserStartRegistration, startAuthentication as b
 /**
  * Converts a base64url string to an ArrayBuffer.
  * This is a necessary step for passing challenges from the server to the browser's WebAuthn API.
+ * @param base64urlString a base64url-encoded string
  */
-function base64URLToArrayBuffer(base64URL: string): ArrayBuffer {
-  const base64 = base64URL.replace(/-/g, '+').replace(/_/g, '/');
-  const padLength = (4 - (base64.length % 4)) % 4;
-  const padded = base64.padEnd(base64.length + padLength, '=');
-  const binary = atob(padded);
-  const buffer = new ArrayBuffer(binary.length);
-  const bytes = new Uint8Array(buffer);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return buffer;
+function base64URLToBuffer(base64urlString: string): ArrayBuffer {
+    const base64 = base64urlString.replace(/-/g, '+').replace(/_/g, '/');
+    const padLength = (4 - (base64.length % 4)) % 4;
+    const padded = base64.padEnd(base64.length + padLength, '=');
+    const binary = atob(padded);
+    const buffer = new ArrayBuffer(binary.length);
+    const bytes = new Uint8Array(buffer);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return buffer;
 }
 
 
@@ -37,11 +38,13 @@ export async function startRegistration(personHash: string): Promise<{ success: 
     const options: PublicKeyCredentialCreationOptionsJSON = await getRegistrationChallengeAction(personHash);
     
     // 2. Convert server-sent strings to ArrayBuffers for the browser API
-    options.challenge = base64URLToArrayBuffer(options.challenge);
-    options.user.id = base64URLToArrayBuffer(options.user.id);
+    // The browser API expects `challenge` and `user.id` to be ArrayBuffers.
+    options.challenge = base64URLToBuffer(options.challenge);
+    options.user.id = base64URLToBuffer(options.user.id);
     if (options.excludeCredentials) {
         options.excludeCredentials.forEach(cred => {
-            cred.id = base64URLToArrayBuffer(cred.id as unknown as string);
+            // The server sends the credential ID as a base64url string, convert it to a buffer.
+            cred.id = base64URLToBuffer(cred.id as unknown as string);
         });
     }
 
@@ -60,10 +63,13 @@ export async function startRegistration(personHash: string): Promise<{ success: 
     }
   } catch (error: any) {
     console.error('Registration failed:', error);
+    let message = error.message || 'An unknown error occurred during registration.';
     if (error.name === 'InvalidStateError') {
-      return { success: false, message: 'This passkey has already been registered on another account.' };
+      message = 'This passkey has already been registered on another account.';
+    } else if (error.name === 'NotAllowedError') {
+      message = 'Passkey creation was cancelled.';
     }
-    return { success: false, message: error.message || 'An unknown error occurred.' };
+    return { success: false, message };
   }
 }
 
@@ -77,7 +83,7 @@ export async function startLogin(): Promise<{ success: boolean; message?: string
     
     // Convert challenge from Base64URL to ArrayBuffer
     if (options.challenge) {
-        options.challenge = base64URLToArrayBuffer(options.challenge);
+        options.challenge = base64URLToBuffer(options.challenge);
     }
 
     // 2. Prompt the user to use their passkey
@@ -95,6 +101,12 @@ export async function startLogin(): Promise<{ success: boolean; message?: string
     }
   } catch (error: any) {
     console.error('Login failed:', error);
-    return { success: false, message: error.message || 'An unknown error occurred.' };
+    let message = error.message || 'An unknown error occurred during login.';
+    if (error.name === 'NotAllowedError') {
+        message = 'Authentication was cancelled.';
+    }
+    return { success: false, message };
   }
 }
+
+    
