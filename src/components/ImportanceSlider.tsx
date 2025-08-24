@@ -13,7 +13,7 @@ interface ImportanceSliderProps {
 
 const importanceLevels = [
     { label: 'Not important at all', color: 'bg-muted/50 hover:bg-muted', selectedColor: 'bg-muted-foreground text-background' },
-    { label: 'Slightly important', color: 'bg-primary/10 hover:bg-primary/20', selectedColor: 'bg-primary/40 text-primary-foreground' },
+    { label: 'Slightly important', color: 'bg-destructive/10 hover:bg-destructive/20', selectedColor: 'bg-primary/40 text-primary-foreground' },
     { label: 'Moderately important', color: 'bg-primary/10 hover:bg-primary/20', selectedColor: 'bg-primary/70 text-primary-foreground' },
     { label: 'Very important', color: 'bg-primary/30 hover:bg-primary/40', selectedColor: 'bg-primary text-primary-foreground' },
     { label: 'Critically important', color: 'bg-primary/60 hover:bg-primary/70', selectedColor: 'bg-primary text-primary-foreground ring-2 ring-ring' },
