@@ -128,8 +128,7 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
-                    domain={view === 'percentage' ? [0, 100] : undefined}
-                    tickFormatter={(value) => view === 'percentage' ? `${value}%` : new Intl.NumberFormat('en-US', {
+                    tickFormatter={(value) => view === 'percentage' ? `${value.toFixed(0)}%` : new Intl.NumberFormat('en-US', {
                         notation: "compact",
                         compactDisplay: "short"
                     }).format(value)}
