@@ -273,7 +273,16 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                         )}
                     </CardContent>
                     <CardFooter className="flex-col gap-4 border-t pt-6">
-                        <Button variant="outline" onClick={() => handleVote('abstain')} className="hover:bg-[#888] hover:text-white">{t.abstain}</Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleVote('abstain')}
+                          className={cn(
+                            'hover:bg-[#888] hover:text-white',
+                            votedOn === 'abstain' && 'bg-[#888] text-white'
+                          )}
+                        >
+                          {t.abstain}
+                        </Button>
                         {votedOn === 'abstain' && (
                              <p className="text-sm text-muted-foreground">{t.youAbstained}</p>
                         )}
