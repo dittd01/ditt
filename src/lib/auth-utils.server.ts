@@ -41,7 +41,13 @@ const origin = process.env.NODE_ENV === 'production' ? `https://${rpID}` : `http
 
 
 // Mock database for users and devices. In a real app, this would be Firestore.
-const mockUserStore: { [key: string]: { username: string, personHash: string, devices: Device[], currentChallenge?: string } } = {};
+const mockUserStore: { [key: string]: { username: string, personHash: string, devices: Device[], currentChallenge?: string } } = {
+    'mock-uid-123': {
+        username: 'testuser',
+        personHash: 'mock-uid-123',
+        devices: [],
+    }
+};
 const mockEligibilityStore: { [key: string]: Eligibility } = {};
 
 
@@ -122,22 +128,24 @@ export async function deriveAgeFromFnr(fnr: string): Promise<number> {
 // These functions are simplified and use a mock in-memory store.
 // A real implementation would use a database like Firestore.
 
-export type RegistrationResponse = RegistrationResponseJSON;
-export type AuthenticationResponse = AuthenticationResponseJSON;
+export async function getDevicesForUser(personHash: string): Promise<Device[]> {
+    const user = Object.values(mockUserStore).find(u => u.personHash === personHash);
+    return user ? user.devices : [];
+}
 
 
-export async function generateRegistrationChallenge(personHash: string, username: string) {
-    if (!mockUserStore[username]) {
-        mockUserStore[username] = { username, personHash, devices: [] };
+export async function generateRegistrationChallenge(personHash: string) {
+    if (!mockUserStore[personHash]) {
+        mockUserStore[personHash] = { username: personHash, personHash, devices: [] };
     }
 
-    const user = mockUserStore[username];
+    const user = mockUserStore[personHash];
 
     const opts: GenerateRegistrationOptionsOpts = {
         rpName,
         rpID,
         userID: personHash,
-        userName: username,
+        userName: user.username,
         timeout: 60000,
         attestationType: 'none',
         authenticatorSelection: {
@@ -154,10 +162,8 @@ export async function generateRegistrationChallenge(personHash: string, username
     return options;
 }
 
-export async function verifyRegistration(personHash: string, response: RegistrationResponse) {
-    // Find user by personHash. A bit inefficient but fine for mock store.
-    const username = Object.keys(mockUserStore).find(key => mockUserStore[key].personHash === personHash);
-    const user = username ? mockUserStore[username] : undefined;
+export async function verifyRegistration(personHash: string, response: RegistrationResponseJSON) {
+    const user = mockUserStore[personHash];
 
     if (!user || !user.currentChallenge) {
         throw new Error('User or challenge not found.');
@@ -203,44 +209,30 @@ export async function verifyRegistration(personHash: string, response: Registrat
     }
 }
 
-export async function generateLoginChallenge(username?: string) {
-    let user;
-    if (username) {
-        user = mockUserStore[username];
-    }
-    
+export async function generateLoginChallenge() {
     const opts: GenerateAuthenticationOptionsOpts = {
         timeout: 60000,
-        allowCredentials: user?.devices.map(dev => ({
-            id: Buffer.from(dev.webauthn!.credentialID, 'base64url'),
-            type: 'public-key',
-            transports: dev.webauthn!.transports,
-        })),
         userVerification: 'preferred',
         rpID,
     };
     
     const options = await generateAuthenticationOptions(opts);
 
-    if (user) {
-        user.currentChallenge = options.challenge;
-    } else {
-        // This is a simplification for a "discoverable" credential login.
-        // In a real app, you'd handle this session more robustly.
-        (mockUserStore as any).globalChallenge = options.challenge;
-    }
+    // This is a simplification for a "discoverable" credential login.
+    // In a real app, you'd handle this session more robustly.
+    (mockUserStore as any).globalChallenge = options.challenge;
 
     return options;
 }
 
-export async function verifyLogin(response: AuthenticationResponse) {
+export async function verifyLogin(response: AuthenticationResponseJSON) {
     const credentialID = response.id;
     let user: (typeof mockUserStore)[string] | undefined;
     let device: Device | undefined;
     
     // Find user and device by credentialID
-    for (const username in mockUserStore) {
-        const potentialUser = mockUserStore[username];
+    for (const personHash in mockUserStore) {
+        const potentialUser = mockUserStore[personHash];
         const foundDevice = potentialUser.devices.find(d => d.webauthn?.credentialID === credentialID);
         if (foundDevice) {
             user = potentialUser;
@@ -253,7 +245,7 @@ export async function verifyLogin(response: AuthenticationResponse) {
         throw new Error('Device not registered.');
     }
     
-    const challenge = user.currentChallenge || (mockUserStore as any).globalChallenge;
+    const challenge = (mockUserStore as any).globalChallenge;
      if (!challenge) {
         throw new Error("No active challenge found for login.");
      }
@@ -278,6 +270,7 @@ export async function verifyLogin(response: AuthenticationResponse) {
         if (verified) {
             // Update the signature counter
             device.webauthn.signCount = authenticationInfo.newCounter;
+            device.lastSeenAt = Date.now();
             user.currentChallenge = undefined; // Clear the challenge
             (mockUserStore as any).globalChallenge = undefined; 
             
@@ -286,6 +279,7 @@ export async function verifyLogin(response: AuthenticationResponse) {
              return { verified: false, error: "Verification failed." };
         }
     } catch(e: any) {
+        console.error('Login verification error:', e);
         return { verified: false, error: e.message };
     }
 }

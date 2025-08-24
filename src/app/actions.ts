@@ -176,5 +176,5 @@ export async function verifyLoginAction(response: AuthenticationResponseJSON) {
 }
 
 export async function getDevicesForUserAction(personHash: string) {
-    return getDevicesForUser(personHash);
+    return await getDevicesForUser(personHash);
 }
