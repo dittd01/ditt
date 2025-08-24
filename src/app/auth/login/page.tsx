@@ -134,7 +134,7 @@ export default function LoginPage() {
                     required 
                     value={fnr} 
                     onChange={(e) => setFnr(e.target.value)} 
-                    pattern="\d{11}"
+                    pattern="\\d{11}"
                     title="Please enter 11 digits."
                 />
                 <p className="text-xs text-muted-foreground">Use any 11 digits for this sandbox.</p>

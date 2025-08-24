@@ -12,8 +12,6 @@ import type {
     GenerateAuthenticationOptionsOpts,
     VerifyRegistrationResponseOpts,
     VerifyAuthenticationResponseOpts,
-    VerifiedRegistrationResponse,
-    VerifiedAuthenticationResponse
  } from '@simplewebauthn/server';
 import { 
     generateRegistrationOptions, 
@@ -144,13 +142,13 @@ export async function generateRegistrationChallenge(personHash: string): Promise
     const opts: GenerateRegistrationOptionsOpts = {
         rpName,
         rpID,
-        userID: Buffer.from(personHash), // Pass as Buffer
+        userID: personHash, // The server library can handle string here and convert.
         userName: user.username,
         timeout: 60000,
         attestationType: 'none',
         // Prevent users from creating multiple credentials on the same device
         excludeCredentials: user.devices.map(dev => ({
-            id: Buffer.from(dev.webauthn!.credentialID, 'base64url'), // Must be Buffer
+            id: dev.webauthn!.credentialID,
             type: 'public-key',
             transports: dev.webauthn?.transports,
         })),
@@ -163,15 +161,10 @@ export async function generateRegistrationChallenge(personHash: string): Promise
 
     const options = await generateRegistrationOptions(opts);
     
+    // Store the challenge for verification
     user.currentChallenge = options.challenge;
 
-    return {
-      ...options,
-      user: {
-        ...options.user,
-        id: personHash, // Send the original string ID to the client
-      }
-    };
+    return options;
 }
 
 export async function verifyRegistration(personHash: string, response: RegistrationResponseJSON) {
@@ -197,8 +190,8 @@ export async function verifyRegistration(personHash: string, response: Registrat
             const { credentialPublicKey, credentialID, counter } = registrationInfo;
             
             const newDevice: AuthenticatorDevice = {
-                credentialID: Buffer.from(credentialID),
-                credentialPublicKey: Buffer.from(credentialPublicKey),
+                credentialID: credentialID, // This is a Buffer
+                credentialPublicKey: credentialPublicKey, // This is a Buffer
                 counter,
                 transports: response.response.transports,
             };
@@ -239,7 +232,7 @@ export async function generateLoginChallenge() {
     const options = await generateAuthenticationOptions(opts);
 
     // This is a simplification for a "discoverable" credential login.
-    // In a real app, you'd handle this session more robustly.
+    // In a real app, you'd handle this session more robustly, perhaps in a short-lived DB entry.
     (mockUserStore as any).globalChallenge = options.challenge;
 
     return options;
@@ -291,7 +284,6 @@ export async function verifyLogin(response: AuthenticationResponseJSON) {
             // Update the signature counter
             device.webauthn.signCount = authenticationInfo.newCounter;
             device.lastSeenAt = Date.now();
-            user.currentChallenge = undefined; // Clear the challenge
             (mockUserStore as any).globalChallenge = undefined; 
             
             return { verified: true, personHash: device.person_hash, error: null };

@@ -40,7 +40,7 @@ export async function startRegistration(personHash: string): Promise<{ success: 
     // 2. Convert server-sent strings to ArrayBuffers for the browser API
     // The browser API expects `challenge` and `user.id` to be ArrayBuffers.
     options.challenge = base64URLToBuffer(options.challenge);
-    options.user.id = base64URLToBuffer(options.user.id);
+    options.user.id = base64URLToBuffer(options.user.id as string);
     
     if (options.excludeCredentials) {
         options.excludeCredentials.forEach(cred => {
