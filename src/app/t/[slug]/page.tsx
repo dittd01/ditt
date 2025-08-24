@@ -75,7 +75,6 @@ export default async function TopicPage({ params }: TopicPageProps) {
                         <AccordionContent className="p-6 border-t rounded-b-lg space-y-6">
                             {topic.sources && topic.sources.length > 0 && (
                                 <div className="space-y-3">
-                                    <h4 className="font-semibold text-foreground">{t.sources}</h4>
                                     <ul className="space-y-2">
                                         {topic.sources.map((source, index) => (
                                             <li key={index}>
