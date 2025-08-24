@@ -27,6 +27,8 @@ export default function LoginPage() {
   const [fnr, setFnr] = useState(''); // Fødselsnummer
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [usernameForPasskey, setUsernameForPasskey] = useState('');
+
 
   const handleBankIdLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,7 +70,7 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-        const result = await startLogin();
+        const result = await startLogin(usernameForPasskey);
         if(result.success && result.personHash) {
             localStorage.setItem('anonymousVoterId', result.personHash);
             localStorage.removeItem('lastSeenTimestamp'); 
@@ -109,8 +111,19 @@ export default function LoginPage() {
                  <AlertDescription>{error}</AlertDescription>
                </Alert>
             )}
-
-            <Button onClick={handlePasskeyLogin} variant="outline" className="w-full h-12 text-base" disabled={loading}>
+            
+            <div className="space-y-2">
+                <Label htmlFor="username-passkey">Username</Label>
+                <Input 
+                    id="username-passkey" 
+                    type="text" 
+                    placeholder="Enter username for passkey login" 
+                    value={usernameForPasskey}
+                    onChange={(e) => setUsernameForPasskey(e.target.value)}
+                />
+            </div>
+            
+            <Button onClick={handlePasskeyLogin} variant="outline" className="w-full h-12 text-base" disabled={loading || !usernameForPasskey}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Fingerprint className="mr-2" /> }
                 Sign in with Passkey
             </Button>
@@ -122,8 +135,8 @@ export default function LoginPage() {
             </div>
 
             <form onSubmit={handleBankIdLogin} className="space-y-4">
-                 <CardDescription className="text-center">
-                    Use BankID for your first login or to link a new device.
+                 <CardDescription className="text-center !mt-0">
+                    Use BankID for your first login or if you don't have a passkey.
                 </CardDescription>
                 <div className="space-y-2">
                 <Label htmlFor="fnr">Fødselsnummer (11 digits)</Label>

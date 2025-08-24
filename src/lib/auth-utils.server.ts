@@ -41,7 +41,7 @@ const origin = process.env.NODE_ENV === 'production' ? `https://${rpID}` : `http
 
 
 // Mock database for users and devices. In a real app, this would be Firestore.
-const mockUserStore: { [key: string]: { username: string, devices: Device[], currentChallenge?: string } } = {};
+const mockUserStore: { [key: string]: { username: string, personHash: string, devices: Device[], currentChallenge?: string } } = {};
 const mockEligibilityStore: { [key: string]: Eligibility } = {};
 
 
@@ -127,11 +127,11 @@ export type AuthenticationResponse = AuthenticationResponseJSON;
 
 
 export async function generateRegistrationChallenge(personHash: string, username: string) {
-    if (!mockUserStore[personHash]) {
-        mockUserStore[personHash] = { username, devices: [] };
+    if (!mockUserStore[username]) {
+        mockUserStore[username] = { username, personHash, devices: [] };
     }
 
-    const user = mockUserStore[personHash];
+    const user = mockUserStore[username];
 
     const opts: GenerateRegistrationOptionsOpts = {
         rpName,
@@ -155,7 +155,10 @@ export async function generateRegistrationChallenge(personHash: string, username
 }
 
 export async function verifyRegistration(personHash: string, response: RegistrationResponse) {
-    const user = mockUserStore[personHash];
+    // Find user by personHash. A bit inefficient but fine for mock store.
+    const username = Object.keys(mockUserStore).find(key => mockUserStore[key].personHash === personHash);
+    const user = username ? mockUserStore[username] : undefined;
+
     if (!user || !user.currentChallenge) {
         throw new Error('User or challenge not found.');
     }
@@ -200,36 +203,44 @@ export async function verifyRegistration(personHash: string, response: Registrat
     }
 }
 
-export async function generateLoginChallenge() {
+export async function generateLoginChallenge(username?: string) {
+    let user;
+    if (username) {
+        user = mockUserStore[username];
+    }
+    
     const opts: GenerateAuthenticationOptionsOpts = {
         timeout: 60000,
-        allowCredentials: [], // In a real app, you would populate this for known users. For now, allow any.
+        allowCredentials: user?.devices.map(dev => ({
+            id: Buffer.from(dev.webauthn!.credentialID, 'base64url'),
+            type: 'public-key',
+            transports: dev.webauthn!.transports,
+        })),
         userVerification: 'preferred',
         rpID,
     };
     
     const options = await generateAuthenticationOptions(opts);
 
-    // This is a simplification. In a real app, you wouldn't store a global challenge.
-    // You'd store it per-authentication session.
-    (mockUserStore as any).globalChallenge = options.challenge;
+    if (user) {
+        user.currentChallenge = options.challenge;
+    } else {
+        // This is a simplification for a "discoverable" credential login.
+        // In a real app, you'd handle this session more robustly.
+        (mockUserStore as any).globalChallenge = options.challenge;
+    }
 
     return options;
 }
 
 export async function verifyLogin(response: AuthenticationResponse) {
-     const challenge = (mockUserStore as any).globalChallenge;
-     if (!challenge) {
-        throw new Error("No active challenge found for login.");
-     }
-
-    // Find the device/user by credential ID
     const credentialID = response.id;
     let user: (typeof mockUserStore)[string] | undefined;
     let device: Device | undefined;
     
-    for (const personHash in mockUserStore) {
-        const potentialUser = mockUserStore[personHash];
+    // Find user and device by credentialID
+    for (const username in mockUserStore) {
+        const potentialUser = mockUserStore[username];
         const foundDevice = potentialUser.devices.find(d => d.webauthn?.credentialID === credentialID);
         if (foundDevice) {
             user = potentialUser;
@@ -241,6 +252,11 @@ export async function verifyLogin(response: AuthenticationResponse) {
     if (!user || !device || !device.webauthn) {
         throw new Error('Device not registered.');
     }
+    
+    const challenge = user.currentChallenge || (mockUserStore as any).globalChallenge;
+     if (!challenge) {
+        throw new Error("No active challenge found for login.");
+     }
 
     const opts: VerifyAuthenticationResponseOpts = {
         response,
@@ -262,7 +278,8 @@ export async function verifyLogin(response: AuthenticationResponse) {
         if (verified) {
             // Update the signature counter
             device.webauthn.signCount = authenticationInfo.newCounter;
-             (mockUserStore as any).globalChallenge = undefined; // Clear the challenge
+            user.currentChallenge = undefined; // Clear the challenge
+            (mockUserStore as any).globalChallenge = undefined; 
             
             return { verified: true, personHash: device.person_hash, error: null };
         } else {

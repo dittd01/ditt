@@ -18,7 +18,7 @@ const bufferToBase64URL = (buffer: ArrayBuffer): string => {
 
 // Helper function to convert Base64URL to a buffer
 const base64URLToBuffer = (base64urlString: string): ArrayBuffer => {
-  const base64 = base64urlString.replace(/-/g, '+').replace(/_/g, '/');
+  const base64 = String(base64urlString).replace(/-/g, '+').replace(/_/g, '/');
   const binStr = atob(base64);
   const bin = new Uint8Array(binStr.length);
   for (let i = 0; i < binStr.length; i++) {
@@ -72,13 +72,20 @@ export async function startRegistration(personHash: string): Promise<{ success: 
 /**
  * Begins the passkey login process.
  */
-export async function startLogin(): Promise<{ success: boolean; message?: string, personHash?: string }> {
+export async function startLogin(username: string): Promise<{ success: boolean; message?: string, personHash?: string }> {
   try {
     // 1. Get a challenge from the server
-    const options = await getLoginChallengeAction();
+    const options = await getLoginChallengeAction(username);
     
     // Convert challenge from Base64URL to ArrayBuffer
     options.challenge = base64URLToBuffer(options.challenge as unknown as string);
+    // Convert allowCredentials from Base64URL to ArrayBuffer
+    if (options.allowCredentials) {
+        for (const cred of options.allowCredentials) {
+            cred.id = base64URLToBuffer(cred.id as unknown as string);
+        }
+    }
+
 
     // 2. Prompt the user to use their passkey
     const { startAuthentication } = await import('@simplewebauthn/browser');

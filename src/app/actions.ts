@@ -166,8 +166,8 @@ export async function verifyRegistrationAction(personHash: string, response: Reg
     return await verifyRegistration(personHash, response);
 }
 
-export async function getLoginChallengeAction() {
-    return generateLoginChallenge();
+export async function getLoginChallengeAction(username?: string) {
+    return generateLoginChallenge(username);
 }
 
 export async function verifyLoginAction(response: AuthenticationResponse) {
