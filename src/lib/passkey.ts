@@ -15,7 +15,6 @@ import { startRegistration as browserStartRegistration, startAuthentication as b
  * @param base64urlString a base64url-encoded string
  */
 function base64URLToBuffer(base64urlString: string): ArrayBuffer {
-    // Ensure the input is a string and perform replacements
     const base64 = String(base64urlString).replace(/-/g, '+').replace(/_/g, '/');
     const padLength = (4 - (base64.length % 4)) % 4;
     const padded = base64.padEnd(base64.length + padLength, '=');
@@ -41,7 +40,7 @@ export async function startRegistration(personHash: string): Promise<{ success: 
     // 2. Convert server-sent strings to ArrayBuffers for the browser API
     // The browser API expects `challenge` and `user.id` to be ArrayBuffers.
     options.challenge = base64URLToBuffer(options.challenge);
-    options.user.id = base64URLToBuffer(personHash);
+    options.user.id = base64URLToBuffer(options.user.id);
     
     if (options.excludeCredentials) {
         options.excludeCredentials.forEach(cred => {

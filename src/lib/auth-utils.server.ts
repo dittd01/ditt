@@ -21,7 +21,7 @@ import {
     generateAuthenticationOptions,
     verifyAuthenticationResponse,
 } from '@simplewebauthn/server';
-import type { RegistrationResponseJSON, AuthenticationResponseJSON, PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types';
+import type { RegistrationResponseJSON, AuthenticationResponseJSON, PublicKeyCredentialCreationOptionsJSON, AuthenticatorDevice } from '@simplewebauthn/types';
 import type { Device, Eligibility } from './types';
 
 
@@ -144,13 +144,13 @@ export async function generateRegistrationChallenge(personHash: string): Promise
     const opts: GenerateRegistrationOptionsOpts = {
         rpName,
         rpID,
-        userID: personHash,
+        userID: Buffer.from(personHash), // Pass as Buffer
         userName: user.username,
         timeout: 60000,
         attestationType: 'none',
         // Prevent users from creating multiple credentials on the same device
         excludeCredentials: user.devices.map(dev => ({
-            id: dev.webauthn!.credentialID,
+            id: Buffer.from(dev.webauthn!.credentialID, 'base64url'), // Must be Buffer
             type: 'public-key',
             transports: dev.webauthn?.transports,
         })),
@@ -169,7 +169,7 @@ export async function generateRegistrationChallenge(personHash: string): Promise
       ...options,
       user: {
         ...options.user,
-        id: personHash, // Ensure the raw string ID is sent to the client
+        id: personHash, // Send the original string ID to the client
       }
     };
 }
@@ -195,13 +195,21 @@ export async function verifyRegistration(personHash: string, response: Registrat
 
         if (verified && registrationInfo) {
             const { credentialPublicKey, credentialID, counter } = registrationInfo;
+            
+            const newDevice: AuthenticatorDevice = {
+                credentialID: Buffer.from(credentialID),
+                credentialPublicKey: Buffer.from(credentialPublicKey),
+                counter,
+                transports: response.response.transports,
+            };
 
-            const newDevice: Device = {
+            const userDevice: Device = {
                 person_hash: personHash,
                 webauthn: {
-                    credentialID: Buffer.from(credentialID).toString('base64url'),
-                    publicKey: Buffer.from(credentialPublicKey).toString('base64url'),
-                    signCount: counter,
+                    credentialID: Buffer.from(newDevice.credentialID).toString('base64url'),
+                    publicKey: Buffer.from(newDevice.credentialPublicKey).toString('base64url'),
+                    signCount: newDevice.counter,
+                    transports: newDevice.transports,
                 },
                 platform: 'web',
                 createdAt: Date.now(),
@@ -209,7 +217,7 @@ export async function verifyRegistration(personHash: string, response: Registrat
                 revoked: false,
             };
 
-            user.devices.push(newDevice);
+            user.devices.push(userDevice);
             user.currentChallenge = undefined;
 
             return { verified: true, error: null };
@@ -291,4 +299,7 @@ export async function verifyLogin(response: AuthenticationResponseJSON) {
              return { verified: false, error: "Verification failed." };
         }
     } catch(e: any) {
-        console
+        console.error('Error during login verification:', e);
+        return { verified: false, error: e.message };
+    }
+}

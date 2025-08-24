@@ -12,9 +12,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Loader2, Fingerprint, CheckCircle, ShieldAlert } from 'lucide-react';
+import { Loader2, Fingerprint, CheckCircle, ShieldAlert, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { startRegistration } from '@/lib/passkey';
+import Link from 'next/link';
 
 export default function SetupPasskeyPage() {
   const router = useRouter();
@@ -85,9 +86,15 @@ export default function SetupPasskeyPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {error && (
-            <div className="text-center text-sm text-destructive">
-                <p><strong>Setup Failed:</strong> {error}</p>
-                <p className="mt-1">You can try again, or skip for now and set it up later from your settings.</p>
+            <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+                <div className='flex items-start gap-2'>
+                    <AlertCircle className="h-4 w-4 mt-0.5" />
+                    <div className="flex-1">
+                        <p className="font-semibold">Setup Failed</p>
+                        <p className="break-words">{error}</p>
+                        <p className="mt-2">You can <Button variant="link" size="sm" className="p-0 h-auto" onClick={handleSetupPasskey}>try again</Button>, or skip for now and set it up later from your <Link href="/settings" className='underline'>settings</Link>.</p>
+                    </div>
+                </div>
             </div>
           )}
           <div className="rounded-md border p-4 space-y-3 text-sm">
