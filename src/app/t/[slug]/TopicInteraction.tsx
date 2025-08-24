@@ -234,14 +234,36 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
             return (
                  <Card>
                     <CardHeader><CardTitle>{t.castVote}</CardTitle></CardHeader>
-                    <CardContent className="flex flex-col items-center justify-center gap-4">
-                        <div className="flex w-full items-center justify-center gap-4">
-                           <Button size="lg" className="h-14 flex-1 text-lg bg-[hsl(var(--chart-2))] hover:bg-[hsl(var(--chart-2))]/90 text-white" onClick={() => handleVote('yes')}>
-                               <ThumbsUp className="h-6 w-6 mr-2" />{t.yes}
-                           </Button>
-                           <Button size="lg" className="h-14 flex-1 text-lg bg-[hsl(var(--chart-1))] hover:bg-[hsl(var(--chart-1))]/90 text-white" onClick={() => handleVote('no')}>
-                               <ThumbsDown className="h-6 w-6 mr-2" />{t.no}
-                           </Button>
+                    <CardContent className="flex flex-col items-center justify-center gap-3">
+                        <div className="flex w-full items-center justify-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className={cn(
+                                'h-9 flex-1 group',
+                                votedOn === 'yes' && 'bg-primary text-primary-foreground hover:bg-primary/90',
+                                votedOn && votedOn !== 'yes' && 'opacity-60 pointer-events-none'
+                              )}
+                              onClick={() => handleVote('yes')}
+                              disabled={votedOn === 'no'}
+                            >
+                                <ThumbsUp className={cn('h-4 w-4 text-primary group-hover:text-primary-foreground', votedOn === 'yes' && 'text-primary-foreground')} />
+                                <span className="ml-2">{t.yes}</span>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className={cn(
+                                'h-9 flex-1 group',
+                                votedOn === 'no' && 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+                                votedOn && votedOn !== 'no' && 'opacity-60 pointer-events-none'
+                              )}
+                              onClick={() => handleVote('no')}
+                              disabled={votedOn === 'yes'}
+                            >
+                                 <ThumbsDown className={cn('h-4 w-4 text-destructive group-hover:text-destructive-foreground', votedOn === 'no' && 'text-destructive-foreground')} />
+                                 <span className="ml-2">{t.no}</span>
+                            </Button>
                         </div>
                     </CardContent>
                     <CardFooter className="flex-col gap-4 border-t pt-6">
