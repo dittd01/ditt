@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,6 +22,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle, AlertActions } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { featureFlagsData } from '@/app/admin/data';
+import { currentUser } from '@/lib/user-data';
 
 const suggestionSchema = z.object({
   suggestion: z
@@ -91,6 +93,7 @@ export function SuggestionForm() {
       verdict: 'rejected_by_ai',
       status: 'Pending',
       created: new Date().toISOString().split('T')[0],
+      author: currentUser.displayName,
     });
     localStorage.setItem('manual_review_queue', JSON.stringify(reviewQueue));
 
@@ -114,6 +117,7 @@ export function SuggestionForm() {
           verdict: 'AI-Approved',
           status: 'Pending',
           created: new Date().toISOString().split('T')[0],
+          author: currentUser.displayName,
         });
         localStorage.setItem('manual_review_queue', JSON.stringify(reviewQueue));
         
@@ -147,6 +151,7 @@ export function SuggestionForm() {
         votesLastYear: 0,
         history: [], 
         averageImportance: 2.5,
+        author: currentUser.displayName,
         options: [
             { id: 'yes', label: 'Yes', color: 'hsl(var(--chart-2))' },
             { id: 'no', label: 'No', color: 'hsl(var(--chart-1))' },

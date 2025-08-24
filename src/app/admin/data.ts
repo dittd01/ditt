@@ -1,9 +1,8 @@
 
 
-import { allTopics, categories, mockUserNames } from '@/lib/data';
+import { allTopics, categories, mockUserNames, currentUser } from '@/lib/data';
 import type { Topic, Subcategory } from '@/lib/types';
 import { format, subDays } from 'date-fns';
-import { currentUser } from '@/lib/user-data';
 import type { User } from './users/page';
 
 // Overview Page
@@ -48,11 +47,11 @@ export const chartData = {
 
 // Suggestions Queue Page
 export const suggestionsData = [
-    { id: 1, text: 'Increase inheritance tax to 25% for amounts over 10M NOK', verdict: 'create', status: 'Pending', created: '2023-10-27' },
-    { id: 2, text: 'Stop taxing working capital so hard', verdict: 'merge', status: 'Pending', created: '2023-10-27' },
-    { id: 3, text: 'Should we build trains and also stop giving money to rich people?', verdict: 'reject', status: 'Pending', created: '2023-10-26' },
-    { id: 4, text: 'Better roads in the north', verdict: 'create', status: 'Approved', created: '2023-10-25' },
-    { id: 5, text: 'Abolish the monarchy', verdict: 'reject', status: 'Rejected', created: '2023-10-24' },
+    { id: 1, text: 'Increase inheritance tax to 25% for amounts over 10M NOK', author: 'testuser', verdict: 'create', status: 'Pending', created: '2023-10-27' },
+    { id: 2, text: 'Stop taxing working capital so hard', author: 'Per Hansen', verdict: 'merge', status: 'Pending', created: '2023-10-27' },
+    { id: 3, text: 'Should we build trains and also stop giving money to rich people?', author: 'Kari Berg', verdict: 'reject', status: 'Pending', created: '2023-10-26' },
+    { id: 4, text: 'Better roads in the north', author: 'testuser', verdict: 'create', status: 'Approved', created: '2023-10-25' },
+    { id: 5, text: 'Abolish the monarchy', author: 'Lars Nilsen', verdict: 'reject', status: 'Rejected', created: '2023-10-24' },
 ];
 
 // Topic Curation Page

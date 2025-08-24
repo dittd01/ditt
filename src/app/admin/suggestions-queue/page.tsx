@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -34,6 +35,7 @@ import { suggestionsData as staticSuggestions } from '@/app/admin/data';
 import { Label } from '@/components/ui/label';
 import type { Topic } from '@/lib/types';
 import { Input } from '@/components/ui/input';
+import { currentUser } from '@/lib/user-data';
 
 
 type Suggestion = {
@@ -42,6 +44,7 @@ type Suggestion = {
   verdict: string;
   status: string;
   created: string;
+  author?: string;
 };
 
 // Mock data for what the AI would generate for a selected suggestion
@@ -127,6 +130,7 @@ export default function SuggestionsQueuePage() {
           votes: { yes: 0, no: 0, abstain: 0},
           totalVotes: 0, votesLastWeek: 0, votesLastMonth: 0, votesLastYear: 0, history: [],
           averageImportance: 2.5,
+          author: suggestion.author || 'System',
           options: [
               { id: 'yes', label: 'Yes', color: 'hsl(var(--chart-2))' },
               { id: 'no', label: 'No', color: 'hsl(var(--chart-1))' },
@@ -173,6 +177,7 @@ export default function SuggestionsQueuePage() {
           <TableHeader>
               <TableRow>
                   <TableHead>User Suggestion</TableHead>
+                  <TableHead>Author</TableHead>
                   <TableHead>AI Verdict</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Date</TableHead>
@@ -183,6 +188,7 @@ export default function SuggestionsQueuePage() {
               {allSuggestions.map((s) => (
                    <TableRow key={s.id} onClick={() => handleRowClick(s)} className="cursor-pointer">
                       <TableCell className="font-medium">{s.text}</TableCell>
+                      <TableCell>{s.author || 'User'}</TableCell>
                       <TableCell>
                         <Badge variant={s.verdict === 'reject' || s.verdict === 'rejected_by_ai' ? 'destructive' : 'outline'}>
                           {s.verdict}

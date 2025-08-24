@@ -1,4 +1,5 @@
 
+
 'use client';
 import { useParams, useRouter } from 'next/navigation';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
@@ -64,6 +65,7 @@ import { useEffect, useState, useRef } from 'react';
 import { populatePollAction } from '@/app/actions';
 import { Label } from '@/components/ui/label';
 import type { Topic } from '@/lib/types';
+import { currentUser } from '@/lib/user-data';
 
 const pollFormSchema = z.object({
   title: z.string().min(12, 'Title must be at least 12 characters.').max(120, 'Title must be 120 characters or less.'),
@@ -267,6 +269,7 @@ export default function EditPollPage() {
         votes: { yes: 0, no: 0, abstain: 0 },
         totalVotes: 0, votesLastWeek: 0, votesLastMonth: 0, votesLastYear: 0, history: [],
         averageImportance: 2.5,
+        author: currentUser.displayName,
         options: data.isDefaultOptions
           ? [
               { id: 'yes', label: 'Yes', color: 'hsl(var(--chart-2))' },
@@ -296,6 +299,7 @@ export default function EditPollPage() {
       verdict: 'Admin-Created',
       status: 'Pending',
       created: new Date().toISOString().split('T')[0],
+      author: currentUser.displayName,
     };
     reviewQueue.unshift(newSuggestion);
     localStorage.setItem('manual_review_queue', JSON.stringify(reviewQueue));
