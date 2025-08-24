@@ -383,7 +383,7 @@ const createArgsForTopic = (topicId: string): Argument[] => {
                  upvotes: Math.floor(Math.random() * 10),
                  downvotes: Math.floor(Math.random() * 5),
                  replyCount: 0,
-                 createdAt: subHours(new Date(parent.createdAt), Math.floor(Math.random() * -24)).toISOString(),
+                 createdAt: subHours(new Date(parent.createdAt), Math.floor(Math.random() * -48)).toISOString(),
             };
             
             const parentInArray = topicArguments.find(a => a.id === parent.id);

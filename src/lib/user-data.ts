@@ -1,4 +1,5 @@
 
+
 // In a real app this would come from an auth context/API call
 export const currentUser = {
   uid: 'mock-uid-123',

@@ -1,6 +1,7 @@
 
 
-import { allTopics, categories, mockUserNames, currentUser } from '@/lib/data';
+import { allTopics, categories, mockUserNames } from '@/lib/data';
+import { currentUser } from '@/lib/user-data';
 import type { Topic, Subcategory } from '@/lib/types';
 import { format, subDays } from 'date-fns';
 import type { User } from './users/page';
