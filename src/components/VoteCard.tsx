@@ -42,7 +42,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
   const { toast } = useToast();
   const router = useRouter();
   const [topic, setTopic] = useState(initialTopic);
-  const [hasVoted, setHasVoted] = useState(initialHasVoted);
+  const [votedOn, setVotedOn] = useState<string | null>(null);
   
   const iconName = getCategoryIconName(topic.categoryId);
   const link = topic.voteType === 'election' ? '/election-2025' : `/t/${topic.slug}`;
@@ -54,24 +54,29 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
   const subcategory = getSubcategory(category, topic.subcategoryId);
 
    useEffect(() => {
-    // Check if the topic is already bookmarked on mount
     const bookmarkedTopics = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
     setIsBookmarked(bookmarkedTopics.includes(topic.id));
+
+    const currentVote = localStorage.getItem(`voted_on_${topic.id}`);
+    setVotedOn(currentVote);
 
     const handleStorageChange = (event: StorageEvent) => {
         if (event.key === 'selectedLanguage') {
             setLang(event.newValue || 'en');
         }
         if (event.key === `voted_on_${topic.id}`) {
-             setHasVoted(!!event.newValue);
+             setVotedOn(event.newValue);
         }
         if (event.key === `votes_for_${topic.id}_yes` || event.key === `votes_for_${topic.id}_no`) {
             setTopic(prevTopic => {
                 const newVotes = {...prevTopic.votes};
                 if(event.key === `votes_for_${topic.id}_yes`) newVotes.yes = parseInt(event.newValue || '0', 10);
                 if(event.key === `votes_for_${topic.id}_no`) newVotes.no = parseInt(event.newValue || '0', 10);
-                const newTotalVotes = (newVotes.yes || 0) + (newVotes.no || 0);
-                return {...prevTopic, votes: newVotes, totalVotes: newTotalVotes};
+                
+                const newPrimaryVotes = (newVotes.yes || 0) + (newVotes.no || 0);
+                const totalVotes = Object.values(newVotes).reduce((sum, v) => sum + v, 0);
+
+                return {...prevTopic, votes: newVotes, totalVotes: totalVotes};
             });
         }
     };
@@ -93,7 +98,6 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
     }
     
     window.addEventListener('storage', handleStorageChange);
-    // Add listener for bookmark changes from other components
     window.addEventListener('bookmarkChange', () => {
         const bookmarkedTopics = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
         setIsBookmarked(bookmarkedTopics.includes(topic.id));
@@ -108,8 +112,8 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
   }, [topic.id, topic.categoryId]);
 
   const handleBookmarkClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // prevent card link navigation
-    e.preventDefault(); // prevent link navigation
+    e.stopPropagation(); 
+    e.preventDefault(); 
     let bookmarkedTopics: string[] = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
     
     if (isBookmarked) {
@@ -123,7 +127,6 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
     localStorage.setItem('bookmarked_topics', JSON.stringify(bookmarkedTopics));
     setIsBookmarked(!isBookmarked);
 
-    // Dispatch a custom event to notify other components (like the profile page) of the change
     window.dispatchEvent(new Event('bookmarkChange'));
   };
 
@@ -145,10 +148,6 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
 
     const previouslyVotedOn = localStorage.getItem(`voted_on_${topic.id}`);
     if (previouslyVotedOn === voteOption) {
-        toast({
-            title: 'Already Voted',
-            description: 'You have already cast this vote.',
-        });
         return;
     }
 
@@ -158,23 +157,20 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
         trackEvent('vote_cast', { topicId: topic.id, choice: voteOption });
     }
 
-    // Optimistically update the state
     setTopic(currentTopic => {
+        if (!currentTopic) return currentTopic;
+
         const newVotes = { ...currentTopic.votes };
         let newTotalVotes = currentTopic.totalVotes;
 
-        // If user is changing their vote, decrement the old one and don't change total
         if (previouslyVotedOn && newVotes[previouslyVotedOn] !== undefined) {
             newVotes[previouslyVotedOn] = Math.max(0, newVotes[previouslyVotedOn] - 1);
         } else {
-            // If it's a new vote, increment total
             newTotalVotes += 1;
         }
 
-        // Increment the new vote
         newVotes[voteOption] = (newVotes[voteOption] || 0) + 1;
         
-        // Update local storage
         localStorage.setItem(`votes_for_${topic.id}_${voteOption}`, newVotes[voteOption].toString());
         if (previouslyVotedOn) {
              localStorage.setItem(`votes_for_${topic.id}_${previouslyVotedOn}`, newVotes[previouslyVotedOn].toString());
@@ -184,7 +180,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
     });
 
     localStorage.setItem(`voted_on_${topic.id}`, voteOption);
-    setHasVoted(true);
+    setVotedOn(voteOption);
 
     const voteLabel = voteOption === 'yes' ? (lang === 'nb' ? 'Ja' : 'Yes') : (lang === 'nb' ? 'Nei' : 'No');
 
@@ -193,7 +189,6 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
         description: `Your anonymous vote for "${voteLabel}" has been recorded.`,
     });
     
-    // Dispatch a storage event to notify other components/tabs
     window.dispatchEvent(new StorageEvent('storage', {
       key: `voted_on_${topic.id}`,
       newValue: voteOption,
@@ -204,8 +199,8 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
   const yesVotes = topic.votes?.yes || 0;
   const noVotes = topic.votes?.no || 0;
   const primaryVotes = yesVotes + noVotes;
-  const yesPercentage = primaryVotes > 0 ? (yesVotes / primaryVotes) * 100 : hasVoted ? (topic.votes?.yes ? 100 : 0) : 50;
-  const noPercentage = primaryVotes > 0 ? (noVotes / primaryVotes) * 100 : hasVoted ? (topic.votes?.no ? 100 : 0) : 50;
+  const yesPercentage = primaryVotes > 0 ? (yesVotes / primaryVotes) * 100 : votedOn ? (votedOn === 'yes' ? 100 : 0) : 50;
+  const noPercentage = primaryVotes > 0 ? (noVotes / primaryVotes) * 100 : votedOn ? (votedOn === 'no' ? 100 : 0) : 50;
   
   const infoText = lang === 'nb' ? 'Info' : 'Info';
   const yesText = lang === 'nb' ? 'Ja' : 'Yes';
@@ -257,12 +252,32 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
         </div>
         <CardFooter className="pt-0 p-4 border-t flex flex-col items-center justify-center gap-3">
             <div className="flex w-full items-center justify-center gap-2">
-                <Button variant="outline" size="sm" className="h-9 flex-1 hover:bg-primary hover:text-primary-foreground group" onClick={() => handleVote('yes')}>
-                    <ThumbsUp className="h-4 w-4 text-[hsl(var(--chart-2))] group-hover:text-primary-foreground" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    'h-9 flex-1 group',
+                    votedOn === 'yes' && 'bg-primary text-primary-foreground hover:bg-primary/90',
+                    votedOn && votedOn !== 'yes' && 'opacity-60 pointer-events-none'
+                  )}
+                  onClick={() => handleVote('yes')}
+                  disabled={votedOn === 'no'}
+                >
+                    <ThumbsUp className={cn('h-4 w-4 text-primary group-hover:text-primary-foreground', votedOn === 'yes' && 'text-primary-foreground')} />
                     <span className="ml-2">{yesText}</span>
                 </Button>
-                <Button variant="outline" size="sm" className="h-9 flex-1 hover:bg-destructive hover:text-destructive-foreground group" onClick={() => handleVote('no')}>
-                     <ThumbsDown className="h-4 w-4 text-[hsl(var(--chart-1))] group-hover:text-destructive-foreground" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    'h-9 flex-1 group',
+                    votedOn === 'no' && 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+                    votedOn && votedOn !== 'no' && 'opacity-60 pointer-events-none'
+                  )}
+                  onClick={() => handleVote('no')}
+                  disabled={votedOn === 'yes'}
+                >
+                     <ThumbsDown className={cn('h-4 w-4 text-destructive group-hover:text-destructive-foreground', votedOn === 'no' && 'text-destructive-foreground')} />
                      <span className="ml-2">{noText}</span>
                 </Button>
             </div>
@@ -342,5 +357,3 @@ VoteCard.Skeleton = function VoteCardSkeleton() {
         </Card>
     )
 }
-
-    
