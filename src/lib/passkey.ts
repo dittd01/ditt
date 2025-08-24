@@ -15,7 +15,8 @@ import { startRegistration as browserStartRegistration, startAuthentication as b
  * @param base64urlString a base64url-encoded string
  */
 function base64URLToBuffer(base64urlString: string): ArrayBuffer {
-    const base64 = base64urlString.replace(/-/g, '+').replace(/_/g, '/');
+    // Ensure the input is a string and perform replacements
+    const base64 = String(base64urlString).replace(/-/g, '+').replace(/_/g, '/');
     const padLength = (4 - (base64.length % 4)) % 4;
     const padded = base64.padEnd(base64.length + padLength, '=');
     const binary = atob(padded);
@@ -40,7 +41,8 @@ export async function startRegistration(personHash: string): Promise<{ success: 
     // 2. Convert server-sent strings to ArrayBuffers for the browser API
     // The browser API expects `challenge` and `user.id` to be ArrayBuffers.
     options.challenge = base64URLToBuffer(options.challenge);
-    options.user.id = base64URLToBuffer(options.user.id);
+    options.user.id = base64URLToBuffer(personHash);
+    
     if (options.excludeCredentials) {
         options.excludeCredentials.forEach(cred => {
             // The server sends the credential ID as a base64url string, convert it to a buffer.
@@ -100,13 +102,10 @@ export async function startLogin(): Promise<{ success: boolean; message?: string
        return { success: false, message: 'Verification failed. ' + (verificationResult.error || 'Unknown server error.') };
     }
   } catch (error: any) {
-    console.error('Login failed:', error);
     let message = error.message || 'An unknown error occurred during login.';
     if (error.name === 'NotAllowedError') {
-        message = 'Authentication was cancelled.';
+        message = 'Login was cancelled.';
     }
-    return { success: false, message };
+    return { success: false, message: message };
   }
 }
-
-    

@@ -21,7 +21,7 @@ import {
     generateAuthenticationOptions,
     verifyAuthenticationResponse,
 } from '@simplewebauthn/server';
-import type { RegistrationResponseJSON, AuthenticationResponseJSON } from '@simplewebauthn/types';
+import type { RegistrationResponseJSON, AuthenticationResponseJSON, PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types';
 import type { Device, Eligibility } from './types';
 
 
@@ -134,7 +134,7 @@ export async function getDevicesForUser(personHash: string): Promise<Device[]> {
 }
 
 
-export async function generateRegistrationChallenge(personHash: string) {
+export async function generateRegistrationChallenge(personHash: string): Promise<PublicKeyCredentialCreationOptionsJSON> {
     if (!mockUserStore[personHash]) {
         mockUserStore[personHash] = { username: personHash, personHash, devices: [] };
     }
@@ -144,13 +144,13 @@ export async function generateRegistrationChallenge(personHash: string) {
     const opts: GenerateRegistrationOptionsOpts = {
         rpName,
         rpID,
-        userID: Buffer.from(personHash, 'utf8'), // **FIX**: userID must be a Buffer
+        userID: personHash,
         userName: user.username,
         timeout: 60000,
         attestationType: 'none',
         // Prevent users from creating multiple credentials on the same device
         excludeCredentials: user.devices.map(dev => ({
-            id: Buffer.from(dev.webauthn!.credentialID, 'base64url'), // **FIX**: ID must be a Buffer
+            id: dev.webauthn!.credentialID,
             type: 'public-key',
             transports: dev.webauthn?.transports,
         })),
@@ -165,7 +165,13 @@ export async function generateRegistrationChallenge(personHash: string) {
     
     user.currentChallenge = options.challenge;
 
-    return options;
+    return {
+      ...options,
+      user: {
+        ...options.user,
+        id: personHash, // Ensure the raw string ID is sent to the client
+      }
+    };
 }
 
 export async function verifyRegistration(personHash: string, response: RegistrationResponseJSON) {
@@ -285,9 +291,4 @@ export async function verifyLogin(response: AuthenticationResponseJSON) {
              return { verified: false, error: "Verification failed." };
         }
     } catch(e: any) {
-        console.error('Login verification error:', e);
-        return { verified: false, error: e.message };
-    }
-}
-
-    
+        console
