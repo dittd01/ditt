@@ -2,12 +2,14 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { allTopics, categories } from '@/lib/data';
 import type { Topic, Category, Subcategory } from '@/lib/types';
 import { VoteCard } from '@/components/VoteCard';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { ChevronsUpDown } from 'lucide-react';
+import { TopicFilters } from '@/components/TopicFilters';
 
 type GroupedTopics = {
     [categoryId: string]: {
@@ -21,7 +23,11 @@ type GroupedTopics = {
     }
 }
 
-export default function AllTopicsPage() {
+function AllTopicsContent() {
+    const searchParams = useSearchParams();
+    const categoryFilter = searchParams.get('category') || 'all';
+    const subcategoryFilter = searchParams.get('subcategory') || 'all';
+
     const [groupedTopics, setGroupedTopics] = useState<GroupedTopics>({});
     const [votedTopicIds, setVotedTopicIds] = useState<Set<string>>(new Set());
     const [openSubcategories, setOpenSubcategories] = useState<string[]>([]);
@@ -33,12 +39,21 @@ export default function AllTopicsPage() {
     }, [groupedTopics]);
 
     useEffect(() => {
-        const groups: GroupedTopics = {};
-        const electionPoll = allTopics.find(t => t.voteType === 'election');
-        const standardTopics = allTopics.filter(t => t.voteType !== 'election');
+        // Filter topics based on URL params
+        const filteredTopics = allTopics.filter(topic => {
+            const categoryMatch = categoryFilter === 'all' || topic.categoryId === categoryFilter;
+            const subcategoryMatch = subcategoryFilter === 'all' || topic.subcategoryId === subcategoryFilter;
+            return categoryMatch && subcategoryMatch;
+        });
 
-        // Handle Election separately
-        if (electionPoll) {
+        const groups: GroupedTopics = {};
+        
+        // Find the election poll from the original list, so it can be added if no filter is active
+        const electionPoll = allTopics.find(t => t.voteType === 'election');
+        const standardTopics = filteredTopics.filter(t => t.voteType !== 'election');
+
+        // Handle Election separately - show it only when no specific category is filtered
+        if (electionPoll && categoryFilter === 'all') {
             const electionCategory = categories.find(c => c.id === 'election_2025');
             if (electionCategory) {
                 groups['election_2025'] = {
@@ -89,7 +104,7 @@ export default function AllTopicsPage() {
         });
         setVotedTopicIds(votedIds);
 
-    }, []);
+    }, [categoryFilter, subcategoryFilter]);
     
     useEffect(() => {
         // Initially expand all categories
@@ -116,7 +131,8 @@ export default function AllTopicsPage() {
                 <p className="text-lg text-muted-foreground mt-2">Browse every available poll, organized by category.</p>
             </div>
             
-             <div className="flex justify-end mb-4">
+             <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
+                <TopicFilters categories={categories} />
                 <Button variant="outline" onClick={toggleAll} size="sm">
                     <ChevronsUpDown className="mr-2 h-4 w-4" />
                     {openSubcategories.length === allSubcategoryIds.length ? 'Collapse All' : 'Expand All'}
@@ -124,33 +140,51 @@ export default function AllTopicsPage() {
             </div>
             
             <div className="space-y-8">
-                {Object.values(groupedTopics).sort((a,b) => {
-                    if (a.category.id === 'election_2025') return -1;
-                    if (b.category.id === 'election_2025') return 1;
-                    return a.category.label.localeCompare(b.category.label);
-                }).map(({ category, subcategories }) => (
-                    <section key={category.id} className="scroll-mt-24" id={category.id}>
-                        <h2 className="text-3xl font-bold border-b pb-4 mb-6">{category.label}</h2>
-                        
-                        <Accordion type="multiple" value={openSubcategories} onValueChange={setOpenSubcategories} className="w-full space-y-4">
-                           {Object.values(subcategories).sort((a,b) => a.subcategory.label.localeCompare(b.subcategory.label)).map(({ subcategory, topics }) => (
-                               <AccordionItem value={subcategory.id} key={subcategory.id} className="border-none">
-                                    <AccordionTrigger className="text-xl font-semibold p-4 border rounded-lg bg-card text-card-foreground shadow-sm hover:no-underline">
-                                        {subcategory.label}
-                                    </AccordionTrigger>
-                                    <AccordionContent className="pt-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                                            {topics.map(topic => (
-                                                <VoteCard key={topic.id} topic={topic} hasVoted={votedTopicIds.has(topic.id)} />
-                                            ))}
-                                        </div>
-                                    </AccordionContent>
-                               </AccordionItem>
-                           ))}
-                        </Accordion>
-                    </section>
-                ))}
+                {Object.keys(groupedTopics).length === 0 ? (
+                    <div className="text-center py-16">
+                        <p className="text-muted-foreground">No topics found for the selected filters.</p>
+                    </div>
+                ) : (
+                    Object.values(groupedTopics).sort((a,b) => {
+                        if (a.category.id === 'election_2025') return -1;
+                        if (b.category.id === 'election_2025') return 1;
+                        return a.category.label.localeCompare(b.category.label);
+                    }).map(({ category, subcategories }) => (
+                        <section key={category.id} className="scroll-mt-24" id={category.id}>
+                            <h2 className="text-3xl font-bold border-b pb-4 mb-6">{category.label}</h2>
+                            
+                            <Accordion type="multiple" value={openSubcategories} onValueChange={setOpenSubcategories} className="w-full space-y-4">
+                               {Object.values(subcategories).sort((a,b) => a.subcategory.label.localeCompare(b.subcategory.label)).map(({ subcategory, topics }) => (
+                                   <AccordionItem value={subcategory.id} key={subcategory.id} className="border-none">
+                                        <AccordionTrigger className="text-xl font-semibold p-4 border rounded-lg bg-card text-card-foreground shadow-sm hover:no-underline">
+                                            {subcategory.label}
+                                        </AccordionTrigger>
+                                        <AccordionContent className="pt-6">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                                                {topics.map(topic => (
+                                                    <VoteCard key={topic.id} topic={topic} hasVoted={votedTopicIds.has(topic.id)} />
+                                                ))}
+                                            </div>
+                                        </AccordionContent>
+                                   </AccordionItem>
+                               ))}
+                            </Accordion>
+                        </section>
+                    ))
+                )}
             </div>
         </div>
     );
+}
+
+
+export default function AllTopicsPage() {
+    return (
+        // The Suspense boundary is useful if this page were to fetch data,
+        // but for now it ensures client components depending on searchParams
+        // are rendered correctly.
+        <React.Suspense fallback={<div>Loading filters...</div>}>
+            <AllTopicsContent />
+        </React.Suspense>
+    )
 }
