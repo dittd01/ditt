@@ -149,6 +149,12 @@ export async function generateRegistrationChallenge(personHash: string) {
         userName: user.username,
         timeout: 60000,
         attestationType: 'none',
+        // Prevent users from creating multiple credentials on the same device
+        excludeCredentials: user.devices.map(dev => ({
+            id: Buffer.from(dev.webauthn!.credentialID, 'base64url'),
+            type: 'public-key',
+            transports: dev.webauthn?.transports,
+        })),
         authenticatorSelection: {
             residentKey: 'preferred',
             userVerification: 'preferred',

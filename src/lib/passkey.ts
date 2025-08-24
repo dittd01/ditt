@@ -19,8 +19,9 @@ const bufferToBase64URL = (buffer: ArrayBuffer): string => {
 
 // Helper function to convert Base64URL to a buffer
 const base64URLToBuffer = (base64urlString: string): ArrayBuffer => {
-  const base64 = String(base64urlString).replace(/-/g, '+').replace(/_/g, '/');
-  const binStr = atob(base64);
+  // Ensure the input is a string before calling replace
+  const padded = String(base64urlString).replace(/-/g, '+').replace(/_/g, '/') + '=='.substring(0, (3 * base64urlString.length) % 4);
+  const binStr = atob(padded);
   const bin = new Uint8Array(binStr.length);
   for (let i = 0; i < binStr.length; i++) {
     bin[i] = binStr.charCodeAt(i);
@@ -40,8 +41,14 @@ export async function startRegistration(personHash: string): Promise<{ success: 
     
     // The server sends the challenge as a base64url-encoded string.
     // The browser's WebAuthn API expects `challenge` to be an ArrayBuffer.
-    options.challenge = base64URLToBuffer(options.challenge as unknown as string);
-    // The user.id should remain a string as received from the server.
+    if(options.challenge) {
+       options.challenge = base64URLToBuffer(options.challenge as unknown as string);
+    }
+   
+    // The user.id from the server is a utf-8 string, but the browser API expects an ArrayBuffer.
+    if(options.user && options.user.id) {
+        options.user.id = new TextEncoder().encode(options.user.id as unknown as string) as any;
+    }
     
     // 2. Prompt the user to create a passkey
     const attestationResponse: RegistrationResponseJSON = await browserStartRegistration(options);
@@ -74,7 +81,9 @@ export async function startLogin(): Promise<{ success: boolean; message?: string
     const options = await getLoginChallengeAction();
     
     // Convert challenge from Base64URL to ArrayBuffer
-    options.challenge = base64URLToBuffer(options.challenge as unknown as string);
+    if (options.challenge) {
+        options.challenge = base64URLToBuffer(options.challenge as unknown as string);
+    }
 
     // 2. Prompt the user to use their passkey
     const assertionResponse: AuthenticationResponseJSON = await browserStartAuthentication(options);
