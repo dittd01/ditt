@@ -45,7 +45,7 @@ export default function AllTopicsPage() {
                     category: electionCategory,
                     subcategories: {
                         'election': {
-                            subcategory: { id: 'election', label: 'National Election', categoryId: 'election_2025' },
+                            subcategory: { id: 'election', label: 'National Election', label_nb: 'Stortingsvalg', categoryId: 'election_2025' },
                             topics: [electionPoll]
                         }
                     }
