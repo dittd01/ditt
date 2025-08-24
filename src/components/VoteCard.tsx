@@ -271,14 +271,14 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                   size="sm"
                   className={cn(
                     'h-9 flex-1 group',
-                    'text-destructive border-destructive/20 hover:bg-destructive/10',
+                    'text-destructive border-destructive/20 hover:bg-destructive/90 hover:text-destructive-foreground',
                     votedOn === 'no' && 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
                     votedOn && votedOn !== 'no' && 'opacity-60 pointer-events-none'
                   )}
                   onClick={() => handleVote('no')}
                   disabled={votedOn === 'yes'}
                 >
-                     <ThumbsDown className={cn('h-4 w-4 text-destructive', votedOn === 'no' ? 'text-destructive-foreground' : 'group-hover:text-destructive-foreground')} />
+                     <ThumbsDown className={cn('h-4 w-4 text-destructive', 'group-hover:text-destructive-foreground', votedOn === 'no' && 'text-destructive-foreground')} />
                      <span className="ml-2">{noText}</span>
                 </Button>
             </div>
