@@ -58,6 +58,38 @@ export default async function TopicPage({ params }: TopicPageProps) {
         <CardHeader className="p-4 md:p-6">
           <h1 className="text-2xl md:text-3xl font-bold font-headline">{question}</h1>
         </CardHeader>
+        {(topic.background_md || (topic.sources && topic.sources.length > 0)) && (
+            <Accordion type="single" collapsible className="w-full border-t">
+                <AccordionItem value="sources" className="border-none">
+                    <AccordionTrigger className="text-base font-semibold flex items-center gap-2 p-4">
+                        <FileText className="h-5 w-5" /> {t.sourcesContext}
+                    </AccordionTrigger>
+                    <AccordionContent className="p-6 pt-0 space-y-6">
+                        {topic.background_md && (
+                            <div className="space-y-2">
+                                <h4 className="font-semibold text-foreground">{t.background}</h4>
+                                <p className="text-base text-muted-foreground">{topic.background_md}</p>
+                            </div>
+                        )}
+                        {topic.sources && topic.sources.length > 0 && (
+                            <div className="space-y-3">
+                                <h4 className="font-semibold text-foreground">{t.sources}</h4>
+                                <ul className="space-y-2">
+                                    {topic.sources.map((source, index) => (
+                                        <li key={index}>
+                                            <a href={source.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                                                <LinkIcon className="h-4 w-4 shrink-0" />
+                                                <span className="truncate">{source.title}</span>
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </AccordionContent>
+                </AccordionItem>
+             </Accordion>
+        )}
       </Card>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -129,37 +161,6 @@ export default async function TopicPage({ params }: TopicPageProps) {
             </Card>
 
              <Accordion type="single" collapsible className="w-full space-y-4">
-                {(topic.background_md || (topic.sources && topic.sources.length > 0)) && (
-                    <AccordionItem value="sources">
-                    <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
-                        <FileText className="h-5 w-5" /> {t.sourcesContext}
-                    </AccordionTrigger>
-                    <AccordionContent className="p-6 border border-t-0 rounded-b-lg space-y-6">
-                        {topic.background_md && (
-                            <div className="space-y-2">
-                                <h4 className="font-semibold text-foreground">{t.background}</h4>
-                                <p className="text-base text-muted-foreground">{topic.background_md}</p>
-                            </div>
-                        )}
-                        {topic.sources && topic.sources.length > 0 && (
-                            <div className="space-y-3">
-                                <h4 className="font-semibold text-foreground">{t.sources}</h4>
-                                <ul className="space-y-2">
-                                    {topic.sources.map((source, index) => (
-                                        <li key={index}>
-                                            <a href={source.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
-                                                <LinkIcon className="h-4 w-4 shrink-0" />
-                                                <span className="truncate">{source.title}</span>
-                                            </a>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-                    </AccordionContent>
-                    </AccordionItem>
-                )}
-
                 <AccordionItem value="history">
                 <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
                     <History className="h-5 w-5" /> {t.voteHistory}
