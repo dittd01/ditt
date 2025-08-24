@@ -106,17 +106,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
             <TopicInteraction topic={topic} />
           </Suspense>
 
-          <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <History className="h-5 w-5" />
-                    {t.voteHistory}
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-                <VoteChart topic={topic} />
-            </CardContent>
-          </Card>
+          <VoteChart topic={topic} />
 
           <Separator className="my-12" />
           
@@ -127,14 +117,6 @@ export default async function TopicPage({ params }: TopicPageProps) {
              </Suspense>
          </section>
 
-          <Card>
-            <CardHeader>
-                <CardTitle>{t.topicDetails}</CardTitle>
-            </CardHeader>
-             <CardContent className="p-4 md:p-6 pt-0">
-                    <p className="text-base text-muted-foreground">{description}</p>
-                </CardContent>
-          </Card>
           
           {(topic.sources && topic.sources.length > 0) && (
             <Accordion type="single" collapsible className="w-full">
@@ -158,6 +140,15 @@ export default async function TopicPage({ params }: TopicPageProps) {
               </AccordionItem>
             </Accordion>
           )}
+
+          <Card>
+            <CardHeader>
+                <CardTitle>{t.topicDetails}</CardTitle>
+            </CardHeader>
+             <CardContent className="p-4 md:p-6 pt-0">
+                    <p className="text-base text-muted-foreground">{description}</p>
+                </CardContent>
+          </Card>
 
           <Separator className="my-12" />
 
