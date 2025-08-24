@@ -144,14 +144,13 @@ export async function generateRegistrationChallenge(personHash: string) {
     const opts: GenerateRegistrationOptionsOpts = {
         rpName,
         rpID,
-        // The userID needs to be a buffer, not a string.
-        userID: Buffer.from(personHash, 'utf8'),
+        userID: personHash,
         userName: user.username,
         timeout: 60000,
         attestationType: 'none',
         // Prevent users from creating multiple credentials on the same device
         excludeCredentials: user.devices.map(dev => ({
-            id: Buffer.from(dev.webauthn!.credentialID, 'base64url'),
+            id: dev.webauthn!.credentialID,
             type: 'public-key',
             transports: dev.webauthn?.transports,
         })),
@@ -194,7 +193,7 @@ export async function verifyRegistration(personHash: string, response: Registrat
             const newDevice: Device = {
                 person_hash: personHash,
                 webauthn: {
-                    credentialID: Buffer.from(credentialID).toString('base64url'),
+                    credentialID: credentialID,
                     publicKey: Buffer.from(credentialPublicKey).toString('base64url'),
                     signCount: counter,
                 },
@@ -263,7 +262,7 @@ export async function verifyLogin(response: AuthenticationResponseJSON) {
         expectedOrigin: origin,
         expectedRPID: rpID,
         authenticator: {
-            credentialID: Buffer.from(device.webauthn.credentialID, 'base64url'),
+            credentialID: device.webauthn.credentialID,
             credentialPublicKey: Buffer.from(device.webauthn.publicKey, 'base64url'),
             counter: device.webauthn.signCount,
         },
