@@ -241,14 +241,14 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                               size="sm"
                               className={cn(
                                 'h-9 flex-1 group',
-                                'bg-primary/5 border-primary/20 hover:bg-primary/10',
-                                votedOn === 'yes' && 'bg-primary text-primary-foreground hover:bg-primary/90',
-                                votedOn && votedOn !== 'yes' && 'opacity-60 pointer-events-none'
+                                'text-primary hover:bg-primary hover:text-primary-foreground',
+                                votedOn === 'yes' && 'bg-primary text-primary-foreground',
+                                votedOn && votedOn !== 'yes' && 'opacity-50 pointer-events-none'
                               )}
                               onClick={() => handleVote('yes')}
                               disabled={!!votedOn && votedOn !== 'yes'}
                             >
-                                <ThumbsUp className={cn('h-4 w-4 text-primary group-hover:text-primary-foreground', votedOn === 'yes' && 'text-primary-foreground')} />
+                                <ThumbsUp className="h-4 w-4" />
                                 <span className="ml-2">{t.yes}</span>
                             </Button>
                             <Button
@@ -256,14 +256,14 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                               size="sm"
                               className={cn(
                                 'h-9 flex-1 group',
-                                'bg-destructive/5 border-destructive/20 hover:bg-destructive/10',
-                                votedOn === 'no' && 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-                                votedOn && votedOn !== 'no' && 'opacity-60 pointer-events-none'
+                                'text-destructive hover:bg-destructive hover:text-destructive-foreground',
+                                votedOn === 'no' && 'bg-destructive text-destructive-foreground',
+                                votedOn && votedOn !== 'no' && 'opacity-50 pointer-events-none'
                               )}
                               onClick={() => handleVote('no')}
                               disabled={!!votedOn && votedOn !== 'no'}
                             >
-                                 <ThumbsDown className={cn('h-4 w-4 text-destructive group-hover:text-destructive-foreground', votedOn === 'no' && 'text-destructive-foreground')} />
+                                 <ThumbsDown className="h-4 w-4" />
                                  <span className="ml-2">{t.no}</span>
                             </Button>
                         </div>
