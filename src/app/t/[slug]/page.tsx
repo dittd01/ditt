@@ -1,11 +1,12 @@
 
+
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { getTopicBySlug, getArgumentsForTopic, getRelatedTopics } from '@/lib/data';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { VoteChart } from '@/components/VoteChart';
-import { Info, FileText, History, ThumbsUp, ThumbsDown, Link as LinkIcon, Building } from 'lucide-react';
+import { Info, FileText, History, ThumbsUp, ThumbsDown, Link as LinkIcon, Building, Flame, Users, Bookmark } from 'lucide-react';
 import { RelatedTopics } from '@/components/RelatedTopics';
 import { SuggestionForm } from '@/components/SuggestionForm';
 import { Separator } from '@/components/ui/separator';
@@ -13,6 +14,10 @@ import { TopicInteraction } from './TopicInteraction';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DebateSection } from '@/components/debate/DebateSection';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { TopicFooter } from './TopicFooter';
 
 interface TopicPageProps {
   params: {
@@ -65,6 +70,9 @@ export default async function TopicPage({ params }: TopicPageProps) {
                 </CardDescription>
                )}
             </CardHeader>
+            <CardFooter className="p-4 md:p-6 border-t">
+              <TopicFooter topic={topic} />
+            </CardFooter>
           </Card>
           
            <section>
