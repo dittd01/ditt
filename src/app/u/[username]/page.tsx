@@ -3,9 +3,8 @@
 
 import { useParams } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Globe, Mail, MapPin, Milestone, CheckCircle, XCircle, CopyCheck, Bookmark } from 'lucide-react';
+import { Globe, MapPin, Milestone, CheckCircle, XCircle, CopyCheck, Bookmark } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -25,12 +24,12 @@ import type { Topic } from '@/lib/types';
 type Suggestion = {
   id: number | string;
   text: string;
-  verdict: string;
+  verdict: 'Approved' | 'Rejected' | 'Merged' | string;
   reason: string;
   slug: string | null;
 }
 
-const getVerdictIcon = (verdict: string) => {
+const getVerdictIcon = (verdict: Suggestion['verdict']) => {
     switch (verdict) {
         case 'Approved':
             return <CheckCircle className="h-4 w-4 text-green-500" />;

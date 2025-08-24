@@ -13,7 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, CheckCircle, XCircle, FileClock, Wand2, ArrowRight } from 'lucide-react';
+import { MoreHorizontal, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -104,7 +104,7 @@ export default function SuggestionsQueuePage() {
           slug: slug
       });
       localStorage.setItem('user_suggestions', JSON.stringify(userSuggestions));
-      window.dispatchEvent(new Event('topicAdded'));
+      window.dispatchEvent(new Event('topicAdded')); // Generic event to trigger UI updates
   }
 
   const approveSuggestion = (suggestion: Suggestion) => {
@@ -116,10 +116,10 @@ export default function SuggestionsQueuePage() {
           slug: slug,
           question: suggestion.text,
           question_en: suggestion.text,
-          description: "This topic was approved by an administrator.",
-          description_en: "This topic was approved by an administrator.",
-          categoryId: 'taxation',
-          subcategoryId: 'wealth_tax',
+          description: "This topic was approved by an administrator from the suggestions queue.",
+          description_en: "This topic was approved by an administrator from the suggestions queue.",
+          categoryId: 'culture-media-sports', // using mock data
+          subcategoryId: 'culture_funding', // using mock data
           imageUrl: 'https://placehold.co/600x400.png',
           aiHint: 'approved idea',
           status: 'live',
@@ -152,7 +152,7 @@ export default function SuggestionsQueuePage() {
   const rejectSuggestion = (suggestion: Suggestion) => {
       if (!suggestion) return;
       removeFromQueue(suggestion.id);
-      addToUserHistory(suggestion, 'Rejected', 'Rejected by admin: Does not meet guidelines.');
+      addToUserHistory(suggestion, 'Rejected', 'Rejected by admin: Does not meet platform guidelines.');
       toast({
           variant: 'destructive',
           title: "Suggestion Rejected",
@@ -201,7 +201,7 @@ export default function SuggestionsQueuePage() {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                   <DropdownMenuItem onClick={(e) => { e.stopPropagation(); approveSuggestion(s); }}>Approve</DropdownMenuItem>
-                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); rejectSuggestion(s); }}>Reject...</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); rejectSuggestion(s); }}>Reject</DropdownMenuItem>
                               </DropdownMenuContent>
                           </DropdownMenu>
                       </TableCell>
@@ -216,20 +216,24 @@ export default function SuggestionsQueuePage() {
             {selectedSuggestion && (
                 <>
                     <DialogHeader>
-                        <DialogTitle>Review AI Suggestions</DialogTitle>
+                        <DialogTitle>Review Suggestion</DialogTitle>
                         <DialogDescription>
-                            We've refined your proposal into a standardized format. Review the changes below before submitting it for a vote.
+                            Review the AI-refined proposal below before approving or rejecting it.
                         </DialogDescription>
                     </DialogHeader>
                     
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label>Suggested Question (Neutral)</Label>
+                            <Label>Original User Suggestion</Label>
+                            <Input value={selectedSuggestion.text} readOnly className="bg-muted/50" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>AI-Generated Question (Neutral)</Label>
                             <Input value={mockAiReviewData.canonical_nb} readOnly />
                             <p className="text-sm text-muted-foreground">This is the final question wording that will be used for the poll.</p>
                         </div>
                         <div className="space-y-2">
-                            <Label>Suggested Description</Label>
+                            <Label>AI-Generated Description</Label>
                             <Textarea value={mockAiReviewData.canonical_description} readOnly className="resize-none" />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
