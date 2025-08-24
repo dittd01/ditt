@@ -277,7 +277,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                   onClick={() => handleVote('no')}
                   disabled={votedOn === 'yes'}
                 >
-                     <ThumbsDown className={cn('h-4 w-4 text-destructive group-hover:text-destructive-foreground', votedOn === 'no' && 'text-destructive-foreground')} />
+                     <ThumbsDown className={cn('h-4 w-4 text-destructive', votedOn === 'no' ? 'text-destructive-foreground' : 'group-hover:text-destructive-foreground')} />
                      <span className="ml-2">{noText}</span>
                 </Button>
             </div>
@@ -357,3 +357,5 @@ VoteCard.Skeleton = function VoteCardSkeleton() {
         </Card>
     )
 }
+
+    
