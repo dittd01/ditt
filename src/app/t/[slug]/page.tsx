@@ -61,16 +61,16 @@ export default async function TopicPage({ params }: TopicPageProps) {
     <div className="container mx-auto max-w-4xl px-4 py-4 md:py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          <Card className="bg-muted">
+          <Card className="bg-[hsl(222_52%_22%)] text-white">
             <CardHeader className="p-4 md:p-6">
               <h1 className="text-2xl md:text-3xl font-bold font-headline">{question}</h1>
                {topic.background_md && (
-                <CardDescription className="pt-2 text-base">
+                <CardDescription className="pt-2 text-base text-white/80">
                     {topic.background_md}
                 </CardDescription>
                )}
             </CardHeader>
-            <CardFooter className="p-4 md:p-6 border-t">
+            <CardFooter className="p-4 md:p-6 border-t border-white/20">
               <TopicFooter topic={topic} />
             </CardFooter>
           </Card>
