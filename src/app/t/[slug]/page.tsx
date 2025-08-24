@@ -1,15 +1,17 @@
 
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { getTopicBySlug, getArgumentsForTopic, getRelatedTopics } from '@/lib/data';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { VoteChart } from '@/components/VoteChart';
-import { Info, FileText, History } from 'lucide-react';
+import { Info, FileText, History, Loader2 } from 'lucide-react';
 import { RelatedTopics } from '@/components/RelatedTopics';
 import { SuggestionForm } from '@/components/SuggestionForm';
 import { Separator } from '@/components/ui/separator';
 import { TopicInteraction } from './TopicInteraction';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface TopicPageProps {
   params: {
@@ -83,7 +85,10 @@ export default async function TopicPage({ params }: TopicPageProps) {
           - Managing the importance slider
           - Displaying the debate section
         */}
-        <TopicInteraction topic={topic} initialDebateArgs={initialDebateArgs} />
+         <Suspense fallback={<TopicInteraction.Skeleton />}>
+            <TopicInteraction topic={topic} initialDebateArgs={initialDebateArgs} />
+        </Suspense>
+
 
         <Accordion type="single" collapsible className="w-full space-y-4" defaultValue="history">
           <AccordionItem value="sources">

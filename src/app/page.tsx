@@ -245,8 +245,13 @@ export default function Home() {
   return (
     <Suspense fallback={
         <div className="container mx-auto px-4 py-8 sm:py-12">
-             <div className="mb-8 flex justify-end">
-                 <Skeleton className="h-10 w-48" />
+             <div className="mb-12">
+                <Skeleton className="h-10 w-1/2 mx-auto" />
+                <Skeleton className="h-6 w-3/4 mx-auto mt-4" />
+                <Skeleton className="h-12 w-full max-w-lg mx-auto mt-8" />
+             </div>
+            <div className="mb-8 flex justify-end">
+                <Skeleton className="h-10 w-48" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {Array.from({ length: 9 }).map((_, i) => <VoteCard.Skeleton key={i} />)}
@@ -255,6 +260,11 @@ export default function Home() {
     }>
       {isClient ? <HomePageContent /> : (
          <div className="container mx-auto px-4 py-8 sm:py-12">
+            <div className="mb-12">
+                <Skeleton className="h-10 w-1/2 mx-auto" />
+                <Skeleton className="h-6 w-3/4 mx-auto mt-4" />
+                <Skeleton className="h-12 w-full max-w-lg mx-auto mt-8" />
+            </div>
             <div className="mb-8 flex justify-end">
                 <Skeleton className="h-10 w-48" />
             </div>

@@ -19,6 +19,8 @@ import { ImportanceSlider } from '@/components/ImportanceSlider';
 import { cn } from '@/lib/utils';
 import type { Topic, Argument } from '@/lib/types';
 import { castVoteAction } from './actions';
+import { Skeleton } from '@/components/ui/skeleton';
+
 
 // Translations object for multilingual support.
 const translations = {
@@ -88,6 +90,8 @@ export function TopicInteraction({ topic: initialTopic, initialDebateArgs }: Top
   const [votedOn, setVotedOn] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'chart'>('list');
   const [lang, setLang] = useState<'en' | 'nb'>('en');
+  const [isClient, setIsClient] = useState(false);
+
 
   const t = translations[lang];
 
@@ -103,6 +107,7 @@ export function TopicInteraction({ topic: initialTopic, initialDebateArgs }: Top
       const previousVote = localStorage.getItem(`voted_on_${topic.id}`);
       setVotedOn(previousVote);
     }
+    setIsClient(true);
   }, [topic.id]);
 
   const handleVote = async (voteData: string | string[]) => {
@@ -198,6 +203,11 @@ export function TopicInteraction({ topic: initialTopic, initialDebateArgs }: Top
   };
   
   const renderVoteComponent = () => {
+    // Before the client has mounted and checked localStorage, render a skeleton.
+    if (!isClient) {
+      return <TopicInteraction.Skeleton />;
+    }
+
     if (votedOn) {
       const votedForLabel = (topic.voteType === 'ranked' || topic.voteType === 'likert')
         ? [...topic.options, {id: 'abstain', label: t.abstain}].find((o) => o.id === votedOn)?.label || votedOn
@@ -289,4 +299,32 @@ export function TopicInteraction({ topic: initialTopic, initialDebateArgs }: Top
       </div>
     </>
   );
+}
+
+TopicInteraction.Skeleton = function TopicInteractionSkeleton() {
+    return (
+        <div className="space-y-8">
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-6 w-48" />
+                </CardHeader>
+                <CardContent className="flex justify-center gap-4">
+                    <Skeleton className="h-14 w-full" />
+                    <Skeleton className="h-14 w-full" />
+                </CardContent>
+                <CardFooter className="border-t pt-6 flex-col">
+                    <Skeleton className="h-10 w-40" />
+                </CardFooter>
+            </Card>
+            <Card>
+                <CardHeader>
+                     <Skeleton className="h-6 w-1/2" />
+                     <Skeleton className="h-4 w-3/4" />
+                </CardHeader>
+                <CardContent>
+                    <Skeleton className="h-24 w-full" />
+                </CardContent>
+            </Card>
+        </div>
+    );
 }
