@@ -2,7 +2,7 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { getTopicBySlug, getArgumentsForTopic, getRelatedTopics } from '@/lib/data';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { VoteChart } from '@/components/VoteChart';
 import { Info, FileText, History, ThumbsUp, ThumbsDown, Link as LinkIcon, Building } from 'lucide-react';
@@ -54,14 +54,10 @@ export default async function TopicPage({ params }: TopicPageProps) {
   // 3. Render Layout with Client Components for Interactivity
   return (
     <div className="container mx-auto max-w-4xl px-4 py-4 md:py-8">
-      {/* Main Page Header */}
       <Card className="mb-8">
         <CardHeader className="p-4 md:p-6">
           <h1 className="text-2xl md:text-3xl font-bold font-headline">{question}</h1>
         </CardHeader>
-        <CardContent className="p-4 md:p-6">
-            <p className="text-base text-muted-foreground">{description}</p>
-        </CardContent>
       </Card>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -117,9 +113,20 @@ export default async function TopicPage({ params }: TopicPageProps) {
             </div>
         </div>
         <aside className="lg:col-span-1 space-y-8 lg:sticky lg:top-20 self-start">
-             <Suspense fallback={<TopicInteraction.Skeleton />}>
+            <Suspense fallback={<TopicInteraction.Skeleton />}>
               <TopicInteraction topic={topic} />
             </Suspense>
+
+             <Card>
+                <CardHeader>
+                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                        <Info className="h-5 w-5" /> Topic Details
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-base text-muted-foreground">{description}</p>
+                </CardContent>
+            </Card>
 
              <Accordion type="single" collapsible className="w-full space-y-4">
                 {(topic.background_md || (topic.sources && topic.sources.length > 0)) && (
