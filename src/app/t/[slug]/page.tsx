@@ -129,6 +129,15 @@ export default async function TopicPage({ params }: TopicPageProps) {
           </Suspense>
 
           <Separator className="my-12" />
+          
+          <Card>
+            <CardHeader>
+                <CardTitle>{t.voteHistory}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                 <VoteChart topic={topic} />
+            </CardContent>
+          </Card>
 
          <section>
             <h2 className="text-2xl font-bold font-headline mb-6">{t.structuredDebate}</h2>
@@ -146,6 +155,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
                 </CardContent>
           </Card>
 
+
           <Separator className="my-12" />
 
           <div className="max-w-3xl mx-auto w-full">
@@ -153,17 +163,6 @@ export default async function TopicPage({ params }: TopicPageProps) {
           </div>
         </div>
         <aside className="lg:col-span-1 space-y-8 lg:sticky lg:top-20 self-start">
-           <Accordion type="single" collapsible className="w-full space-y-4">
-              <AccordionItem value="history">
-              <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
-                  <History className="h-5 w-5" /> {t.voteHistory}
-              </AccordionTrigger>
-              <AccordionContent className="pt-0">
-                  <VoteChart topic={topic} />
-              </AccordionContent>
-              </AccordionItem>
-          </Accordion>
-            
           <RelatedTopics topicId={topic.id} subcategoryId={topic.subcategoryId} />
         </aside>
       </div>
