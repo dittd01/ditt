@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, ThumbsUp, ThumbsDown, InfoIcon, Bookmark, BarChart } from 'lucide-react';
+import { Users, ThumbsUp, ThumbsDown, InfoIcon, Bookmark, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Topic, Category, Subcategory } from '@/lib/types';
 import { categories, allTopics } from '@/lib/data';
@@ -189,24 +189,18 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
                      <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <BarChart className="h-3 w-3 -rotate-90" />
-                                    <div className="flex items-end gap-0.5">
-                                        {[...Array(5)].map((_, i) => (
-                                            <div
-                                                key={i}
-                                                className={cn(
-                                                'w-1 rounded-full',
-                                                i < importanceLevel + 1 ? 'bg-primary' : 'bg-muted',
-                                                i === 0 && 'h-1',
-                                                i === 1 && 'h-2',
-                                                i === 2 && 'h-3',
-                                                i === 3 && 'h-4',
-                                                i === 4 && 'h-5'
-                                                )}
-                                            />
-                                        ))}
-                                    </div>
+                                 <div className="flex items-center gap-1">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Flame
+                                            key={i}
+                                            className={cn(
+                                            'h-4 w-4',
+                                            i < importanceLevel
+                                                ? 'text-primary fill-current'
+                                                : 'text-muted-foreground/30'
+                                            )}
+                                        />
+                                    ))}
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent>
