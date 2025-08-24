@@ -42,13 +42,8 @@ export async function startRegistration(personHash: string): Promise<{ success: 
     // but the server sends them as base64url strings for JSON compatibility.
     // We need to convert them back.
     options.challenge = base64URLToBuffer(options.challenge as unknown as string);
-    if (options.user.id) {
-        // The user ID from the server is already a buffer, but it gets serialized to a different format
-        // over the wire. We need to ensure it's a buffer on the client.
-        // The server sends it as a buffer encoded as utf8 string.
-        const idStr = options.user.id as unknown as string;
-        options.user.id = new TextEncoder().encode(idStr);
-    }
+    options.user.id = base64URLToBuffer(options.user.id as unknown as string);
+
     
     // 2. Prompt the user to create a passkey
     const attestationResponse: RegistrationResponseJSON = await browserStartRegistration(options);
