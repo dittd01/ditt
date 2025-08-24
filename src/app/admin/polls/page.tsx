@@ -57,6 +57,16 @@ export default function PollsPage() {
     const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
     setLang(selectedLang);
     setPolls(getPollsTableData());
+
+    const handleTopicAdded = () => {
+      // Re-fetch data when a new topic is added
+      setPolls(getPollsTableData());
+    };
+
+    window.addEventListener('topicAdded', handleTopicAdded);
+    return () => {
+      window.removeEventListener('topicAdded', handleTopicAdded);
+    };
   }, []);
   
   const availableSubcategories = useMemo(() => {
@@ -238,3 +248,5 @@ export default function PollsPage() {
     </div>
   );
 }
+
+    

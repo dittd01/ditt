@@ -61,6 +61,7 @@ import { Separator } from '@/components/ui/separator';
 import { useEffect, useState } from 'react';
 import { populatePollAction } from '@/app/actions';
 import { Label } from '@/components/ui/label';
+import type { Topic } from '@/lib/types';
 
 const pollFormSchema = z.object({
   title: z.string().min(12, 'Title must be at least 12 characters.').max(120, 'Title must be 120 characters or less.'),
@@ -234,11 +235,50 @@ export default function EditPollPage() {
 
 
   function onSubmit(data: PollFormValues) {
-    console.log(data);
-    toast({
-      title: "Poll Saved!",
-      description: "Your changes have been saved successfully.",
-    });
+    if (isNew) {
+      const newTopic: Topic = {
+        id: `topic_${Date.now()}`,
+        slug: data.slug,
+        question: data.title,
+        question_en: data.title, // Assuming same language for simplicity, AI would differentiate
+        description: data.description_md,
+        description_en: data.description_md,
+        categoryId: data.categoryId,
+        subcategoryId: data.subcategoryId,
+        imageUrl: 'https://placehold.co/600x400.png',
+        aiHint: 'newly created poll',
+        status: data.status,
+        voteType: data.isDefaultOptions ? 'yesno' : 'ranked', // Simplified
+        votes: { yes: 0, no: 0, abstain: 0 },
+        totalVotes: 0, votesLastWeek: 0, votesLastMonth: 0, votesLastYear: 0, history: [],
+        averageImportance: 2.5,
+        options: data.isDefaultOptions
+          ? [
+              { id: 'yes', label: 'Yes', color: 'hsl(var(--chart-2))' },
+              { id: 'no', label: 'No', color: 'hsl(var(--chart-1))' },
+              { id: 'abstain', label: 'Abstain', color: 'hsl(var(--muted))' }
+            ]
+          : data.options.map((opt, i) => ({ ...opt, color: `hsl(var(--chart-${i+1}))` })),
+      };
+
+      const customTopics = JSON.parse(localStorage.getItem('custom_topics') || '[]');
+      customTopics.push(newTopic);
+      localStorage.setItem('custom_topics', JSON.stringify(customTopics));
+      window.dispatchEvent(new Event('topicAdded'));
+      
+      toast({
+        title: "Poll Created!",
+        description: "Your new poll has been saved as a draft.",
+      });
+      router.push('/admin/polls');
+    } else {
+        // Here you would add logic to update an existing poll
+        console.log("Updating existing poll:", data);
+         toast({
+            title: "Poll Updated!",
+            description: "Your changes have been saved successfully.",
+        });
+    }
   }
 
   const handleClearForm = () => {
@@ -605,3 +645,5 @@ export default function EditPollPage() {
     </Form>
   );
 }
+
+    
