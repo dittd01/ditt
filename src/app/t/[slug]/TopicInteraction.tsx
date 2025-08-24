@@ -241,6 +241,7 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                               size="sm"
                               className={cn(
                                 'h-9 flex-1 group',
+                                'bg-primary/5 border-primary/20 hover:bg-primary/10',
                                 votedOn === 'yes' && 'bg-primary text-primary-foreground hover:bg-primary/90',
                                 votedOn && votedOn !== 'yes' && 'opacity-60 pointer-events-none'
                               )}
@@ -255,6 +256,7 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                               size="sm"
                               className={cn(
                                 'h-9 flex-1 group',
+                                'bg-destructive/5 border-destructive/20 hover:bg-destructive/10',
                                 votedOn === 'no' && 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
                                 votedOn && votedOn !== 'no' && 'opacity-60 pointer-events-none'
                               )}
