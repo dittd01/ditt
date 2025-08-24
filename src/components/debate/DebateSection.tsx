@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,6 +9,7 @@ import { PlusCircle } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { ArgumentComposer } from './ArgumentComposer';
 import { currentUser } from '@/lib/user-data';
+import { useToast } from '@/hooks/use-toast';
 
 interface DebateSectionProps {
   topicId: string;
@@ -24,6 +24,8 @@ const translations = {
         against: 'Against',
         addArgument: 'Add Argument',
         noArguments: 'No arguments for this side yet.',
+        argumentAdded: 'Argument Posted',
+        argumentAddedDesc: 'Your argument has been added to the debate.',
     },
     nb: {
         arguments: 'Argumenter',
@@ -31,6 +33,8 @@ const translations = {
         against: 'Mot',
         addArgument: 'Legg til argument',
         noArguments: 'Ingen argumenter for denne siden enda.',
+        argumentAdded: 'Argument publisert',
+        argumentAddedDesc: 'Ditt argument har blitt lagt til i debatten.',
     }
 }
 
@@ -40,15 +44,19 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
   const [loading, setLoading] = useState(true);
   const [showComposer, setShowComposer] = useState<'for' | 'against' | null>(null);
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const t = translations[lang];
 
   useEffect(() => {
-    // Load arguments from localStorage on initial client render
+    // This effect runs once on the client-side to hydrate the component's state
+    // from localStorage, which contains user-added arguments. This is the "read" operation.
     const storedArgs = localStorage.getItem(`debate_args_${topicId}`);
     if (storedArgs) {
+      // If we find arguments in storage, we parse them and set them as the current state.
       setDebateArgs(JSON.parse(storedArgs));
     } else {
+      // Otherwise, we initialize the state with the static props passed from the server.
       setDebateArgs(initialArgs);
     }
     setLoading(false);
@@ -56,8 +64,9 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
 
 
   useEffect(() => {
-    // When local state changes, save to localStorage
-    if (!loading) { // Avoid writing initial state back to storage unnecessarily
+    // This effect is the "write" operation. It triggers whenever the `debateArgs` state changes.
+    // We avoid running this on the initial load to prevent overwriting localStorage with stale props data.
+    if (!loading) { 
         localStorage.setItem(`debate_args_${topicId}`, JSON.stringify(debateArgs));
     }
   }, [debateArgs, topicId, loading]);
@@ -84,16 +93,16 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
     const isTopLevel = !replyingToId;
     const parentId = isTopLevel ? 'root' : replyingToId;
     
-    // Determine the side of the new argument
+    // Determine the side of the new argument.
     let side: 'for' | 'against';
     if (isTopLevel) {
         // If it's a new top-level argument, its side is determined by the composer button clicked.
-        if (!showComposer) return; // Should not happen
+        if (!showComposer) return; // Should not happen, but a good guard clause.
         side = showComposer;
     } else {
-        // If it's a reply, its side is the opposite of its parent's.
+        // If it's a reply, its side is the opposite of its parent's to create a counter-argument.
         const parentArg = debateArgs.find(a => a.id === parentId);
-        if (!parentArg) return; // Should not happen
+        if (!parentArg) return; // Parent must exist to reply to it.
         side = parentArg.side === 'for' ? 'against' : 'for';
     }
 
@@ -111,9 +120,12 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
       createdAt: new Date().toISOString(),
     };
 
+    // Atomically update the state with the new argument and, if it's a reply,
+    // the parent's updated reply count.
     setDebateArgs(currentArgs => {
       const updatedArgs = [...currentArgs];
       
+      // If this is a reply, we must find the parent and increment its reply count.
       if (!isTopLevel && parentId) {
           const parentArgIndex = updatedArgs.findIndex(a => a.id === parentId);
           if (parentArgIndex > -1) {
@@ -124,15 +136,23 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
           }
       }
       
+      // Add the new argument to the list.
       updatedArgs.unshift(newArgument);
       return updatedArgs;
     });
+    
+    toast({
+        title: t.argumentAdded,
+        description: t.argumentAddedDesc,
+    });
 
+    // Reset the composer UI state.
     setShowComposer(null);
     setReplyingToId(null);
   };
 
   const renderArgumentTree = (arg: Argument): React.ReactNode => {
+    // Recursively find and render replies for a given argument.
     const replies = debateArgs.filter(reply => reply.parentId === arg.id).sort((a,b) => (b.upvotes-b.downvotes) - (a.upvotes-a.downvotes));
     return (
         <div key={arg.id} className="space-y-4">
