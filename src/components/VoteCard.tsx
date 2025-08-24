@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Link from 'next/link';
@@ -162,10 +161,14 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
     // Optimistically update the state
     setTopic(currentTopic => {
         const newVotes = { ...currentTopic.votes };
+        let newTotalVotes = currentTopic.totalVotes;
 
-        // Decrement the old vote if changing vote
+        // If user is changing their vote, decrement the old one and don't change total
         if (previouslyVotedOn && newVotes[previouslyVotedOn] !== undefined) {
             newVotes[previouslyVotedOn] = Math.max(0, newVotes[previouslyVotedOn] - 1);
+        } else {
+            // If it's a new vote, increment total
+            newTotalVotes += 1;
         }
 
         // Increment the new vote
@@ -176,8 +179,6 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
         if (previouslyVotedOn) {
              localStorage.setItem(`votes_for_${topic.id}_${previouslyVotedOn}`, newVotes[previouslyVotedOn].toString());
         }
-
-        const newTotalVotes = (newVotes.yes || 0) + (newVotes.no || 0);
 
         return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
     });
@@ -341,3 +342,5 @@ VoteCard.Skeleton = function VoteCardSkeleton() {
         </Card>
     )
 }
+
+    
