@@ -144,7 +144,8 @@ export async function generateRegistrationChallenge(personHash: string) {
     const opts: GenerateRegistrationOptionsOpts = {
         rpName,
         rpID,
-        userID: personHash,
+        // The userID needs to be a buffer, not a string.
+        userID: Buffer.from(personHash, 'utf8'),
         userName: user.username,
         timeout: 60000,
         attestationType: 'none',
