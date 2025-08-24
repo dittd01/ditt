@@ -196,7 +196,7 @@ export function VoteCard({ topic, hasVoted }: VoteCardProps) {
                                             className={cn(
                                             'h-4 w-4',
                                             i < importanceLevel
-                                                ? 'text-primary fill-current'
+                                                ? 'text-[hsl(var(--chart-1))] fill-current'
                                                 : 'text-muted-foreground/30'
                                             )}
                                         />
