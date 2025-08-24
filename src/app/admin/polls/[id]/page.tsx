@@ -49,6 +49,8 @@ import {
   Edit,
   Save,
   XCircle,
+  Send,
+  Upload,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -58,7 +60,7 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { format } from 'date-fns';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { populatePollAction } from '@/app/actions';
 import { Label } from '@/components/ui/label';
 import type { Topic } from '@/lib/types';
@@ -113,6 +115,7 @@ const pollFormSchema = z.object({
 });
 
 type PollFormValues = z.infer<typeof pollFormSchema>;
+type SubmitAction = 'review' | 'publish';
 
 const mockTags = [
     { value: 'economy', label: 'Economy' },
@@ -181,6 +184,7 @@ export default function EditPollPage() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [isEditingPrompt, setIsEditingPrompt] = useState(false);
   const [customPrompt, setCustomPrompt] = useState(DEFAULT_POPULATE_POLL_PROMPT);
+  const submitAction = useRef<SubmitAction>('review');
 
   const isNew = pollId === 'new';
   const pollData = isNew ? null : allTopics.find(p => p.id === pollId);
@@ -236,19 +240,30 @@ export default function EditPollPage() {
 
   function onSubmit(data: PollFormValues) {
     if (isNew) {
+      if (submitAction.current === 'publish') {
+         publishPoll(data);
+      } else {
+         submitForReview(data);
+      }
+    } else {
+      updatePoll(data);
+    }
+  }
+
+  const publishPoll = (data: PollFormValues) => {
       const newTopic: Topic = {
         id: `topic_${Date.now()}`,
         slug: data.slug,
         question: data.title,
-        question_en: data.title, // Assuming same language for simplicity, AI would differentiate
+        question_en: data.title,
         description: data.description_md,
         description_en: data.description_md,
         categoryId: data.categoryId,
         subcategoryId: data.subcategoryId,
         imageUrl: 'https://placehold.co/600x400.png',
         aiHint: 'newly created poll',
-        status: data.status,
-        voteType: data.isDefaultOptions ? 'yesno' : 'ranked', // Simplified
+        status: 'live',
+        voteType: data.isDefaultOptions ? 'yesno' : 'ranked',
         votes: { yes: 0, no: 0, abstain: 0 },
         totalVotes: 0, votesLastWeek: 0, votesLastMonth: 0, votesLastYear: 0, history: [],
         averageImportance: 2.5,
@@ -267,18 +282,39 @@ export default function EditPollPage() {
       window.dispatchEvent(new Event('topicAdded'));
       
       toast({
-        title: "Poll Created!",
-        description: "Your new poll has been saved as a draft.",
+        title: "Poll Published!",
+        description: "Your new poll is now live.",
       });
       router.push('/admin/polls');
-    } else {
-        // Here you would add logic to update an existing poll
-        console.log("Updating existing poll:", data);
-         toast({
-            title: "Poll Updated!",
-            description: "Your changes have been saved successfully.",
-        });
-    }
+  }
+
+  const submitForReview = (data: PollFormValues) => {
+    const reviewQueue = JSON.parse(localStorage.getItem('manual_review_queue') || '[]');
+    const newSuggestion = {
+      id: `suggestion_${Date.now()}`,
+      text: data.title,
+      verdict: 'Admin-Created',
+      status: 'Pending',
+      created: new Date().toISOString().split('T')[0],
+    };
+    reviewQueue.unshift(newSuggestion);
+    localStorage.setItem('manual_review_queue', JSON.stringify(reviewQueue));
+
+    window.dispatchEvent(new Event('topicAdded'));
+
+    toast({
+        title: "Poll Submitted for Review",
+        description: "The poll has been added to the suggestions queue.",
+    });
+    router.push('/admin/suggestions-queue');
+  }
+
+  const updatePoll = (data: PollFormValues) => {
+      console.log("Updating existing poll:", data);
+      toast({
+          title: "Poll Updated!",
+          description: "Your changes have been saved successfully.",
+      });
   }
 
   const handleClearForm = () => {
@@ -304,7 +340,7 @@ export default function EditPollPage() {
         const result = await populatePollAction({ title, customPrompt });
         if (result.success) {
             form.reset({
-                ...form.getValues(), // Keep existing values like title, slug etc.
+                ...form.getValues(),
                 title: result.data.title,
                 description_md: result.data.description,
                 pros: result.data.pros,
@@ -347,10 +383,15 @@ export default function EditPollPage() {
     }
     setIsEditingPrompt(!isEditingPrompt);
   };
+  
+  const handleFormSubmit = (action: SubmitAction) => {
+    submitAction.current = action;
+    form.handleSubmit(onSubmit)();
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-8">
         <PageHeader
           title={isNew ? "Create New Poll" : "Edit Poll"}
           subtitle={isNew ? "Fill in the details for your new poll." : "Modify an existing poll and manage its settings."}
@@ -359,7 +400,20 @@ export default function EditPollPage() {
             <Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Back</Button>
             {isNew && <Button variant="ghost" type="button" onClick={handleClearForm}><XCircle className="mr-2 h-4 w-4" />Clear form</Button>}
             <Button variant="outline"><Eye className="mr-2 h-4 w-4" /> Preview</Button>
-            <Button type="submit">Save Draft</Button>
+            {isNew ? (
+              <>
+                <Button variant="secondary" onClick={() => handleFormSubmit('review')}>
+                    <Send className="mr-2 h-4 w-4" />
+                    Submit for Review
+                </Button>
+                <Button onClick={() => handleFormSubmit('publish')}>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Publish
+                </Button>
+              </>
+            ) : (
+                 <Button onClick={() => handleFormSubmit('publish')}>Save Changes</Button>
+            )}
           </div>
         </PageHeader>
         
@@ -645,5 +699,3 @@ export default function EditPollPage() {
     </Form>
   );
 }
-
-    
