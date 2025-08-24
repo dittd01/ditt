@@ -13,8 +13,6 @@ import { RankedChoice } from '@/components/RankedChoice';
 import { QuadraticVote } from '@/components/QuadraticVote';
 import { LiveResults } from '@/components/LiveResults';
 import { trackEvent } from '@/lib/analytics';
-import { DebateSection } from '@/components/debate/DebateSection';
-import { ArgumentChart } from '@/components/debate/ArgumentChart';
 import { ImportanceSlider } from '@/components/ImportanceSlider';
 import { cn } from '@/lib/utils';
 import type { Topic, Argument } from '@/lib/types';
@@ -40,9 +38,6 @@ const translations = {
     voteChangedTitle: 'Vote Changed!',
     voteCastTitle: 'Vote Cast!',
     voteRecordedDescription: (voteLabel: string) => `Your anonymous vote for "${voteLabel}" has been recorded.`,
-    structuredDebate: 'Structured Debate',
-    debateViewList: 'List',
-    debateViewChart: 'Chart',
     loginToParticipateTitle: 'Log in to participate further',
     loginToParticipateDescription: 'To propose a new topic, you need to be logged in with your anonymous ID.',
     yes: 'Yes',
@@ -64,9 +59,6 @@ const translations = {
     voteChangedTitle: 'Stemme endret!',
     voteCastTitle: 'Stemme avgitt!',
     voteRecordedDescription: (voteLabel: string) => `Din anonyme stemme for "${voteLabel}" er registrert.`,
-    structuredDebate: 'Strukturert debatt',
-    debateViewList: 'Liste',
-    debateViewChart: 'Diagram',
     loginToParticipateTitle: 'Logg inn for å delta videre',
     loginToParticipateDescription: 'For å foreslå et nytt emne, må du være logget inn med din anonyme ID.',
     yes: 'Ja',
@@ -76,11 +68,10 @@ const translations = {
 
 interface TopicInteractionProps {
   topic: Topic;
-  initialDebateArgs: Argument[];
 }
 
 // This new Client Component handles all user interactions on the page.
-export function TopicInteraction({ topic: initialTopic, initialDebateArgs }: TopicInteractionProps) {
+export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps) {
   const router = useRouter();
   const { toast } = useToast();
   
@@ -88,7 +79,6 @@ export function TopicInteraction({ topic: initialTopic, initialDebateArgs }: Top
   const [topic, setTopic] = useState<Topic>(initialTopic);
   const [voterId, setVoterId] = useState<string | null>(null);
   const [votedOn, setVotedOn] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'list' | 'chart'>('list');
   const [lang, setLang] = useState<'en' | 'nb'>('en');
   const [isClient, setIsClient] = useState(false);
 
@@ -263,7 +253,7 @@ export function TopicInteraction({ topic: initialTopic, initialDebateArgs }: Top
   };
 
   return (
-    <>
+    <div className="space-y-8">
       {renderVoteComponent()}
       
       {votedOn && <LiveResults topic={topic} />}
@@ -277,27 +267,7 @@ export function TopicInteraction({ topic: initialTopic, initialDebateArgs }: Top
             <AlertDescription>Rate this topic's importance and join the debate by logging in.</AlertDescription>
         </Alert>
       )}
-
-      <div>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold font-headline">{t.structuredDebate}</h2>
-          <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
-            <Button variant={viewMode === 'list' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode('list')} className="h-8 gap-2">
-              <ListTree /> {t.debateViewList}
-            </Button>
-            <Button variant={viewMode === 'chart' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode('chart')} className="h-8 gap-2">
-              <Sun /> {t.debateViewChart}
-            </Button>
-          </div>
-        </div>
-        
-        {viewMode === 'list' ? (
-          <DebateSection topicId={topic.id} initialArgs={initialDebateArgs} lang={lang} />
-        ) : (
-          <ArgumentChart args={initialDebateArgs} topicQuestion={topic.question} lang={lang} />
-        )}
-      </div>
-    </>
+    </div>
   );
 }
 

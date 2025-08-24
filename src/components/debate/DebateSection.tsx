@@ -38,6 +38,23 @@ const translations = {
     }
 }
 
+// Skeleton component for loading state
+DebateSection.Skeleton = function DebateSectionSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="space-y-2">
+          <Skeleton className="h-8 w-1/3" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
+      </div>
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-1/3" />
+          <Skeleton className="h-32 w-full" />
+      </div>
+    </div>
+  );
+}
+
 
 export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps) {
   const [debateArgs, setDebateArgs] = useState<Argument[]>(initialArgs);
@@ -172,19 +189,7 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
   }
 
   if (loading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-2">
-            <Skeleton className="h-8 w-1/3" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-        </div>
-         <div className="space-y-2">
-            <Skeleton className="h-8 w-1/3" />
-            <Skeleton className="h-32 w-full" />
-        </div>
-      </div>
-    );
+    return <DebateSection.Skeleton />;
   }
 
 
