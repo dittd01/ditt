@@ -345,84 +345,82 @@ export default function TopicPage() {
   const description = lang === 'nb' ? topic.description : topic.description_en;
 
   return (
-    <div className="container mx-auto px-4 py-4 md:py-8">
+    <div className="container mx-auto px-4 py-4 md:py-8 max-w-4xl">
       <Button variant="ghost" onClick={() => router.back()} className="mb-4 -ml-4">
         <ArrowLeft className="mr-2 h-4 w-4" />
         {t.backToPolls}
       </Button>
 
       <div className="space-y-8">
-        <div className="lg:col-span-2 space-y-8">
-          <Card>
-            <CardHeader className="p-4 md:p-6">
-              <h1 className="text-2xl md:text-3xl font-bold font-headline">{question}</h1>
-            </CardHeader>
-             <CardContent className="p-4 md:p-6">
-                 <Accordion type="single" collapsible className="w-full" defaultValue="description">
-                     <AccordionItem value="description">
-                        <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border-b-0 -mx-4 -mt-4">
-                            <Info className="h-5 w-5" /> {t.topicDetails}
-                        </AccordionTrigger>
-                        <AccordionContent className="p-4 pt-2 -mx-4 -mb-4">
-                            <p className="text-base text-muted-foreground">{description}</p>
-                        </AccordionContent>
-                    </AccordionItem>
-                 </Accordion>
-             </CardContent>
-          </Card>
-           
-           {renderVoteComponent()}
-           
-           {votedOn && <LiveResults topic={topic} />}
-           
-           {voterId && <ImportanceSlider topicId={topic.id} />}
+        <Card>
+          <CardHeader className="p-4 md:p-6">
+            <h1 className="text-2xl md:text-3xl font-bold font-headline">{question}</h1>
+          </CardHeader>
+           <CardContent className="p-4 md:p-6">
+               <Accordion type="single" collapsible className="w-full" defaultValue="description">
+                   <AccordionItem value="description">
+                      <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border-b-0 -mx-4 -mt-4">
+                          <Info className="h-5 w-5" /> {t.topicDetails}
+                      </AccordionTrigger>
+                      <AccordionContent className="p-4 pt-2 -mx-4 -mb-4">
+                          <p className="text-base text-muted-foreground">{description}</p>
+                      </AccordionContent>
+                  </AccordionItem>
+               </Accordion>
+           </CardContent>
+        </Card>
+         
+         {renderVoteComponent()}
+         
+         {votedOn && <LiveResults topic={topic} />}
+         
+         {voterId && <ImportanceSlider topicId={topic.id} />}
 
-            <div>
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold font-headline">{t.structuredDebate}</h2>
-                <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
-                   <Button variant={viewMode === 'list' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode('list')} className="h-8 gap-2">
-                       <ListTree /> {t.debateViewList}
-                   </Button>
-                    <Button variant={viewMode === 'chart' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode('chart')} className="h-8 gap-2">
-                       <Sun /> {t.debateViewChart}
-                   </Button>
-                </div>
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold font-headline">{t.structuredDebate}</h2>
+              <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
+                 <Button variant={viewMode === 'list' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode('list')} className="h-8 gap-2">
+                     <ListTree /> {t.debateViewList}
+                 </Button>
+                  <Button variant={viewMode === 'chart' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode('chart')} className="h-8 gap-2">
+                     <Sun /> {t.debateViewChart}
+                 </Button>
               </div>
-              
-              {viewMode === 'list' ? (
-                <DebateSection topicId={topic.id} initialArgs={initialDebateArgs} lang={lang} />
-              ) : (
-                <ArgumentChart args={initialDebateArgs} topicQuestion={topic.question} lang={lang} />
-              )}
-           </div>
-           
-           <Accordion type="single" collapsible className="w-full space-y-4" defaultValue="history">
-                <AccordionItem value="sources">
-                    <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
-                        <FileText className="h-5 w-5" /> {t.sourcesContext}
-                    </AccordionTrigger>
-                    <AccordionContent className="p-6 border border-t-0 rounded-b-lg">
-                        <p className="text-base text-muted-foreground">{t.sourcesDescription}</p>
-                    </AccordionContent>
-                </AccordionItem>
+            </div>
+            
+            {viewMode === 'list' ? (
+              <DebateSection topicId={topic.id} initialArgs={initialDebateArgs} lang={lang} />
+            ) : (
+              <ArgumentChart args={initialDebateArgs} topicQuestion={topic.question} lang={lang} />
+            )}
+         </div>
+         
+         <Accordion type="single" collapsible className="w-full space-y-4" defaultValue="history">
+              <AccordionItem value="sources">
+                  <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
+                      <FileText className="h-5 w-5" /> {t.sourcesContext}
+                  </AccordionTrigger>
+                  <AccordionContent className="p-6 border border-t-0 rounded-b-lg">
+                      <p className="text-base text-muted-foreground">{t.sourcesDescription}</p>
+                  </AccordionContent>
+              </AccordionItem>
 
-                <AccordionItem value="history">
-                    <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
-                        <History className="h-5 w-5" /> {t.voteHistory}
-                    </AccordionTrigger>
-                    <AccordionContent className="pt-0">
-                         <VoteChart topic={topic} />
-                    </AccordionContent>
-                </AccordionItem>
-            </Accordion>
+              <AccordionItem value="history">
+                  <AccordionTrigger className="text-lg font-semibold flex items-center gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
+                      <History className="h-5 w-5" /> {t.voteHistory}
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-0">
+                       <VoteChart topic={topic} />
+                  </AccordionContent>
+              </AccordionItem>
+          </Accordion>
 
-            <RelatedTopics topicId={topic.id} subcategoryId={topic.subcategoryId} />
-        </div>
-        
+          <RelatedTopics topicId={topic.id} subcategoryId={topic.subcategoryId} />
+
         <Separator className="my-12" />
-
-        <div className="max-w-2xl mx-auto">
+        
+        <div>
           {voterId ? (
             <SuggestionForm />
           ) : (
