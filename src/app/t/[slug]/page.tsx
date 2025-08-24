@@ -59,20 +59,19 @@ export default async function TopicPage({ params }: TopicPageProps) {
           <Card>
             <CardHeader className="p-4 md:p-6">
               <h1 className="text-2xl md:text-3xl font-bold font-headline">{question}</h1>
+              {topic.background_md && (
+                <CardDescription className="pt-2 text-base">
+                    {topic.background_md}
+                </CardDescription>
+               )}
             </CardHeader>
-            {(topic.background_md || (topic.sources && topic.sources.length > 0)) && (
+            {(topic.sources && topic.sources.length > 0) && (
                 <Accordion type="single" collapsible className="w-full border-t">
                     <AccordionItem value="sources" className="border-none">
                         <AccordionTrigger className="text-base font-semibold flex items-center gap-2 p-4">
                             <FileText className="h-5 w-5" />
                         </AccordionTrigger>
                         <AccordionContent className="p-6 border-t rounded-b-lg space-y-6">
-                            {topic.background_md && (
-                                <div className="space-y-2">
-                                    <h4 className="font-semibold text-foreground">{t.background}</h4>
-                                    <p className="text-base text-muted-foreground">{topic.background_md}</p>
-                                </div>
-                            )}
                             {topic.sources && topic.sources.length > 0 && (
                                 <div className="space-y-3">
                                     <h4 className="font-semibold text-foreground">{t.sources}</h4>
@@ -93,8 +92,8 @@ export default async function TopicPage({ params }: TopicPageProps) {
                 </Accordion>
             )}
           </Card>
-
-          <section>
+          
+           <section>
               <h2 className="text-2xl font-bold font-headline mb-4">{t.argumentsFor}</h2>
               <div className="space-y-4">
                   {topic.pros && topic.pros.length > 0 ? (
@@ -128,8 +127,8 @@ export default async function TopicPage({ params }: TopicPageProps) {
                   )}
               </div>
           </section>
-
-           <Separator className="my-12" />
+          
+          <Separator className="my-12" />
 
          <section>
             <h2 className="text-2xl font-bold font-headline mb-6">{t.structuredDebate}</h2>
@@ -149,12 +148,12 @@ export default async function TopicPage({ params }: TopicPageProps) {
               <TopicInteraction topic={topic} />
             </Suspense>
             <Card>
-                <CardHeader>
+                <CardHeader className="p-4 md:p-6">
                     <CardTitle className="text-lg font-semibold flex items-center gap-2">
                         <Info className="h-5 w-5" /> Topic Details
                     </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4 md:p-6 pt-0">
                     <p className="text-base text-muted-foreground">{description}</p>
                 </CardContent>
             </Card>
