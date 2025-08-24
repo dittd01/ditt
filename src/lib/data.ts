@@ -261,6 +261,22 @@ export function getRelatedTopics(currentTopicId: string, subcategoryId: string):
     .slice(0, 3);
 }
 
+// --- New Data Fetching Function for Server Components ---
+/**
+ * Fetches a single topic by its slug.
+ * In a real application, this would query a database.
+ * For this prototype, it searches the in-memory `allTopics` array.
+ * NOTE: This function is intended for server-side use and does not access localStorage.
+ * @param slug The URL slug of the topic to find.
+ * @returns The Topic object or undefined if not found.
+ */
+export function getTopicBySlug(slug: string): Topic | undefined {
+    // This is a simplified lookup. A real app might use a more efficient data structure
+    // or a database with an index on the slug.
+    return allTopics.find(topic => topic.slug === slug);
+}
+
+
 // MOCK DATA GENERATION
 const norwegianNames = [
   'Anne', 'Per', 'Ingrid', 'Lars', 'Kari', 'Ole', 'Sigrid', 'Torbjorn', 'Marit', 'Hans',
