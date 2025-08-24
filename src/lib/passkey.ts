@@ -43,8 +43,8 @@ function base64URLToBuffer(base64urlString: string): ArrayBuffer {
  * Initiates the client-side passkey registration process.
  * This function orchestrates the flow:
  * 1. Fetches a challenge from the server.
- * 2. Prepares the options for the browser's WebAuthn API.
- * 3. Prompts the user for biometric confirmation.
+ * 2. Prepares the options for the browser's WebAuthn API by converting necessary fields to ArrayBuffers.
+ * 3. Prompts the user for biometric confirmation via `navigator.credentials.create()`.
  * 4. Sends the browser's response back to the server for verification.
  *
  * @param personHash The user's unique, privacy-preserving identifier (string).
@@ -60,35 +60,39 @@ export async function startRegistration(personHash: string): Promise<{ success: 
     options.challenge = base64URLToBuffer(options.challenge);
     options.user.id = base64URLToBuffer(options.user.id);
     
-    // If the server suggests credentials to exclude (to prevent re-registration),
-    // their IDs must also be converted to ArrayBuffers.
+    // If the server suggests credentials to exclude (to prevent re-registration of the same device),
+    // their IDs must also be converted from Base64URL strings to ArrayBuffers.
     if (options.excludeCredentials) {
         options.excludeCredentials.forEach(cred => {
+            // The `id` from the server is Base64URL, needs to be ArrayBuffer for the browser API.
             cred.id = base64URLToBuffer(cred.id as unknown as string);
         });
     }
 
-    // 3. Invoke the browser's WebAuthn API to create the passkey.
+    // 3. Invoke the browser's WebAuthn API to create the passkey. This will typically
+    //    trigger a system prompt for fingerprint, Face ID, etc.
     const attestationResponse: RegistrationResponseJSON = await browserStartRegistration(options);
     
-    // 4. Send the attestation response back to the server for verification.
+    // 4. Send the successful attestation response back to the server for final verification and storage.
     const verificationResult = await verifyRegistrationAction(personHash, attestationResponse);
 
     if (verificationResult && verificationResult.verified) {
       // Store the new credential ID locally to identify this device in the future.
+      // This is helpful for UI hints like "(Current Device)".
       localStorage.setItem('passkey_credential_id', attestationResponse.id);
       return { success: true };
     } else {
+      // The server rejected the registration for some reason (e.g., signature mismatch).
       return { success: false, message: 'Server verification failed: ' + (verificationResult.error || 'Unknown error.') };
     }
   } catch (error: any) {
-    // Gracefully handle common user actions and errors.
+    // Gracefully handle common user actions and errors during the client-side process.
     console.error('Passkey Registration Failed:', error);
     let message = error.message || 'An unknown error occurred.';
     if (error.name === 'InvalidStateError') {
-      message = 'This passkey has already been registered. Please try logging in instead.';
+      message = 'This passkey appears to have already been registered. Please try logging in instead.';
     } else if (error.name === 'NotAllowedError') {
-      message = 'Passkey creation was cancelled by the user.';
+      message = 'The request to create a passkey was cancelled by the user.';
     }
     return { success: false, message };
   }
@@ -104,20 +108,21 @@ export async function startLogin(): Promise<{ success: boolean; message?: string
     // 1. Get authentication options from the server for a "discoverable" credential login.
     const options: PublicKeyCredentialRequestOptionsJSON = await getLoginChallengeAction();
     
-    // 2. Convert the server's challenge from Base64URL string to an ArrayBuffer.
+    // 2. Convert the server's challenge from a Base64URL string to an ArrayBuffer for the browser API.
     if (options.challenge) {
         options.challenge = base64URLToBuffer(options.challenge);
     }
 
-    // 3. Invoke the browser's WebAuthn API to use the passkey.
+    // 3. Invoke the browser's WebAuthn API to use the passkey. This prompts the user for biometrics.
     const assertionResponse: AuthenticationResponseJSON = await browserStartAuthentication(options);
 
-    // 4. Send the browser's response to the server for verification.
+    // 4. Send the browser's signed response to the server for verification.
     const verificationResult = await verifyLoginAction(assertionResponse);
 
     if (verificationResult && verificationResult.verified) {
-      // Store the credential ID to identify the current device.
+      // Store the credential ID to identify the current device for UI purposes.
       localStorage.setItem('passkey_credential_id', assertionResponse.id);
+      // On successful login, return the user's unique identifier.
       return { success: true, personHash: verificationResult.personHash };
     } else {
        return { success: false, message: 'Server verification failed: ' + (verificationResult.error || 'Unknown error.') };
@@ -127,7 +132,7 @@ export async function startLogin(): Promise<{ success: boolean; message?: string
     console.error('Passkey Login Failed:', error);
     let message = error.message || 'An unknown error occurred during login.';
     if (error.name === 'NotAllowedError') {
-        message = 'Login attempt was cancelled by the user.';
+        message = 'The login attempt was cancelled by the user.';
     }
     return { success: false, message: message };
   }

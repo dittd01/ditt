@@ -33,7 +33,7 @@ import {
     generateAuthenticationOptions,
     verifyAuthenticationResponse,
 } from '@simplewebauthn/server';
-import type { RegistrationResponseJSON, AuthenticationResponseJSON, PublicKeyCredentialCreationOptionsJSON, AuthenticatorDevice } from '@simplewebauthn/types';
+import type { RegistrationResponseJSON, AuthenticationResponseJSON, PublicKeyCredentialCreationOptionsJSON, AuthenticatorDevice, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types';
 import type { Device, Eligibility } from './types';
 
 
@@ -137,19 +137,25 @@ export async function getDevicesForUser(personHash: string): Promise<Device[]> {
  * @returns A `PublicKeyCredentialCreationOptionsJSON` object to be sent to the client.
  */
 export async function generateRegistrationChallenge(personHash: string): Promise<PublicKeyCredentialCreationOptionsJSON> {
+    // Ensure a user record exists in our mock store. In a real app, this might
+    // be created earlier in the onboarding flow.
     if (!mockUserStore[personHash]) {
-        mockUserStore[personHash] = { username: personHash, personHash, devices: [] };
+        mockUserStore[personHash] = { username: `user...${personHash.slice(0, 4)}`, personHash, devices: [] };
     }
     const user = mockUserStore[personHash];
 
     const opts: GenerateRegistrationOptionsOpts = {
         rpName,
         rpID,
-        // The `simplewebauthn` library requires the userID to be a Buffer.
+        // The `simplewebauthn` library requires the userID to be a Buffer for security reasons.
+        // This prevents certain types of attacks and ensures data integrity.
         userID: Buffer.from(personHash), 
         userName: user.username,
         timeout: 60000,
         attestationType: 'none',
+        // To prevent a user from registering the same device multiple times, we provide a list
+        // of already registered credential IDs. The authenticator (e.g., browser) will
+        // error if it's asked to re-register an existing credential.
         excludeCredentials: user.devices.map(dev => ({
             id: Buffer.from(dev.webauthn!.credentialID, 'base64url'),
             type: 'public-key',
@@ -159,16 +165,18 @@ export async function generateRegistrationChallenge(personHash: string): Promise
             residentKey: 'preferred',
             userVerification: 'preferred',
         },
-        supportedAlgorithmIDs: [-7, -257], // ES256 and RS256
+        supportedAlgorithmIDs: [-7, -257], // ES256 (most common) and RS256
     };
 
     const options = await generateRegistrationOptions(opts);
 
-    // Store the challenge securely, associated with the user, to verify the response.
+    // Store the challenge securely, associated with the user. This is critical to
+    // prevent replay attacks. The challenge is retrieved during the verification step.
     mockChallengeStore[personHash] = options.challenge;
     
-    // The user.id sent to the client is the *original string*, not the buffer.
-    // The client will convert this string back to an ArrayBuffer.
+    // The user.id is sent to the client as the original string for easier handling.
+    // The client will be responsible for converting this string back to an ArrayBuffer
+    // before passing it to the `navigator.credentials.create()` API.
     return {
         ...options,
         user: {
@@ -190,7 +198,7 @@ export async function verifyRegistration(personHash: string, response: Registrat
     const expectedChallenge = mockChallengeStore[personHash];
 
     if (!user || !expectedChallenge) {
-        return { verified: false, error: 'User or challenge not found. Please try again.' };
+        return { verified: false, error: 'User or challenge not found. Session may have expired. Please try again.' };
     }
 
     const opts: VerifyRegistrationResponseOpts = {
@@ -208,7 +216,7 @@ export async function verifyRegistration(personHash: string, response: Registrat
         console.error('Registration verification failed:', error);
         return { verified: false, error: error.message };
     } finally {
-        // Clean up the challenge regardless of the outcome.
+        // Clean up the challenge regardless of the outcome to ensure it's single-use.
         delete mockChallengeStore[personHash];
     }
 
@@ -225,12 +233,12 @@ export async function verifyRegistration(personHash: string, response: Registrat
                 signCount: counter,
                 transports: response.response.transports,
             },
-            platform: 'web', // Assuming web for this implementation
+            platform: 'web', 
             createdAt: Date.now(),
             lastSeenAt: Date.now(),
             revoked: false,
         };
-
+        // Add the new, verified device to the user's record.
         user.devices.push(newDevice);
         return { verified: true };
     }
@@ -253,8 +261,8 @@ export async function generateLoginChallenge(): Promise<PublicKeyCredentialReque
     
     const options = await generateAuthenticationOptions(opts);
     
-    // For discoverable credentials, we store the challenge under a temporary key.
-    // In a real app, this would be a session ID stored in a cookie.
+    // For discoverable credentials, we store the challenge under a temporary, non-user-specific
+    // key. In a real app, this might be a session ID stored in a secure, HTTP-only cookie.
     mockChallengeStore['login_challenge'] = options.challenge;
 
     return options;
@@ -270,7 +278,8 @@ export async function verifyLogin(response: AuthenticationResponseJSON): Promise
     let user: (typeof mockUserStore)[string] | undefined;
     let device: Device | undefined;
     
-    // Find the user and device based on the credential ID returned by the browser.
+    // Find the user and device based on the credential ID returned by the browser's authenticator.
+    // This is a secure way to look up the user without them needing to enter a username.
     for (const hash in mockUserStore) {
         const potentialUser = mockUserStore[hash];
         const foundDevice = potentialUser.devices.find(d => d.webauthn?.credentialID === credentialID);
@@ -282,12 +291,12 @@ export async function verifyLogin(response: AuthenticationResponseJSON): Promise
     }
 
     if (!user || !device || !device.webauthn) {
-        return { verified: false, error: 'This passkey is not registered.' };
+        return { verified: false, error: 'This passkey is not registered with our service.' };
     }
     
     const expectedChallenge = mockChallengeStore['login_challenge'];
     if (!expectedChallenge) {
-        return { verified: false, error: 'Login challenge expired or not found. Please try again.' };
+        return { verified: false, error: 'Login challenge expired or was not found. Please try again.' };
     }
 
     const opts: VerifyAuthenticationResponseOpts = {
@@ -311,14 +320,16 @@ export async function verifyLogin(response: AuthenticationResponseJSON): Promise
         console.error('Login verification failed:', error);
         return { verified: false, error: error.message };
     } finally {
-        // Clean up the challenge.
+        // Clean up the challenge after the attempt.
         delete mockChallengeStore['login_challenge'];
     }
 
     const { verified, authenticationInfo } = verification;
 
     if (verified) {
-        // Update the signature counter to prevent credential cloning.
+        // Update the signature counter. This is a critical security measure to help
+        // prevent credential cloning. The server should reject any attempt to
+        // authenticate with a counter value less than or equal to the last known value.
         device.webauthn.signCount = authenticationInfo.newCounter;
         device.lastSeenAt = Date.now();
         

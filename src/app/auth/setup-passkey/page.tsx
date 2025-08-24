@@ -92,7 +92,7 @@ export default function SetupPasskeyPage() {
                     <div className="flex-1">
                         <p className="font-semibold">Setup Failed</p>
                         <p className="break-words">{error}</p>
-                        <p className="mt-2">You can <Button variant="link" size="sm" className="p-0 h-auto" onClick={handleSetupPasskey}>try again</Button>, or skip for now and set it up later from your <Link href="/settings" className='underline'>settings</Link>.</p>
+                        <p className="mt-2">You can <Button variant="link" size="sm" className="p-0 h-auto" onClick={handleSetupPasskey}>try again</Button>, or skip for now and set it up later from your <Link href="/settings/devices" className='underline'>settings</Link>.</p>
                     </div>
                 </div>
             </div>
