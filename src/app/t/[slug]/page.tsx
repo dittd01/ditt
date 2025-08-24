@@ -68,9 +68,9 @@ export default async function TopicPage({ params }: TopicPageProps) {
             {(topic.sources && topic.sources.length > 0) && (
                 <Accordion type="single" collapsible className="w-full border-t">
                     <AccordionItem value="sources" className="border-none">
-                        <AccordionTrigger className="text-base font-semibold flex justify-start items-center gap-2 p-4">
+                        <AccordionTrigger className="flex justify-start items-center gap-2 p-4 text-base font-semibold">
                             <FileText className="h-5 w-5" />
-                            {t.sourcesContext}
+                            {t.sources}
                         </AccordionTrigger>
                         <AccordionContent className="p-6 pt-0 border-t rounded-b-lg space-y-6">
                             <ul className="space-y-2">
@@ -87,15 +87,6 @@ export default async function TopicPage({ params }: TopicPageProps) {
                     </AccordionItem>
                 </Accordion>
             )}
-          </Card>
-
-          <Card>
-            <CardHeader>
-                <CardTitle>{t.topicDetails}</CardTitle>
-            </CardHeader>
-             <CardContent className="p-4 md:p-6 pt-0">
-                    <p className="text-base text-muted-foreground">{description}</p>
-                </CardContent>
           </Card>
           
            <section>
@@ -145,6 +136,15 @@ export default async function TopicPage({ params }: TopicPageProps) {
               <DebateSection topicId={topic.id} initialArgs={initialDebateArgs} lang={lang} />
              </Suspense>
          </section>
+
+          <Card>
+            <CardHeader>
+                <CardTitle>{t.topicDetails}</CardTitle>
+            </CardHeader>
+             <CardContent className="p-4 md:p-6 pt-0">
+                    <p className="text-base text-muted-foreground">{description}</p>
+                </CardContent>
+          </Card>
 
           <Separator className="my-12" />
 
