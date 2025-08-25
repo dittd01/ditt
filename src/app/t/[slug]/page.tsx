@@ -221,8 +221,13 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
 
 
 export default function TopicPageWrapper({ params }: { params: { slug: string }}) {
-    // This is now a Server Component. It can safely await or use() promises.
-    // We pass the resolved slug string as a prop to the Client Component.
+    const topic = getTopicBySlug(params.slug);
+
+    if (!topic) {
+        notFound();
+    }
+    
+    // This is a server component, so we can do this.
     return (
         <Suspense fallback={<div>Loading...</div>}>
            <TopicCarousel topics={allTopics} initialSlug={params.slug} />
