@@ -8,3 +8,5 @@ import '@/ai/flows/generate-avatar.ts';
 import '@/ai/flows/generate-mock-user.ts';
 import '@/ai/flows/populate-poll-flow.ts';
 import '@/ai/flows/curate-argument.ts';
+import '@/ai/flows/generate-rebuttal.ts';
+

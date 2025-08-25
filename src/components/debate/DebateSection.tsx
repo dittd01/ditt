@@ -5,12 +5,13 @@ import { useState, useEffect, useMemo } from 'react';
 import type { Argument } from '@/lib/types';
 import { ArgumentCard } from './ArgumentCard';
 import { Button } from '../ui/button';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Lightbulb } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { ArgumentComposer } from './ArgumentComposer';
 import { currentUser } from '@/lib/user-data';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { generateRebuttalAction } from '@/app/actions';
 
 
 interface DebateSectionProps {
@@ -32,6 +33,7 @@ const translations = {
         argumentUpvotedDesc: 'Thanks for keeping the debate focused!',
         mostVoted: 'Most Voted',
         newest: 'Newest',
+        rebuttalHintTitle: 'AI Rebuttal Suggestion',
     },
     nb: {
         arguments: 'Argumenter',
@@ -45,6 +47,7 @@ const translations = {
         argumentUpvotedDesc: 'Takk for at du holder debatten fokusert!',
         mostVoted: 'Mest Stemt',
         newest: 'Nyeste',
+        rebuttalHintTitle: 'KI Motargument-forslag',
     }
 }
 
@@ -168,6 +171,28 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
     
     toast({ title: t.argumentAdded, description: t.argumentAddedDesc });
     handleCancelComposer();
+
+    // Fire-and-forget call to get a rebuttal hint.
+    generateRebuttalAction({
+        argumentText: newArgument.text,
+        opposingArguments: newArgument.side === 'for' ? topLevelAgainst : topLevelFor,
+    }).then(result => {
+        if (result.success && result.data) {
+            toast({
+                // Why: Use a custom duration to give the user more time to read the suggestion.
+                duration: 8000, 
+                description: (
+                    <div className="flex items-start gap-2">
+                        <Lightbulb className="h-5 w-5 text-amber-500 mt-1" />
+                        <div className="flex-1">
+                            <h3 className="font-bold text-amber-600">{t.rebuttalHintTitle}</h3>
+                            <p className="text-sm text-muted-foreground">"{result.data.rebuttal}"</p>
+                        </div>
+                    </div>
+                )
+            });
+        }
+    });
   };
   
   const handleMerge = (similarArgumentId: string) => {

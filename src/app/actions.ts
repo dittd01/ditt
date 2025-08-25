@@ -6,6 +6,7 @@ import { curateTopicSuggestion, type CurateTopicSuggestionInput, type CurateTopi
 import { generateMockUser, type GenerateMockUserOutput } from '@/ai/flows/generate-mock-user';
 import { populatePoll, type PopulatePollOutput } from '@/ai/flows/populate-poll-flow';
 import { curateArgument, type CurateArgumentInput, type CurateArgumentOutput } from '@/ai/flows/curate-argument';
+import { generateRebuttal, type GenerateRebuttalInput, type GenerateRebuttalOutput } from '@/ai/flows/generate-rebuttal';
 import { categories, allTopics } from '@/lib/data';
 import { calculateQVCost } from '@/lib/qv';
 import type { Topic } from '@/lib/types';
@@ -163,6 +164,17 @@ export async function populatePollAction(input: { title: string, customPrompt?: 
         return { success: true, data: result };
     } catch (error) {
         console.error('Error populating poll from AI:', error);
+        const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+        return { success: false, message };
+    }
+}
+
+export async function generateRebuttalAction(input: GenerateRebuttalInput): Promise<{ success: boolean; data?: GenerateRebuttalOutput, message?: string }> {
+    try {
+        const result = await generateRebuttal(input);
+        return { success: true, data: result };
+    } catch (error) {
+        console.error('Error generating rebuttal:', error);
         const message = error instanceof Error ? error.message : 'An unknown error occurred.';
         return { success: false, message };
     }
