@@ -13,6 +13,7 @@ import { useDebounce } from 'use-debounce';
 import { Search } from 'lucide-react';
 
 type TimeFrame = 'W' | '1M' | '1Y' | 'All';
+type SortByType = 'votes' | 'importance';
 
 function HomePageContent() {
   const router = useRouter();
@@ -23,6 +24,7 @@ function HomePageContent() {
   const [votedTopicIds, setVotedTopicIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [timeframe, setTimeframe] = useState<TimeFrame>('All');
+  const [sortBy, setSortBy] = useState<SortByType>('votes');
   const [lang, setLang] = useState('en');
   
   const initialSearch = searchParams.get('q') || '';
@@ -143,6 +145,10 @@ function HomePageContent() {
        if (b.voteType === 'election') return 1;
 
        if (selectedCategory === 'all' || !selectedCategory) {
+         if (sortBy === 'importance') {
+            return b.averageImportance - a.averageImportance;
+         }
+         
          switch (timeframe) {
             case 'W':
               return (b.votesLastWeek ?? 0) - (a.votesLastWeek ?? 0);
@@ -157,7 +163,7 @@ function HomePageContent() {
        }
        return (b.votesLastMonth ?? 0) - (a.votesLastMonth ?? 0);
     });
-  }, [topics, debouncedSearchQuery, selectedCategory, selectedSubCategory, timeframe]);
+  }, [topics, debouncedSearchQuery, selectedCategory, selectedSubCategory, timeframe, sortBy]);
 
   const showTimeframeFilter = !selectedCategory || selectedCategory === 'all';
 
@@ -167,6 +173,8 @@ function HomePageContent() {
   const searchResultsTitle = lang === 'nb' ? `Søkeresultater for "${debouncedSearchQuery}"` : `Search Results for "${debouncedSearchQuery}"`;
   const searchResultsCount = lang === 'nb' ? `${filteredTopics.length} temaer funnet.` : `${filteredTopics.length} topics found.`;
   const noTopicsFound = lang === 'nb' ? 'Ingen temaer funnet som samsvarer med søket ditt.' : 'No topics found matching your search.';
+  const sortByVotesText = lang === 'nb' ? 'Flest Stemmer' : 'Most Votes';
+  const sortByImportanceText = lang === 'nb' ? 'Viktigst' : 'Most Important';
 
 
   return (
@@ -199,7 +207,25 @@ function HomePageContent() {
          )}
 
         {showTimeframeFilter && !debouncedSearchQuery && (
-          <div className="mb-8 flex justify-end">
+          <div className="mb-8 flex flex-wrap justify-end gap-4">
+             <div className="flex gap-1 bg-muted p-1 rounded-md w-full sm:w-auto">
+                <Button
+                    size="sm"
+                    variant={sortBy === 'votes' ? 'default' : 'ghost'}
+                    onClick={() => setSortBy('votes')}
+                    className="px-3 h-8 flex-1 sm:flex-initial"
+                >
+                    {sortByVotesText}
+                </Button>
+                 <Button
+                    size="sm"
+                    variant={sortBy === 'importance' ? 'default' : 'ghost'}
+                    onClick={() => setSortBy('importance')}
+                    className="px-3 h-8 flex-1 sm:flex-initial"
+                >
+                    {sortByImportanceText}
+                </Button>
+             </div>
             <div className="flex gap-1 bg-muted p-1 rounded-md w-full sm:w-auto">
               {(['W', '1M', '1Y', 'All'] as TimeFrame[]).map((tf) => (
                 <Button
@@ -208,6 +234,7 @@ function HomePageContent() {
                   variant={timeframe === tf ? 'default' : 'ghost'}
                   onClick={() => setTimeframe(tf)}
                   className="px-3 h-8 flex-1 sm:flex-initial"
+                  disabled={sortBy === 'importance'}
                 >
                   {tf}
                 </Button>
