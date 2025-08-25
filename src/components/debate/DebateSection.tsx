@@ -16,6 +16,7 @@ import { generateRebuttalAction } from '@/app/actions';
 
 interface DebateSectionProps {
   topicId: string;
+  topicQuestion: string;
   initialArgs: Argument[];
   lang: 'en' | 'nb';
 }
@@ -71,7 +72,7 @@ DebateSection.Skeleton = function DebateSectionSkeleton() {
 }
 
 
-export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps) {
+export function DebateSection({ topicId, topicQuestion, initialArgs, lang }: DebateSectionProps) {
   const [debateArgs, setDebateArgs] = useState<Argument[]>(initialArgs);
   const [loading, setLoading] = useState(true);
   const [showComposer, setShowComposer] = useState<'for' | 'against' | null>(null);
@@ -174,6 +175,7 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
 
     // Fire-and-forget call to get a rebuttal hint.
     generateRebuttalAction({
+        topicQuestion: topicQuestion,
         argumentText: newArgument.text,
         opposingArguments: newArgument.side === 'for' ? topLevelAgainst : topLevelFor,
     }).then(result => {

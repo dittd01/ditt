@@ -217,7 +217,12 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
                       <section>
                         <h2 className="text-2xl font-bold font-headline mb-6">{t.structuredDebate}</h2>
                         <Suspense fallback={<DebateSection.Skeleton />}>
-                          <DebateSection topicId={topic.id} initialArgs={initialDebateArgs} lang={lang} />
+                          <DebateSection 
+                            topicId={topic.id} 
+                            topicQuestion={question} 
+                            initialArgs={initialDebateArgs} 
+                            lang={lang} 
+                          />
                         </Suspense>
                       </section>
 

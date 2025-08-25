@@ -20,6 +20,7 @@ const OpposingArgumentSchema = z.object({
 });
 
 const GenerateRebuttalInputSchema = z.object({
+  topicQuestion: z.string().describe("The main question or topic of the debate."),
   argumentText: z.string().describe("The user's newly submitted argument text."),
   opposingArguments: z.array(OpposingArgumentSchema).describe('A list of existing arguments from the opposing side of the debate.'),
 });
@@ -43,6 +44,10 @@ const prompt = ai.definePrompt({
   output: { schema: GenerateRebuttalOutputSchema },
   prompt: `
     You are an expert debate coach. Your goal is to help users strengthen their arguments by considering counter-arguments.
+    
+    The main topic of the debate is:
+    "{{{topicQuestion}}}"
+
     A user has just submitted the following argument:
     "{{{argumentText}}}"
 
@@ -58,7 +63,7 @@ const prompt = ai.definePrompt({
         {{/if}}
 
     2.  **Decision Logic**:
-        -   **If** you find an existing argument that is a strong, direct rebuttal to the user's point, select its text.
+        -   **If** you find an existing argument that is a strong, direct rebuttal to the user's point (within the context of the main topic), select its text.
         -   **Else if** there are no relevant existing arguments (or the list is empty), you MUST generate a new, concise, and plausible counter-argument. This new rebuttal should directly challenge the user's premise.
 
     3.  **Output**:
