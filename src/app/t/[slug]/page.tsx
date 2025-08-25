@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
@@ -214,15 +215,15 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
             );
         })}
       </CarouselContent>
-      <CarouselPrevious className="hidden lg:flex" />
-      <CarouselNext className="hidden lg:flex" />
+      <CarouselPrevious />
+      <CarouselNext />
     </Carousel>
   );
 }
 
 
 export default function TopicPageWrapper({ params }: { params: { slug: string }}) {
-  const resolvedParams = use(params);
+  const resolvedParams = use(Promise.resolve(params));
   return (
       <Suspense fallback={<div>Loading...</div>}>
          <TopicCarousel topics={allTopics} initialSlug={resolvedParams.slug} />
