@@ -76,7 +76,6 @@ export function ArgumentComposer({ side, topicId, existingArguments, onSubmit, o
             setStep('REVIEW');
         }
     } else {
-        // AI call failed, enter error state.
         setStep('ERROR');
     }
   }
@@ -97,7 +96,6 @@ export function ArgumentComposer({ side, topicId, existingArguments, onSubmit, o
             title: aiResponse.suggestedTitle,
         };
     } else {
-        // Should not happen, but as a safeguard
         onCancel();
         return;
     }
@@ -244,10 +242,12 @@ export function ArgumentComposer({ side, topicId, existingArguments, onSubmit, o
         
         case 'ERROR':
             return (
-                <CardFooter className="justify-end gap-2">
+                <CardFooter className="justify-between">
                     <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
-                    <Button type="button" variant="secondary" onClick={() => handleInitialSubmit(form.getValues())}>Try Again</Button>
-                    <Button type="button" variant="destructive" onClick={handleFinalSubmit}>Post Original Anyway</Button>
+                    <div className="flex gap-2">
+                      <Button type="button" variant="outline" onClick={() => handleInitialSubmit(form.getValues())}>Try Again</Button>
+                      <Button type="button" variant="destructive" onClick={handleFinalSubmit}>Post Original Anyway</Button>
+                    </div>
                 </CardFooter>
             );
 
