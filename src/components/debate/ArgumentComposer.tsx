@@ -122,6 +122,13 @@ export function ArgumentComposer({
     setShowHint(false);
   }
 
+  const handleUseSuggestion = () => {
+      if (rebuttalHint) {
+          form.setValue('text', rebuttalHint, { shouldValidate: true });
+          setShowHint(false);
+      }
+  }
+
   const renderContent = () => {
     switch (step) {
       case 'LOADING':
@@ -203,6 +210,7 @@ export function ArgumentComposer({
                          </AlertDescription>
                           <AlertActions>
                             <Button variant="ghost" size="sm" onClick={handleHintDismiss}>Dismiss</Button>
+                             <Button variant="outline" size="sm" onClick={handleUseSuggestion}>Use this suggestion</Button>
                          </AlertActions>
                     </Alert>
                 )}
@@ -268,7 +276,7 @@ export function ArgumentComposer({
             );
         
         case 'ERROR':
-            return (
+             return (
                 <CardFooter className="justify-between">
                     <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
                     <div className="flex gap-2">
