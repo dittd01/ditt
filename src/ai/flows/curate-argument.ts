@@ -65,6 +65,7 @@ const prompt = ai.definePrompt({
 
     2.  **Normalize and Refine Text**:
         -   Rewrite the user's argument ("{{userText}}") to be as clear, concise, and neutral as possible.
+        -   Correct any spelling mistakes and grammatical errors.
         -   Remove any inflammatory language, rhetorical questions, or personal attacks, but preserve the core logical point.
         -   Store this improved version in the 'normalizedText' field.
 
@@ -99,7 +100,7 @@ const curateArgumentFlow = ai.defineFlow(
             output: { schema: z.object({ normalizedText: z.string(), suggestedTitle: z.string() }) },
             prompt: `A user has submitted the first argument in a debate: "{{userText}}".
             
-            1. Rewrite the argument to be as clear, concise, and neutral as possible. This is 'normalizedText'.
+            1. Rewrite the argument to be as clear, concise, and neutral as possible. Correct any spelling or grammar errors. This is 'normalizedText'.
             2. Create a short, descriptive title (max 80 characters) that summarizes the argument. This is 'suggestedTitle'.
             
             Return ONLY a single, valid JSON object.`
