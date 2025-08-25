@@ -12,6 +12,7 @@ import { currentUser } from '@/lib/user-data';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { generateRebuttalAction } from '@/app/actions';
+import { ArgumentChart } from './ArgumentChart';
 
 
 interface DebateSectionProps {
@@ -247,6 +248,10 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang }: Deb
 
   return (
     <div>
+        <div className="mb-8">
+            <ArgumentChart args={debateArgs} topicQuestion={topicQuestion} lang={lang} />
+        </div>
+
         <div className="flex justify-end mb-6">
             <Tabs value={sortBy} onValueChange={(value) => setSortBy(value as SortByType)} className="w-full sm:w-auto">
                 <TabsList>

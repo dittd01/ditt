@@ -171,41 +171,6 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
                         </CardFooter>
                       </Card>
                       
-                      <section>
-                          <h2 className="text-2xl font-bold font-headline mb-4">{t.argumentsFor}</h2>
-                          <div className="space-y-4">
-                              {topic.pros && topic.pros.length > 0 ? (
-                                  topic.pros.map((pro, index) => (
-                                      <Card key={index} className="bg-primary/5 border-primary/20">
-                                          <CardContent className="p-3 flex items-start gap-4">
-                                              <ThumbsUp className="h-5 w-5 text-primary mt-1 shrink-0" />
-                                              <p className="text-primary/90">{pro}</p>
-                                          </CardContent>
-                                      </Card>
-                                  ))
-                              ) : (
-                                  <p className="text-muted-foreground">No arguments for this side have been provided yet.</p>
-                              )}
-                          </div>
-                      </section>
-                      <section>
-                          <h2 className="text-2xl font-bold font-headline mb-4">{t.argumentsAgainst}</h2>
-                          <div className="space-y-4">
-                              {topic.cons && topic.cons.length > 0 ? (
-                                  topic.cons.map((con, index) => (
-                                      <Card key={index} className="bg-destructive/5 border-destructive/20">
-                                          <CardContent className="p-3 flex items-start gap-4">
-                                              <ThumbsDown className="h-5 w-5 text-destructive mt-1 shrink-0" />
-                                              <p className="text-destructive/90">{con}</p>
-                                          </CardContent>
-                                      </Card>
-                                  ))
-                              ) : (
-                                  <p className="text-muted-foreground">No arguments against this side have been provided yet.</p>
-                              )}
-                          </div>
-                      </section>
-
                       <Suspense fallback={<TopicInteraction.Skeleton />}>
                         <TopicInteraction topic={topic} />
                       </Suspense>
@@ -259,9 +224,9 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
                       </Card>
 
                       <Separator className="my-12" />
-
-                      <SuggestionForm />
-
+                      <section>
+                        <SuggestionForm />
+                      </section>
                     </div>
                     <aside className="lg:col-span-1 space-y-8 lg:sticky lg:top-20 self-start">
                       <RelatedTopics topicId={topic.id} subcategoryId={topic.subcategoryId} />
