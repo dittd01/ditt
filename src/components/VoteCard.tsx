@@ -202,7 +202,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
   const yesPercentage = primaryVotes > 0 ? (yesVotes / primaryVotes) * 100 : votedOn ? (votedOn === 'yes' ? 100 : 0) : 50;
   const noPercentage = primaryVotes > 0 ? (noVotes / primaryVotes) * 100 : votedOn ? (votedOn === 'no' ? 100 : 0) : 50;
   
-  const infoText = lang === 'nb' ? 'Info' : 'Info';
+  const infoText = lang === 'nb' ? 'Mer' : 'Info';
   const yesText = lang === 'nb' ? 'Ja' : 'Yes';
   const noText = lang === 'nb' ? 'Nei' : 'No';
 
