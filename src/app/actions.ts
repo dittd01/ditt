@@ -5,6 +5,7 @@ import { moderateVotingSuggestion } from '@/ai/flows/moderate-voting-suggestions
 import { curateTopicSuggestion, type CurateTopicSuggestionInput, type CurateTopicSuggestionOutput } from '@/ai/flows/curate-topic-suggestion';
 import { generateMockUser, type GenerateMockUserOutput } from '@/ai/flows/generate-mock-user';
 import { populatePoll, type PopulatePollOutput } from '@/ai/flows/populate-poll-flow';
+import { curateArgument, type CurateArgumentInput, type CurateArgumentOutput } from '@/ai/flows/curate-argument';
 import { categories, allTopics } from '@/lib/data';
 import { calculateQVCost } from '@/lib/qv';
 import type { Topic } from '@/lib/types';
@@ -81,6 +82,17 @@ export async function curateSuggestionAction(input: CurateTopicSuggestionInput):
     } catch(error) {
         console.error('Error curating suggestion:', error);
         return { success: false, message: 'An error occurred while processing your suggestion.' };
+    }
+}
+
+export async function curateArgumentAction(input: CurateArgumentInput): Promise<{ success: boolean; data?: CurateArgumentOutput; message?: string }> {
+    try {
+        const result = await curateArgument(input);
+        return { success: true, data: result };
+    } catch (error) {
+        console.error('Error curating argument:', error);
+        const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+        return { success: false, message };
     }
 }
 

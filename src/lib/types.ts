@@ -71,12 +71,13 @@ export interface Party {
 export interface Argument {
     id: string;
     topicId: string;
-    parentId: string | null;
+    parentId: string | 'root'; // Use 'root' for top-level arguments
     side: 'for' | 'against';
     author: {
         name: string;
         avatarUrl?: string;
     };
+    title?: string; // AI-generated title
     text: string;
     upvotes: number;
     downvotes: number;

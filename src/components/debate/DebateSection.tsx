@@ -26,6 +26,8 @@ const translations = {
         noArguments: 'No arguments for this side yet.',
         argumentAdded: 'Argument Posted',
         argumentAddedDesc: 'Your argument has been added to the debate.',
+        argumentUpvoted: 'Argument Upvoted',
+        argumentUpvotedDesc: 'Thanks for keeping the debate focused!',
     },
     nb: {
         arguments: 'Argumenter',
@@ -35,6 +37,8 @@ const translations = {
         noArguments: 'Ingen argumenter for denne siden enda.',
         argumentAdded: 'Argument publisert',
         argumentAddedDesc: 'Ditt argument har blitt lagt til i debatten.',
+        argumentUpvoted: 'Argument stemt opp',
+        argumentUpvotedDesc: 'Takk for at du holder debatten fokusert!',
     }
 }
 
@@ -101,82 +105,75 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
     setReplyingToId(currentId => currentId === argumentId ? null : argumentId);
   }
 
-  const handleCancel = () => {
+  const handleCancelComposer = () => {
     setShowComposer(null);
     setReplyingToId(null);
   }
 
-  const handleSubmit = (values: { text: string }) => {
+  const handleSubmit = (values: { text: string; title: string }, side: 'for' | 'against') => {
     const isTopLevel = !replyingToId;
     const parentId = isTopLevel ? 'root' : replyingToId;
     
-    // Determine the side of the new argument.
-    let side: 'for' | 'against';
-    if (isTopLevel) {
-        // If it's a new top-level argument, its side is determined by the composer button clicked.
-        if (!showComposer) return; // Should not happen, but a good guard clause.
-        side = showComposer;
-    } else {
-        // If it's a reply, its side is the opposite of its parent's to create a counter-argument.
-        const parentArg = debateArgs.find(a => a.id === parentId);
-        if (!parentArg) return; // Parent must exist to reply to it.
-        side = parentArg.side === 'for' ? 'against' : 'for';
-    }
-
+    // In a reply, the side is opposite of the parent.
+    const finalSide = isTopLevel ? side : (debateArgs.find(a => a.id === parentId)?.side === 'for' ? 'against' : 'for');
 
     const newArgument: Argument = {
       id: `arg_${Date.now()}`,
       topicId: topicId,
       parentId: parentId,
-      side: side,
+      side: finalSide,
       author: { name: currentUser.displayName, avatarUrl: currentUser.photoUrl },
       text: values.text,
+      title: values.title, // Store the AI-generated title
       upvotes: 1,
       downvotes: 0,
       replyCount: 0,
       createdAt: new Date().toISOString(),
     };
 
-    // Atomically update the state with the new argument and, if it's a reply,
-    // the parent's updated reply count.
     setDebateArgs(currentArgs => {
       const updatedArgs = [...currentArgs];
-      
-      // If this is a reply, we must find the parent and increment its reply count.
       if (!isTopLevel && parentId) {
           const parentArgIndex = updatedArgs.findIndex(a => a.id === parentId);
           if (parentArgIndex > -1) {
-              updatedArgs[parentArgIndex] = {
-                ...updatedArgs[parentArgIndex],
-                replyCount: updatedArgs[parentArgIndex].replyCount + 1,
-              };
+              updatedArgs[parentArgIndex] = { ...updatedArgs[parentArgIndex], replyCount: updatedArgs[parentArgIndex].replyCount + 1 };
           }
       }
-      
-      // Add the new argument to the list.
-      updatedArgs.unshift(newArgument);
-      return updatedArgs;
+      return [newArgument, ...updatedArgs];
     });
     
-    toast({
-        title: t.argumentAdded,
-        description: t.argumentAddedDesc,
-    });
-
-    // Reset the composer UI state.
-    setShowComposer(null);
-    setReplyingToId(null);
+    toast({ title: t.argumentAdded, description: t.argumentAddedDesc });
+    handleCancelComposer();
   };
+  
+  const handleMerge = (similarArgumentId: string) => {
+    // Why: This function handles the "merge" action. It finds the duplicate argument,
+    // increments its upvote count, and provides user feedback. This prevents redundant content.
+    setDebateArgs(currentArgs =>
+        currentArgs.map(arg =>
+            arg.id === similarArgumentId ? { ...arg, upvotes: arg.upvotes + 1 } : arg
+        )
+    );
+    toast({ title: t.argumentUpvoted, description: t.argumentUpvotedDesc });
+    handleCancelComposer();
+  }
 
   const renderArgumentTree = (arg: Argument): React.ReactNode => {
-    // Recursively find and render replies for a given argument.
     const replies = debateArgs.filter(reply => reply.parentId === arg.id).sort((a,b) => (b.upvotes-b.downvotes) - (a.upvotes-a.downvotes));
+    const showReplyComposer = replyingToId === arg.id;
     return (
         <div key={arg.id} className="space-y-4">
             <ArgumentCard argument={arg} onCounter={handleCounter} />
-            {replyingToId === arg.id && (
+            {showReplyComposer && (
                  <div className="ml-6 pl-4 border-l-2">
-                    <ArgumentComposer onCancel={handleCancel} onSubmit={handleSubmit} />
+                    <ArgumentComposer
+                        side={arg.side === 'for' ? 'against' : 'for'}
+                        topicId={topicId}
+                        existingArguments={debateArgs}
+                        onCancel={handleCancelComposer}
+                        onSubmit={handleSubmit}
+                        onMerge={handleMerge}
+                    />
                 </div>
             )}
             {replies.length > 0 && (
@@ -191,7 +188,6 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
   if (loading) {
     return <DebateSection.Skeleton />;
   }
-
 
   return (
     <div>
@@ -210,7 +206,16 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
                         </Button>
                     </div>
                 </div>
-                 {showComposer === 'for' && <ArgumentComposer onCancel={handleCancel} onSubmit={handleSubmit} />}
+                 {showComposer === 'for' && (
+                    <ArgumentComposer
+                        side="for"
+                        topicId={topicId}
+                        existingArguments={debateArgs}
+                        onCancel={handleCancelComposer}
+                        onSubmit={handleSubmit}
+                        onMerge={handleMerge}
+                    />
+                 )}
                 <div className="space-y-4">
                     {topLevelFor.length > 0 
                         ? topLevelFor.map(renderArgumentTree) 
@@ -233,7 +238,16 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
                         </Button>
                     </div>
                 </div>
-                 {showComposer === 'against' && <ArgumentComposer onCancel={handleCancel} onSubmit={handleSubmit} />}
+                 {showComposer === 'against' && (
+                    <ArgumentComposer
+                        side="against"
+                        topicId={topicId}
+                        existingArguments={debateArgs}
+                        onCancel={handleCancelComposer}
+                        onSubmit={handleSubmit}
+                        onMerge={handleMerge}
+                    />
+                 )}
                  <div className="space-y-4">
                     {topLevelAgainst.length > 0 
                         ? topLevelAgainst.map(renderArgumentTree)
