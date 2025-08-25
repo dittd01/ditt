@@ -16,13 +16,13 @@ import {
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, Wand2, ArrowRight, Lightbulb, Check, X, ThumbsUp } from 'lucide-react';
+import { Loader2, Wand2, ArrowRight, Lightbulb, Check, X, ThumbsUp, AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { curateArgumentAction } from '@/app/actions';
 import type { CurateArgumentOutput, CurateArgumentInput } from '@/ai/flows/curate-argument';
 import type { Argument } from '@/lib/types';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { Alert, AlertDescription, AlertTitle, AlertActions } from '../ui/alert';
 import { Input } from '../ui/input';
 
 const argumentSchema = z.object({
@@ -33,7 +33,7 @@ const argumentSchema = z.object({
 });
 
 type ArgumentFormValues = z.infer<typeof argumentSchema>;
-type ComposerStep = 'INPUT' | 'LOADING' | 'REVIEW' | 'MERGE_SUGGESTION';
+type ComposerStep = 'INPUT' | 'LOADING' | 'REVIEW' | 'MERGE_SUGGESTION' | 'ERROR';
 
 interface ArgumentComposerProps {
     side: 'for' | 'against';
@@ -76,25 +76,32 @@ export function ArgumentComposer({ side, topicId, existingArguments, onSubmit, o
             setStep('REVIEW');
         }
     } else {
-        // Fallback: If AI fails, allow user to post their original text directly.
-        setAiResponse({
-            action: 'create',
-            normalizedText: values.text,
-            suggestedTitle: values.text.substring(0, 50) + '...',
-            mergeSuggestion: {},
-            confidence: 0,
-        });
-        setUseOriginal(true); // Force use of original text
-        setStep('REVIEW');
+        // AI call failed, enter error state.
+        setStep('ERROR');
     }
   }
   
   const handleFinalSubmit = () => {
-    if (!aiResponse) return;
-    const submissionData = {
-        text: useOriginal ? form.getValues('text') : aiResponse.normalizedText,
-        title: aiResponse.suggestedTitle,
-    };
+    if (!aiResponse && step !== 'ERROR') return;
+    
+    let submissionData;
+    if (step === 'ERROR' || useOriginal) {
+        // If in error state and posting original, or if user chose original
+        submissionData = {
+            text: form.getValues('text'),
+            title: form.getValues('text').substring(0, 80)
+        }
+    } else if (aiResponse) {
+        submissionData = {
+            text: aiResponse.normalizedText,
+            title: aiResponse.suggestedTitle,
+        };
+    } else {
+        // Should not happen, but as a safeguard
+        onCancel();
+        return;
+    }
+
     onSubmit(submissionData, side);
   };
   
@@ -152,6 +159,19 @@ export function ArgumentComposer({ side, topicId, existingArguments, onSubmit, o
             </CardContent>
           </>
         );
+      
+      case 'ERROR':
+        return (
+            <CardContent>
+                <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>AI Assistant Unavailable</AlertTitle>
+                    <AlertDescription>
+                        We couldn't get suggestions for your argument at this time. You can try again or post your original text without AI enhancements.
+                    </AlertDescription>
+                </Alert>
+            </CardContent>
+        )
 
       case 'INPUT':
       default:
@@ -221,6 +241,16 @@ export function ArgumentComposer({ side, topicId, existingArguments, onSubmit, o
                     </div>
                 </CardFooter>
             );
+        
+        case 'ERROR':
+            return (
+                <CardFooter className="justify-end gap-2">
+                    <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
+                    <Button type="button" variant="secondary" onClick={() => handleInitialSubmit(form.getValues())}>Try Again</Button>
+                    <Button type="button" variant="destructive" onClick={handleFinalSubmit}>Post Original Anyway</Button>
+                </CardFooter>
+            );
+
         case 'INPUT':
         default:
             return (
