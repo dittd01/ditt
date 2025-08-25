@@ -83,17 +83,33 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
     
     // Handler to prefetch adjacent slides for performance
     const handlePrefetch = () => {
+        if (!api) return;
         const currentIndex = api.selectedScrollSnap();
-        const prevIndex = api.scrollSnapList()[currentIndex - 1] !== undefined ? currentIndex - 1 : null;
-        const nextIndex = api.scrollSnapList()[currentIndex + 1] !== undefined ? currentIndex + 1 : null;
-
-        if (prevIndex !== null) {
-            const prevTopic = topics[prevIndex];
-            if (prevTopic) router.prefetch(`/t/${prevTopic.slug}`);
+        
+        // Prefetch next 10 topics
+        for (let i = 1; i <= 10; i++) {
+            const nextIndex = currentIndex + i;
+            if (nextIndex < topics.length) {
+                const nextTopic = topics[nextIndex];
+                if (nextTopic) {
+                    router.prefetch(`/t/${nextTopic.slug}`);
+                }
+            } else {
+                break; // Stop if we've reached the end of the array
+            }
         }
-        if (nextIndex !== null) {
-            const nextTopic = topics[nextIndex];
-            if (nextTopic) router.prefetch(`/t/${nextTopic.slug}`);
+
+        // Prefetch previous 2 topics for good measure
+        for (let i = 1; i <= 2; i++) {
+            const prevIndex = currentIndex - i;
+            if (prevIndex >= 0) {
+                const prevTopic = topics[prevIndex];
+                if (prevTopic) {
+                    router.prefetch(`/t/${prevTopic.slug}`);
+                }
+            } else {
+                break; // Stop if we've reached the beginning
+            }
         }
     }
 
@@ -260,7 +276,6 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
 
 // This remains a Server Component. It fetches the data and passes it to the client component.
 export default function TopicPageWrapper({ params }: { params: { slug: string }}) {
-    // The `use` hook is the correct way to resolve the params promise in a Server Component.
     const resolvedParams = use(Promise.resolve(params));
     return (
         <Suspense fallback={<div>Loading...</div>}>
