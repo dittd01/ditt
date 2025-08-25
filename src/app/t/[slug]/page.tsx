@@ -1,8 +1,7 @@
 
-
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, use } from 'react';
 import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { getTopicBySlug, getArgumentsForTopic, allTopics } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -29,7 +28,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel"
-import React, { use } from 'react';
+import React from 'react';
 
 function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: string }) {
   const router = useRouter();
@@ -222,10 +221,11 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
 
 
 export default function TopicPageWrapper({ params }: { params: { slug: string }}) {
-    const resolvedParams = use(Promise.resolve(params));
+    // This is now a Server Component. It can safely await or use() promises.
+    // We pass the resolved slug string as a prop to the Client Component.
     return (
         <Suspense fallback={<div>Loading...</div>}>
-           <TopicCarousel topics={allTopics} initialSlug={resolvedParams.slug} />
+           <TopicCarousel topics={allTopics} initialSlug={params.slug} />
         </Suspense>
     )
 }
