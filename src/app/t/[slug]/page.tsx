@@ -157,7 +157,7 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
                 <div className="container mx-auto max-w-4xl px-4 py-4 md:py-8">
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-8">
-                      <Card className="bg-primary text-primary-foreground">
+                      <Card className="bg-blue-950 text-primary-foreground">
                         <CardHeader className="p-4 md:p-6">
                           <h1 className="text-2xl md:text-3xl font-bold font-headline">{question}</h1>
                           {topic.background_md && (
@@ -255,9 +255,8 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
 
                       <Separator className="my-12" />
 
-                      <div className="max-w-3xl mx-auto w-full">
-                          <SuggestionForm />
-                      </div>
+                      <SuggestionForm />
+
                     </div>
                     <aside className="lg:col-span-1 space-y-8 lg:sticky lg:top-20 self-start">
                       <RelatedTopics topicId={topic.id} subcategoryId={topic.subcategoryId} />
