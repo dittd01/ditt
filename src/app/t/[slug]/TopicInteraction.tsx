@@ -240,29 +240,27 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                     <CardContent className="flex flex-col items-center justify-center gap-3">
                         <div className="flex w-full items-center justify-center gap-2">
                             <Button
-                              variant="outline"
-                              size="sm"
+                              variant={votedOn === 'yes' ? 'default' : 'outline'}
+                              size="lg"
                               className={cn(
-                                'h-9 flex-1 group',
-                                'text-primary border-primary/20 hover:bg-primary/10',
-                                votedOn === 'yes' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''
+                                'h-14 text-xl flex-1 group',
+                                votedOn !== 'yes' && 'text-primary border-primary/20 hover:bg-primary/10',
                               )}
                               onClick={() => handleVote('yes')}
                             >
-                                <ThumbsUp className={cn('h-4 w-4', votedOn === 'yes' ? 'text-primary-foreground' : 'text-primary')} />
+                                <ThumbsUp className="h-6 w-6" />
                                 <span className="ml-2">{t.yes}</span>
                             </Button>
                             <Button
-                              variant="outline"
-                              size="sm"
+                              variant={votedOn === 'no' ? 'destructive' : 'outline'}
+                              size="lg"
                               className={cn(
-                                'h-9 flex-1 group',
-                                'text-destructive border-destructive/20 hover:bg-destructive/10',
-                                votedOn === 'no' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''
+                                'h-14 text-xl flex-1 group',
+                                 votedOn !== 'no' && 'text-destructive border-destructive/20 hover:bg-destructive/10'
                               )}
                               onClick={() => handleVote('no')}
                             >
-                                 <ThumbsDown className={cn('h-4 w-4', votedOn === 'no' ? 'text-destructive-foreground' : 'text-destructive')} />
+                                 <ThumbsDown className="h-6 w-6" />
                                  <span className="ml-2">{t.no}</span>
                             </Button>
                         </div>
@@ -274,11 +272,11 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                     </CardContent>
                     <CardFooter className="flex-col gap-4 border-t pt-6">
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           onClick={() => handleVote('abstain')}
                           className={cn(
-                            'hover:bg-[#888] hover:text-white',
-                            votedOn === 'abstain' && 'bg-[#888] text-white'
+                            'text-muted-foreground hover:bg-muted/80',
+                            votedOn === 'abstain' && 'bg-muted text-foreground'
                           )}
                         >
                           {t.abstain}

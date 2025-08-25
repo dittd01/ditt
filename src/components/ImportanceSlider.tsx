@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -116,7 +117,7 @@ export function ImportanceSlider({ topicId }: ImportanceSliderProps) {
               <Flame
                 key={index}
                 className={cn(
-                  'h-7 w-7 sm:h-8 sm:w-8 cursor-pointer transition-colors duration-150',
+                  'h-8 w-8 sm:h-10 sm:w-10 cursor-pointer transition-transform duration-150 hover:scale-110',
                   isFilled
                     ? 'text-destructive fill-current' // Why: Red color for filled state (hover or saved).
                     : 'text-muted-foreground/30'     // Why: A muted, unfilled state.
