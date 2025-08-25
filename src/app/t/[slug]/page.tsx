@@ -29,8 +29,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel"
-import React from 'react';
-import { use } from 'react';
+import React, { use } from 'react';
 
 function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: string }) {
   const router = useRouter();
@@ -215,17 +214,18 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
             );
         })}
       </CarouselContent>
-      <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2 z-10" />
-      <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 z-10" />
+      <CarouselPrevious />
+      <CarouselNext />
     </Carousel>
   );
 }
 
 
 export default function TopicPageWrapper({ params }: { params: { slug: string }}) {
+    const resolvedParams = use(Promise.resolve(params));
     return (
         <Suspense fallback={<div>Loading...</div>}>
-           <TopicCarousel topics={allTopics} initialSlug={params.slug} />
+           <TopicCarousel topics={allTopics} initialSlug={resolvedParams.slug} />
         </Suspense>
     )
 }
