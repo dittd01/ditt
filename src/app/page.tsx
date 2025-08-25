@@ -23,7 +23,7 @@ function HomePageContent() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [votedTopicIds, setVotedTopicIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
-  const [timeframe, setTimeframe] = useState<TimeFrame>('All');
+  const [timeframe, setTimeframe] = useState<TimeFrame>('W');
   const [sortBy, setSortBy] = useState<SortByType>('votes');
   const [lang, setLang] = useState('en');
   
