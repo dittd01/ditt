@@ -157,16 +157,16 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
                 <div className="container mx-auto max-w-4xl px-4 py-4 md:py-8">
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-8">
-                      <Card className="bg-[hsl(222,47%,11%)] text-white">
+                      <Card className="bg-primary text-primary-foreground">
                         <CardHeader className="p-4 md:p-6">
                           <h1 className="text-2xl md:text-3xl font-bold font-headline">{question}</h1>
                           {topic.background_md && (
-                            <CardDescription className="pt-2 text-base text-white/80">
+                            <CardDescription className="pt-2 text-base text-primary-foreground/80">
                                 {topic.background_md}
                             </CardDescription>
                           )}
                         </CardHeader>
-                        <CardFooter className="p-4 md:p-6 border-t border-white/20">
+                        <CardFooter className="p-4 md:p-6 border-t border-primary-foreground/20">
                           <TopicFooter topic={topic} />
                         </CardFooter>
                       </Card>
@@ -177,7 +177,7 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
                               {topic.pros && topic.pros.length > 0 ? (
                                   topic.pros.map((pro, index) => (
                                       <Card key={index} className="bg-primary/5 border-primary/20">
-                                          <CardContent className="p-4 flex items-start gap-4">
+                                          <CardContent className="p-3 flex items-start gap-4">
                                               <ThumbsUp className="h-5 w-5 text-primary mt-1 shrink-0" />
                                               <p className="text-primary/90">{pro}</p>
                                           </CardContent>
@@ -194,7 +194,7 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
                               {topic.cons && topic.cons.length > 0 ? (
                                   topic.cons.map((con, index) => (
                                       <Card key={index} className="bg-destructive/5 border-destructive/20">
-                                          <CardContent className="p-4 flex items-start gap-4">
+                                          <CardContent className="p-3 flex items-start gap-4">
                                               <ThumbsDown className="h-5 w-5 text-destructive mt-1 shrink-0" />
                                               <p className="text-destructive/90">{con}</p>
                                           </CardContent>
