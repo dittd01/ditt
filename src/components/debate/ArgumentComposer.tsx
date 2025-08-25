@@ -39,7 +39,7 @@ interface ArgumentComposerProps {
     side: 'for' | 'against';
     topicId: string;
     existingArguments: Pick<Argument, 'id' | 'text'>[];
-    onSubmit: (values: { text: string, title: string }, side: 'for' | 'against') => void;
+    onSubmit: (values: { text: string }, side: 'for' | 'against') => void;
     onCancel: () => void;
     onMerge: (similarArgumentId: string) => void;
 }
@@ -88,12 +88,10 @@ export function ArgumentComposer({ side, topicId, existingArguments, onSubmit, o
         // If in error state and posting original, or if user chose original
         submissionData = {
             text: form.getValues('text'),
-            title: form.getValues('text').substring(0, 80)
         }
     } else if (aiResponse) {
         submissionData = {
             text: aiResponse.normalizedText,
-            title: aiResponse.suggestedTitle,
         };
     } else {
         onCancel();
@@ -143,13 +141,9 @@ export function ArgumentComposer({ side, topicId, existingArguments, onSubmit, o
           <>
             <CardHeader>
                 <CardTitle>Review AI Suggestions</CardTitle>
-                <CardDescription>We've suggested a clearer title and text. You can accept the changes or use your original.</CardDescription>
+                <CardDescription>We've suggested a clearer version of your text. You can accept the changes or use your original.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                <div className="space-y-2">
-                    <FormLabel>Suggested Title</FormLabel>
-                    <Input readOnly value={aiResponse?.suggestedTitle} className="font-semibold bg-muted/50" />
-                </div>
                 <div className="space-y-2">
                     <FormLabel>Suggested Text</FormLabel>
                     <Textarea readOnly value={aiResponse?.normalizedText} className="resize-none bg-muted/50" />

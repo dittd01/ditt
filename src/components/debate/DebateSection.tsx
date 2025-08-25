@@ -110,7 +110,7 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
     setReplyingToId(null);
   }
 
-  const handleSubmit = (values: { text: string; title: string }, side: 'for' | 'against') => {
+  const handleSubmit = (values: { text: string }, side: 'for' | 'against') => {
     const isTopLevel = !replyingToId;
     const parentId = isTopLevel ? 'root' : replyingToId;
     
@@ -124,7 +124,6 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
       side: finalSide,
       author: { name: currentUser.displayName, avatarUrl: currentUser.photoUrl },
       text: values.text,
-      title: values.title, // Store the AI-generated title
       upvotes: 1,
       downvotes: 0,
       replyCount: 0,

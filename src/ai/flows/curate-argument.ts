@@ -4,7 +4,7 @@
 /**
  * @fileOverview An AI agent for curating debate arguments.
  * This flow processes a user-submitted argument, checks for semantic duplicates
- * against existing arguments, normalizes the text for clarity, and suggests a title.
+ * against existing arguments, and normalizes the text for clarity.
  * The goal is to improve debate quality and prevent redundant posts.
  *
  * - curateArgument - The main function to process a new argument.
@@ -30,7 +30,6 @@ export type CurateArgumentInput = z.infer<typeof CurateArgumentInputSchema>;
 const CurateArgumentOutputSchema = z.object({
   action: z.enum(['create', 'merge']).describe('The recommended action. "create" for a new argument, "merge" if a duplicate is found.'),
   normalizedText: z.string().describe('A refined, clearer, and more neutral version of the user\'s argument.'),
-  suggestedTitle: z.string().max(80).describe('A concise, AI-generated title that summarizes the core of the argument.'),
   mergeSuggestion: z.object({
     similarArgumentId: z.string().optional().describe('The ID of the most similar existing argument if action is "merge".'),
     similarityScore: z.number().optional().describe('The cosine similarity score (0.0 to 1.0) with the most similar argument.'),
@@ -75,11 +74,7 @@ const prompt = ai.definePrompt({
         -   Remove any inflammatory language, rhetorical questions, or personal attacks, but preserve the core logical point.
         -   Store this improved version in the 'normalizedText' field.
 
-    3.  **Generate a Title**:
-        -   Based on the normalized text, create a short, descriptive title (max 80 characters) that accurately summarizes the argument's main point.
-        -   Store this in the 'suggestedTitle' field.
-
-    4.  **Populate Output**:
+    3.  **Populate Output**:
         -   If the action is "merge", you MUST provide the 'similarArgumentId' and 'similarityScore' in the 'mergeSuggestion' object.
         -   If the action is "create", the 'mergeSuggestion' object should be empty.
         -   Provide a 'confidence' score from 0.0 to 1.0 based on how certain you are about your analysis and generated content.
@@ -103,11 +98,10 @@ const curateArgumentFlow = ai.defineFlow(
         const createNewPrompt = ai.definePrompt({
             name: 'curateFirstArgumentPrompt',
             input: { schema: z.object({ userText: z.string() }) },
-            output: { schema: z.object({ normalizedText: z.string(), suggestedTitle: z.string() }) },
+            output: { schema: z.object({ normalizedText: z.string() }) },
             prompt: `A user has submitted the first argument in a debate: "{{userText}}".
             
             1. Rewrite the argument to be as clear, concise, and neutral as possible. Correct any spelling or grammar errors. This is 'normalizedText'.
-            2. Create a short, descriptive title (max 80 characters) that summarizes the argument. This is 'suggestedTitle'.
             
             Return ONLY a single, valid JSON object.`
         });
@@ -118,7 +112,6 @@ const curateArgumentFlow = ai.defineFlow(
         return {
             action: 'create',
             normalizedText: output.normalizedText,
-            suggestedTitle: output.suggestedTitle,
             mergeSuggestion: {},
             confidence: 0.95,
         };
@@ -126,7 +119,7 @@ const curateArgumentFlow = ai.defineFlow(
 
     // Why: Pre-processing complex data into a simple string (JSON) is the correct
     // pattern for Handlebars-style templating. This avoids errors from trying to
-    // call functions like `jsonStringify` inside the template itself.
+    // call functions like `JSON.stringify` inside the template itself.
     const existingArgumentsJson = JSON.stringify(input.existingArguments);
 
     // Why: If there are existing arguments, we proceed with the full curation and deduplication prompt.
