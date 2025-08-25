@@ -76,7 +76,8 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
       const newTopic = topics[newIndex];
       if (newTopic) {
         const newUrl = `/t/${newTopic.slug}`;
-        router.replace(newUrl);
+        router.replace(newUrl, { scroll: false });
+        window.scrollTo(0, 0); // Manually scroll to top immediately
       }
     };
     
