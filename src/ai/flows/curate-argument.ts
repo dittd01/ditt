@@ -45,12 +45,18 @@ export async function curateArgument(input: CurateArgumentInput): Promise<Curate
   return curateArgumentFlow(input);
 }
 
+// Define a schema for the data that the prompt will actually receive.
+// It includes the original input plus the pre-processed JSON string.
+const PromptInputSchema = CurateArgumentInputSchema.extend({
+    existingArgumentsJson: z.string(),
+});
+
 // Why: A dedicated prompt with a strongly-typed schema ensures the LLM's response
 // is structured and predictable, reducing the risk of runtime errors.
 // This is the core instruction set for the AI agent.
 const prompt = ai.definePrompt({
   name: 'curateArgumentPrompt',
-  input: { schema: CurateArgumentInputSchema },
+  input: { schema: PromptInputSchema }, // Use the schema with the JSON string
   output: { schema: CurateArgumentOutputSchema },
   prompt: `
     You are an expert debate moderator and editor for a sophisticated online platform. Your primary goal is to ensure the debate is clear, non-redundant, and high-quality.
@@ -59,7 +65,7 @@ const prompt = ai.definePrompt({
 
     1.  **Analyze for Duplication**:
         -   Carefully read the user's submission: "{{userText}}".
-        -   Compare it semantically against the list of existing arguments: {{{jsonStringify existingArguments}}}.
+        -   Compare it semantically against the list of existing arguments: {{{existingArgumentsJson}}}.
         -   Calculate a similarity score for the most similar existing argument.
         -   **Decision Rule**: If the similarity score is > 0.9, you MUST set the action to "merge". Otherwise, set the action to "create".
 
@@ -118,8 +124,17 @@ const curateArgumentFlow = ai.defineFlow(
         };
     }
 
+    // Why: Pre-processing complex data into a simple string (JSON) is the correct
+    // pattern for Handlebars-style templating. This avoids errors from trying to
+    // call functions like `jsonStringify` inside the template itself.
+    const existingArgumentsJson = JSON.stringify(input.existingArguments);
+
     // Why: If there are existing arguments, we proceed with the full curation and deduplication prompt.
-    const { output } = await prompt(input);
+    const { output } = await prompt({
+        ...input,
+        existingArgumentsJson,
+    });
+
     if (!output) {
       throw new Error('Failed to get a structured response from the model.');
     }
