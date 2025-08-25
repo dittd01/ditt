@@ -74,7 +74,7 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
         const newUrl = `/t/${newTopic.slug}`;
         // Use router.replace to update the URL without adding a new entry to browser history.
         // This makes the swipe/button navigation feel fluid.
-        router.replace(newUrl, { scroll: false });
+        router.replace(newUrl);
       }
     };
     
@@ -241,15 +241,8 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
   );
 }
 
-
 // This remains a Server Component. It fetches the data and passes it to the client component.
 export default function TopicPageWrapper({ params }: { params: { slug: string }}) {
-    const topic = getTopicBySlug(params.slug);
-
-    if (!topic) {
-        notFound();
-    }
-    
     return (
         <Suspense fallback={<div>Loading...</div>}>
            <TopicCarousel topics={allTopics} initialSlug={params.slug} />
