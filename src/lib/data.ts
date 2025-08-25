@@ -2,7 +2,7 @@
 import type { Topic, Category, VoteHistory, Argument } from './types';
 import { electionTopic as initialElectionTopic, parties as partyDetails } from './election-data';
 import type { LucideIcon } from 'lucide-react';
-import { subDays, subHours, subMonths, subYears, format } from 'date-fns';
+import { subDays, subHours, subMonths, subWeeks, subYears, format } from 'date-fns';
 import { currentUser } from '@/lib/user-data';
 
 function generateSlug(text: string): string {
@@ -238,8 +238,8 @@ const standardTopics: Topic[] = subCategoryData.map((sub, index): Topic => {
 const electionTopic: Topic = {
     ...initialElectionTopic,
     averageImportance: 4, // Max importance
-    votesLastWeek: initialElectionTopic.totalVotes - (initialElectionTopic.history[1].total || 0),
-    votesLastMonth: initialElectionTopic.totalVotes - (initialElectionTopic.history[0].total || 0),
+    votesLastWeek: initialElectionTopic.totalVotes - (initialElectionTopic.history.find(h => h.date === subWeeks(new Date(), 1).toISOString())?.total || 0),
+    votesLastMonth: initialElectionTopic.totalVotes - (initialElectionTopic.history.find(h => h.date === subMonths(new Date(), 1).toISOString())?.total || 0),
     votesLastYear: initialElectionTopic.totalVotes,
     author: 'System',
 }

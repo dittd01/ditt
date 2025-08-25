@@ -1,6 +1,7 @@
 
 import type { Topic, VoteHistory, VoteOption } from './types';
 import type { Party } from './types';
+import { subMonths, subWeeks } from 'date-fns';
 
 export const parties: Party[] = [
   {
@@ -169,10 +170,10 @@ const electionVotes: Record<string, number> = {
 
 const totalElectionVotes = Object.values(electionVotes).reduce((sum, v) => sum + v, 0);
 
+const now = new Date();
 const electionHistory: VoteHistory[] = [
-    { date: '1M Ago', total: Object.values(electionVotes).reduce((s, v) => s + Math.floor(v * 0.7), 0), ...Object.fromEntries(Object.entries(electionVotes).map(([k, v]) => [k, Math.floor(v * 0.7)])) },
-    { date: '1W Ago', total: Object.values(electionVotes).reduce((s, v) => s + Math.floor(v * 0.85), 0), ...Object.fromEntries(Object.entries(electionVotes).map(([k, v]) => [k, Math.floor(v * 0.85)])) },
-    { date: 'Today', total: totalElectionVotes, ...electionVotes },
+    { date: subMonths(now, 1).toISOString(), total: Object.values(electionVotes).reduce((s, v) => s + Math.floor(v * 0.7), 0), ...Object.fromEntries(Object.entries(electionVotes).map(([k, v]) => [k, Math.floor(v * 0.7)])) },
+    { date: subWeeks(now, 1).toISOString(), total: Object.values(electionVotes).reduce((s, v) => s + Math.floor(v * 0.85), 0), ...Object.fromEntries(Object.entries(electionVotes).map(([k, v]) => [k, Math.floor(v * 0.85)])) },
 ];
 
 export const electionTopic: Omit<Topic, 'votesLastWeek' | 'votesLastMonth' | 'votesLastYear' | 'averageImportance'> = {
