@@ -17,6 +17,7 @@ export function TopicFooter({ topic }: TopicFooterProps) {
   const { toast } = useToast();
   const [lang, setLang] = useState('en');
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [importance, setImportance] = useState<number | null>(null);
 
   useEffect(() => {
     const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
@@ -26,11 +27,25 @@ export function TopicFooter({ topic }: TopicFooterProps) {
       const bookmarkedTopics = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
       setIsBookmarked(bookmarkedTopics.includes(topic.id));
     };
+    
+    const checkImportance = () => {
+      const savedImportance = localStorage.getItem(`importance_for_${topic.id}`);
+      if (savedImportance) {
+          setImportance(parseInt(savedImportance, 10));
+      } else {
+          setImportance(null);
+      }
+    };
+
 
     checkBookmarkStatus();
+    checkImportance();
+
+    window.addEventListener('storage', checkImportance);
     window.addEventListener('bookmarkChange', checkBookmarkStatus);
 
     return () => {
+      window.removeEventListener('storage', checkImportance);
       window.removeEventListener('bookmarkChange', checkBookmarkStatus);
     };
   }, [topic.id]);
@@ -53,8 +68,8 @@ export function TopicFooter({ topic }: TopicFooterProps) {
     window.dispatchEvent(new Event('bookmarkChange'));
   };
 
-  const importanceLevel = Math.round(topic.averageImportance);
-  const importanceTooltipText = lang === 'nb' ? 'Gjennomsnittlig viktighet' : 'Average Importance';
+  const importanceLevel = importance !== null ? importance + 1 : Math.round(topic.averageImportance);
+  const importanceTooltipText = importance !== null ? `You rated this ${importance + 1}/10` : (lang === 'nb' ? 'Gjennomsnittlig viktighet' : 'Average Importance');
   const votersTooltipText = lang === 'nb' ? 'Antall som har stemt' : 'Number of voters';
   const bookmarkTooltipText = lang === 'nb' ? 'Bokmerk' : 'Bookmark';
 
@@ -70,7 +85,8 @@ export function TopicFooter({ topic }: TopicFooterProps) {
                     key={i}
                     className={cn(
                       'h-5 w-5',
-                      i < importanceLevel ? 'text-[hsl(var(--chart-1))] fill-current' : 'text-muted-foreground/30'
+                      // To represent a 10-point scale on 5 flames, each flame represents 2 points.
+                      (i * 2) < importanceLevel ? 'text-destructive fill-current' : 'text-muted-foreground/30'
                     )}
                   />
                 ))}

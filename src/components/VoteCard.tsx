@@ -49,23 +49,35 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
   const cardRef = useRef<HTMLDivElement>(null);
   const [lang, setLang] = useState('en');
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [importance, setImportance] = useState<number | null>(null);
 
   const category = getCategory(topic.categoryId);
   const subcategory = getSubcategory(category, topic.subcategoryId);
 
    useEffect(() => {
-    const bookmarkedTopics = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
-    setIsBookmarked(bookmarkedTopics.includes(topic.id));
+    const checkStates = () => {
+        const bookmarkedTopics = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
+        setIsBookmarked(bookmarkedTopics.includes(topic.id));
 
-    const currentVote = localStorage.getItem(`voted_on_${topic.id}`);
-    setVotedOn(currentVote);
+        const currentVote = localStorage.getItem(`voted_on_${topic.id}`);
+        setVotedOn(currentVote);
+        
+        const savedImportance = localStorage.getItem(`importance_for_${topic.id}`);
+        if (savedImportance) {
+            setImportance(parseInt(savedImportance, 10));
+        } else {
+            setImportance(null);
+        }
+    };
+    
+    checkStates();
 
     const handleStorageChange = (event: StorageEvent) => {
         if (event.key === 'selectedLanguage') {
             setLang(event.newValue || 'en');
         }
-        if (event.key === `voted_on_${topic.id}`) {
-             setVotedOn(event.newValue);
+        if (event.key === `voted_on_${topic.id}` || event.key === `importance_for_${topic.id}` || event.key === 'bookmarked_topics') {
+            checkStates();
         }
         if (event.key === `votes_for_${topic.id}_yes` || event.key === `votes_for_${topic.id}_no`) {
             setTopic(prevTopic => {
@@ -98,16 +110,14 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
     }
     
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('bookmarkChange', () => {
-        const bookmarkedTopics = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
-        setIsBookmarked(bookmarkedTopics.includes(topic.id));
-    });
+    window.addEventListener('bookmarkChange', checkStates);
 
     return () => {
       if(cardRef.current) {
         observer.disconnect();
       }
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('bookmarkChange', checkStates);
     };
   }, [topic.id, topic.categoryId]);
 
@@ -210,9 +220,10 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
   const subcategoryLabel = lang === 'nb' ? subcategory?.label_nb : subcategory?.label;
   const question = lang === 'nb' ? topic.question : topic.question_en;
   const tooltipText = lang === 'nb' ? 'Antall som har stemt' : 'Number of voters';
-  const importanceTooltipText = lang === 'nb' ? 'Gjennomsnittlig viktighet' : 'Average Importance';
+  
+  const importanceLevel = importance !== null ? importance + 1 : Math.round(topic.averageImportance * 2);
+  const importanceTooltipText = importance !== null ? `You rated this ${importance + 1}/10` : (lang === 'nb' ? 'Gjennomsnittlig viktighet' : 'Average Importance');
 
-  const importanceLevel = Math.round(topic.averageImportance);
 
   return (
     <Card ref={cardRef} className="flex h-full flex-col transition-all hover:shadow-lg hover:-translate-y-1">
@@ -257,13 +268,12 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                   size="sm"
                   className={cn(
                     'h-9 flex-1 group',
-                    votedOn === 'yes' && 'bg-primary text-primary-foreground hover:bg-primary/90',
-                    votedOn && votedOn !== 'yes' && 'opacity-60 pointer-events-none'
+                    'text-primary border-primary/20 hover:bg-primary/10',
+                    votedOn === 'yes' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''
                   )}
                   onClick={() => handleVote('yes')}
-                  disabled={votedOn === 'no'}
                 >
-                    <ThumbsUp className={cn('h-4 w-4 text-primary group-hover:text-primary-foreground', votedOn === 'yes' && 'text-primary-foreground')} />
+                    <ThumbsUp className={cn('h-4 w-4 text-primary', votedOn === 'yes' ? 'text-primary-foreground' : 'group-hover:text-primary')} />
                     <span className="ml-2">{yesText}</span>
                 </Button>
                 <Button
@@ -271,14 +281,12 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                   size="sm"
                   className={cn(
                     'h-9 flex-1 group',
-                    'text-destructive border-destructive/20 hover:bg-destructive/90 hover:text-destructive-foreground',
-                    votedOn === 'no' && 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-                    votedOn && votedOn !== 'no' && 'opacity-60 pointer-events-none'
+                    'text-destructive border-destructive/20 hover:bg-destructive/10',
+                    votedOn === 'no' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''
                   )}
                   onClick={() => handleVote('no')}
-                  disabled={votedOn === 'yes'}
                 >
-                     <ThumbsDown className={cn('h-4 w-4 text-destructive', 'group-hover:text-destructive-foreground', votedOn === 'no' && 'text-destructive-foreground')} />
+                     <ThumbsDown className={cn('h-4 w-4 text-destructive', votedOn === 'no' && 'text-destructive-foreground')} />
                      <span className="ml-2">{noText}</span>
                 </Button>
             </div>
@@ -299,8 +307,8 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                                             key={i}
                                             className={cn(
                                             'h-4 w-4',
-                                            i < importanceLevel
-                                                ? 'text-[hsl(var(--chart-1))] fill-current'
+                                            (i * 2) < importanceLevel
+                                                ? 'text-destructive fill-current'
                                                 : 'text-muted-foreground/30'
                                             )}
                                         />
@@ -358,7 +366,3 @@ VoteCard.Skeleton = function VoteCardSkeleton() {
         </Card>
     )
 }
-
-    
-
-    
