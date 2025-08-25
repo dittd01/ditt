@@ -30,30 +30,50 @@ import {
 } from "@/components/ui/carousel"
 import React from 'react';
 
+/**
+ * @fileoverview This component orchestrates the topic carousel functionality.
+ *
+ * @description
+ * The `TopicCarousel` is a client component responsible for displaying topics in a swipeable/clickable
+ * carousel. It manages the two-way synchronization between the carousel's visible slide and the
+ * browser's URL.
+ *
+ * Key Responsibilities:
+ * 1.  **State Management**: It uses `useState` to manage the carousel's API instance (`api`).
+ * 2.  **URL-to-Carousel Sync**: A `useEffect` hook watches for changes in the `pathname` (from the browser's
+ *     back/forward buttons). When a change is detected, it finds the corresponding topic index and
+ *     programmatically scrolls the carousel to that slide.
+ * 3.  **Carousel-to-URL Sync**: It registers a `onSelect` event handler with the carousel instance.
+ *     This event fires *after* a slide transition (from swipe or button click) completes. The handler
+ *     then updates the browser's URL using `router.replace()` to match the new topic's slug. This
+ *     method is used to avoid polluting the browser's history with every swipe.
+ *
+ * This robust, two-way binding ensures a seamless user experience where the URL is always the
+ * single source of truth for the currently viewed topic.
+ */
 function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
 
-  const initialIndex = topics.findIndex(t => t.slug === initialSlug);
+  const initialIndex = React.useMemo(() => topics.findIndex(t => t.slug === initialSlug), [topics, initialSlug]);
 
   useEffect(() => {
     if (!api) return;
 
-    // Set initial slide without animation
+    // Set the initial slide without animation, then enable transitions.
     if (initialIndex !== -1) {
       api.scrollTo(initialIndex, true);
-      setCurrent(initialIndex);
     }
     
+    // This handler synchronizes the carousel's state TO the URL.
     const handleSelect = () => {
       const newIndex = api.selectedScrollSnap();
-      setCurrent(newIndex);
       const newTopic = topics[newIndex];
       if (newTopic) {
         const newUrl = `/t/${newTopic.slug}`;
-        // Use router.replace to avoid adding to history for each swipe
+        // Use router.replace to update the URL without adding a new entry to browser history.
+        // This makes the swipe/button navigation feel fluid.
         router.replace(newUrl, { scroll: false });
       }
     };
@@ -63,16 +83,18 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
     return () => {
       api.off("select", handleSelect);
     };
-
   }, [api, topics, router, initialIndex]);
   
+  // This effect synchronizes the URL TO the carousel's state.
   useEffect(() => {
+      if (!api) return;
       const currentTopicIndex = topics.findIndex(t => pathname.includes(t.slug));
-      if(api && currentTopicIndex !== -1 && currentTopicIndex !== current) {
+      // If the URL has changed to a different topic than the one the carousel is currently on,
+      // command the carousel to scroll to the correct slide.
+      if (currentTopicIndex !== -1 && currentTopicIndex !== api.selectedScrollSnap()) {
           api.scrollTo(currentTopicIndex);
       }
-  }, [pathname, api, topics, current])
-
+  }, [pathname, api, topics]);
 
   return (
     <Carousel setApi={setApi} className="w-full">
@@ -220,6 +242,7 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
 }
 
 
+// This remains a Server Component. It fetches the data and passes it to the client component.
 export default function TopicPageWrapper({ params }: { params: { slug: string }}) {
     const topic = getTopicBySlug(params.slug);
 
@@ -227,7 +250,6 @@ export default function TopicPageWrapper({ params }: { params: { slug: string }}
         notFound();
     }
     
-    // This is a server component, so we can do this.
     return (
         <Suspense fallback={<div>Loading...</div>}>
            <TopicCarousel topics={allTopics} initialSlug={params.slug} />
