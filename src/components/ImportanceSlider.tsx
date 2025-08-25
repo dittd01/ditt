@@ -100,31 +100,37 @@ export function ImportanceSlider({ topicId }: ImportanceSliderProps) {
         <CardTitle>How important is this issue to you?</CardTitle>
         <CardDescription>{cardDescription}</CardDescription>
       </CardHeader>
-      <CardContent
-        className="flex justify-center items-center gap-1 sm:gap-2 py-4"
-        onMouseLeave={handleMouseLeave}
-      >
-        {/*
-          Why: We create an array of a fixed length to map over. This is a clean,
-          declarative way to render a specific number of identical elements (the flames)
-          without needing a traditional for-loop.
-        */}
-        {Array.from({ length: TOTAL_FLAMES }).map((_, index) => {
-          const isFilled = ratingToDisplay !== null && index <= ratingToDisplay;
-          return (
-            <Flame
-              key={index}
-              className={cn(
-                'h-7 w-7 sm:h-8 sm:w-8 cursor-pointer transition-colors duration-150',
-                isFilled
-                  ? 'text-destructive fill-current' // Why: Red color for filled state (hover or saved).
-                  : 'text-muted-foreground/30'     // Why: A muted, unfilled state.
-              )}
-              onMouseEnter={() => setHoverRating(index)}
-              onClick={() => handleRatingClick(index)}
-            />
-          );
-        })}
+      <CardContent>
+        <div
+          className="flex justify-center items-center gap-1 sm:gap-2 py-4"
+          onMouseLeave={handleMouseLeave}
+        >
+          {/*
+            Why: We create an array of a fixed length to map over. This is a clean,
+            declarative way to render a specific number of identical elements (the flames)
+            without needing a traditional for-loop.
+          */}
+          {Array.from({ length: TOTAL_FLAMES }).map((_, index) => {
+            const isFilled = ratingToDisplay !== null && index <= ratingToDisplay;
+            return (
+              <Flame
+                key={index}
+                className={cn(
+                  'h-7 w-7 sm:h-8 sm:w-8 cursor-pointer transition-colors duration-150',
+                  isFilled
+                    ? 'text-destructive fill-current' // Why: Red color for filled state (hover or saved).
+                    : 'text-muted-foreground/30'     // Why: A muted, unfilled state.
+                )}
+                onMouseEnter={() => setHoverRating(index)}
+                onClick={() => handleRatingClick(index)}
+              />
+            );
+          })}
+        </div>
+        <div className="flex justify-between text-xs text-muted-foreground px-2">
+            <span>Not important</span>
+            <span>Critically important</span>
+        </div>
       </CardContent>
     </Card>
   );
