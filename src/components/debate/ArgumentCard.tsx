@@ -6,8 +6,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { ArrowBigDown, ArrowBigUp, MessageSquare, Flag } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import Image from 'next/image';
+import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ArgumentCardProps {
   argument: Argument;
@@ -34,9 +35,18 @@ export function ArgumentCard({ argument, onCounter }: ArgumentCardProps) {
           <div className="flex items-center gap-2 text-sm">
             <span className="font-semibold text-card-foreground">{argument.author.name}</span>
             <span className="text-muted-foreground">·</span>
-            <span className="text-muted-foreground" title={createdAt.toLocaleString()}>
-              {formatDistanceToNow(createdAt, { addSuffix: true })}
-            </span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <span className="text-muted-foreground hover:underline" title={createdAt.toLocaleString()}>
+                    {formatDistanceToNow(createdAt, { addSuffix: true })}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{format(createdAt, "PPP p")}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       </CardHeader>
