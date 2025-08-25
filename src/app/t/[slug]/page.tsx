@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense, use, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { getTopicBySlug, getArgumentsForTopic, allTopics } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -29,6 +29,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel"
 import React from 'react';
+import { use } from 'react';
 
 function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: string }) {
   const router = useRouter();
@@ -221,7 +222,7 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
 
 
 export default function TopicPageWrapper({ params }: { params: { slug: string }}) {
-  const resolvedParams = use(Promise.resolve(params));
+  const resolvedParams = use(params);
   return (
       <Suspense fallback={<div>Loading...</div>}>
          <TopicCarousel topics={allTopics} initialSlug={resolvedParams.slug} />
