@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { Argument } from '@/lib/types';
 import { ArgumentCard } from './ArgumentCard';
 import { Button } from '../ui/button';
@@ -10,6 +10,8 @@ import { Skeleton } from '../ui/skeleton';
 import { ArgumentComposer } from './ArgumentComposer';
 import { currentUser } from '@/lib/user-data';
 import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 
 interface DebateSectionProps {
   topicId: string;
@@ -28,6 +30,8 @@ const translations = {
         argumentAddedDesc: 'Your argument has been added to the debate.',
         argumentUpvoted: 'Argument Upvoted',
         argumentUpvotedDesc: 'Thanks for keeping the debate focused!',
+        mostVoted: 'Most Voted',
+        newest: 'Newest',
     },
     nb: {
         arguments: 'Argumenter',
@@ -39,8 +43,12 @@ const translations = {
         argumentAddedDesc: 'Ditt argument har blitt lagt til i debatten.',
         argumentUpvoted: 'Argument stemt opp',
         argumentUpvotedDesc: 'Takk for at du holder debatten fokusert!',
+        mostVoted: 'Mest Stemt',
+        newest: 'Nyeste',
     }
 }
+
+type SortByType = 'votes' | 'newest';
 
 // Skeleton component for loading state
 DebateSection.Skeleton = function DebateSectionSkeleton() {
@@ -65,6 +73,7 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
   const [loading, setLoading] = useState(true);
   const [showComposer, setShowComposer] = useState<'for' | 'against' | null>(null);
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<SortByType>('votes');
   const { toast } = useToast();
 
   const t = translations[lang];
@@ -91,9 +100,25 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
         localStorage.setItem(`debate_args_${topicId}`, JSON.stringify(debateArgs));
     }
   }, [debateArgs, topicId, loading]);
+  
+  const sortArguments = (a: Argument, b: Argument) => {
+    if (sortBy === 'newest') {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    }
+    // Default to sorting by votes
+    return (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes);
+  }
 
-  const topLevelFor = debateArgs.filter(a => a.parentId === 'root' && a.side === 'for').sort((a,b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
-  const topLevelAgainst = debateArgs.filter(a => a.parentId === 'root' && a.side === 'against').sort((a,b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
+  const topLevelFor = useMemo(() => 
+    debateArgs.filter(a => a.parentId === 'root' && a.side === 'for').sort(sortArguments),
+    [debateArgs, sortBy]
+  );
+  
+  const topLevelAgainst = useMemo(() =>
+    debateArgs.filter(a => a.parentId === 'root' && a.side === 'against').sort(sortArguments),
+    [debateArgs, sortBy]
+  );
+
 
   const handleAddArgument = (side: 'for' | 'against') => {
     setReplyingToId(null);
@@ -190,6 +215,15 @@ export function DebateSection({ topicId, initialArgs, lang }: DebateSectionProps
 
   return (
     <div>
+        <div className="flex justify-end mb-6">
+            <Tabs value={sortBy} onValueChange={(value) => setSortBy(value as SortByType)} className="w-full sm:w-auto">
+                <TabsList>
+                    <TabsTrigger value="votes">{t.mostVoted}</TabsTrigger>
+                    <TabsTrigger value="newest">{t.newest}</TabsTrigger>
+                </TabsList>
+            </Tabs>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             {/* Arguments For Column */}
             <div className="space-y-4">
