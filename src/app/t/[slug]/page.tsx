@@ -47,9 +47,8 @@ import React from 'react';
  *     This event fires *after* a slide transition (from swipe or button click) completes. The handler
  *     then updates the browser's URL using `router.replace()` to match the new topic's slug. This
  *     method is used to avoid polluting the browser's history with every swipe.
- *
- * This robust, two-way binding ensures a seamless user experience where the URL is always the
- * single source of truth for the currently viewed topic.
+ * 4.  **Performance Optimization**: To make navigation feel instant, it uses another `useEffect` to
+ *     proactively pre-fetch the next and previous topics in the carousel using `router.prefetch()`.
  */
 function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: string }) {
   const router = useRouter();
@@ -58,46 +57,63 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
 
   const initialIndex = React.useMemo(() => topics.findIndex(t => t.slug === initialSlug), [topics, initialSlug]);
 
+  // Effect to synchronize URL to carousel state (e.g., on back/forward)
+  useEffect(() => {
+    if (!api) return;
+    const currentTopicIndex = topics.findIndex(t => pathname.includes(t.slug));
+    if (currentTopicIndex !== -1 && currentTopicIndex !== api.selectedScrollSnap()) {
+        api.scrollTo(currentTopicIndex);
+    }
+  }, [pathname, api, topics]);
+  
+  // Effect to synchronize carousel state to URL and handle pre-fetching
   useEffect(() => {
     if (!api) return;
 
-    // Set the initial slide without animation, then enable transitions.
-    if (initialIndex !== -1) {
-      api.scrollTo(initialIndex, true);
-    }
-    
-    // This handler synchronizes the carousel's state TO the URL.
+    // Handler to update URL when slide changes
     const handleSelect = () => {
       const newIndex = api.selectedScrollSnap();
       const newTopic = topics[newIndex];
       if (newTopic) {
         const newUrl = `/t/${newTopic.slug}`;
-        // Use router.replace to update the URL without adding a new entry to browser history.
-        // This makes the swipe/button navigation feel fluid.
         router.replace(newUrl);
       }
     };
     
+    // Handler to prefetch adjacent slides for performance
+    const handlePrefetch = () => {
+        const currentIndex = api.selectedScrollSnap();
+        const prevIndex = api.scrollSnapList()[currentIndex - 1] !== undefined ? currentIndex - 1 : null;
+        const nextIndex = api.scrollSnapList()[currentIndex + 1] !== undefined ? currentIndex + 1 : null;
+
+        if (prevIndex !== null) {
+            const prevTopic = topics[prevIndex];
+            if (prevTopic) router.prefetch(`/t/${prevTopic.slug}`);
+        }
+        if (nextIndex !== null) {
+            const nextTopic = topics[nextIndex];
+            if (nextTopic) router.prefetch(`/t/${nextTopic.slug}`);
+        }
+    }
+
     api.on("select", handleSelect);
+    api.on("select", handlePrefetch); // Also prefetch on select
+    
+    // Initial prefetch for the first loaded topic
+    handlePrefetch();
 
     return () => {
       api.off("select", handleSelect);
+      api.off("select", handlePrefetch);
     };
-  }, [api, topics, router, initialIndex]);
-  
-  // This effect synchronizes the URL TO the carousel's state.
-  useEffect(() => {
-      if (!api) return;
-      const currentTopicIndex = topics.findIndex(t => pathname.includes(t.slug));
-      // If the URL has changed to a different topic than the one the carousel is currently on,
-      // command the carousel to scroll to the correct slide.
-      if (currentTopicIndex !== -1 && currentTopicIndex !== api.selectedScrollSnap()) {
-          api.scrollTo(currentTopicIndex);
-      }
-  }, [pathname, api, topics]);
+  }, [api, topics, router]);
+
 
   return (
-    <Carousel setApi={setApi} className="w-full">
+    <Carousel setApi={setApi} className="w-full" opts={{
+        startIndex: initialIndex,
+        duration: 20, // Faster transition animation
+    }}>
       <CarouselContent>
         {topics.map((topic) => {
             if (!topic) return null;
@@ -243,9 +259,11 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
 
 // This remains a Server Component. It fetches the data and passes it to the client component.
 export default function TopicPageWrapper({ params }: { params: { slug: string }}) {
+    // The `use` hook is the correct way to resolve the params promise in a Server Component.
+    const resolvedParams = use(Promise.resolve(params));
     return (
         <Suspense fallback={<div>Loading...</div>}>
-           <TopicCarousel topics={allTopics} initialSlug={params.slug} />
+           <TopicCarousel topics={allTopics} initialSlug={resolvedParams.slug} />
         </Suspense>
     )
 }
