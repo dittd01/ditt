@@ -215,18 +215,17 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
             );
         })}
       </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
+      <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2 z-10" />
+      <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 z-10" />
     </Carousel>
   );
 }
 
 
 export default function TopicPageWrapper({ params }: { params: { slug: string }}) {
-  const resolvedParams = use(Promise.resolve(params));
-  return (
-      <Suspense fallback={<div>Loading...</div>}>
-         <TopicCarousel topics={allTopics} initialSlug={resolvedParams.slug} />
-      </Suspense>
-  )
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+           <TopicCarousel topics={allTopics} initialSlug={params.slug} />
+        </Suspense>
+    )
 }
