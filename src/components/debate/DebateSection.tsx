@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo } from 'react';
 import type { Argument } from '@/lib/types';
 import { ArgumentCard } from './ArgumentCard';
 import { Button } from '../ui/button';
-import { PlusCircle, Lightbulb } from 'lucide-react';
+import { PlusCircle, Lightbulb, Loader2 } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { ArgumentComposer } from './ArgumentComposer';
 import { currentUser } from '@/lib/user-data';
@@ -78,6 +78,8 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang }: Deb
   const [showComposer, setShowComposer] = useState<'for' | 'against' | null>(null);
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortByType>('votes');
+  const [rebuttalHint, setRebuttalHint] = useState<string | null>(null);
+  const [isHintLoading, setIsHintLoading] = useState(false);
   const { toast } = useToast();
 
   const t = translations[lang];
@@ -125,32 +127,55 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang }: Deb
 
 
   const handleAddArgument = (side: 'for' | 'against') => {
+    setRebuttalHint(null);
     setReplyingToId(null);
     setShowComposer(side);
   };
   
-  const handleCounter = (argumentId: string) => {
-    setShowComposer(null);
-    setReplyingToId(currentId => currentId === argumentId ? null : argumentId);
+  const handleCounter = async (argumentToCounter: Argument) => {
+    // If we're already showing the composer for this argument, close it.
+    if (replyingToId === argumentToCounter.id) {
+        setReplyingToId(null);
+        setRebuttalHint(null);
+        return;
+    }
+    
+    // Set loading state and open composer immediately.
+    setIsHintLoading(true);
+    setReplyingToId(argumentToCounter.id);
+    setRebuttalHint(null); // Clear old hint
+    setShowComposer(null); // Ensure top-level composers are closed.
+
+    const opposingSide = argumentToCounter.side === 'for' ? 'against' : 'for';
+    const opposingArguments = opposingSide === 'for' ? topLevelFor : topLevelAgainst;
+
+    const result = await generateRebuttalAction({
+        topicQuestion: topicQuestion,
+        argumentText: argumentToCounter.text,
+        opposingArguments,
+    });
+    
+    if (result.success && result.data) {
+        setRebuttalHint(result.data.rebuttal);
+    }
+    setIsHintLoading(false);
   }
 
   const handleCancelComposer = () => {
     setShowComposer(null);
     setReplyingToId(null);
+    setRebuttalHint(null);
   }
 
   const handleSubmit = (values: { text: string }, side: 'for' | 'against') => {
     const isTopLevel = !replyingToId;
     const parentId = isTopLevel ? 'root' : replyingToId;
     
-    // In a reply, the side is opposite of the parent.
-    const finalSide = isTopLevel ? side : (debateArgs.find(a => a.id === parentId)?.side === 'for' ? 'against' : 'for');
-
     const newArgument: Argument = {
       id: `arg_${Date.now()}`,
       topicId: topicId,
       parentId: parentId,
-      side: finalSide,
+      side: side,
       author: { name: currentUser.displayName, avatarUrl: currentUser.photoUrl },
       text: values.text,
       upvotes: 1,
@@ -160,46 +185,23 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang }: Deb
     };
 
     setDebateArgs(currentArgs => {
-      const updatedArgs = [...currentArgs];
+      let updatedArgs = [...currentArgs, newArgument];
       if (!isTopLevel && parentId) {
           const parentArgIndex = updatedArgs.findIndex(a => a.id === parentId);
           if (parentArgIndex > -1) {
-              updatedArgs[parentArgIndex] = { ...updatedArgs[parentArgIndex], replyCount: updatedArgs[parentArgIndex].replyCount + 1 };
+              const parentArg = { ...updatedArgs[parentArgIndex] };
+              parentArg.replyCount = parentArg.replyCount + 1;
+              updatedArgs[parentArgIndex] = parentArg;
           }
       }
-      return [newArgument, ...updatedArgs];
+      return updatedArgs;
     });
     
     toast({ title: t.argumentAdded, description: t.argumentAddedDesc });
     handleCancelComposer();
-
-    // Fire-and-forget call to get a rebuttal hint.
-    generateRebuttalAction({
-        topicQuestion: topicQuestion,
-        argumentText: newArgument.text,
-        opposingArguments: newArgument.side === 'for' ? topLevelAgainst : topLevelFor,
-    }).then(result => {
-        if (result.success && result.data) {
-            toast({
-                // Why: Use a custom duration to give the user more time to read the suggestion.
-                duration: 8000, 
-                description: (
-                    <div className="flex items-start gap-2">
-                        <Lightbulb className="h-5 w-5 text-amber-500 mt-1" />
-                        <div className="flex-1">
-                            <h3 className="font-bold text-amber-600">{t.rebuttalHintTitle}</h3>
-                            <p className="text-sm text-muted-foreground">"{result.data.rebuttal}"</p>
-                        </div>
-                    </div>
-                )
-            });
-        }
-    });
   };
   
   const handleMerge = (similarArgumentId: string) => {
-    // Why: This function handles the "merge" action. It finds the duplicate argument,
-    // increments its upvote count, and provides user feedback. This prevents redundant content.
     setDebateArgs(currentArgs =>
         currentArgs.map(arg =>
             arg.id === similarArgumentId ? { ...arg, upvotes: arg.upvotes + 1 } : arg
@@ -212,9 +214,10 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang }: Deb
   const renderArgumentTree = (arg: Argument): React.ReactNode => {
     const replies = debateArgs.filter(reply => reply.parentId === arg.id).sort((a,b) => (b.upvotes-b.downvotes) - (a.upvotes-a.downvotes));
     const showReplyComposer = replyingToId === arg.id;
+
     return (
         <div key={arg.id} className="space-y-4">
-            <ArgumentCard argument={arg} onCounter={handleCounter} />
+            <ArgumentCard argument={arg} onCounter={() => handleCounter(arg)} />
             {showReplyComposer && (
                  <div className="ml-6 pl-4 border-l-2">
                     <ArgumentComposer
@@ -224,6 +227,8 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang }: Deb
                         onCancel={handleCancelComposer}
                         onSubmit={handleSubmit}
                         onMerge={handleMerge}
+                        rebuttalHint={rebuttalHint}
+                        isHintLoading={isHintLoading}
                     />
                 </div>
             )}

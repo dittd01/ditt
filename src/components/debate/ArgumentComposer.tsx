@@ -42,12 +42,24 @@ interface ArgumentComposerProps {
     onSubmit: (values: { text: string }, side: 'for' | 'against') => void;
     onCancel: () => void;
     onMerge: (similarArgumentId: string) => void;
+    rebuttalHint?: string | null;
+    isHintLoading?: boolean;
 }
 
-export function ArgumentComposer({ side, topicId, existingArguments, onSubmit, onCancel, onMerge }: ArgumentComposerProps) {
+export function ArgumentComposer({ 
+    side, 
+    topicId, 
+    existingArguments, 
+    onSubmit, 
+    onCancel, 
+    onMerge,
+    rebuttalHint,
+    isHintLoading
+}: ArgumentComposerProps) {
   const [step, setStep] = useState<ComposerStep>('INPUT');
   const [aiResponse, setAiResponse] = useState<CurateArgumentOutput | null>(null);
   const [useOriginal, setUseOriginal] = useState(false);
+  const [showHint, setShowHint] = useState(true);
   
   const form = useForm<ArgumentFormValues>({
     resolver: zodResolver(argumentSchema),
@@ -85,7 +97,6 @@ export function ArgumentComposer({ side, topicId, existingArguments, onSubmit, o
     
     let submissionData;
     if (step === 'ERROR' || useOriginal) {
-        // If in error state and posting original, or if user chose original
         submissionData = {
             text: form.getValues('text'),
         }
@@ -106,6 +117,10 @@ export function ArgumentComposer({ side, topicId, existingArguments, onSubmit, o
         onMerge(aiResponse.mergeSuggestion.similarArgumentId);
     }
   };
+  
+  const handleHintDismiss = () => {
+    setShowHint(false);
+  }
 
   const renderContent = () => {
     switch (step) {
@@ -172,7 +187,25 @@ export function ArgumentComposer({ side, topicId, existingArguments, onSubmit, o
              <CardHeader>
                 <CardTitle className="text-lg">Add Your Argument</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+                {isHintLoading && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                        <Loader2 className="h-4 w-4 animate-spin"/>
+                        <span>Loading AI suggestion...</span>
+                    </div>
+                )}
+                {rebuttalHint && showHint && (
+                    <Alert>
+                         <Lightbulb className="h-4 w-4" />
+                         <AlertTitle className="font-semibold text-amber-700 dark:text-amber-500">AI Rebuttal Suggestion</AlertTitle>
+                         <AlertDescription>
+                            "{rebuttalHint}"
+                         </AlertDescription>
+                          <AlertActions>
+                            <Button variant="ghost" size="sm" onClick={handleHintDismiss}>Dismiss</Button>
+                         </AlertActions>
+                    </Alert>
+                )}
                 <FormField
                     control={form.control}
                     name="text"

@@ -12,7 +12,7 @@ import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/comp
 
 interface ArgumentCardProps {
   argument: Argument;
-  onCounter: (argumentId: string) => void;
+  onCounter: (argument: Argument) => Promise<void>;
 }
 
 export function ArgumentCard({ argument, onCounter }: ArgumentCardProps) {
@@ -65,7 +65,7 @@ export function ArgumentCard({ argument, onCounter }: ArgumentCardProps) {
           </Button>
         </div>
         <div className="flex items-center gap-2">
-           <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground" onClick={() => onCounter(argument.id)}>
+           <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground" onClick={() => onCounter(argument)}>
              <MessageSquare className="h-4 w-4" />
              <span className="text-sm">Counter ({argument.replyCount})</span>
            </Button>
