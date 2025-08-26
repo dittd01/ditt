@@ -457,5 +457,5 @@ export const mockArguments: Argument[] = allMockArguments;
 
 export const getArgumentsForTopic = (topicId: string): Argument[] => {
   // This function now correctly filters the comprehensive, globally generated mock argument list.
-  return mockArguments.filter(arg => arg.topicId === topicId);
+  return allMockArguments.filter(arg => arg.topicId === topicId);
 };
