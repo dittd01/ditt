@@ -11,13 +11,6 @@ import {
 } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from './ui/input';
-import { cn } from '@/lib/utils';
-
-interface ShareButtonProps {
-  shareUrl: string;
-  shareTitle: string;
-  shareText: string;
-}
 
 // --- SVG Icons for Social Brands ---
 // Why: Using inline SVGs is the most efficient way to add a few custom brand icons
@@ -43,10 +36,6 @@ const PinterestIcon = (props: React.SVGProps<SVGSVGElement>) => (
 const TumblrIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg fill="#36465D" viewBox="0 0 24 24" {...props}><path d="M12.984 21.984c-3.141 0-5.063-2.109-5.063-5.25v-6.375h-2.25v-3.328c1.547-0.234 2.578-1.5 2.859-3.047h2.484v4.641h3.609v3h-3.609v5.813c0 1.125 0.375 1.875 1.5 1.875h0.234c0.516 0 0.891 0.047 1.125 0.094v3.187c-0.656 0.094-1.547 0.187-2.719 0.187z"/></svg>
 );
-const PocketIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg fill="#EF3F56" viewBox="0 0 24 24" {...props}><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm4.331 7.429L12.51 13.25l-3.821-3.821c-.293-.293-.768-.293-1.061 0s-.293.768 0 1.061l4.331 4.33c.147.147.338.22.531.22s.384-.073.531-.22l4.33-4.33c.293-.293.293-.768 0-1.061s-.768-.293-1.06-.001z"/></svg>
-);
-
 
 /**
  * @fileoverview A reusable share button component with mobile-first design.
@@ -56,12 +45,20 @@ const PocketIcon = (props: React.SVGProps<SVGSVGElement>) => (
  * for an optimal mobile experience. If the Web Share API is not available (e.g., on desktop),
  * it gracefully degrades to a popover containing "Copy Link" and social sharing options.
  */
+interface ShareButtonProps {
+  shareUrl: string;
+  shareTitle: string;
+  shareText: string;
+}
+
 export function ShareButton({ shareUrl, shareTitle, shareText }: ShareButtonProps) {
   const { toast } = useToast();
   const [hasCopied, setHasCopied] = React.useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
 
   const handleShare = async () => {
+    // Why: The `navigator.share` API provides a native sharing experience on mobile devices.
+    // It's the gold standard for mobile web sharing, so we prioritize it.
     if (typeof navigator.share === 'function') {
       try {
         await navigator.share({
@@ -70,9 +67,12 @@ export function ShareButton({ shareUrl, shareTitle, shareText }: ShareButtonProp
           url: shareUrl,
         });
       } catch (error) {
+        // This can happen if the user cancels the share sheet. We don't need to show an error.
         console.error('Error using Web Share API:', error);
       }
     } else {
+      // Why: If the native API isn't available, we fall back to a custom popover.
+      // This ensures a consistent, functional experience on desktop browsers.
       setIsPopoverOpen(true);
     }
   };
@@ -85,6 +85,7 @@ export function ShareButton({ shareUrl, shareTitle, shareText }: ShareButtonProp
         title: 'Link Copied!',
         description: 'The link has been copied to your clipboard.',
       });
+      // Why: Reset the copied state after a short delay to allow the user to copy again.
       setTimeout(() => setHasCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy text: ', err);
@@ -108,7 +109,6 @@ export function ShareButton({ shareUrl, shareTitle, shareText }: ShareButtonProp
     { name: 'Telegram', Icon: TelegramIcon, url: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`},
     { name: 'Pinterest', Icon: PinterestIcon, url: `http://pinterest.com/pin/create/button/?url=${encodeURIComponent(shareUrl)}&description=${encodeURIComponent(shareTitle)}` },
     { name: 'Tumblr', Icon: TumblrIcon, url: `http://www.tumblr.com/share/link?url=${encodeURIComponent(shareUrl)}&name=${encodeURIComponent(shareTitle)}&description=${encodeURIComponent(shareText)}` },
-    { name: 'Pocket', Icon: PocketIcon, url: `https://getpocket.com/save?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareTitle)}` },
     { name: 'Email', Icon: Mail, url: `mailto:?subject=${encodeURIComponent(shareTitle)}&body=${encodeURIComponent(shareText + '\n\n' + shareUrl)}` },
   ];
 
