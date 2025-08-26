@@ -41,7 +41,7 @@ const expenditureLevel1: ExpenditureByFunction[] = [
     { countryIso3: 'NOR', year: 2024, cofogL1: '10', name_no: 'Pensjon og sosiale ytelser', name_en: 'Social protection', amountBnNOK: 962 },
     { countryIso3: 'NOR', year: 2024, cofogL1: '07', name_no: 'Helse', name_en: 'Health', amountBnNOK: 416 },
     { countryIso3: 'NOR', year: 2024, cofogL1: '04', name_no: 'Næringsøkonomiske formål', name_en: 'Economic affairs', amountBnNOK: 280 },
-    { countryIso3: 'NOR', year: 2024, cofogL1: '01', name_no: 'Annen offentlig tjenesteyting', name_en: 'General public services (other)', amountBnNOK: 275 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '01', name_no: 'Annen offentlig tjenesteyting', name_en: 'General public services', amountBnNOK: 275 },
     { countryIso3: 'NOR', year: 2024, cofogL1: '09', name_no: 'Utdanning', name_en: 'Education', amountBnNOK: 249 },
     { countryIso3: 'NOR', year: 2024, cofogL1: '02', name_no: 'Forsvar', name_en: 'Defence', amountBnNOK: 115 },
     { countryIso3: 'NOR', year: 2024, cofogL1: '08', name_no: 'Fritid, kultur og religion', name_en: 'Recreation, culture and religion', amountBnNOK: 77 },
@@ -51,26 +51,84 @@ const expenditureLevel1: ExpenditureByFunction[] = [
 ];
 
 const expenditureLevel2: ExpenditureByFunction[] = [
-    // Breakdown for Health (07)
-    { countryIso3: 'NOR', year: 2024, cofogL1: '07', cofogL2: '07.1', name_no: 'Medisinske produkter og utstyr', name_en: 'Medical products, appliances and equipment', amountBnNOK: 50 },
-    { countryIso3: 'NOR', year: 2024, cofogL1: '07', cofogL2: '07.2', name_no: 'Polikliniske tjenester', name_en: 'Outpatient services', amountBnNOK: 120 },
-    { countryIso3: 'NOR', year: 2024, cofogL1: '07', cofogL2: '07.3', name_no: 'Sykehustjenester', name_en: 'Hospital services', amountBnNOK: 200 },
-    { countryIso3: 'NOR', year: 2024, cofogL1: '07', cofogL2: '07.4', name_no: 'Offentlige helsetjenester', name_en: 'Public health services', amountBnNOK: 46 },
+    // 10: Pensjon og sosiale ytelser
+    { countryIso3: 'NOR', year: 2024, cofogL1: '10', name_no: 'Alderspensjon', name_en: 'Old-age pension', amountBnNOK: 365.8 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '10', name_no: 'Sykdom og uførhet', name_en: 'Sickness and disability', amountBnNOK: 349.9 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '10', name_no: 'Barnehage, barnevern og barnetrygd', name_en: 'Family and children', amountBnNOK: 158.2 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '10', name_no: 'Sosiale stønader', name_en: 'Social benefits', amountBnNOK: 53 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '10', name_no: 'Arbeidsledighet', name_en: 'Unemployment', amountBnNOK: 15.5 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '10', name_no: 'Forskning og utvikling', name_en: 'Research and development', amountBnNOK: 1.8 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '10', name_no: 'Annet', name_en: 'Other', amountBnNOK: 18 },
     
-    // Breakdown for Education (09)
-    { countryIso3: 'NOR', year: 2024, cofogL1: '09', cofogL2: '09.1', name_no: 'Førskole og grunnskole', name_en: 'Pre-primary and primary education', amountBnNOK: 100 },
-    { countryIso3: 'NOR', year: 2024, cofogL1: '09', cofogL2: '09.2', name_no: 'Videregående opplæring', name_en: 'Secondary education', amountBnNOK: 65 },
-    { countryIso3: 'NOR', year: 2024, cofogL1: '09', cofogL2: '09.4', name_no: 'Høyere utdanning', name_en: 'Tertiary education', amountBnNOK: 70 },
-    { countryIso3: 'NOR', year: 2024, cofogL1: '09', cofogL2: '09.8', name_no: 'Annen utdanning', name_en: 'Other education', amountBnNOK: 14 },
+    // 07: Helse
+    { countryIso3: 'NOR', year: 2024, cofogL1: '07', name_no: 'Sykehustjenester', name_en: 'Hospital services', amountBnNOK: 248.4 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '07', name_no: 'Legetjenester', name_en: 'Medical services', amountBnNOK: 101 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '07', name_no: 'Legemidler, hjelpemidler og utstyr', name_en: 'Medicines, aids and equipment', amountBnNOK: 25.9 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '07', name_no: 'Annet', name_en: 'Other', amountBnNOK: 16.6 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '07', name_no: 'Forebyggende helsearbeid', name_en: 'Preventive health care', amountBnNOK: 14.5 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '07', name_no: 'Forskning og utvikling', name_en: 'Research and development', amountBnNOK: 9.8 },
+
+    // 09: Utdanning
+    { countryIso3: 'NOR', year: 2024, cofogL1: '09', name_no: 'Grunnskole', name_en: 'Primary school', amountBnNOK: 106.8 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '09', name_no: 'Universitets- og høgskoleutdanning', name_en: 'University and college education', amountBnNOK: 55.6 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '09', name_no: 'Videregående skole', name_en: 'High school', amountBnNOK: 49.6 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '09', name_no: 'Utdanning på andre nivåer', name_en: 'Education at other levels', amountBnNOK: 20.9 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '09', name_no: 'Støttetjenester tilknyttet utdanning', name_en: 'Support services related to education', amountBnNOK: 9.9 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '09', name_no: 'Annet', name_en: 'Other', amountBnNOK: 4.5 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '09', name_no: 'Forskning og utvikling', name_en: 'Research and development', amountBnNOK: 1.0 },
+
+    // 04: Næringsøkonomiske formål
+    { countryIso3: 'NOR', year: 2024, cofogL1: '04', name_no: 'Transport', name_en: 'Transport', amountBnNOK: 194 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '04', name_no: 'Jordbruk og fiske', name_en: 'Agriculture and fisheries', amountBnNOK: 26.7 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '04', name_no: 'Arbeidsmarked', name_en: 'Labor market', amountBnNOK: 22.7 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '04', name_no: 'Forskning og utvikling', name_en: 'Research and development', amountBnNOK: 15.5 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '04', name_no: 'Annet', name_en: 'Other', amountBnNOK: 11.8 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '04', name_no: 'Energi', name_en: 'Energy', amountBnNOK: 9.3 },
+
+    // 08: Fritid, kultur og religion
+    { countryIso3: 'NOR', year: 2024, cofogL1: '08', name_no: 'Kultur', name_en: 'Culture', amountBnNOK: 27.3 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '08', name_no: 'Fritid og sport', name_en: 'Leisure and sports', amountBnNOK: 21.7 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '08', name_no: 'Den norske kirke og andre trossamfunn', name_en: 'The Church of Norway and other religious communities', amountBnNOK: 13.1 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '08', name_no: 'Kringkasting og forlagsvirksomhet', name_en: 'Broadcasting and publishing', amountBnNOK: 7.6 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '08', name_no: 'Annet', name_en: 'Other', amountBnNOK: 4.1 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '08', name_no: 'Forskning og utvikling', name_en: 'Research and development', amountBnNOK: 3.0 },
+
+    // 02: Forsvar
+    { countryIso3: 'NOR', year: 2024, cofogL1: '02', name_no: 'Militært forsvar', name_en: 'Military defence', amountBnNOK: 96.6 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '02', name_no: 'Utenlandsk militær bistand', name_en: 'Foreign military aid', amountBnNOK: 12.8 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '02', name_no: 'Sivilforsvar', name_en: 'Civil defence', amountBnNOK: 2.4 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '02', name_no: 'Annet', name_en: 'Other', amountBnNOK: 2.0 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '02', name_no: 'Forskning og utvikling', name_en: 'Research and development', amountBnNOK: 1.3 },
     
-    // Breakdown for Social Protection (10)
-    { countryIso3: 'NOR', year: 2024, cofogL1: '10', cofogL2: '10.2', name_no: 'Alderspensjon', name_en: 'Old-age pension', amountBnNOK: 365.8 },
-    { countryIso3: 'NOR', year: 2024, cofogL1: '10', cofogL2: '10.1', name_no: 'Sykdom og uførhet', name_en: 'Sickness and disability', amountBnNOK: 349.9 },
-    { countryIso3: 'NOR', year: 2024, cofogL1: '10', cofogL2: '10.4', name_no: 'Barnehage, barnevern og barnetrygd', name_en: 'Family and children', amountBnNOK: 158.2 },
-    { countryIso3: 'NOR', year: 2024, cofogL1: '10', cofogL2: '10.7', name_no: 'Sosiale stønader', name_en: 'Social benefits', amountBnNOK: 53 },
-    { countryIso3: 'NOR', year: 2024, cofogL1: '10', cofogL2: '10.6', name_no: 'Arbeidsledighet', name_en: 'Unemployment', amountBnNOK: 15.5 },
-    { countryIso3: 'NOR', year: 2024, cofogL1: '10', cofogL2: '10.9', name_no: 'Annet', name_en: 'Other', amountBnNOK: 18 },
-    { countryIso3: 'NOR', year: 2024, cofogL1: '10', cofogL2: '10.8', name_no: 'Forskning og utvikling', name_en: 'Research and development', amountBnNOK: 1.8 },
+    // 03: Offentlig orden og trygghet
+    { countryIso3: 'NOR', year: 2024, cofogL1: '03', name_no: 'Politi', name_en: 'Police', amountBnNOK: 28.1 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '03', name_no: 'Brannvesen og redningstjenester', name_en: 'Fire and rescue services', amountBnNOK: 11.5 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '03', name_no: 'Domstoler', name_en: 'Courts', amountBnNOK: 7.1 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '03', name_no: 'Fengsler', name_en: 'Prisons', amountBnNOK: 6.1 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '03', name_no: 'Annet', name_en: 'Other', amountBnNOK: 1.0 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '03', name_no: 'Forskning og utvikling', name_en: 'Research and development', amountBnNOK: 0.8 },
+    
+    // 05: Miljøvern
+    { countryIso3: 'NOR', year: 2024, cofogL1: '05', name_no: 'Avløp og kloakk', name_en: 'Sewerage', amountBnNOK: 19.4 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '05', name_no: 'Avfallshåndtering', name_en: 'Waste management', amountBnNOK: 11.5 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '05', name_no: 'Bekjempelse av forurensing', name_en: 'Pollution abatement', amountBnNOK: 11.4 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '05', name_no: 'Annet', name_en: 'Other', amountBnNOK: 3.8 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '05', name_no: 'Landskapsvern og biologisk mangfold', name_en: 'Protection of biodiversity and landscape', amountBnNOK: 2.4 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '05', name_no: 'Forskning og utvikling', name_en: 'Research and development', amountBnNOK: 1.5 },
+
+    // 06: Bolig og nærmiljø
+    { countryIso3: 'NOR', year: 2024, cofogL1: '06', name_no: 'Vannforsyning', name_en: 'Water supply', amountBnNOK: 22.7 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '06', name_no: 'Bolig og regulering i kommunene', name_en: 'Housing and municipal planning', amountBnNOK: 22.1 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '06', name_no: 'Forskning og utvikling', name_en: 'Research and development', amountBnNOK: 0 },
+    
+    // 01: Annen offentlig tjenesteyting
+    { countryIso3: 'NOR', year: 2024, cofogL1: '01', name_no: 'Stortinget og andre myndigheter ikke i andre kategorier', name_en: 'Parliament and other authorities not in other categories', amountBnNOK: 97.8 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '01', name_no: 'Renteutgifter', name_en: 'Interest payments', amountBnNOK: 79.7 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '01', name_no: 'Internasjonal bistand', name_en: 'International aid', amountBnNOK: 48.6 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '01', name_no: 'Diverse offentlig administrasjon', name_en: 'Miscellaneous public administration', amountBnNOK: 32.0 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '01', name_no: 'Grunnforskning', name_en: 'Basic research', amountBnNOK: 13.0 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '01', name_no: 'Forskning og utvikling', name_en: 'Research and development', amountBnNOK: 3.3 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '01', name_no: 'Annet', name_en: 'Other', amountBnNOK: 1.0 },
 ];
 
 
