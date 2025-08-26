@@ -301,14 +301,10 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
             </Tabs>
         </div>
         
-        <div className="flex justify-between items-center mb-6 pb-4 border-b">
-            <h3 className="text-xl font-semibold text-foreground">
-                {t.for}
-            </h3>
-
+        <div className="flex justify-center items-center mb-6 pb-4 border-b">
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+                    <Button variant="outline" className="text-muted-foreground hover:text-foreground">
                         <PlusCircle className="mr-2 h-4 w-4"/>
                         {t.addArgument}
                     </Button>
@@ -322,15 +318,14 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
-
-            <h3 className="text-xl font-semibold text-foreground">
-                {t.against}
-            </h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             {/* Arguments For Column */}
-            <div className="space-y-4 border-[hsl(var(--chart-2))]">
+            <div className="space-y-4">
+                 <h3 className="text-xl font-semibold text-[hsl(var(--chart-2))]">
+                    {t.for}
+                </h3>
                  {showComposer === 'for' && (
                     <ArgumentComposer
                         side="for"
@@ -350,7 +345,10 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
             </div>
 
             {/* Arguments Against Column */}
-            <div className="space-y-4 border-[hsl(var(--chart-1))]">
+            <div className="space-y-4">
+                 <h3 className="text-xl font-semibold text-destructive">
+                    {t.against}
+                </h3>
                  {showComposer === 'against' && (
                     <ArgumentComposer
                         side="against"
