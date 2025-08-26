@@ -71,8 +71,8 @@ export function StateBudgetChart({ data }: StateBudgetChartProps) {
                 <Legend wrapperStyle={{ fontSize: '12px' }} />
                 <Bar dataKey="Non-Petroleum Revenue" stackId="revenue" fill="hsl(var(--primary))" />
                 <Bar dataKey="Petroleum Revenue" stackId="revenue" fill="hsl(120, 40%, 60%)" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Non-Petroleum Expenditure" stackId="expenditure" fill="hsl(0, 70%, 70%)" />
-                <Bar dataKey="Petroleum Expenditure" stackId="expenditure" fill="hsl(0, 70%, 40%)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Non-Petroleum Expenditure" stackId="expenditure" fill="hsl(var(--chart-1))" />
+                <Bar dataKey="Petroleum Expenditure" stackId="expenditure" fill="hsl(0, 70%, 70%)" radius={[4, 4, 0, 0]} />
             </BarChart>
         </ResponsiveContainer>
       </CardContent>
