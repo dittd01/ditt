@@ -8,7 +8,7 @@ import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/comp
 import type { Topic } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { ShareButton } from '@/components/ShareButton';
+import { ShareButton } from '@/components/share/ShareButton';
 
 interface TopicFooterProps {
   topic: Topic;
@@ -118,7 +118,13 @@ export function TopicFooter({ topic }: TopicFooterProps) {
         </div>
 
         <div className="flex items-center">
-            <ShareButton shareUrl={shareUrl} shareTitle={shareTitle} shareText={shareText} />
+            <ShareButton
+                payload={{
+                    url: shareUrl,
+                    title: shareTitle,
+                    text: shareText
+                }}
+            />
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleBookmarkClick}>
