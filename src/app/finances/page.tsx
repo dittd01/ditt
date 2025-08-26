@@ -42,6 +42,24 @@ export default function FinancesPage() {
     return countryData.expenditure.reduce((sum, item) => sum + item.amountBnNOK, 0);
   }, [countryData?.expenditure]);
 
+  const l2Data = useMemo(() => {
+    if (!selectedL1 || !countryData?.expenditureL2) return undefined;
+    return countryData.expenditureL2.filter(item => item.cofogL1 === selectedL1.cofogL1);
+  }, [selectedL1, countryData?.expenditureL2]);
+
+
+  const breakdownTitle = useMemo(() => {
+    if (!selectedL1) {
+        return lang === 'nb' ? 'Fordeling' : 'Breakdown';
+    }
+    const percentage = totalL1Expenditure > 0 ? (selectedL1.amountBnNOK / totalL1Expenditure) * 100 : 0;
+    const formattedPercentage = `(${(percentage).toFixed(1)}%)`;
+
+    return lang === 'nb' 
+      ? `Fordeling: ${selectedL1.name_no || '...'} - ${selectedL1.amountBnNOK} mrd. kr ${formattedPercentage}` 
+      : `Breakdown: ${selectedL1.name_en || '...'} - ${selectedL1.amountBnNOK} bn NOK ${formattedPercentage}`;
+  }, [selectedL1, lang, totalL1Expenditure]);
+
   if (isLoading) {
     // You can return a loading skeleton here
     return (
@@ -63,27 +81,9 @@ export default function FinancesPage() {
     setSelectedL1(data);
   }
 
-  const l2Data = selectedL1 
-    ? countryData.expenditureL2?.filter(item => item.cofogL1 === selectedL1.cofogL1) 
-    : undefined;
-
   const country = allFinanceData.countries[0];
   const year = allFinanceData.fiscalYears.find(fy => fy.year === country.defaultYear)!;
-
   const mainChartTitle = lang === 'nb' ? 'Slik brukes skattepengene dine (2024)' : 'How Your Tax Money Is Spent (2024)';
-  
-  const breakdownTitle = useMemo(() => {
-    if (!selectedL1) {
-        return lang === 'nb' ? 'Fordeling' : 'Breakdown';
-    }
-    const percentage = totalL1Expenditure > 0 ? (selectedL1.amountBnNOK / totalL1Expenditure) * 100 : 0;
-    const formattedPercentage = `(${(percentage).toFixed(1)}%)`;
-
-    return lang === 'nb' 
-      ? `Fordeling: ${selectedL1.name_no || '...'} - ${selectedL1.amountBnNOK} mrd. kr ${formattedPercentage}` 
-      : `Breakdown: ${selectedL1.name_en || '...'} - ${selectedL1.amountBnNOK} bn NOK ${formattedPercentage}`;
-  }, [selectedL1, lang, totalL1Expenditure]);
-
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
