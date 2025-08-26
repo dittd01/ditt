@@ -38,7 +38,7 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Expenditure Details ({data.year})</CardTitle>
+        <CardTitle>How Your Tax Money Is Spent ({data.year})</CardTitle>
         <CardDescription>Government expenditure by function, in billions of NOK.</CardDescription>
       </CardHeader>
       <CardContent className="h-[400px] w-full pr-4">
