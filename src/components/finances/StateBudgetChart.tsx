@@ -12,15 +12,21 @@ interface StateBudgetChartProps {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="rounded-lg border bg-background p-2 shadow-sm">
-        <p className="font-bold">{label}</p>
-        {payload.map((item: any, index: number) => (
-            <div key={index} className="flex items-center gap-2">
-                 <div className="h-2 w-2 rounded-full" style={{ backgroundColor: item.fill }}/>
-                <span className="text-sm text-muted-foreground">{item.name}: </span>
-                <span className="text-sm font-medium">{item.value.toLocaleString()} mrd. kr</span>
-            </div>
-        ))}
+      <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
+        <p className="font-bold mb-2">{label}</p>
+        <div className="space-y-1">
+            {payload.map((item: any) => (
+                <div key={item.dataKey} className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: item.fill }}/>
+                    <span className="text-muted-foreground">{item.name}: </span>
+                    <span className="font-medium">{item.value.toLocaleString()} mrd. kr</span>
+                </div>
+            ))}
+             <div className="pt-2 mt-2 border-t">
+                <p className="font-medium">Total Revenue: {payload[0].payload.totalRevenue.toLocaleString()} mrd. kr</p>
+                <p className="font-medium">Total Expenditure: {payload[0].payload.totalExpenditure.toLocaleString()} mrd. kr</p>
+             </div>
+        </div>
       </div>
     );
   }
@@ -31,8 +37,12 @@ export function StateBudgetChart({ data }: StateBudgetChartProps) {
   const chartData = useMemo(() => {
     return data.stateBudget.map(item => ({
       name: item.year,
-      'Total Revenue': item.totalRevenue,
-      'Total Expenditure': item.totalExpenditure,
+      'Petroleum Revenue': item.petroleumRevenue,
+      'Non-Petroleum Revenue': item.nonPetroleumRevenue,
+      'Petroleum Expenditure': item.petroleumExpenditure,
+      'Non-Petroleum Expenditure': item.nonPetroleumExpenditure,
+      totalRevenue: item.totalRevenue,
+      totalExpenditure: item.totalExpenditure,
     }));
   }, [data]);
 
@@ -58,8 +68,10 @@ export function StateBudgetChart({ data }: StateBudgetChartProps) {
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
                 <Legend />
-                <Bar dataKey="Total Revenue" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Total Expenditure" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Petroleum Revenue" stackId="revenue" fill="hsl(var(--chart-2))" />
+                <Bar dataKey="Non-Petroleum Revenue" stackId="revenue" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Petroleum Expenditure" stackId="expenditure" fill="hsl(var(--chart-1))" />
+                <Bar dataKey="Non-Petroleum Expenditure" stackId="expenditure" fill="hsl(var(--chart-5))" radius={[4, 4, 0, 0]} />
             </BarChart>
         </ResponsiveContainer>
       </CardContent>
