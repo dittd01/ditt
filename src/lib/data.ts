@@ -343,9 +343,9 @@ const againstStatementsByTopic: Record<string, string[]> = {
     ]
 };
 
-let argIdCounter = 1;
+const allMockArguments: Argument[] = [];
 
-const createArgsForTopic = (topicId: string): Argument[] => {
+const createArgsForTopic = (topicId: string, forStatements: string[], againstStatements: string[]) => {
     const users = Array.from({ length: 100 }, (_, i) => {
         const name = norwegianNames[i % norwegianNames.length];
         const suffix = Math.floor(10 + Math.random() * 90);
@@ -361,15 +361,12 @@ const createArgsForTopic = (topicId: string): Argument[] => {
     const voters = users.filter(u => u.role === 'voter');
     const forArguers = arguers.slice(0, 15);
     const againstArguers = arguers.slice(15, 30);
-
-    const forStatements = forStatementsByTopic[topicId] || [];
-    const againstStatements = againstStatementsByTopic[topicId] || [];
     
-    const topicArguments: Argument[] = [];
+    let argIdCounter = (allMockArguments.length + 1) * 100;
 
     forStatements.forEach((statement, i) => {
         const arguer = forArguers[i % forArguers.length];
-        topicArguments.push({
+        allMockArguments.push({
             id: `arg_${topicId}_${argIdCounter++}`,
             topicId: topicId,
             parentId: 'root',
@@ -383,7 +380,7 @@ const createArgsForTopic = (topicId: string): Argument[] => {
 
     againstStatements.forEach((statement, i) => {
         const arguer = againstArguers[i % againstArguers.length];
-        topicArguments.push({
+        allMockArguments.push({
             id: `arg_${topicId}_${argIdCounter++}`,
             topicId: topicId,
             parentId: 'root',
@@ -394,6 +391,8 @@ const createArgsForTopic = (topicId: string): Argument[] => {
             createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
         });
     });
+
+    const topicArguments = allMockArguments.filter(arg => arg.topicId === topicId);
 
     // Simulate votes
     voters.forEach(voter => {
@@ -443,94 +442,20 @@ const createArgsForTopic = (topicId: string): Argument[] => {
                  createdAt: subHours(new Date(parent.createdAt), Math.floor(Math.random() * -48)).toISOString(),
             };
             
-            const parentInArray = topicArguments.find(a => a.id === parent.id);
-            if(parentInArray) {
-                 parentInArray.replyCount++;
-                 topicArguments.push(reply);
-            }
+            parent.replyCount++;
+            allMockArguments.push(reply);
         }
     };
-    addReplies(20); // Add 20 replies for this topic
-    return topicArguments;
-}
-
-const argumentsForTopic3 = createArgsForTopic('3');
-const argumentsForTopic5 = createArgsForTopic('5');
-const argumentsForTopic21 = createArgsForTopic('21');
-
-const allMockArguments: Argument[] = [...argumentsForTopic3, ...argumentsForTopic5, ...argumentsForTopic21];
-
-// Ensure unique IDs across all arguments, including replies
-const generateUniqueArguments = () => {
-  let uniqueIdCounter = 1;
-  const idMap = new Map<string, string>();
-  const generatedArgs: Argument[] = [];
-
-  // Re-map IDs for a specific topic's arguments
-  const processTopicArgs = (topicId: string, forStatements: string[], againstStatements: string[]) => {
-      const users = Array.from({ length: 100 }, (_, i) => {
-          const name = norwegianNames[i % norwegianNames.length];
-          const suffix = Math.floor(10 + Math.random() * 90);
-          return {
-              username: `${name.toLowerCase()}${suffix}`,
-              avatarUrl: `https://placehold.co/40x40.png`,
-          };
-      });
-      const arguers = users.slice(0, 30);
-      const voters = users.slice(30);
-
-      const topicArgs: Argument[] = [];
-
-      // Create root-level arguments
-      forStatements.forEach((statement, i) => {
-          const author = arguers[i % arguers.length];
-          const newId = `arg-${uniqueIdCounter++}`;
-          topicArgs.push({
-              id: newId, topicId, parentId: 'root', side: 'for', author, text: statement,
-              upvotes: Math.floor(Math.random() * 50), downvotes: Math.floor(Math.random() * 20), replyCount: 0,
-              createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
-          });
-      });
-      againstStatements.forEach((statement, i) => {
-          const author = arguers[i % arguers.length];
-          const newId = `arg-${uniqueIdCounter++}`;
-          topicArgs.push({
-              id: newId, topicId, parentId: 'root', side: 'against', author, text: statement,
-              upvotes: Math.floor(Math.random() * 50), downvotes: Math.floor(Math.random() * 20), replyCount: 0,
-              createdAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
-          });
-      });
-
-      // Create replies
-      const originalArgsCount = topicArgs.length;
-      for (let i = 0; i < 20; i++) { // Create 20 replies
-          if (topicArgs.length === 0) break;
-          const parentArg = topicArgs[Math.floor(Math.random() * topicArgs.length)];
-          const author = arguers[Math.floor(Math.random() * arguers.length)];
-          const replySide = parentArg.side === 'for' ? 'against' : 'for';
-          const newId = `arg-${uniqueIdCounter++}`;
-          
-          topicArgs.push({
-              id: newId, topicId, parentId: parentArg.id, side: replySide, author,
-              text: `This is a reply to a previous argument about "${parentArg.text.substring(0, 20)}...". I believe...`,
-              upvotes: Math.floor(Math.random() * 15), downvotes: Math.floor(Math.random() * 5), replyCount: 0,
-              createdAt: subHours(new Date(parentArg.createdAt), Math.floor(Math.random() * -48)).toISOString(),
-          });
-          parentArg.replyCount++;
-      }
-      
-      generatedArgs.push(...topicArgs);
-  };
-
-  processTopicArgs('3', forStatementsByTopic['3'] || [], againstStatementsByTopic['3'] || []);
-  processTopicArgs('5', forStatementsByTopic['5'] || [], againstStatementsByTopic['5'] || []);
-  processTopicArgs('21', forStatementsByTopic['21'] || [], againstStatementsByTopic['21'] || []);
-
-  return generatedArgs;
+    addReplies(20);
 };
 
-export const mockArguments: Argument[] = generateUniqueArguments();
+createArgsForTopic('3', forStatementsByTopic['3'] || [], againstStatementsByTopic['3'] || []);
+createArgsForTopic('5', forStatementsByTopic['5'] || [], againstStatementsByTopic['5'] || []);
+createArgsForTopic('21', forStatementsByTopic['21'] || [], againstStatementsByTopic['21'] || []);
+
+export const mockArguments: Argument[] = allMockArguments;
 
 export const getArgumentsForTopic = (topicId: string): Argument[] => {
+  // This function now correctly filters the comprehensive, globally generated mock argument list.
   return mockArguments.filter(arg => arg.topicId === topicId);
 };
