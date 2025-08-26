@@ -11,9 +11,15 @@ import { Skeleton } from '../ui/skeleton';
 import { ArgumentComposer } from './ArgumentComposer';
 import { currentUser } from '@/lib/user-data';
 import { useToast } from '@/hooks/use-toast';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { generateRebuttalAction } from '@/app/actions';
 import { ArgumentChart } from './ArgumentChart';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 
 interface DebateSectionProps {
@@ -294,21 +300,37 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
                 </TabsList>
             </Tabs>
         </div>
+        
+        <div className="flex justify-between items-center mb-6 pb-4 border-b">
+            <h3 className="text-xl font-semibold text-foreground">
+                {t.for}
+            </h3>
+
+             <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+                        <PlusCircle className="mr-2 h-4 w-4"/>
+                        {t.addArgument}
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => handleAddArgument('for')}>
+                        Add argument FOR
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleAddArgument('against')}>
+                         Add argument AGAINST
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+
+            <h3 className="text-xl font-semibold text-foreground">
+                {t.against}
+            </h3>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             {/* Arguments For Column */}
-            <div className="space-y-4 border-t-2 border-[hsl(var(--chart-2))] pt-4">
-                <div className="flex justify-between items-center pb-2">
-                    <h3 className="text-xl font-semibold text-foreground">
-                        {t.for}
-                    </h3>
-                    <div className="flex">
-                        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={() => handleAddArgument('for')}>
-                            <PlusCircle className="mr-2 h-4 w-4"/>
-                            {t.addArgument}
-                        </Button>
-                    </div>
-                </div>
+            <div className="space-y-4 border-[hsl(var(--chart-2))]">
                  {showComposer === 'for' && (
                     <ArgumentComposer
                         side="for"
@@ -328,18 +350,7 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
             </div>
 
             {/* Arguments Against Column */}
-            <div className="space-y-4 border-t-2 border-[hsl(var(--chart-1))] pt-4">
-                 <div className="flex justify-between items-center pb-2">
-                     <h3 className="text-xl font-semibold text-foreground">
-                        {t.against}
-                    </h3>
-                     <div className="flex">
-                        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={() => handleAddArgument('against')}>
-                            <PlusCircle className="mr-2 h-4 w-4"/>
-                            {t.addArgument}
-                        </Button>
-                    </div>
-                </div>
+            <div className="space-y-4 border-[hsl(var(--chart-1))]">
                  {showComposer === 'against' && (
                     <ArgumentComposer
                         side="against"
