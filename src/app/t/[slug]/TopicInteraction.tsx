@@ -270,7 +270,7 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                             </p>
                         )}
                     </CardContent>
-                    <CardFooter className="flex-col gap-4 border-t pt-6">
+                    <CardFooter className="flex-col gap-2 border-t pt-4">
                         <Button
                           variant="ghost"
                           onClick={() => handleVote('abstain')}
