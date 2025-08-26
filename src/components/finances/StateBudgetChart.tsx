@@ -9,6 +9,10 @@ interface StateBudgetChartProps {
   data: FinanceData;
 }
 
+const formatNumber = (value: number) => {
+    return new Intl.NumberFormat('en-US').format(Math.round(value));
+}
+
 const CustomTooltip = ({ active, payload, label }: any) => {
   const [lang, setLang] = useState('en');
   useEffect(() => {
@@ -27,12 +31,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                 <div key={index} className="flex items-center gap-2">
                      <div className="h-2 w-2 rounded-full" style={{ backgroundColor: item.fill }}/>
                     <span className="text-muted-foreground">{item.name}: </span>
-                    <span className="font-medium">{item.value.toLocaleString()} {lang === 'nb' ? 'mrd. kr' : 'bn NOK'}</span>
+                    <span className="font-medium">{formatNumber(item.value)} {lang === 'nb' ? 'mrd. kr' : 'bn NOK'}</span>
                 </div>
             ))}
              <div className="pt-2 mt-2 border-t">
-                <p className="font-medium">{totalRevenueText}: {payload[0].payload.totalRevenue.toLocaleString()} {lang === 'nb' ? 'mrd. kr' : 'bn NOK'}</p>
-                <p className="font-medium">{totalExpenditureText}: {payload[0].payload.totalExpenditure.toLocaleString()} {lang === 'nb' ? 'mrd. kr' : 'bn NOK'}</p>
+                <p className="font-medium">{totalRevenueText}: {formatNumber(payload[0].payload.totalRevenue)} {lang === 'nb' ? 'mrd. kr' : 'bn NOK'}</p>
+                <p className="font-medium">{totalExpenditureText}: {formatNumber(payload[0].payload.totalExpenditure)} {lang === 'nb' ? 'mrd. kr' : 'bn NOK'}</p>
              </div>
         </div>
       </div>
@@ -43,7 +47,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 const valueFormatter = (value: number) => {
     if (value < 100) return ''; // Don't show labels for very small segments
-    return Math.round(value).toLocaleString();
+    return formatNumber(value);
 }
 
 export function StateBudgetChart({ data }: StateBudgetChartProps) {
@@ -92,7 +96,7 @@ export function StateBudgetChart({ data }: StateBudgetChartProps) {
                     tick={{ fontSize: 12 }}
                 />
                 <YAxis
-                    tickFormatter={(value) => value.toLocaleString()}
+                    tickFormatter={(value) => formatNumber(value)}
                     tick={{ fontSize: 12 }}
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
@@ -106,7 +110,7 @@ export function StateBudgetChart({ data }: StateBudgetChartProps) {
                 <Bar dataKey="Non-Petroleum Expenditure" name={nonPetroleumExpenditureText} stackId="expenditure" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]}>
                     <LabelList dataKey="Non-Petroleum Expenditure" position="center" className="fill-destructive-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
                 </Bar>
-                <Bar dataKey="Petroleum Expenditure" name={petroleumExpenditureText} stackId="expenditure" fill="hsl(0, 65%, 50%)" >
+                <Bar dataKey="Petroleum Expenditure" name={petroleumExpenditureText} stackId="expenditure" fill="hsl(0, 85%, 65%)" >
                     <LabelList dataKey="Petroleum Expenditure" position="center" className="fill-destructive-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
                 </Bar>
             </BarChart>
