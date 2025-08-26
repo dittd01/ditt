@@ -9,7 +9,7 @@ import { curateArgument, type CurateArgumentInput, type CurateArgumentOutput } f
 import { generateRebuttal, type GenerateRebuttalInput, type GenerateRebuttalOutput } from '@/ai/flows/generate-rebuttal';
 import { categories, allTopics } from '@/lib/data';
 import { calculateQVCost } from '@/lib/qv';
-import type { Topic } from '@/lib/types';
+import type { Topic, FinanceData } from '@/lib/types';
 import { 
     generateRegistrationChallenge, 
     verifyRegistration,
@@ -19,6 +19,7 @@ import {
 } from '@/lib/auth-utils.server';
 import type { RegistrationResponseJSON, AuthenticationResponseJSON } from '@simplewebauthn/types';
 import { z } from 'zod';
+import { allFinanceData } from '@/lib/finance-data';
 
 
 export async function moderateSuggestionAction(suggestion: string) {
@@ -201,4 +202,19 @@ export async function verifyLoginAction(response: AuthenticationResponseJSON) {
 
 export async function getDevicesForUserAction(personHash: string) {
     return await getDevicesForUser(personHash);
+}
+
+// --- Finance Actions ---
+export async function getFinanceDataForCountry(
+  countryIso3: string,
+  year: number
+): Promise<FinanceData | null> {
+  // Simulate a database lookup with a delay
+  await new Promise(resolve => setTimeout(resolve, 50));
+
+  const data = allFinanceData.data.find(
+    d => d.countryIso3 === countryIso3 && d.year === year
+  );
+
+  return data || null;
 }

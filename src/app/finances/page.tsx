@@ -1,22 +1,41 @@
 
-
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FinanceHeader } from '@/components/finances/FinanceHeader';
 import { KpiCards } from '@/components/finances/KpiCards';
 import { ExpenditureBarChart } from '@/components/finances/ExpenditureBarChart';
+import { ExpenditureChart } from '@/components/finances/ExpenditureChart';
 import { StateBudgetChart } from '@/components/finances/StateBudgetChart';
 import { Sources } from '@/components/finances/Sources';
-import { getFinanceDataForCountry } from './actions';
 import { allFinanceData } from '@/lib/finance-data';
-import { ExpenditureChart } from '@/components/finances/ExpenditureChart';
-import type { ExpenditureByFunction } from '@/lib/types';
+import type { ExpenditureByFunction, FinanceData } from '@/lib/types';
+import { getFinanceDataForCountry } from '@/app/actions';
 
 
 export default function FinancesPage() {
-  const [countryData, setCountryData] = useState(allFinanceData.data[0]);
+  const [countryData, setCountryData] = useState<FinanceData | null>(null);
   const [selectedL1, setSelectedL1] = useState<ExpenditureByFunction | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      const data = await getFinanceDataForCountry('NOR', 2024);
+      setCountryData(data);
+      setIsLoading(false);
+    };
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    // You can return a loading skeleton here
+    return (
+        <div className="container mx-auto px-4 py-8">
+            <p>Loading financial data...</p>
+        </div>
+    );
+  }
 
   if (!countryData) {
     return (
@@ -48,6 +67,7 @@ export default function FinancesPage() {
       <KpiCards data={countryData} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <StateBudgetChart data={countryData} />
+        <ExpenditureChart data={countryData} />
       </div>
       <ExpenditureBarChart 
         data={countryData.expenditure} 
@@ -59,7 +79,6 @@ export default function FinancesPage() {
         title={`Breakdown: ${selectedL1?.name_en || '...'}`}
         isDrilldown={true}
       />
-      <ExpenditureChart data={countryData} />
       <Sources sources={countryData.sources} />
     </div>
   );
