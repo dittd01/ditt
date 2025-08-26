@@ -30,6 +30,7 @@ export function MainNav() {
     const exploreText = lang === 'nb' ? 'Utforsk' : 'Explore';
     const categoriesText = lang === 'nb' ? 'Kategorier' : 'Categories';
     const proposeText = lang === 'nb' ? 'Foreslå Tema' : 'Propose Topic';
+    const financesText = lang === 'nb' ? 'Offentlige Finanser' : 'Public Finances';
 
     return (
         <div className="hidden md:flex">
@@ -75,6 +76,14 @@ export function MainNav() {
               <NavigationMenuLink asChild active={pathname === '/propose'}>
                 <Link href="/propose" className={navigationMenuTriggerStyle()}>
                   {proposeText}
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild active={pathname === '/finances'}>
+                <Link href="/finances" className={navigationMenuTriggerStyle()}>
+                  {financesText}
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>

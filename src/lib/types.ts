@@ -185,3 +185,63 @@ export const SimulateDebateOutputSchema = z.object({
   arguments: z.array(SimArgumentSchema).describe('The list of generated synthetic arguments.'),
 });
 export type SimulateDebateOutput = z.infer<typeof SimulateDebateOutputSchema>;
+
+
+// --- Government Finance Types ---
+
+export type Country = {
+  iso3: string;
+  name: string;
+  currency: string;
+  decimals: number;
+  defaultYear: number;
+  cofogVersion: string;
+};
+
+export type FiscalYear = {
+  countryIso3: string;
+  year: number;
+  currency: string;
+  gdp?: number;
+};
+
+export type FinanceTotal = {
+  periodType: 'annual' | 'last4q' | 'quarter';
+  period: string; // e.g., '2024', '2024Q3'
+  totalRevenue: number;
+  totalExpenditure: number;
+  surplusDeficit: number;
+  notes?: string;
+};
+
+export type CofogFunction = {
+  code: string;
+  name_en: string;
+  name_no: string;
+};
+
+export type ExpenditureByFunction = {
+  cofogL1: string;
+  name_no: string;
+  name_en: string;
+  amountBnNOK: number;
+  sharePct?: number; // Optional, can be calculated client-side
+};
+
+export type DataSource = {
+  id: string;
+  title: string;
+  url: string;
+  publisher: string;
+  method: 'manual' | 'api';
+  lastCheckedAt: string;
+};
+
+export type FinanceData = {
+    countryIso3: string;
+    year: number;
+    totals: FinanceTotal[];
+    expenditure: ExpenditureByFunction[];
+    sources: DataSource[];
+    cofog: CofogFunction[];
+};

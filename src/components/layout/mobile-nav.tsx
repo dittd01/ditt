@@ -30,6 +30,7 @@ export function MobileNav() {
   const exploreText = lang === 'nb' ? 'Utforsk' : 'Explore';
   const categoriesText = lang === 'nb' ? 'Kategorier' : 'Categories';
   const proposeText = lang === 'nb' ? 'Foreslå Tema' : 'Propose Topic';
+  const financesText = lang === 'nb' ? 'Offentlige Finanser' : 'Public Finances';
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -73,6 +74,13 @@ export function MobileNav() {
                 className="text-foreground"
               >
                 {proposeText}
+              </MobileLink>
+              <MobileLink
+                href="/finances"
+                onOpenChange={setOpen}
+                className="text-foreground"
+              >
+                {financesText}
               </MobileLink>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="categories">
