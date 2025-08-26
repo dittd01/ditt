@@ -254,10 +254,9 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
 
 // This remains a Server Component. It fetches the data and passes it to the client component.
 export default function TopicPageWrapper({ params }: { params: { slug: string }}) {
-    const resolvedParams = use(Promise.resolve(params));
     return (
         <Suspense fallback={<div>Loading...</div>}>
-           <TopicCarousel topics={allTopics} initialSlug={resolvedParams.slug} />
+           <TopicCarousel topics={allTopics} initialSlug={params.slug} />
         </Suspense>
     )
 }
