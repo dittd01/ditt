@@ -176,8 +176,8 @@ export function ArgumentComposer({
       
       case 'ERROR':
         return (
-            <CardContent>
-                <Alert variant="destructive">
+            <CardContent className="p-0">
+                <Alert variant="destructive" className="border-x-0 border-t-0 rounded-none">
                     <AlertTriangle className="h-4 w-4" />
                     <AlertTitle>AI Assistant Unavailable</AlertTitle>
                     <AlertDescription>
@@ -281,7 +281,7 @@ export function ArgumentComposer({
                     <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
                     <div className="flex gap-2">
                       <Button type="button" variant="outline" onClick={() => handleInitialSubmit(form.getValues())}>Try Again</Button>
-                      <Button type="button" variant="destructive" onClick={handleFinalSubmit}>Post Original Anyway</Button>
+                      <Button type="button" onClick={handleFinalSubmit}>Post Original Anyway</Button>
                     </div>
                 </CardFooter>
             );
