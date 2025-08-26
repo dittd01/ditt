@@ -3,6 +3,7 @@ import { FinanceHeader } from '@/components/finances/FinanceHeader';
 import { KpiCards } from '@/components/finances/KpiCards';
 import { ExpenditureChart } from '@/components/finances/ExpenditureChart';
 import { ExpenditureBarChart } from '@/components/finances/ExpenditureBarChart';
+import { RevenueExpenditureChart } from '@/components/finances/RevenueExpenditureChart';
 import { Sources } from '@/components/finances/Sources';
 import { getFinanceDataForCountry } from './actions';
 import { allFinanceData } from '@/lib/finance-data';
@@ -37,7 +38,7 @@ export default async function FinancesPage() {
             <ExpenditureChart data={countryData} />
         </div>
         <div className="lg:col-span-1">
-            {/* You could add another chart or content here in the future */}
+            <RevenueExpenditureChart data={countryData} />
         </div>
       </div>
       <ExpenditureBarChart data={countryData} />
