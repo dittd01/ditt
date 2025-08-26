@@ -1,15 +1,20 @@
 
+
 'use client';
 import { useMemo, useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList, Label } from 'recharts';
-import type { FinanceData } from '@/lib/types';
+import type { ExpenditureByFunction } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTheme } from 'next-themes';
+import { cn } from '@/lib/utils';
 
 interface ExpenditureBarChartProps {
-  data: FinanceData;
+  data?: ExpenditureByFunction[];
+  title: string;
+  isDrilldown?: boolean;
+  onBarClick?: (data: ExpenditureByFunction | null) => void;
 }
 
 const CustomTooltip = ({ active, payload }: any) => {
@@ -35,7 +40,7 @@ const generateGreenShades = (isDark: boolean) => {
   return Array.from({ length: 10 }, (_, i) => `hsl(103, 31%, ${baseLightness + (i * step)}%)`);
 };
 
-export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
+export function ExpenditureBarChart({ data, title, onBarClick, isDrilldown = false }: ExpenditureBarChartProps) {
   const { resolvedTheme } = useTheme();
   const [lang, setLang] = useState('en');
   const isMobile = useIsMobile();
@@ -63,12 +68,13 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
   }, []);
 
   const { chartData, totalExpenditure } = useMemo(() => {
-    if (colors.length === 0) return { chartData: [], totalExpenditure: 0 };
+    if (colors.length === 0 || !data) return { chartData: [], totalExpenditure: 0 };
     
-    const total = data.expenditure.reduce((sum, item) => sum + item.amountBnNOK, 0);
+    const total = data.reduce((sum, item) => sum + item.amountBnNOK, 0);
 
-    const expenditureData = data.expenditure
+    const expenditureData = data
       .map((item, index) => ({
+        ...item,
         name: lang === 'nb' ? item.name_no : item.name_en,
         value: item.amountBnNOK,
         percentage: total > 0 ? (item.amountBnNOK / total) * 100 : 0,
@@ -79,13 +85,31 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
     return { chartData: expenditureData, totalExpenditure: total };
   }, [data, lang, colors]);
   
-  const chartHeight = chartData.length * (isMobile ? 36 : 40) + 40;
+  if (!data) {
+     if (isDrilldown) {
+       return (
+        <Card className="border-dashed">
+            <CardHeader>
+                <CardTitle>{title}</CardTitle>
+                 <CardDescription>Click a category in the chart above to see a detailed breakdown.</CardDescription>
+            </CardHeader>
+            <CardContent className="h-[200px] flex items-center justify-center">
+                 <p className="text-muted-foreground">No category selected</p>
+            </CardContent>
+        </Card>
+       )
+     }
+     return null;
+  }
+  
+  const chartHeight = chartData.length * (isMobile ? 36 : 40) + 60;
+  const cardTitle = isDrilldown ? title : `${title} - Total: ${totalExpenditure.toLocaleString()} bn NOK`;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>How Your Tax Money Is Spent ({data.year}) - Total: {totalExpenditure.toLocaleString()} bn NOK</CardTitle>
-        <CardDescription>Government expenditure by function, in billions of NOK.</CardDescription>
+        <CardTitle>{cardTitle}</CardTitle>
+        {!isDrilldown && <CardDescription>Government expenditure by function, in billions of NOK.</CardDescription>}
       </CardHeader>
       <CardContent className="w-full pr-4" style={{ height: `${chartHeight}px` }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -113,7 +137,7 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
                     tick={{ fontSize: 12, width: isMobile ? 110 : 190 }}
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
-                <Bar dataKey="value" name="Expenditure" radius={[0, 4, 4, 0]}>
+                <Bar dataKey="value" name="Expenditure" radius={[0, 4, 4, 0]} onClick={onBarClick} className={cn(onBarClick && "cursor-pointer")}>
                    <LabelList
                         dataKey="value"
                         position="insideRight"

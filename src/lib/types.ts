@@ -1,4 +1,5 @@
 
+
 import type { LucideIcon } from 'lucide-react';
 import type { CredentialDeviceType } from '@simplewebauthn/server';
 import { z } from 'genkit';
@@ -221,7 +222,10 @@ export type CofogFunction = {
 };
 
 export type ExpenditureByFunction = {
+  countryIso3: string;
+  year: number;
   cofogL1: string;
+  cofogL2?: string;
   name_no: string;
   name_en: string;
   amountBnNOK: number;
@@ -256,6 +260,7 @@ export type FinanceData = {
     year: number;
     totals: FinanceTotal[];
     expenditure: ExpenditureByFunction[];
+    expenditureL2?: ExpenditureByFunction[];
     sources: DataSource[];
     cofog: CofogFunction[];
     stateBudget: StateBudgetRow[];
