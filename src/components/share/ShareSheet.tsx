@@ -51,6 +51,8 @@ export function ShareSheet({ open, onOpenChange, payload }: ShareSheetProps) {
   const isMobile = useIsMobile();
   const [hasCopied, setHasCopied] = React.useState(false);
   const [locale, setLocale] = React.useState('en');
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
 
   React.useEffect(() => {
     if (open) {
@@ -89,53 +91,53 @@ export function ShareSheet({ open, onOpenChange, payload }: ShareSheetProps) {
     window.open(url, '_blank', 'noopener,noreferrer');
     trackShare({ targetId: target.id, url, status: 'success' });
   };
+  
+  const handleInputFocus = (event: React.FocusEvent<HTMLInputElement>) => {
+    event.target.select();
+  };
 
   const primaryTargets = getPrimaryTargets(locale);
   const secondaryTargets = getSecondaryTargets(locale);
 
   const sheetContent = (
     <div className="space-y-4 p-1">
-      <div className="space-y-2">
-        <p className="font-medium text-sm">Share this topic</p>
-        <p className="text-xs text-muted-foreground">
-          Anyone with the link can view this poll.
-        </p>
-      </div>
       <div className="flex items-center space-x-2">
         <Input
+          ref={inputRef}
           value={payload?.url || ''}
           readOnly
-          className="h-9 flex-1"
+          className="h-10 flex-1"
           aria-label="Shareable link"
+          onFocus={handleInputFocus}
         />
         <Button
           type="button"
           size="sm"
-          className="px-3"
+          className="px-3 h-10"
           onClick={handleCopyLink}
         >
           <span className="sr-only">Copy</span>
           {hasCopied ? (
-            <Check className="h-4 w-4" />
+            <Check className="h-5 w-5" />
           ) : (
-            <Copy className="h-4 w-4" />
+            <Copy className="h-5 w-5" />
           )}
         </Button>
       </div>
       
       <Separator />
 
-      <div className="grid grid-cols-5 gap-y-4 pt-2">
+      <div className="grid grid-cols-4 gap-y-4 pt-2">
         {primaryTargets.map((target) => (
             <button
                 key={target.id}
                 onClick={() => handleShareClick(target)}
-                className="flex flex-col items-center gap-1.5 rounded-md p-2 text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                className="flex flex-col items-center gap-2 rounded-lg p-2 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             >
-                <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-muted">
+                <div className="h-12 w-12 flex items-center justify-center rounded-2xl bg-muted">
                     {target.icon && <target.icon className="h-6 w-6" />}
                 </div>
-                <span className="text-center">{target.name}</span>
+                <span className="text-center truncate w-full">{target.name}</span>
             </button>
         ))}
       </div>
@@ -149,17 +151,17 @@ export function ShareSheet({ open, onOpenChange, payload }: ShareSheetProps) {
                 </Button>
             </CollapsibleTrigger>
             <CollapsibleContent>
-                <div className="grid grid-cols-5 gap-y-4 pt-4">
+                <div className="grid grid-cols-4 gap-y-4 pt-4">
                      {secondaryTargets.map((target) => (
                         <button
                             key={target.id}
                             onClick={() => handleShareClick(target)}
-                            className="flex flex-col items-center gap-1.5 rounded-md p-2 text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                            className="flex flex-col items-center gap-2 rounded-lg p-2 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                         >
-                            <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-muted">
+                            <div className="h-12 w-12 flex items-center justify-center rounded-2xl bg-muted">
                                 {target.icon && <target.icon className="h-6 w-6" />}
                             </div>
-                            <span className="text-center">{target.name}</span>
+                            <span className="text-center truncate w-full">{target.name}</span>
                         </button>
                     ))}
                 </div>
@@ -174,9 +176,9 @@ export function ShareSheet({ open, onOpenChange, payload }: ShareSheetProps) {
       <Drawer open={open} onOpenChange={onOpenChange}>
         <DrawerContent>
           <DrawerHeader className="text-left">
-            <DrawerTitle>Share Topic</DrawerTitle>
+            <DrawerTitle>Share this topic</DrawerTitle>
             <DrawerDescription>
-              Choose an app to share this topic with.
+              Anyone with the link can view this poll.
             </DrawerDescription>
           </DrawerHeader>
           <div className="px-4 pb-4">{sheetContent}</div>
@@ -189,9 +191,9 @@ export function ShareSheet({ open, onOpenChange, payload }: ShareSheetProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Share Topic</DialogTitle>
+          <DialogTitle>Share this topic</DialogTitle>
           <DialogDescription>
-            Choose where you'd like to share this topic.
+            Anyone with the link can view this poll.
           </DialogDescription>
         </DialogHeader>
         {sheetContent}

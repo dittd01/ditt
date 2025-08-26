@@ -8,7 +8,7 @@ import { MobileNav } from '@/components/layout/mobile-nav';
 import { UserNav } from './user-nav';
 import { ThemeToggle } from './theme-toggle';
 import { LanguageToggle } from './language-toggle';
-import { ShareButton } from '../ShareButton';
+import { ShareButton } from '../share/ShareButton';
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -39,10 +39,12 @@ export function SiteHeader() {
         <MainNav />
         <MobileNav />
         <div className="flex flex-1 items-center justify-end space-x-2">
-            <ShareButton 
-              shareUrl={siteUrl}
-              shareTitle="Ditt Demokrati"
-              shareText="Explore direct democracy on a modern, anonymous voting platform."
+            <ShareButton
+              payload={{
+                url: siteUrl,
+                title: "Ditt Demokrati",
+                text: "Explore direct democracy on a modern, anonymous voting platform.",
+              }}
             />
             <LanguageToggle />
             <ThemeToggle />

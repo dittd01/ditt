@@ -63,7 +63,7 @@ export const SHARE_TARGETS: Record<string, ShareTarget> = {
     // try to use it if the browser supports it. The `typeof navigator` check is
     // crucial to prevent server-side rendering (SSR) errors, as `navigator` only
     // exists in the browser.
-    available: () => typeof navigator !== 'undefined' && typeof navigator.share === 'function',
+    available: () => typeof window !== 'undefined' && typeof window.navigator.share === 'function',
     buildUrl: (payload) => buildUrl(payload, 'native'),
   },
   copy: {
@@ -93,15 +93,15 @@ export const SHARE_TARGETS: Record<string, ShareTarget> = {
     available: () => {
       // Why: SMS links are primarily for mobile. We use a regex to make a reasonable guess
       // if the user is on a mobile device. This is a heuristic, not a guarantee.
-      if (typeof navigator === 'undefined') return false;
-      return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      if (typeof window === 'undefined') return false;
+      return /iPhone|iPad|iPod|Android/i.test(window.navigator.userAgent);
     },
     buildUrl: (payload) => {
       const url = buildUrl(payload, 'sms');
       const body = encodeURIComponent((payload.title || '') + '\n\n' + url);
       // Why: iOS and Android have slightly different formats for the SMS scheme.
       // We check the platform to provide the best possible link.
-      const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isIOS = typeof window !== 'undefined' && /iPad|iPhone|iPod/.test(window.navigator.userAgent);
       return isIOS ? `sms:&body=${body}` : `sms:?body=${body}`;
     },
   },
@@ -113,7 +113,7 @@ export const SHARE_TARGETS: Record<string, ShareTarget> = {
     available: () => true,
     buildUrl: (payload) => {
       const url = buildUrl(payload, 'whatsapp');
-      const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isMobile = typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(window.navigator.userAgent);
       const base = isMobile ? 'https://wa.me/?text=' : 'https://web.whatsapp.com/send?text=';
       return `${base}${encodeURIComponent((payload.title || '') + '\n' + url)}`;
     },

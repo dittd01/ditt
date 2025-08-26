@@ -4,7 +4,7 @@
 import { useShareContext } from '@/components/share/ShareProvider';
 import type { SharePayload } from '@/lib/share/schema';
 import { trackShare } from '@/lib/share/analytics';
-import { SHARE_TARGETS } from '@/lib/share/targets.tsx';
+import { SHARE_TARGETS } from '@/lib/share/targets';
 
 /**
  * @fileoverview A client-side hook for handling share functionality.
@@ -30,7 +30,7 @@ export function useShare() {
     // The `available()` check ensures we only attempt to use it if the browser supports it.
     if (nativeTarget.available()) {
       try {
-        await navigator.share({
+        await window.navigator.share({
           title: payload.title,
           text: payload.text,
           url: payload.url,
