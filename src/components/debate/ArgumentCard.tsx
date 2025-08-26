@@ -10,6 +10,7 @@ import { format, formatDistanceToNow } from 'date-fns';
 import Image from 'next/image';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react';
 
 interface ArgumentCardProps {
   argument: Argument;
@@ -17,13 +18,61 @@ interface ArgumentCardProps {
 }
 
 export function ArgumentCard({ argument, onCounter }: ArgumentCardProps) {
-  const netVotes = argument.upvotes - argument.downvotes;
+  const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
+  const [displayUpvotes, setDisplayUpvotes] = useState(argument.upvotes);
+  const [displayDownvotes, setDisplayDownvotes] = useState(argument.downvotes);
+  
   const createdAt = new Date(argument.createdAt);
+  
+  // Why: This effect runs once on the client to safely initialize the vote state
+  // from localStorage, preventing SSR hydration mismatches.
+  useEffect(() => {
+    const storedVote = localStorage.getItem(`vote_on_arg_${argument.id}`);
+    if (storedVote === 'up' || storedVote === 'down') {
+      setUserVote(storedVote);
+    }
+  }, [argument.id]);
 
   // Prevent rendering if author is missing
   if (!argument.author || !argument.author.name) {
     return null;
   }
+
+  const handleVote = (voteType: 'up' | 'down') => {
+    let newUpvotes = displayUpvotes;
+    let newDownvotes = displayDownvotes;
+    let newUserVote: 'up' | 'down' | null = null;
+    
+    // Logic to toggle votes
+    if (voteType === userVote) { // User is retracting their vote
+      newUserVote = null;
+      if (voteType === 'up') newUpvotes--;
+      else newDownvotes--;
+    } else { // User is casting a new vote or changing their vote
+      newUserVote = voteType;
+      if (voteType === 'up') {
+        newUpvotes++;
+        if (userVote === 'down') newDownvotes--; // Changed from down to up
+      } else { // voteType is 'down'
+        newDownvotes++;
+        if (userVote === 'up') newUpvotes--; // Changed from up to down
+      }
+    }
+
+    // Optimistically update the UI
+    setDisplayUpvotes(newUpvotes);
+    setDisplayDownvotes(newDownvotes);
+    setUserVote(newUserVote);
+
+    // Persist the vote to localStorage
+    if (newUserVote) {
+        localStorage.setItem(`vote_on_arg_${argument.id}`, newUserVote);
+    } else {
+        localStorage.removeItem(`vote_on_arg_${argument.id}`);
+    }
+    
+    // In a real app, you'd also call a server action here to record the vote.
+  };
 
   const sideColorClass = argument.side === 'for' ? 'border-l-[hsl(var(--chart-2))]' : 'border-l-[hsl(var(--chart-1))]';
 
@@ -56,13 +105,13 @@ export function ArgumentCard({ argument, onCounter }: ArgumentCardProps) {
       </CardContent>
       <CardFooter className="flex justify-between items-center p-4 pt-2">
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground">
-            <ArrowBigUp className="h-5 w-5" />
-            <span className="text-sm font-semibold">{argument.upvotes}</span>
+          <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground" onClick={() => handleVote('up')}>
+            <ArrowBigUp className={cn("h-5 w-5", userVote === 'up' && "text-primary fill-current")} />
+            <span className="text-sm font-semibold">{displayUpvotes}</span>
           </Button>
-          <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground">
-            <ArrowBigDown className="h-5 w-5" />
-             <span className="text-sm font-semibold">{argument.downvotes}</span>
+          <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground" onClick={() => handleVote('down')}>
+            <ArrowBigDown className={cn("h-5 w-5", userVote === 'down' && "text-destructive fill-current")} />
+             <span className="text-sm font-semibold">{displayDownvotes}</span>
           </Button>
         </div>
         <div className="flex items-center flex-wrap justify-end gap-2">
