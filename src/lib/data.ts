@@ -1,4 +1,5 @@
 
+
 import type { Topic, Category, VoteHistory, Argument } from './types';
 import { electionTopic as initialElectionTopic, parties as partyDetails } from './election-data';
 import type { LucideIcon } from 'lucide-react';
@@ -285,9 +286,9 @@ export function getTopicBySlug(slug: string): Topic | undefined {
 
 // MOCK DATA GENERATION
 const norwegianNames = [
-  'Anne', 'Per', 'Ingrid', 'Lars', 'Kari', 'Ole', 'Sigrid', 'Torbjorn', 'Marit', 'Hans',
-  'Solveig', 'Knut', 'Astrid', 'Jan', 'Berit', 'Arne', 'Liv', 'Svein', 'Gerd', 'Erik',
-  'Randi', 'Geir', 'Hilde', 'Bjorn', 'Nina', 'Morten', 'Tone', 'Terje', 'Heidi', 'Kjell'
+  'Anne Olsen', 'Per Hansen', 'Ingrid Johansen', 'Lars Nilsen', 'Kari Berg', 'Ole Larsen',
+  'Sigrid Andersen', 'Torbjorn Kristiansen', 'Marit Dahl', 'Hans Pettersen', 'Solveig Jensen',
+  'Knut Lien', 'Astrid Moen', 'Jan Eriksen', 'Berit Andreassen', 'Arne Solberg'
 ];
 
 const forStatementsByTopic: Record<string, string[]> = {
@@ -296,6 +297,23 @@ const forStatementsByTopic: Record<string, string[]> = {
     ],
     '5': [ // Raise wealth tax threshold
         "Raising the threshold protects family businesses and farms from being taxed on essential equipment and assets.", "A higher threshold encourages entrepreneurs to reinvest their capital in Norway instead of moving it abroad.", "The current wealth tax is effectively a double tax on already-taxed income; this change mitigates that unfairness.", "It simplifies the tax system for thousands of people with illiquid assets like property or shares in small companies.", "This adjustment is necessary to keep Norwegian capital competitive with other European countries that have lower or no wealth tax.", "By reducing the tax burden on working capital, we stimulate job creation and economic growth.", "The state's revenue loss is minimal compared to the economic benefit of retaining investment capital within the country.", "This is a modernization of the tax code, recognizing that most 'wealth' for small business owners is not liquid cash.", "It prevents the forced sale of assets or businesses simply to pay an annual tax bill, ensuring stability.", "A higher threshold allows more individuals to build a financial buffer, increasing overall economic resilience.", "The tax disproportionately affects retirees whose property values have increased but whose incomes have not.", "Focusing wealth tax on the truly super-rich makes the system more efficient and targeted.", "This change would reduce the administrative burden on both taxpayers and the tax authority.", "Less tax on capital means more money available for innovation and new technology development.", "It's a matter of principle: people should not be taxed year after year on assets they have already paid tax on."
+    ],
+    '21': [ // Gradually raise the retirement age to 69?
+        "With increasing life expectancy, raising the retirement age is a necessary step to ensure the pension system remains solvent for future generations.",
+        "A higher retirement age keeps experienced, valuable workers in the workforce longer, boosting national productivity and GDP.",
+        "It aligns Norway with trends in other developed countries that are also adjusting their retirement ages upwards.",
+        "This gradual change gives people decades to plan and adjust their financial futures accordingly.",
+        "Keeping people in work longer contributes more tax revenue, which can be used to fund healthcare and other public services for an aging population.",
+        "Many people are healthier and more able to work past 67; this allows them to continue contributing and earning.",
+        "A higher retirement age provides a stronger incentive for businesses to invest in retraining and upskilling older employees.",
+        "It reduces the dependency ratio (the number of non-workers to workers), which is crucial for long-term economic stability.",
+        "This is a more responsible solution than cutting pension benefits or significantly increasing taxes on the current workforce.",
+        "It encourages a culture of lifelong learning and adaptation, which is essential in a modern economy.",
+        "The change is gradual, which mitigates the impact on those closest to retirement age.",
+        "A robust pension system is a cornerstone of our welfare state; this adjustment is a pragmatic way to protect it.",
+        "It provides more flexibility for individuals who may want to work longer for personal or financial reasons.",
+        "This addresses the demographic challenge head-on, rather than passing the problem onto our children and grandchildren.",
+        "A later retirement age can lead to better health outcomes, as work provides social engagement and a sense of purpose."
     ]
 };
 
@@ -305,6 +323,23 @@ const againstStatementsByTopic: Record<string, string[]> = {
     ],
     '5': [ // Raise wealth tax threshold
         "This is a significant tax cut for the wealthiest, increasing the gap between rich and poor.", "It would reduce public revenue by billions, forcing cuts to schools, healthcare, and infrastructure.", "The current threshold is already high enough to protect average citizens; this only benefits the top 1%.", "Wealth concentration is a major social problem, and this change would make it worse.", "The wealth tax is a vital tool for redistribution and ensuring the richest contribute their fair share.", "Claims that capital will flee are exaggerated; Norway remains an attractive place to invest regardless.", "This argument ignores the fact that wealth generates returns; a small tax on large fortunes is reasonable.", "It sends the wrong signal at a time when many are struggling with the cost of living.", "Public services, which benefit everyone, are a better use of this money than giving a tax break to the rich.", "The 'working capital' argument is a red herring; exemptions for business assets already exist.", "This change would further entrench generational wealth and reduce social mobility.", "A strong wealth tax ensures that untaxed capital gains on assets like property contribute to society.", "It undermines the progressive nature of the Norwegian tax system.", "The majority of the population, who would not benefit from this change, would have to bear the cost through reduced services.", "This is a step backward in our collective effort to build a more egalitarian society."
+    ],
+    '21': [ // Gradually raise the retirement age to 69?
+        "This unfairly penalizes people in physically demanding jobs who may not be able to work until 69.",
+        "Life expectancy gains are not evenly distributed; this change disproportionately affects those with lower incomes and poorer health.",
+        "It breaks the social contract with citizens who have paid into the pension system for decades with a certain retirement age in mind.",
+        "A higher retirement age can lead to increased unemployment among older workers, who may find it harder to get rehired if they lose their job.",
+        "This could block career progression for younger generations, as older workers remain in senior positions for longer.",
+        "It ignores the value of unpaid work, such as childcare for grandchildren, that many retirees provide.",
+        "This is a blanket solution that doesn't account for the vast differences in career paths and physical ability.",
+        "Productivity can decline in some professions after a certain age, making this economically inefficient.",
+        "It could lead to an increase in people on long-term disability benefits as they are unable to work but not yet eligible for a pension.",
+        "The government should look at other ways to fund the pension system, such as closing tax loopholes or increasing taxes on wealth and corporations.",
+        "This reduces the amount of quality time people get to enjoy in retirement after a lifetime of work.",
+        "The 'healthy aging' argument doesn't apply to everyone; many people are worn out by their late 60s.",
+        "It could create a two-tiered system where the wealthy can afford to retire early, while the less well-off are forced to work longer.",
+        "This policy fails to address the root causes of the pension funding issue, such as wage stagnation.",
+        "It's a simple but brutal solution that places the burden of demographic change squarely on the shoulders of individual workers."
     ]
 };
 
@@ -421,8 +456,9 @@ const createArgsForTopic = (topicId: string): Argument[] => {
 
 const argumentsForTopic3 = createArgsForTopic('3');
 const argumentsForTopic5 = createArgsForTopic('5');
+const argumentsForTopic21 = createArgsForTopic('21');
 
-const allMockArguments: Argument[] = [...argumentsForTopic3, ...argumentsForTopic5];
+const allMockArguments: Argument[] = [...argumentsForTopic3, ...argumentsForTopic5, ...argumentsForTopic21];
 
 // Ensure unique IDs across all arguments, including replies
 const generateUniqueArguments = () => {
@@ -486,8 +522,9 @@ const generateUniqueArguments = () => {
       generatedArgs.push(...topicArgs);
   };
 
-  processTopicArgs('3', forStatementsByTopic['3'], againstStatementsByTopic['3']);
-  processTopicArgs('5', forStatementsByTopic['5'], againstStatementsByTopic['5']);
+  processTopicArgs('3', forStatementsByTopic['3'] || [], againstStatementsByTopic['3'] || []);
+  processTopicArgs('5', forStatementsByTopic['5'] || [], againstStatementsByTopic['5'] || []);
+  processTopicArgs('21', forStatementsByTopic['21'] || [], againstStatementsByTopic['21'] || []);
 
   return generatedArgs;
 };
