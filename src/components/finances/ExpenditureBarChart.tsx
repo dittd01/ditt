@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import type { FinanceData } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTheme } from 'next-themes';
 
 interface ExpenditureBarChartProps {
   data: FinanceData;
@@ -26,23 +27,25 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-// Use the existing theme's chart colors for a vibrant but consistent palette.
-const COLORS = [
-  'hsl(var(--chart-1))',
-  'hsl(var(--chart-2))',
-  'hsl(var(--chart-3))',
-  'hsl(var(--chart-4))',
-  'hsl(var(--chart-5))',
-  'hsl(340, 82%, 52%)',
-  'hsl(48, 96%, 50%)',
-  'hsl(198, 93%, 48%)',
-  'hsl(270, 75%, 60%)',
-  'hsl(150, 65%, 45%)',
-];
+// A monochromatic green color scale for a professional look.
+// These colors will work in both light and dark mode by varying lightness.
+const generateGreenShades = (isDark: boolean) => {
+  const baseLightness = isDark ? 65 : 25; // Dark mode starts lighter, light mode starts darker
+  const step = isDark ? -5 : 6;
+  return Array.from({ length: 10 }, (_, i) => `hsl(103, 31%, ${baseLightness + (i * step)}%)`);
+};
 
 export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
+  const { resolvedTheme } = useTheme();
   const [lang, setLang] = useState('en');
   const isMobile = useIsMobile();
+  const [colors, setColors] = useState<string[]>([]);
+  
+  useEffect(() => {
+    if (resolvedTheme) {
+        setColors(generateGreenShades(resolvedTheme === 'dark'));
+    }
+  }, [resolvedTheme]);
 
   useEffect(() => {
     const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
@@ -60,17 +63,16 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
   }, []);
 
   const chartData = useMemo(() => {
+    if (colors.length === 0) return [];
     return data.expenditure
       .map((item, index) => ({
         name: lang === 'nb' ? item.name_no : item.name_en,
         value: item.amountBnNOK,
-        fill: COLORS[index % COLORS.length],
+        fill: colors[index % colors.length],
       }))
-      // Why: For a horizontal chart, sorting ascending (smallest bar at top) is often more readable.
       .sort((a,b) => a.value - b.value);
-  }, [data, lang]);
+  }, [data, lang, colors]);
   
-  // Why: Dynamic height based on number of items ensures the chart is not cramped on any screen size.
   const chartHeight = chartData.length * (isMobile ? 36 : 40) + 40;
 
   return (
@@ -103,13 +105,9 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 12, width: isMobile ? 110 : 190 }}
-                    // Why: Using a custom tick component allows for advanced text wrapping or truncation if needed.
-                    // For now, the increased width from the horizontal layout is sufficient.
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
                 <Bar dataKey="value" name="Expenditure" radius={[0, 4, 4, 0]}>
-                   {/* Why: Placing the label inside the bar makes the value immediately clear without
-                       needing to reference the axis, improving scannability. */}
                    <LabelList
                         dataKey="value"
                         position="insideRight"
