@@ -37,6 +37,7 @@ export default async function FinancesPage() {
         <StateBudgetChart data={countryData} />
       </div>
       <ExpenditureBarChart data={countryData} />
+      <ExpenditureBarChart data={countryData} />
       <ExpenditureChart data={countryData} />
       <Sources sources={countryData.sources} />
     </div>
