@@ -44,6 +44,7 @@ const prompt = ai.definePrompt({
   output: { schema: GenerateRebuttalOutputSchema },
   prompt: `
     You are an expert debate coach. Your goal is to help users strengthen their arguments by considering counter-arguments.
+    When generating new arguments, ground any factual claims in data from Statistics Norway (ssb.no) or the Norwegian national budget (regjeringen.no).
     
     The main topic of the debate is:
     "{{{topicQuestion}}}"

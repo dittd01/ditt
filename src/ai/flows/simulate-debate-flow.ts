@@ -35,6 +35,11 @@ const simulateDebatePrompt = ai.definePrompt({
   output: { schema: SimulateDebateOutputSchema },
   prompt: `You are an expert data synthesizer for a political debate platform. Your task is to generate a realistic and balanced set of synthetic users and arguments for a given poll topic.
 
+**Key Information Sources**:
+For any factual claims, statistics, or financial data, you should ground your generated arguments in information from these official Norwegian sources:
+- The National Budget: https://www.regjeringen.no/no/statsbudsjett/2025/a-aa/id3052994/
+- Statistics Norway (SSB): https://www.ssb.no and https://www.ssb.no/offentlig-sektor/faktaside/slik-brukes-skattepengene
+
 **Poll Topic:** "{{pollTitle}}"
 **Language:** {{language}}
 **Number of Users to Generate:** {{numUsers}}
@@ -53,7 +58,7 @@ const simulateDebatePrompt = ai.definePrompt({
     *   Create {{numArguments}} arguments in total.
     *   Distribute them according to the 'ratioFor': approximately {{#multiply numArguments ratioFor}}{{/multiply}} arguments "for" and the rest "against".
     *   **Crucially, all text must be in the specified language: {{language}}.**
-    *   Ensure each argument is unique, on-topic, and between 60 and 420 characters.
+    *   Ensure each argument is unique, on-topic, and between 60 and 420 characters. The arguments should reflect realistic viewpoints, informed by the key sources above.
     *   Each argument should be assigned to one of the synthetic users you created. A user can have multiple arguments.
 
 3.  **Analyze Each Argument:**

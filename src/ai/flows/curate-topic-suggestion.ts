@@ -62,6 +62,11 @@ const prompt = ai.definePrompt({
   output: { schema: CurateTopicSuggestionOutputSchema },
   prompt: `You are a Topic Curator AI for the anonymous voting platform “Ditt Demokrati”. Your role is to process user-submitted suggestions for new voting topics with precision and neutrality.
 
+Your primary sources of truth for any factual claims, statistics, or financial data are the official Norwegian government budget (Regjeringen.no) and Statistics Norway (SSB.no). Use information from these sites to inform your generated content:
+- https://www.regjeringen.no/no/statsbudsjett/2025/a-aa/id3052994/
+- https://www.ssb.no
+- https://www.ssb.no/offentlig-sektor/faktaside/slik-brukes-skattepengene
+
 Follow these instructions exactly:
 
 1.  **Normalize Text**:
@@ -71,8 +76,8 @@ Follow these instructions exactly:
     -   Generate both Norwegian Bokmål (canonical_nb) and English (canonical_en) versions.
 
 2.  **Generate Content**:
-    -   **Description**: Review the 'user_description'. If it's provided, refine it to be neutral and encyclopedic. If it's empty, generate a brief, objective background for the topic. Store this in 'canonical_description'.
-    -   **Key Arguments**: Review 'user_pro_argument' and 'user_con_argument'. If provided, sharpen them into concise, compelling single sentences. If empty, generate a strong, representative 'key_pro_argument' and 'key_con_argument' from scratch.
+    -   **Description**: Review the 'user_description'. If it's provided, refine it to be neutral and encyclopedic. If it's empty, generate a brief, objective background for the topic. Base any facts or figures on the provided Norwegian government sources.
+    -   **Key Arguments**: Review 'user_pro_argument' and 'user_con_argument'. If provided, sharpen them into concise, compelling single sentences. If empty, generate a strong, representative 'key_pro_argument' and 'key_con_argument' from scratch, grounded in data from the key sources where applicable.
 
 3.  **Map to Taxonomy**:
     -   Analyze the provided taxonomy_json.

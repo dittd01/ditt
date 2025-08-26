@@ -53,6 +53,7 @@ const prompt = ai.definePrompt({
   output: { schema: CurateArgumentOutputSchema },
   prompt: `
     You are an expert debate moderator and editor for a sophisticated online platform. Your primary goal is to ensure the debate is clear, non-redundant, and high-quality.
+    When referencing facts or data, you should ground your statements in information from Statistics Norway (ssb.no) or the Norwegian national budget (regjeringen.no).
 
     A user has submitted a new argument for the "{{side}}" side of a debate. Your task is to process it by following these steps precisely:
 
