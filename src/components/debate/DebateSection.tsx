@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -29,8 +30,8 @@ interface DebateSectionProps {
 const translations = {
     en: {
         arguments: 'Arguments',
-        for: 'For',
-        against: 'Against',
+        for: 'Arguments for',
+        against: 'Arguments against',
         addArgument: 'Add Argument',
         noArguments: 'No arguments for this side yet.',
         argumentAdded: 'Argument Posted',
@@ -43,8 +44,8 @@ const translations = {
     },
     nb: {
         arguments: 'Argumenter',
-        for: 'For',
-        against: 'Mot',
+        for: 'Argumenter for',
+        against: 'Argumenter mot',
         addArgument: 'Legg til argument',
         noArguments: 'Ingen argumenter for denne siden enda.',
         argumentAdded: 'Argument publisert',
