@@ -29,6 +29,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel"
 import React from 'react';
+import { DebateSimulator } from '@/components/debate/DebateSimulator';
 
 /**
  * @fileoverview This component orchestrates the topic carousel functionality.
@@ -53,9 +54,12 @@ import React from 'react';
 function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: string }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [api, setApi] = useState<CarouselApi>();
 
   const initialIndex = React.useMemo(() => topics.findIndex(t => t.slug === initialSlug), [topics, initialSlug]);
+  
+  const isSimMode = process.env.NODE_ENV !== 'production' && searchParams.get('sim') === '1';
 
   // Effect to synchronize URL to carousel state (e.g., on back/forward)
   useEffect(() => {
@@ -75,7 +79,8 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
       const newIndex = api.selectedScrollSnap();
       const newTopic = topics[newIndex];
       if (newTopic) {
-        const newUrl = `/t/${newTopic.slug}`;
+        const currentParams = new URLSearchParams(window.location.search);
+        const newUrl = `/t/${newTopic.slug}?${currentParams.toString()}`;
         router.replace(newUrl);
         // Why: Explicitly scroll to the top. `router.replace` without `scroll: false`
         // should handle this, but this is a more robust way to guarantee it,
@@ -158,6 +163,7 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
             return (
               <CarouselItem key={topic.id}>
                 <div className="container mx-auto max-w-4xl px-4 py-4 md:py-8">
+                   {isSimMode && <DebateSimulator topic={topic} />}
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-8">
                       <Card className="bg-blue-950 text-primary-foreground">

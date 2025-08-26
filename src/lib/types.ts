@@ -1,5 +1,4 @@
 
-
 import type { LucideIcon } from 'lucide-react';
 import type { CredentialDeviceType } from '@simplewebauthn/server';
 
@@ -84,7 +83,7 @@ export interface Argument {
     createdAt: string; // ISO 8601 string
 }
 
-// --- New Auth & Security Types ---
+// --- Auth & Security Types ---
 
 /**
  * Represents the eligibility record for a unique person.
@@ -132,4 +131,35 @@ export interface LinkRequest {
     status: 'pending' | 'confirmed' | 'expired';
     expiresAt: number; // Unix timestamp
     createdAt: number; // Unix timestamp
+}
+
+
+// --- Synthetic Data Types ---
+
+export interface SimUser {
+  id: string;
+  handle: string;
+  language: 'no' | 'en';
+  isSynthetic: true;
+  createdAt: string;
+}
+
+export interface SimArgument {
+  id: string;
+  pollId: string;
+  userId: string;
+  stance: 'for' | 'against';
+  text: string;
+  strength: number;
+  relevance: number;
+  axes: string[];
+  cluster?: string;
+  upvotes: number;
+  downvotes: number;
+  isSynthetic: true;
+  createdAt: string;
+  author: {
+    name: string;
+    avatarUrl?: string;
+  };
 }

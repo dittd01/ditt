@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import type { Argument } from '@/lib/types';
+import type { Argument, SimArgument } from '@/lib/types';
 import { ArgumentCard } from './ArgumentCard';
 import { Button } from '../ui/button';
 import { PlusCircle, Lightbulb, Loader2 } from 'lucide-react';
@@ -20,6 +20,10 @@ interface DebateSectionProps {
   topicQuestion: string;
   initialArgs: Argument[];
   lang: 'en' | 'nb';
+  // Why: Optional prop to inject synthetic data. This is a clean way to
+  // switch the component's data source without adding complex logic inside.
+  // It makes the component testable and adheres to dependency injection principles.
+  syntheticArgs?: SimArgument[] | null;
 }
 
 const translations = {
@@ -73,7 +77,7 @@ DebateSection.Skeleton = function DebateSectionSkeleton() {
 }
 
 
-export function DebateSection({ topicId, topicQuestion, initialArgs, lang }: DebateSectionProps) {
+export function DebateSection({ topicId, topicQuestion, initialArgs, lang, syntheticArgs }: DebateSectionProps) {
   const [debateArgs, setDebateArgs] = useState<Argument[]>(initialArgs);
   const [loading, setLoading] = useState(true);
   const [showComposer, setShowComposer] = useState<'for' | 'against' | null>(null);
@@ -86,6 +90,14 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang }: Deb
   const t = translations[lang];
 
   useEffect(() => {
+    // Why: If synthetic arguments are passed in, we use them directly.
+    // This allows the `DebateSimulator` component to control the data source.
+    if (syntheticArgs) {
+      setDebateArgs(syntheticArgs.map(arg => ({ ...arg, side: arg.stance, parentId: 'root', replyCount: 0 })));
+      setLoading(false);
+      return;
+    }
+
     // This effect runs once on the client-side to hydrate the component's state
     // from localStorage, which contains user-added arguments. This is the "read" operation.
     const storedArgs = localStorage.getItem(`debate_args_${topicId}`);
@@ -97,16 +109,17 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang }: Deb
       setDebateArgs(initialArgs);
     }
     setLoading(false);
-  }, [topicId, initialArgs]);
+  }, [topicId, initialArgs, syntheticArgs]);
 
 
   useEffect(() => {
-    // This effect is the "write" operation. It triggers whenever the `debateArgs` state changes.
-    // We avoid running this on the initial load to prevent overwriting localStorage with stale props data.
-    if (!loading) { 
+    // Why: The "write" operation. It triggers whenever the `debateArgs` state changes.
+    // It's disabled if we're in synthetic mode to prevent writing simulated data
+    // to the user's real localStorage.
+    if (!loading && !syntheticArgs) { 
         localStorage.setItem(`debate_args_${topicId}`, JSON.stringify(debateArgs));
     }
-  }, [debateArgs, topicId, loading]);
+  }, [debateArgs, topicId, loading, syntheticArgs]);
   
   const sortArguments = (a: Argument, b: Argument) => {
     if (sortBy === 'newest') {

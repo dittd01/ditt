@@ -1,6 +1,8 @@
+
 'use server';
 
 import { z } from 'zod';
+import { simulateDebate, type SimulateDebateInput, type SimulateDebateOutput } from '@/ai/flows/simulate-debate-flow';
 
 const voteSchema = z.object({
   topicId: z.string(),
@@ -50,5 +52,28 @@ export async function castVoteAction(input: {
       success: false,
       message: `Failed to record vote on server: ${errorMessage}`,
     };
+  }
+}
+
+
+/**
+ * Server Action to trigger the synthetic debate generation flow.
+ * This is a developer-only feature and should be guarded by environment checks.
+ */
+export async function simulateDebateAction(
+  input: SimulateDebateInput
+): Promise<{ success: boolean; data?: SimulateDebateOutput; message?: string }> {
+  // Why: A hardcoded check on the server-side ensures this can never be
+  // accidentally run in a production environment, even if client-side checks fail.
+  if (process.env.NODE_ENV === 'production') {
+    return { success: false, message: 'This action is disabled in production.' };
+  }
+  
+  try {
+    const result = await simulateDebate(input);
+    return { success: true, data: result };
+  } catch (error: any) {
+    console.error('[simulateDebateAction] Error:', error);
+    return { success: false, message: error.message || 'An unknown error occurred during simulation.' };
   }
 }
