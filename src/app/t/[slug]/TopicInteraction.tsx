@@ -71,17 +71,18 @@ const translations = {
 
 interface TopicInteractionProps {
   topic: Topic;
+  votedOn: string | null;
+  onVote: (voteData: string | string[]) => void;
+  onRevote: () => void;
 }
 
 // This new Client Component handles all user interactions on the page.
-export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps) {
+export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInteractionProps) {
   const router = useRouter();
   const { toast } = useToast();
   
   // State for all interactive parts of the page.
-  const [topic, setTopic] = useState<Topic>(initialTopic);
   const [voterId, setVoterId] = useState<string | null>(null);
-  const [votedOn, setVotedOn] = useState<string | null>(null);
   const [lang, setLang] = useState<'en' | 'nb'>('en');
   const [isClient, setIsClient] = useState(false);
 
@@ -96,104 +97,9 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
     const currentVoterId = localStorage.getItem('anonymousVoterId');
     setVoterId(currentVoterId);
 
-    if (currentVoterId) {
-      const previousVote = localStorage.getItem(`voted_on_${topic.id}`);
-      setVotedOn(previousVote);
-    }
     setIsClient(true);
-  }, [topic.id]);
+  }, []);
 
-  const handleVote = async (voteData: string | string[]) => {
-    if (!voterId) {
-      toast({
-        variant: 'destructive',
-        title: t.authRequiredTitle,
-        description: t.authRequiredDescription,
-      });
-      router.push('/login');
-      return;
-    }
-    
-    const currentVote = Array.isArray(voteData) ? voteData[0] : voteData;
-    if (!currentVote || votedOn === currentVote) return;
-
-    const previouslyVotedOn = votedOn;
-    
-    // --- Optimistic UI Update ---
-    // Why: Update the UI immediately for a responsive user experience,
-    // without waiting for the server to respond. We will revert this
-    // change if the server call fails.
-    setVotedOn(currentVote);
-    localStorage.setItem(`voted_on_${topic.id}`, currentVote); // Keep localStorage for persistence on refresh for now
-
-    setTopic(currentTopic => {
-        const newVotes = { ...currentTopic.votes };
-        if (previouslyVotedOn) {
-            newVotes[previouslyVotedOn] = Math.max(0, (newVotes[previouslyVotedOn] || 1) - 1);
-        }
-        newVotes[currentVote] = (newVotes[currentVote] || 0) + 1;
-        const newTotalVotes = Object.values(newVotes).reduce((sum, v) => sum + v, 0);
-        return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
-    });
-    
-    // --- Server Action Call ---
-    try {
-      trackEvent(previouslyVotedOn ? 'vote_changed' : 'vote_cast', { topicId: topic.id, from: previouslyVotedOn, to: currentVote });
-      
-      const result = await castVoteAction({ topicId: topic.id, voteOption: currentVote, voterId });
-
-      if (!result.success) {
-        throw new Error(result.message);
-      }
-      
-      // On success, show a confirmation toast. The optimistic UI is already correct.
-      const voteLabel = Array.isArray(voteData) 
-        ? t.yourRanking
-        : [...topic.options, {id: 'abstain', label: 'Abstain'}].find((o) => o.id === currentVote)?.label || currentVote;
-        
-      toast({
-          title: previouslyVotedOn ? t.voteChangedTitle : t.voteCastTitle,
-          description: t.voteRecordedDescription(voteLabel),
-      });
-
-    } catch (error: any) {
-      // --- Error Handling & UI Rollback ---
-      // Why: If the server call fails, we must revert the UI to its
-      // previous state to maintain data integrity and inform the user.
-      toast({
-        variant: 'destructive',
-        title: 'Vote Failed',
-        description: error.message || 'Could not record your vote. Please try again.',
-      });
-
-      // Revert the state
-      setVotedOn(previouslyVotedOn);
-      if (previouslyVotedOn) {
-        localStorage.setItem(`voted_on_${topic.id}`, previouslyVotedOn);
-      } else {
-        localStorage.removeItem(`voted_on_${topic.id}`);
-      }
-
-      // Revert vote counts
-      setTopic(currentTopic => {
-          const newVotes = { ...currentTopic.votes };
-          newVotes[currentVote] = Math.max(0, (newVotes[currentVote] || 1) - 1);
-          if (previouslyVotedOn) {
-              newVotes[previouslyVotedOn] = (newVotes[previouslyVotedOn] || 0) + 1;
-          }
-          const newTotalVotes = Object.values(newVotes).reduce((sum, v) => sum + v, 0);
-          return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
-      });
-    }
-  };
-  
-  const handleRevote = () => {
-    setVotedOn(null);
-     toast({
-      title: t.castNewVoteTitle,
-      description: t.castNewVoteDescription,
-    });
-  };
   
   const renderVoteComponent = () => {
     // Before the client has mounted and checked localStorage, render a skeleton.
@@ -219,7 +125,7 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-4">{t.changeVoteDescription}</p>
-            <Button className="w-full" onClick={handleRevote}>
+            <Button className="w-full" onClick={onRevote}>
                 <RefreshCw className="mr-2 h-4 w-4" />
                 {t.changeVoteButton}
             </Button>
@@ -229,8 +135,8 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
     }
     
     switch (topic.voteType) {
-        case 'likert': return <LikertScale topic={topic} onVote={handleVote} />;
-        case 'ranked': return <RankedChoice topic={topic} onVote={handleVote} />;
+        case 'likert': return <LikertScale topic={topic} onVote={onVote} />;
+        case 'ranked': return <RankedChoice topic={topic} onVote={onVote} />;
         case 'quadratic': return <QuadraticVote topic={topic} />;
         case 'yesno':
         default:
@@ -246,7 +152,7 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                                 'h-14 text-xl flex-1 group',
                                 votedOn !== 'yes' && 'text-primary border-primary/20 hover:bg-primary/10',
                               )}
-                              onClick={() => handleVote('yes')}
+                              onClick={() => onVote('yes')}
                             >
                                 <ThumbsUp className="h-6 w-6" />
                                 <span className="ml-2">{t.yes}</span>
@@ -258,7 +164,7 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                                 'h-14 text-xl flex-1 group',
                                  votedOn !== 'no' && 'text-destructive border-destructive/20 hover:bg-destructive/10'
                               )}
-                              onClick={() => handleVote('no')}
+                              onClick={() => onVote('no')}
                             >
                                  <ThumbsDown className="h-6 w-6" />
                                  <span className="ml-2">{t.no}</span>
@@ -273,7 +179,7 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
                     <CardFooter className="flex-col gap-2 border-t pt-4">
                         <Button
                           variant="ghost"
-                          onClick={() => handleVote('abstain')}
+                          onClick={() => onVote('abstain')}
                           className={cn(
                             'text-muted-foreground hover:bg-muted/80',
                             votedOn === 'abstain' && 'bg-muted text-foreground'
@@ -293,8 +199,6 @@ export function TopicInteraction({ topic: initialTopic }: TopicInteractionProps)
   return (
     <div className="space-y-8">
       {renderVoteComponent()}
-      
-      {votedOn && <LiveResults topic={topic} />}
       
       {voterId ? (
         <ImportanceSlider topicId={topic.id} />
@@ -336,7 +240,3 @@ TopicInteraction.Skeleton = function TopicInteractionSkeleton() {
         </div>
     );
 }
-
-    
-
-    
