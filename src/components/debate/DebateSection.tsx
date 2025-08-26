@@ -307,7 +307,7 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
                     <h3 className="text-xl font-semibold text-[hsl(var(--chart-2))]">
                         {t.for}
                     </h3>
-                    <Button variant="ghost" size="icon" onClick={() => handleAddArgument('for')} className="text-[hsl(var(--chart-2))] hover:text-[hsl(var(--chart-2))]">
+                    <Button variant="ghost" size="icon" onClick={() => handleAddArgument('for')} className="text-[hsl(var(--chart-2))] hover:text-[hsl(var(--chart-2))] hover:bg-green-500/10">
                         <PlusCircle className="h-5 w-5" />
                     </Button>
                 </div>
@@ -335,7 +335,7 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
                     <h3 className="text-xl font-semibold text-destructive">
                         {t.against}
                     </h3>
-                     <Button variant="ghost" size="icon" onClick={() => handleAddArgument('against')} className="text-destructive hover:text-destructive/80">
+                     <Button variant="ghost" size="icon" onClick={() => handleAddArgument('against')} className="text-destructive hover:text-destructive hover:bg-red-500/10">
                         <PlusCircle className="h-5 w-5" />
                     </Button>
                 </div>
