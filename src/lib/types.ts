@@ -1,6 +1,7 @@
 
 import type { LucideIcon } from 'lucide-react';
 import type { CredentialDeviceType } from '@simplewebauthn/server';
+import { z } from 'genkit';
 
 export type VoteOption = {
   id: string;
@@ -136,30 +137,51 @@ export interface LinkRequest {
 
 // --- Synthetic Data Types ---
 
-export interface SimUser {
-  id: string;
-  handle: string;
-  language: 'no' | 'en';
-  isSynthetic: true;
-  createdAt: string;
-}
+// Input schema for the main flow
+export const SimulateDebateInputSchema = z.object({
+  pollId: z.string().describe('The unique ID of the poll to simulate debate for.'),
+  pollTitle: z.string().describe('The title or question of the poll.'),
+  language: z.enum(['en', 'no']).default('en').describe('The language for the generated content.'),
+  numUsers: z.number().int().min(10).max(100).default(60).describe('The number of synthetic users to generate.'),
+  numArguments: z.number().int().min(10).max(50).default(30).describe('The total number of arguments to generate.'),
+  ratioFor: z.number().min(0).max(1).default(0.5).describe('The ratio of "for" arguments (e.g., 0.5 for 50%).'),
+});
+export type SimulateDebateInput = z.infer<typeof SimulateDebateInputSchema>;
 
-export interface SimArgument {
-  id: string;
-  pollId: string;
-  userId: string;
-  stance: 'for' | 'against';
-  text: string;
-  strength: number;
-  relevance: number;
-  axes: string[];
-  cluster?: string;
-  upvotes: number;
-  downvotes: number;
-  isSynthetic: true;
-  createdAt: string;
-  author: {
-    name: string;
-    avatarUrl?: string;
-  };
-}
+
+// --- Schemas for Synthetic Data Structures ---
+
+const SimUserSchema = z.object({
+  id: z.string().describe("A unique ID for the user, e.g., 'sim-user-1'."),
+  handle: z.string().describe("A plausible, pseudonymous handle, e.g., 'TechLover88', 'EvaK_5'."),
+  language: z.enum(['no', 'en']).describe("The user's language."),
+  isSynthetic: z.literal(true).describe('Flag indicating this is a synthetic user.'),
+  createdAt: z.string().datetime().describe('ISO 8601 timestamp of creation.'),
+  avatarUrl: z.string().url().describe('A placeholder avatar URL.'),
+});
+export type SimUser = z.infer<typeof SimUserSchema>;
+
+const SimArgumentSchema = z.object({
+  id: z.string().describe("A unique ID for the argument, e.g., 'sim-arg-1'."),
+  pollId: z.string().describe('The ID of the poll this argument belongs to.'),
+  userId: z.string().describe('The ID of the synthetic user who authored this argument.'),
+  stance: z.enum(['for', 'against']).describe('The side of the debate this argument is on.'),
+  text: z.string().min(60).max(420).describe('The full text of the argument (60-420 characters).'),
+  strength: z.number().min(1).max(5).describe('The subjective strength/conviction of the argument (1-5).'),
+  relevance: z.number().min(0).max(1).describe('The relevance of the argument to the poll topic (0.0-1.0).'),
+  axes: z.array(z.string()).describe('An array of 1-2 primary axes this argument addresses (e.g., ["economy", "environment"]).'),
+  cluster: z.string().optional().describe('A semantic cluster label for grouping similar arguments.'),
+  upvotes: z.number().int().min(0).describe('A simulated upvote count.'),
+  downvotes: z.number().int().min(0).describe('A simulated downvote count.'),
+  isSynthetic: z.literal(true).describe('Flag indicating this is a synthetic argument.'),
+  createdAt: z.string().datetime().describe('ISO 8601 timestamp of creation.'),
+});
+export type SimArgument = z.infer<typeof SimArgumentSchema> & { author: { name: string; avatarUrl?: string; } };
+
+
+// Output schema for the entire flow
+export const SimulateDebateOutputSchema = z.object({
+  users: z.array(SimUserSchema).describe('The list of generated synthetic users.'),
+  arguments: z.array(SimArgumentSchema).describe('The list of generated synthetic arguments.'),
+});
+export type SimulateDebateOutput = z.infer<typeof SimulateDebateOutputSchema>;

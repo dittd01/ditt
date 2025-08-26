@@ -2,7 +2,8 @@
 'use server';
 
 import { z } from 'zod';
-import { simulateDebate, type SimulateDebateInput, type SimulateDebateOutput } from '@/ai/flows/simulate-debate-flow';
+import { simulateDebate } from '@/ai/flows/simulate-debate-flow';
+import type { SimulateDebateInput, SimulateDebateOutput } from '@/lib/types';
 
 const voteSchema = z.object({
   topicId: z.string(),
