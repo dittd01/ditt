@@ -104,7 +104,7 @@ export function StateBudgetChart({ data }: StateBudgetChartProps) {
                 <Bar dataKey="Petroleum Revenue" name={petroleumRevenueText} stackId="revenue" fill="hsl(120, 40%, 60%)" >
                     <LabelList dataKey="Petroleum Revenue" position="center" className="fill-primary-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
                 </Bar>
-                <Bar dataKey="Non-Petroleum Expenditure" name={nonPetroleumExpenditureText} stackId="expenditure" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]}>
+                <Bar dataKey="Non-Petroleum Expenditure" name={nonPetroleumExpenditureText} stackId="expenditure" fill="hsl(0, 50%, 60%)" radius={[4, 4, 0, 0]}>
                     <LabelList dataKey="Non-Petroleum Expenditure" position="center" className="fill-destructive-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
                 </Bar>
                 <Bar dataKey="Petroleum Expenditure" name={petroleumExpenditureText} stackId="expenditure" fill="hsl(0, 70%, 70%)" >
