@@ -75,7 +75,6 @@ export function TopicFooter({ topic }: TopicFooterProps) {
   const importanceTooltipText = importance !== null ? `You rated this ${importance + 1}/10` : (lang === 'nb' ? 'Gjennomsnittlig viktighet' : 'Average Importance');
   const votersTooltipText = lang === 'nb' ? 'Antall som har stemt' : 'Number of voters';
   const bookmarkTooltipText = lang === 'nb' ? 'Bokmerk' : 'Bookmark';
-  const shareTooltipText = lang === 'nb' ? 'Del' : 'Share';
   
   const shareTitle = lang === 'nb' ? topic.question : topic.question_en;
   const shareText = lang === 'nb' ? topic.description : topic.description_en;
