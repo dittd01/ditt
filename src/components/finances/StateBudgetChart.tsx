@@ -68,10 +68,10 @@ export function StateBudgetChart({ data }: StateBudgetChartProps) {
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
                 <Legend />
-                <Bar dataKey="Petroleum Revenue" stackId="revenue" fill="hsl(120, 40%, 60%)" />
-                <Bar dataKey="Non-Petroleum Revenue" stackId="revenue" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Petroleum Expenditure" stackId="expenditure" fill="hsl(0, 70%, 70%)" />
-                <Bar dataKey="Non-Petroleum Expenditure" stackId="expenditure" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Non-Petroleum Revenue" stackId="revenue" fill="hsl(var(--chart-2))" />
+                <Bar dataKey="Petroleum Revenue" stackId="revenue" fill="hsl(120, 40%, 60%)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Non-Petroleum Expenditure" stackId="expenditure" fill="hsl(var(--chart-1))" />
+                <Bar dataKey="Petroleum Expenditure" stackId="expenditure" fill="hsl(0, 70%, 70%)" radius={[4, 4, 0, 0]} />
             </BarChart>
         </ResponsiveContainer>
       </CardContent>
