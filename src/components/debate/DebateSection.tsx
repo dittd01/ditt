@@ -98,16 +98,28 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
       return;
     }
 
-    // This effect runs once on the client-side to hydrate the component's state
-    // from localStorage, which contains user-added arguments. This is the "read" operation.
-    const storedArgs = localStorage.getItem(`debate_args_${topicId}`);
-    if (storedArgs) {
-      // If we find arguments in storage, we parse them and set them as the current state.
-      setDebateArgs(JSON.parse(storedArgs));
-    } else {
-      // Otherwise, we initialize the state with the static props passed from the server.
-      setDebateArgs(initialArgs);
+    // Always start with the server-provided initial arguments.
+    // This ensures that any mock data or database updates are reflected.
+    setDebateArgs(initialArgs);
+    
+    // Then, try to layer on any user-added arguments from this session stored in localStorage.
+    const storedArgsRaw = localStorage.getItem(`debate_args_${topicId}`);
+    if (storedArgsRaw) {
+        try {
+            const storedArgs: Argument[] = JSON.parse(storedArgsRaw);
+            // We can merge them, ensuring no duplicates if initialArgs already contains them.
+            // For simplicity here, we'll just log if there's a discrepancy. A more robust
+            // solution might merge based on argument IDs.
+            const initialArgIds = new Set(initialArgs.map(a => a.id));
+            const newSessionArgs = storedArgs.filter(sa => !initialArgIds.has(sa.id));
+            if (newSessionArgs.length > 0) {
+                 setDebateArgs(prevArgs => [...prevArgs, ...newSessionArgs]);
+            }
+        } catch(e) {
+            console.error("Failed to parse debate arguments from localStorage", e);
+        }
     }
+    
     setLoading(false);
   }, [topicId, initialArgs, syntheticArgs]);
 
@@ -117,9 +129,17 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
     // It's disabled if we're in synthetic mode to prevent writing simulated data
     // to the user's real localStorage.
     if (!loading && !syntheticArgs) { 
-        localStorage.setItem(`debate_args_${topicId}`, JSON.stringify(debateArgs));
+        // Only store arguments that are NOT in the initial static set to avoid redundancy.
+        const initialArgIds = new Set(initialArgs.map(a => a.id));
+        const sessionOnlyArgs = debateArgs.filter(a => !initialArgIds.has(a.id));
+        if (sessionOnlyArgs.length > 0) {
+            localStorage.setItem(`debate_args_${topicId}`, JSON.stringify(sessionOnlyArgs));
+        } else {
+            // Clean up localStorage if there are no more session-specific arguments
+            localStorage.removeItem(`debate_args_${topicId}`);
+        }
     }
-  }, [debateArgs, topicId, loading, syntheticArgs]);
+  }, [debateArgs, topicId, loading, syntheticArgs, initialArgs]);
   
   const sortArguments = (a: Argument, b: Argument) => {
     if (sortBy === 'newest') {
