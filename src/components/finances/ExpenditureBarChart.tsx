@@ -100,6 +100,8 @@ export function ExpenditureBarChart({ data, title, onBarClick, isDrilldown = fal
   const noCategorySelectedText = lang === 'nb' ? 'Ingen kategori valgt' : 'No category selected';
   const noCategoryDescText = lang === 'nb' ? 'Klikk på en kategori i diagrammet ovenfor for å se en detaljert oversikt.' : 'Click a category in the chart above to see a detailed breakdown.';
   const expenditureByFunctionText = lang === 'nb' ? 'Offentlige utgifter etter funksjon, i milliarder kroner.' : 'Government expenditure by function, in billions of NOK.';
+  const breakdownSubtitleText = lang === 'nb' ? 'I milliarder kroner' : 'In billions of NOK';
+
 
   if (!data) {
      if (isDrilldown) {
@@ -130,7 +132,11 @@ export function ExpenditureBarChart({ data, title, onBarClick, isDrilldown = fal
     <Card>
       <CardHeader>
         <CardTitle>{cardTitle}</CardTitle>
-        {!isDrilldown && <CardDescription>{expenditureByFunctionText}</CardDescription>}
+         {isDrilldown ? (
+            <CardDescription>{breakdownSubtitleText}</CardDescription>
+        ) : (
+            <CardDescription>{expenditureByFunctionText}</CardDescription>
+        )}
       </CardHeader>
       <CardContent className="w-full pr-4" style={{ height: `${chartHeight}px` }}>
         <ResponsiveContainer width="100%" height="100%">
