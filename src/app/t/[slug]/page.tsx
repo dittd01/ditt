@@ -35,6 +35,7 @@ import { ScrollToTopButton } from '@/components/ScrollToTopButton';
 import { LiveResults } from '@/components/LiveResults';
 import { castVoteAction } from './actions';
 import { useToast } from '@/hooks/use-toast';
+import { trackEvent } from '@/lib/analytics';
 
 // Translations object for multilingual support.
 const translations = {
@@ -59,6 +60,9 @@ const translations = {
     yes: 'Yes',
     no: 'No',
     youAbstained: 'You have abstained from this vote.',
+    structuredDebate: 'Structured Debate',
+    sources: 'Sources',
+    topicDetails: 'Topic Details',
   },
   nb: {
     castVote: 'Avgi din anonyme stemme',
@@ -81,6 +85,9 @@ const translations = {
     yes: 'Ja',
     no: 'Nei',
     youAbstained: 'Du har avstått fra denne avstemningen.',
+    structuredDebate: 'Strukturert Debatt',
+    sources: 'Kilder',
+    topicDetails: 'Detaljer om Temaet',
   }
 };
 
@@ -232,6 +239,7 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
   }, [topic.id]);
 
   const handleVote = async (voteData: string | string[]) => {
+    const t = translations[lang];
     if (!voterId) {
       toast({
         variant: 'destructive',
@@ -305,6 +313,7 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
   };
 
   const handleRevote = () => {
+    const t = translations[lang];
     setVotedOn(null);
      toast({
       title: t.castNewVoteTitle,
@@ -346,8 +355,9 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
               onRevote={handleRevote}
             />
           </Suspense>
-
+          
           {votedOn && <LiveResults topic={currentTopic} />}
+
           <VoteChart topic={currentTopic} />
 
           <Separator className="my-12" />
