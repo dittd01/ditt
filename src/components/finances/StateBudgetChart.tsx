@@ -2,7 +2,7 @@
 'use client';
 import { useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
 import type { FinanceData } from '@/lib/types';
 
 interface StateBudgetChartProps {
@@ -32,6 +32,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   }
   return null;
 };
+
+const valueFormatter = (value: number) => {
+    if (value < 100) return ''; // Don't show labels for very small segments
+    return new Intl.NumberFormat('nb-NO', { notation: 'compact', compactDisplay: 'short' }).format(value * 1000000000);
+}
 
 export function StateBudgetChart({ data }: StateBudgetChartProps) {
   const chartData = useMemo(() => {
@@ -69,10 +74,18 @@ export function StateBudgetChart({ data }: StateBudgetChartProps) {
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
                 <Legend wrapperStyle={{ fontSize: '12px' }} />
-                <Bar dataKey="Non-Petroleum Revenue" stackId="revenue" fill="hsl(var(--primary))" />
-                <Bar dataKey="Petroleum Revenue" stackId="revenue" fill="hsl(120, 40%, 60%)" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Non-Petroleum Expenditure" stackId="expenditure" fill="hsl(var(--chart-1))" />
-                <Bar dataKey="Petroleum Expenditure" stackId="expenditure" fill="hsl(0, 70%, 70%)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Non-Petroleum Revenue" stackId="revenue" fill="hsl(var(--primary))">
+                    <LabelList dataKey="Non-Petroleum Revenue" position="center" className="fill-primary-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
+                </Bar>
+                <Bar dataKey="Petroleum Revenue" stackId="revenue" fill="hsl(120, 40%, 60%)" radius={[4, 4, 0, 0]}>
+                    <LabelList dataKey="Petroleum Revenue" position="center" className="fill-primary-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
+                </Bar>
+                <Bar dataKey="Non-Petroleum Expenditure" stackId="expenditure" fill="hsl(var(--chart-1))">
+                    <LabelList dataKey="Non-Petroleum Expenditure" position="center" className="fill-destructive-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
+                </Bar>
+                <Bar dataKey="Petroleum Expenditure" stackId="expenditure" fill="hsl(0, 70%, 70%)" radius={[4, 4, 0, 0]}>
+                    <LabelList dataKey="Petroleum Expenditure" position="center" className="fill-destructive-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
+                </Bar>
             </BarChart>
         </ResponsiveContainer>
       </CardContent>
