@@ -12,7 +12,7 @@ import { currentUser } from '@/lib/user-data';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { generateRebuttalAction } from '@/app/actions';
-import { ArgumentChart } from './ArgumentChart';
+import { DebateTree } from './DebateTree';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -288,7 +288,7 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
   return (
     <div>
         <div className="mb-8">
-            <ArgumentChart args={debateArgs} topicQuestion={topicQuestion} lang={lang} />
+            <DebateTree args={debateArgs} topicQuestion={topicQuestion} lang={lang} />
         </div>
 
         <div className="flex justify-end mb-6 pb-4 border-b">

@@ -7,8 +7,14 @@ import type { Argument, Topic } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
-interface ArgumentChartProps {
+interface DebateTreeProps {
   args: Argument[];
   topicQuestion: string;
   lang: 'en' | 'nb';
@@ -22,47 +28,37 @@ interface HierarchyNode extends d3.HierarchyNode<Argument> {
 }
 
 const COLORS = {
-  for: '#10B981', // green-500
-  against: '#EF4444', // red-500
-  neutral: '#64748B', // slate-500
+  for: 'hsl(var(--chart-2))', // Emerald-600
+  against: 'hsl(var(--chart-1))', // Rose-600
+  neutral: 'hsl(var(--muted-foreground))', // Slate-500
 };
 
-interface TooltipData {
-    x: number;
-    y: number;
-    visible: boolean;
-    argument: Argument | null;
-}
-
-const CustomTooltip = ({ data }: { data: TooltipData['argument'] }) => {
-    if (!data || !data.author) {
+const CustomTooltipContent = ({ argument }: { argument: Argument }) => {
+    if (!argument || !argument.author) {
         return null;
     }
     return (
-        <div className="rounded-lg border bg-popover p-2 shadow-lg max-w-xs text-xs pointer-events-none">
-             <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full" style={{ backgroundColor: data.side === 'for' ? COLORS.for : COLORS.against }}/>
-                <p className="text-sm font-bold text-popover-foreground">Argument by {data.author.name}</p>
+        <div className="max-w-xs text-sm">
+            <div className="flex items-center gap-2 mb-1">
+                <div className="h-2 w-2 rounded-full" style={{ backgroundColor: argument.side === 'for' ? COLORS.for : COLORS.against }}/>
+                <p className="font-semibold text-popover-foreground">{argument.author.name}</p>
             </div>
-            <p className="text-xs text-muted-foreground truncate mt-1">{data.text}</p>
-            <p className="text-xs text-muted-foreground mt-1">Upvotes: {data.upvotes}</p>
+            <p className="text-muted-foreground">{argument.text}</p>
         </div>
     );
 };
 
-
-export function ArgumentChart({ args, topicQuestion, lang }: ArgumentChartProps) {
+export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [tooltip, setTooltip] = useState<TooltipData>({ x: 0, y: 0, visible: false, argument: null });
   
   useEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
         if (entries[0]) {
             const { width } = entries[0].contentRect;
-            const height = Math.min(width, 500); 
+            const height = isMobile ? 300 : Math.min(width, 500); 
             setDimensions({ width, height });
         }
     });
@@ -70,7 +66,7 @@ export function ArgumentChart({ args, topicQuestion, lang }: ArgumentChartProps)
         resizeObserver.observe(containerRef.current);
     }
     return () => resizeObserver.disconnect();
-  }, []);
+  }, [isMobile]);
 
   const rootNode = useMemo(() => {
     if (!args || args.length === 0 || dimensions.width === 0) {
@@ -80,11 +76,11 @@ export function ArgumentChart({ args, topicQuestion, lang }: ArgumentChartProps)
     const topicRoot: Argument = {
         id: 'root',
         topicId: args[0]?.topicId || '',
-        parentId: '', // Stratify expects empty string for root's parent
+        parentId: '', 
         side: 'for', 
         author: { name: 'Topic' },
         text: topicQuestion,
-        upvotes: 0, downvotes: 0, replyCount: 0, createdAt: ''
+        upvotes: 0, downvotes: 0, replyCount: 0, createdAt: new Date().toISOString()
     };
     
     const dataWithRoot = [topicRoot, ...args];
@@ -94,7 +90,6 @@ export function ArgumentChart({ args, topicQuestion, lang }: ArgumentChartProps)
     // Ensure parentId is either valid or null (for top-level)
     const sanitizedData = dataWithRoot.map(item => {
         if (item.parentId && !idToNodeMap.has(item.parentId)) {
-            console.warn(`Invalid parentId "${item.parentId}" for item "${item.id}". Setting to root.`);
             return { ...item, parentId: 'root' };
         }
         return item;
@@ -105,10 +100,10 @@ export function ArgumentChart({ args, topicQuestion, lang }: ArgumentChartProps)
     try {
         const stratifiedData = d3.stratify<Argument>()
             .id(d => d.id)
-            .parentId(d => d.parentId || 'root') // Default to root if parentId is null
+            .parentId(d => d.parentId || 'root')
             (sanitizedData);
         
-        stratifiedData.sum(d => (d.id === 'root' ? 0 : 1));
+        stratifiedData.sum(d => (d.id === 'root' ? 0 : 1 + (d.downvotes || 0) * 0.1));
 
         const radius = Math.min(dimensions.width, dimensions.height) / 2;
         
@@ -119,11 +114,8 @@ export function ArgumentChart({ args, topicQuestion, lang }: ArgumentChartProps)
         return partition(stratifiedData) as HierarchyNode;
     } catch(e) {
         console.error("D3 Stratify error:", e);
-        console.error("Invalid data provided to stratify:", sanitizedData);
         return null;
     }
-
-
   }, [args, topicQuestion, dimensions]);
 
   const allNodes = useMemo(() => rootNode ? rootNode.descendants() as HierarchyNode[] : [], [rootNode]);
@@ -136,22 +128,6 @@ export function ArgumentChart({ args, topicQuestion, lang }: ArgumentChartProps)
     .innerRadius(d => d.y0 + 4)
     .outerRadius(d => Math.max(d.y0 + 4, d.y1 - 2));
 
-  const handleMouseOver = (event: React.MouseEvent<SVGPathElement>, d: HierarchyNode) => {
-    if (d.depth === 0) return;
-    d3.select(event.currentTarget).attr('stroke', 'hsl(var(--primary))').attr('stroke-width', 2);
-    setTooltip({
-        x: event.clientX,
-        y: event.clientY,
-        visible: true,
-        argument: d.data
-    });
-  };
-
-  const handleMouseLeave = (event: React.MouseEvent<SVGPathElement>) => {
-     d3.select(event.currentTarget).attr('stroke', 'hsl(var(--card))').attr('stroke-width', 0.5);
-     setTooltip({ x: 0, y: 0, visible: false, argument: null });
-  };
-  
   if (!rootNode) {
     return (
       <Card>
@@ -185,21 +161,29 @@ export function ArgumentChart({ args, topicQuestion, lang }: ArgumentChartProps)
         <CardTitle>Debate Visualization</CardTitle>
         <CardDescription>A radial map of the argument structure. Inner rings are top-level arguments.</CardDescription>
       </CardHeader>
-      <CardContent ref={containerRef} className="h-[500px] w-full p-0 relative">
+      <CardContent ref={containerRef} className="h-[300px] md:h-[500px] w-full p-0 relative">
         <svg ref={svgRef} width="100%" height="100%">
           <g transform={`translate(${dimensions.width / 2},${dimensions.height / 2})`}>
+            <TooltipProvider>
             {allNodes.map((d, i) => (
-                <path
-                    key={d.data.id || i}
-                    d={arcGenerator(d) || ''}
-                    fill={getColor(d)}
-                    stroke="hsl(var(--card))"
-                    strokeWidth={0.5}
-                    className="transition-opacity hover:opacity-80 cursor-pointer"
-                    onMouseOver={(e) => handleMouseOver(e, d)}
-                    onMouseLeave={handleMouseLeave}
-                />
+                <Tooltip key={d.data.id || i} delayDuration={150}>
+                    <TooltipTrigger asChild>
+                         <path
+                            d={arcGenerator(d) || ''}
+                            fill={getColor(d)}
+                            stroke="hsl(var(--card))"
+                            strokeWidth={0.5}
+                            className="transition-opacity hover:opacity-80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
+                        />
+                    </TooltipTrigger>
+                     {d.depth > 0 && (
+                        <TooltipContent>
+                           <CustomTooltipContent argument={d.data} />
+                        </TooltipContent>
+                     )}
+                </Tooltip>
             ))}
+            </TooltipProvider>
              <text
                 x={0}
                 y={0}
@@ -211,20 +195,6 @@ export function ArgumentChart({ args, topicQuestion, lang }: ArgumentChartProps)
              </text>
           </g>
         </svg>
-        {tooltip.visible && tooltip.argument && (
-             <div 
-                className="absolute z-50 transition-opacity"
-                style={{
-                    left: tooltip.x + 10,
-                    top: tooltip.y + 10,
-                    transform: `translate(-${tooltip.x > window.innerWidth / 2 ? '100%' : '0'}, -${tooltip.y > window.innerHeight / 2 ? '100%' : '0'})`,
-                    opacity: tooltip.visible ? 1 : 0,
-                    pointerEvents: 'none'
-                }}
-            >
-               <CustomTooltip data={tooltip.argument} />
-            </div>
-        )}
       </CardContent>
     </Card>
   );
