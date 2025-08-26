@@ -96,4 +96,10 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  .hover\:bg-accent:hover .text-muted-foreground {
+    color: hsl(var(--primary-foreground) / 0.8);
+  }
+  .dark .hover\:bg-accent:hover .text-muted-foreground {
+      color: hsl(var(--accent-foreground) / 0.8);
+  }
 }
