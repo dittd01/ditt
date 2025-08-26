@@ -76,7 +76,7 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
     const topicRoot: Argument = {
         id: 'root',
         topicId: args[0]?.topicId || '',
-        parentId: '', 
+        parentId: '', // Root parentId is an empty string
         side: 'for', 
         author: { name: 'Topic' },
         text: topicQuestion,
@@ -100,8 +100,7 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
     try {
         const stratifiedData = d3.stratify<Argument>()
             .id(d => d.id)
-            .parentId(d => d.parentId || 'root')
-            (sanitizedData);
+            .parentId(d => (d.id === 'root' ? null : d.parentId || 'root'))(sanitizedData);
         
         stratifiedData.sum(d => (d.id === 'root' ? 0 : 1 + (d.downvotes || 0) * 0.1));
 
