@@ -8,15 +8,23 @@ import { MobileNav } from '@/components/layout/mobile-nav';
 import { UserNav } from './user-nav';
 import { ThemeToggle } from './theme-toggle';
 import { LanguageToggle } from './language-toggle';
+import { ShareButton } from '../ShareButton';
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
+  const [siteUrl, setSiteUrl] = useState('');
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 4);
     };
     window.addEventListener('scroll', handleScroll);
+    
+    // Why: `window.location.origin` is only available on the client.
+    // This effect ensures we get the correct base URL for sharing
+    // without causing server-client hydration mismatches.
+    setSiteUrl(window.location.origin);
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -31,6 +39,11 @@ export function SiteHeader() {
         <MainNav />
         <MobileNav />
         <div className="flex flex-1 items-center justify-end space-x-2">
+            <ShareButton 
+              shareUrl={siteUrl}
+              shareTitle="Ditt Demokrati"
+              shareText="Explore direct democracy on a modern, anonymous voting platform."
+            />
             <LanguageToggle />
             <ThemeToggle />
             <UserNav />
