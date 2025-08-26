@@ -32,12 +32,13 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-// A monochromatic green color scale for a professional look.
+// A monochromatic red color scale for a professional look.
 // These colors will work in both light and dark mode by varying lightness.
-const generateGreenShades = (isDark: boolean) => {
-  const baseLightness = isDark ? 65 : 25; // Dark mode starts lighter, light mode starts darker
-  const step = isDark ? -5 : 6;
-  return Array.from({ length: 10 }, (_, i) => `hsl(103, 31%, ${baseLightness + (i * step)}%)`);
+const generateRedShades = (isDark: boolean) => {
+  const baseLightness = isDark ? 60 : 20; // Dark mode starts lighter, light mode starts darker
+  const step = isDark ? -4 : 5;
+  const saturation = isDark ? 65 : 78;
+  return Array.from({ length: 10 }, (_, i) => `hsl(0, ${saturation}%, ${baseLightness + (i * step)}%)`);
 };
 
 export function ExpenditureBarChart({ data, title, onBarClick, isDrilldown = false }: ExpenditureBarChartProps) {
@@ -48,7 +49,7 @@ export function ExpenditureBarChart({ data, title, onBarClick, isDrilldown = fal
   
   useEffect(() => {
     if (resolvedTheme) {
-        setColors(generateGreenShades(resolvedTheme === 'dark'));
+        setColors(generateRedShades(resolvedTheme === 'dark'));
     }
   }, [resolvedTheme]);
 

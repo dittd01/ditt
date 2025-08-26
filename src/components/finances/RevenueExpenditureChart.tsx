@@ -1,4 +1,5 @@
 
+
 'use client';
 import { useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
@@ -74,7 +75,7 @@ export function RevenueExpenditureChart({ data }: RevenueExpenditureChartProps) 
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
                 <Legend />
                 <Bar dataKey="revenue" name="Total Revenue" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="expenditure" name="Expenditure" stackId="a" fill="hsl(var(--chart-2))" />
+                <Bar dataKey="expenditure" name="Expenditure" stackId="a" fill="hsl(var(--chart-1))" />
                 <Bar dataKey="surplus" name="Surplus" stackId="a" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
             </BarChart>
         </ResponsiveContainer>
