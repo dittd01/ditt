@@ -34,9 +34,9 @@ export function ArgumentCard({ argument, onCounter }: ArgumentCardProps) {
           <AvatarImage src={argument.author.avatarUrl} alt={argument.author.name} />
           <AvatarFallback>{argument.author.name.substring(0, 2)}</AvatarFallback>
         </Avatar>
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex flex-wrap items-center gap-x-2 text-sm">
             <span className="font-semibold text-card-foreground">{argument.author.name}</span>
-            <span className="text-muted-foreground">·</span>
+            <span className="text-muted-foreground text-xs">·</span>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
