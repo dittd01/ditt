@@ -15,9 +15,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
         <p className="font-bold mb-2">{label}</p>
         <div className="space-y-1">
-            {payload.map((item: any) => (
-                <div key={item.dataKey} className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: item.fill }}/>
+            {payload.map((item: any, index: number) => (
+                <div key={index} className="flex items-center gap-2">
+                     <div className="h-2 w-2 rounded-full" style={{ backgroundColor: item.fill }}/>
                     <span className="text-muted-foreground">{item.name}: </span>
                     <span className="font-medium">{item.value.toLocaleString()} mrd. kr</span>
                 </div>
@@ -68,8 +68,8 @@ export function StateBudgetChart({ data }: StateBudgetChartProps) {
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
                 <Legend />
-                <Bar dataKey="Petroleum Revenue" stackId="revenue" fill="hsl(var(--chart-2))" />
-                <Bar dataKey="Non-Petroleum Revenue" stackId="revenue" fill="hsl(120, 40%, 60%)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Petroleum Revenue" stackId="revenue" fill="hsl(120, 40%, 60%)" />
+                <Bar dataKey="Non-Petroleum Revenue" stackId="revenue" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="Petroleum Expenditure" stackId="expenditure" fill="hsl(0, 70%, 70%)" />
                 <Bar dataKey="Non-Petroleum Expenditure" stackId="expenditure" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
             </BarChart>
