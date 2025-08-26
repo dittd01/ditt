@@ -70,6 +70,22 @@ export function ExpenditureChart({ data }: ExpenditureChartProps) {
   const title = lang === 'nb' ? `Slik brukes skattepengene dine (${data.year})` : `How Your Tax Money Is Spent (${data.year})`;
   const description = lang === 'nb' ? 'Fordeling av offentlige utgifter etter funksjon.' : 'Breakdown of general government expenditure by function.';
 
+  const renderLegend = (props: any) => {
+    const { payload } = props;
+    return (
+      <ul className="flex flex-col space-y-1 text-xs">
+        {payload.map((entry: any, index: number) => (
+          <li key={`item-${index}`} className="flex items-center gap-2">
+            <span style={{ display: 'inline-block', width: '10px', height: '10px', backgroundColor: entry.color, borderRadius: '50%' }}></span>
+            <span>{entry.value}</span>
+            <span className="text-muted-foreground">{`(${parseFloat(entry.payload.share).toFixed(1)}%)`}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+
   return (
     <Card>
       <CardHeader>
@@ -95,10 +111,11 @@ export function ExpenditureChart({ data }: ExpenditureChartProps) {
                 <Cell key={`cell-${index}`} fill={entry.fill} />
               ))}
             </Pie>
-             <Legend layout="vertical" align="right" verticalAlign="middle" iconSize={10} wrapperStyle={{fontSize: '12px'}}/>
+             <Legend layout="vertical" align="right" verticalAlign="middle" iconSize={10} wrapperStyle={{fontSize: '12px'}} content={renderLegend} />
           </PieChart>
         </ResponsiveContainer>
       </CardContent>
     </Card>
   );
 }
+
