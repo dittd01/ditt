@@ -17,8 +17,12 @@ export default function FinancesPage() {
   const [countryData, setCountryData] = useState<FinanceData | null>(null);
   const [selectedL1, setSelectedL1] = useState<ExpenditureByFunction | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [lang, setLang] = useState('en');
 
   useEffect(() => {
+    const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+    setLang(selectedLang);
+
     const fetchData = async () => {
       setIsLoading(true);
       const data = await getFinanceDataForCountry('NOR', 2024);
@@ -56,6 +60,10 @@ export default function FinancesPage() {
   const country = allFinanceData.countries[0];
   const year = allFinanceData.fiscalYears.find(fy => fy.year === country.defaultYear)!;
 
+  const mainChartTitle = lang === 'nb' ? 'Slik brukes skattepengene dine (2024)' : 'How Your Tax Money Is Spent (2024)';
+  const breakdownTitle = lang === 'nb' ? `Fordeling: ${selectedL1?.name_no || '...'}` : `Breakdown: ${selectedL1?.name_en || '...'}`;
+
+
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
       <FinanceHeader
@@ -72,11 +80,11 @@ export default function FinancesPage() {
       <ExpenditureBarChart 
         data={countryData.expenditure} 
         onBarClick={handleL1Select}
-        title="How Your Tax Money Is Spent (2024)"
+        title={mainChartTitle}
       />
       <ExpenditureBarChart 
         data={l2Data}
-        title={`Breakdown: ${selectedL1?.name_en || '...'}`}
+        title={breakdownTitle}
         isDrilldown={true}
       />
       <Sources sources={countryData.sources} />

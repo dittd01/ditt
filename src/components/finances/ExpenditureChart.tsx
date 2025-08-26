@@ -1,4 +1,5 @@
 
+
 'use client';
 import { useMemo, useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
@@ -40,6 +41,20 @@ export function ExpenditureChart({ data }: ExpenditureChartProps) {
     }
   }, [resolvedTheme]);
 
+   useEffect(() => {
+    const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+    setLang(selectedLang);
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'selectedLanguage') {
+        setLang(event.newValue || 'en');
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   const chartData = useMemo(() => {
     if (colors.length === 0) return [];
@@ -51,12 +66,15 @@ export function ExpenditureChart({ data }: ExpenditureChartProps) {
       fill: colors[index % colors.length],
     })).sort((a,b) => b.value - a.value);
   }, [data, lang, colors]);
+  
+  const title = lang === 'nb' ? `Slik brukes skattepengene dine (${data.year})` : `How Your Tax Money Is Spent (${data.year})`;
+  const description = lang === 'nb' ? 'Fordeling av offentlige utgifter etter funksjon.' : 'Breakdown of general government expenditure by function.';
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>How Your Tax Money Is Spent ({data.year})</CardTitle>
-        <CardDescription>Breakdown of general government expenditure by function.</CardDescription>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="h-[300px] w-full">
         <ResponsiveContainer>
@@ -81,10 +99,6 @@ export function ExpenditureChart({ data }: ExpenditureChartProps) {
           </PieChart>
         </ResponsiveContainer>
       </CardContent>
-      <CardFooter className="flex justify-end gap-2">
-         <Button variant={lang === 'en' ? 'default' : 'ghost'} size="sm" onClick={() => setLang('en')}>EN</Button>
-         <Button variant={lang === 'nb' ? 'default' : 'ghost'} size="sm" onClick={() => setLang('nb')}>NO</Button>
-      </CardFooter>
     </Card>
   );
 }

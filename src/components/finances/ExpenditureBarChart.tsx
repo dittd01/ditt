@@ -85,16 +85,20 @@ export function ExpenditureBarChart({ data, title, onBarClick, isDrilldown = fal
     return { chartData: expenditureData, totalExpenditure: total };
   }, [data, lang, colors]);
   
+  const noCategorySelectedText = lang === 'nb' ? 'Ingen kategori valgt' : 'No category selected';
+  const noCategoryDescText = lang === 'nb' ? 'Klikk på en kategori i diagrammet ovenfor for å se en detaljert oversikt.' : 'Click a category in the chart above to see a detailed breakdown.';
+  const expenditureByFunctionText = lang === 'nb' ? 'Offentlige utgifter etter funksjon, i milliarder kroner.' : 'Government expenditure by function, in billions of NOK.';
+
   if (!data) {
      if (isDrilldown) {
        return (
         <Card className="border-dashed">
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
-                 <CardDescription>Click a category in the chart above to see a detailed breakdown.</CardDescription>
+                 <CardDescription>{noCategoryDescText}</CardDescription>
             </CardHeader>
             <CardContent className="h-[200px] flex items-center justify-center">
-                 <p className="text-muted-foreground">No category selected</p>
+                 <p className="text-muted-foreground">{noCategorySelectedText}</p>
             </CardContent>
         </Card>
        )
@@ -103,13 +107,18 @@ export function ExpenditureBarChart({ data, title, onBarClick, isDrilldown = fal
   }
   
   const chartHeight = chartData.length * (isMobile ? 36 : 40) + 60;
-  const cardTitle = isDrilldown ? title : `${title} - Total: ${totalExpenditure.toLocaleString()} bn NOK`;
+  
+  const cardTitle = isDrilldown 
+    ? title 
+    : lang === 'nb'
+        ? `${title} - Totalt: ${totalExpenditure.toLocaleString()} mrd. kr`
+        : `${title} - Total: ${totalExpenditure.toLocaleString()} bn NOK`;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>{cardTitle}</CardTitle>
-        {!isDrilldown && <CardDescription>Government expenditure by function, in billions of NOK.</CardDescription>}
+        {!isDrilldown && <CardDescription>{expenditureByFunctionText}</CardDescription>}
       </CardHeader>
       <CardContent className="w-full pr-4" style={{ height: `${chartHeight}px` }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -126,7 +135,7 @@ export function ExpenditureBarChart({ data, title, onBarClick, isDrilldown = fal
                     tick={{ fontSize: 12 }}
                     tickFormatter={(value) => `${value}`}
                 >
-                  <Label value="NOK (billions)" offset={0} position="insideBottom" style={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
+                  <Label value={lang === 'nb' ? 'NOK (milliarder)' : 'NOK (billions)'} offset={0} position="insideBottom" style={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
                 </XAxis>
                 <YAxis
                     type="category"

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -22,6 +23,13 @@ export function FinanceHeader({
   selectedCountry,
   selectedYear,
 }: FinanceHeaderProps) {
+  const [lang, setLang] = React.useState('en');
+  
+  React.useEffect(() => {
+    const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+    setLang(selectedLang);
+  }, []);
+
   const handleCountryChange = (iso3: string) => {
     // Logic to re-fetch data for the new country will be added here.
     console.log("Country changed to:", iso3);
@@ -32,11 +40,14 @@ export function FinanceHeader({
     console.log("Year changed to:", yearStr);
   };
 
+  const title = lang === 'nb' ? 'Offentlige Finanser' : 'Government Finances';
+  const subtitle = lang === 'nb' ? `En oversikt over offentlige inntekter og utgifter for ${selectedCountry.name}.` : `An overview of public revenue and expenditure for ${selectedCountry.name}.`;
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h1 className="text-3xl font-bold font-headline tracking-tight">Government Finances</h1>
-        <p className="text-muted-foreground">An overview of public revenue and expenditure for {selectedCountry.name}.</p>
+        <h1 className="text-3xl font-bold font-headline tracking-tight">{title}</h1>
+        <p className="text-muted-foreground">{subtitle}</p>
       </div>
       <div className="flex items-center gap-2">
         <Select

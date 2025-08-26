@@ -1,6 +1,7 @@
 
+
 'use client';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
 import type { FinanceData } from '@/lib/types';
@@ -10,7 +11,15 @@ interface StateBudgetChartProps {
 }
 
 const CustomTooltip = ({ active, payload, label }: any) => {
+  const [lang, setLang] = useState('en');
+  useEffect(() => {
+    setLang(localStorage.getItem('selectedLanguage') || 'en');
+  }, []);
+
   if (active && payload && payload.length) {
+    const totalRevenueText = lang === 'nb' ? 'Totale inntekter' : 'Total Revenue';
+    const totalExpenditureText = lang === 'nb' ? 'Totale utgifter' : 'Total Expenditure';
+
     return (
       <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
         <p className="font-bold mb-2">{label}</p>
@@ -19,12 +28,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                 <div key={index} className="flex items-center gap-2">
                      <div className="h-2 w-2 rounded-full" style={{ backgroundColor: item.fill }}/>
                     <span className="text-muted-foreground">{item.name}: </span>
-                    <span className="font-medium">{item.value.toLocaleString()} mrd. kr</span>
+                    <span className="font-medium">{item.value.toLocaleString()} {lang === 'nb' ? 'mrd. kr' : 'bn NOK'}</span>
                 </div>
             ))}
              <div className="pt-2 mt-2 border-t">
-                <p className="font-medium">Total Revenue: {payload[0].payload.totalRevenue.toLocaleString()} mrd. kr</p>
-                <p className="font-medium">Total Expenditure: {payload[0].payload.totalExpenditure.toLocaleString()} mrd. kr</p>
+                <p className="font-medium">{totalRevenueText}: {payload[0].payload.totalRevenue.toLocaleString()} {lang === 'nb' ? 'mrd. kr' : 'bn NOK'}</p>
+                <p className="font-medium">{totalExpenditureText}: {payload[0].payload.totalExpenditure.toLocaleString()} {lang === 'nb' ? 'mrd. kr' : 'bn NOK'}</p>
              </div>
         </div>
       </div>
@@ -39,6 +48,13 @@ const valueFormatter = (value: number) => {
 }
 
 export function StateBudgetChart({ data }: StateBudgetChartProps) {
+  const [lang, setLang] = useState('en');
+
+  useEffect(() => {
+    const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+    setLang(selectedLang);
+  }, []);
+
   const chartData = useMemo(() => {
     return data.stateBudget.map(item => ({
       name: item.year,
@@ -51,11 +67,19 @@ export function StateBudgetChart({ data }: StateBudgetChartProps) {
     }));
   }, [data]);
 
+  const petroleumRevenueText = lang === 'nb' ? 'Petroleumsinntekter' : 'Petroleum Revenue';
+  const nonPetroleumRevenueText = lang === 'nb' ? 'Inntekter utenom petroleum' : 'Non-Petroleum Revenue';
+  const petroleumExpenditureText = lang === 'nb' ? 'Petroleumsutgifter' : 'Petroleum Expenditure';
+  const nonPetroleumExpenditureText = lang === 'nb' ? 'Utgifter utenom petroleum' : 'Non-Petroleum Expenditure';
+
+  const title = lang === 'nb' ? 'Nøkkeltall i statsbudsjettet' : 'Key Figures in the State Budget';
+  const description = lang === 'nb' ? 'Totale inntekter mot utgifter i milliarder kroner for 2023, 2024 og 2025.' : 'Total revenue vs. expenditure in billions of NOK for 2023, 2024, and 2025.';
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Key Figures in the State Budget</CardTitle>
-        <CardDescription>Total revenue vs. expenditure in billions of NOK for 2023, 2024, and 2025.</CardDescription>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="h-[350px] w-full pr-4">
         <ResponsiveContainer>
@@ -74,16 +98,16 @@ export function StateBudgetChart({ data }: StateBudgetChartProps) {
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
                 <Legend wrapperStyle={{ fontSize: '12px' }} />
-                <Bar dataKey="Non-Petroleum Revenue" stackId="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]}>
+                <Bar dataKey="Non-Petroleum Revenue" name={nonPetroleumRevenueText} stackId="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]}>
                     <LabelList dataKey="Non-Petroleum Revenue" position="center" className="fill-primary-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
                 </Bar>
-                <Bar dataKey="Petroleum Revenue" stackId="revenue" fill="hsl(120, 40%, 60%)" >
+                <Bar dataKey="Petroleum Revenue" name={petroleumRevenueText} stackId="revenue" fill="hsl(120, 40%, 60%)" >
                     <LabelList dataKey="Petroleum Revenue" position="center" className="fill-primary-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
                 </Bar>
-                <Bar dataKey="Non-Petroleum Expenditure" stackId="expenditure" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]}>
+                <Bar dataKey="Non-Petroleum Expenditure" name={nonPetroleumExpenditureText} stackId="expenditure" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]}>
                     <LabelList dataKey="Non-Petroleum Expenditure" position="center" className="fill-destructive-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
                 </Bar>
-                <Bar dataKey="Petroleum Expenditure" stackId="expenditure" fill="hsl(0, 70%, 70%)" >
+                <Bar dataKey="Petroleum Expenditure" name={petroleumExpenditureText} stackId="expenditure" fill="hsl(0, 70%, 70%)" >
                     <LabelList dataKey="Petroleum Expenditure" position="center" className="fill-destructive-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
                 </Bar>
             </BarChart>
