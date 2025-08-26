@@ -74,15 +74,9 @@ export function ArgumentComposer({
 
   async function handleInitialSubmit(values: ArgumentFormValues) {
     setStep('LOADING');
-    // Why: The AI flow expects a clean array of objects with `id` and `text`.
-    // Previously, the full argument object (including circular references or complex types)
-    // might have been passed, causing serialization errors. This ensures we only send
-    // the necessary, primitive data.
-    const cleanExistingArgs = existingArguments.map(arg => ({ id: arg.id, text: arg.text }));
-
     const input: CurateArgumentInput = {
       userText: values.text,
-      existingArguments: cleanExistingArgs,
+      existingArguments: existingArguments,
       side,
     };
     
