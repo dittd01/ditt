@@ -292,7 +292,7 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
             <ArgumentChart args={debateArgs} topicQuestion={topicQuestion} lang={lang} />
         </div>
 
-        <div className="flex justify-end mb-6">
+        <div className="flex justify-end mb-6 pb-4 border-b">
             <Tabs value={sortBy} onValueChange={(value) => setSortBy(value as SortByType)} className="w-full sm:w-auto">
                 <TabsList>
                     <TabsTrigger value="votes">{t.mostVoted}</TabsTrigger>
@@ -301,31 +301,17 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
             </Tabs>
         </div>
         
-        <div className="flex justify-center items-center mb-6 pb-4 border-b">
-             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="text-muted-foreground hover:text-foreground">
-                        <PlusCircle className="mr-2 h-4 w-4"/>
-                        {t.addArgument}
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => handleAddArgument('for')}>
-                        Add argument FOR
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleAddArgument('against')}>
-                         Add argument AGAINST
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             {/* Arguments For Column */}
             <div className="space-y-4">
-                 <h3 className="text-xl font-semibold text-[hsl(var(--chart-2))]">
-                    {t.for}
-                </h3>
+                 <div className="flex justify-between items-center">
+                    <h3 className="text-xl font-semibold text-[hsl(var(--chart-2))]">
+                        {t.for}
+                    </h3>
+                    <Button variant="ghost" size="icon" onClick={() => handleAddArgument('for')} className="text-muted-foreground hover:text-foreground">
+                        <PlusCircle className="h-5 w-5" />
+                    </Button>
+                </div>
                  {showComposer === 'for' && (
                     <ArgumentComposer
                         side="for"
@@ -346,9 +332,14 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
 
             {/* Arguments Against Column */}
             <div className="space-y-4">
-                 <h3 className="text-xl font-semibold text-destructive">
-                    {t.against}
-                </h3>
+                 <div className="flex justify-between items-center">
+                    <h3 className="text-xl font-semibold text-destructive">
+                        {t.against}
+                    </h3>
+                     <Button variant="ghost" size="icon" onClick={() => handleAddArgument('against')} className="text-muted-foreground hover:text-foreground">
+                        <PlusCircle className="h-5 w-5" />
+                    </Button>
+                </div>
                  {showComposer === 'against' && (
                     <ArgumentComposer
                         side="against"
