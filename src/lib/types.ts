@@ -237,6 +237,20 @@ export type DataSource = {
   lastCheckedAt: string;
 };
 
+export type StateBudgetRow = {
+    year: number;
+    totalRevenue: number;
+    petroleumRevenue: number;
+    nonPetroleumRevenue: number;
+    totalExpenditure: number;
+    petroleumExpenditure: number;
+    nonPetroleumExpenditure: number;
+    budgetSurplus: number;
+    oilCorrectedSurplus: number;
+    transferFromGPF: number;
+    totalSurplus: number;
+};
+
 export type FinanceData = {
     countryIso3: string;
     year: number;
@@ -244,4 +258,5 @@ export type FinanceData = {
     expenditure: ExpenditureByFunction[];
     sources: DataSource[];
     cofog: CofogFunction[];
+    stateBudget: StateBudgetRow[];
 };

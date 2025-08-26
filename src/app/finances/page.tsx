@@ -4,6 +4,7 @@ import { KpiCards } from '@/components/finances/KpiCards';
 import { ExpenditureChart } from '@/components/finances/ExpenditureChart';
 import { ExpenditureBarChart } from '@/components/finances/ExpenditureBarChart';
 import { RevenueExpenditureChart } from '@/components/finances/RevenueExpenditureChart';
+import { StateBudgetChart } from '@/components/finances/StateBudgetChart';
 import { Sources } from '@/components/finances/Sources';
 import { getFinanceDataForCountry } from './actions';
 import { allFinanceData } from '@/lib/finance-data';
@@ -41,6 +42,7 @@ export default async function FinancesPage() {
             <RevenueExpenditureChart data={countryData} />
         </div>
       </div>
+      <StateBudgetChart data={countryData} />
       <ExpenditureBarChart data={countryData} />
       <Sources sources={countryData.sources} />
     </div>
