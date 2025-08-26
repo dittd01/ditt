@@ -13,8 +13,7 @@ interface FinanceHeaderProps {
   years: FiscalYear[];
   selectedCountry: Country;
   selectedYear: FiscalYear;
-  onCountryChange: (country: Country) => void;
-  onYearChange: (year: FiscalYear) => void;
+  // onCountryChange and onYearChange will be implemented in a future step
 }
 
 export function FinanceHeader({
@@ -22,9 +21,17 @@ export function FinanceHeader({
   years,
   selectedCountry,
   selectedYear,
-  onCountryChange,
-  onYearChange,
 }: FinanceHeaderProps) {
+  const handleCountryChange = (iso3: string) => {
+    // Logic to re-fetch data for the new country will be added here.
+    console.log("Country changed to:", iso3);
+  };
+
+  const handleYearChange = (yearStr: string) => {
+    // Logic to re-fetch data for the new year will be added here.
+    console.log("Year changed to:", yearStr);
+  };
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div>
@@ -33,11 +40,8 @@ export function FinanceHeader({
       </div>
       <div className="flex items-center gap-2">
         <Select
-          value={selectedCountry.iso3}
-          onValueChange={(iso3) => {
-            const country = countries.find(c => c.iso3 === iso3);
-            if (country) onCountryChange(country);
-          }}
+          defaultValue={selectedCountry.iso3}
+          onValueChange={handleCountryChange}
         >
           <SelectTrigger className="w-[150px]">
             <Globe className="mr-2 h-4 w-4" />
@@ -52,11 +56,8 @@ export function FinanceHeader({
           </SelectContent>
         </Select>
         <Select
-          value={String(selectedYear.year)}
-          onValueChange={(yearStr) => {
-            const year = years.find(y => y.year === parseInt(yearStr));
-            if (year) onYearChange(year);
-          }}
+          defaultValue={String(selectedYear.year)}
+          onValueChange={handleYearChange}
         >
           <SelectTrigger className="w-[120px]">
             <Calendar className="mr-2 h-4 w-4" />
