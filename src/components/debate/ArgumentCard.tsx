@@ -54,7 +54,7 @@ export function ArgumentCard({ argument, onCounter }: ArgumentCardProps) {
       <CardContent className="px-4 pb-3">
         <p className="text-card-foreground/90">{argument.text}</p>
       </CardContent>
-      <CardFooter className="flex justify-between p-4 pt-2">
+      <CardFooter className="flex justify-between items-center p-4 pt-2">
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground">
             <ArrowBigUp className="h-5 w-5" />
@@ -65,7 +65,7 @@ export function ArgumentCard({ argument, onCounter }: ArgumentCardProps) {
              <span className="text-sm font-semibold">{argument.downvotes}</span>
           </Button>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center flex-wrap justify-end gap-2">
            <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground" onClick={() => onCounter(argument)}>
              <MessageSquare className="h-4 w-4" />
              <span className="text-sm">Counter ({argument.replyCount})</span>
