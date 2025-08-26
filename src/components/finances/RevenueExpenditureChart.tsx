@@ -1,3 +1,4 @@
+
 'use client';
 import { useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
@@ -11,13 +12,13 @@ interface RevenueExpenditureChartProps {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="rounded-lg border bg-background p-2 shadow-sm">
+      <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
         <p className="font-bold">{label}</p>
         {payload.map((item: any, index: number) => (
             <div key={index} className="flex items-center gap-2">
                  <div className="h-2 w-2 rounded-full" style={{ backgroundColor: item.fill }}/>
-                <span className="text-sm text-muted-foreground">{item.name}: </span>
-                <span className="text-sm font-medium">{item.value.toLocaleString()} mrd. kr</span>
+                <span className="text-muted-foreground">{item.name}: </span>
+                <span className="font-medium">{item.value.toLocaleString()} mrd. kr</span>
             </div>
         ))}
       </div>
@@ -60,7 +61,7 @@ export function RevenueExpenditureChart({ data }: RevenueExpenditureChartProps) 
         <CardTitle>Revenue vs. Expenditure (L4Q)</CardTitle>
         <CardDescription>In billions (mrd.) of NOK. Last four quarters.</CardDescription>
       </CardHeader>
-      <CardContent className="h-[250px] w-full pr-10">
+      <CardContent className="h-[300px] w-full pr-4">
         <ResponsiveContainer>
             <BarChart
                 data={chartData}
