@@ -27,6 +27,11 @@ export default function FinancesPage() {
       setIsLoading(true);
       const data = await getFinanceDataForCountry('NOR', 2024);
       setCountryData(data);
+      if (data?.expenditure) {
+        // Set "Social protection" as the default selected category
+        const socialProtectionData = data.expenditure.find(item => item.cofogL1 === '10');
+        setSelectedL1(socialProtectionData || null);
+      }
       setIsLoading(false);
     };
     fetchData();
@@ -61,7 +66,11 @@ export default function FinancesPage() {
   const year = allFinanceData.fiscalYears.find(fy => fy.year === country.defaultYear)!;
 
   const mainChartTitle = lang === 'nb' ? 'Slik brukes skattepengene dine (2024)' : 'How Your Tax Money Is Spent (2024)';
-  const breakdownTitle = lang === 'nb' ? `Fordeling: ${selectedL1?.name_no || '...'}` : `Breakdown: ${selectedL1?.name_en || '...'}`;
+  const breakdownTitle = selectedL1
+    ? lang === 'nb' 
+      ? `Fordeling: ${selectedL1.name_no || '...'}` 
+      : `Breakdown: ${selectedL1.name_en || '...'}`
+    : lang === 'nb' ? 'Fordeling' : 'Breakdown';
 
 
   return (
