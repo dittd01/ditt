@@ -36,25 +36,9 @@ export function FinanceHeader({
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div>
         <h1 className="text-3xl font-bold font-headline tracking-tight">Government Finances</h1>
-        <p className="text-muted-foreground">An overview of public revenue and expenditure.</p>
+        <p className="text-muted-foreground">An overview of public revenue and expenditure for {selectedCountry.name}.</p>
       </div>
       <div className="flex items-center gap-2">
-        <Select
-          defaultValue={selectedCountry.iso3}
-          onValueChange={handleCountryChange}
-        >
-          <SelectTrigger className="w-[150px]">
-            <Globe className="mr-2 h-4 w-4" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {countries.map(country => (
-              <SelectItem key={country.iso3} value={country.iso3}>
-                {country.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
         <Select
           defaultValue={String(selectedYear.year)}
           onValueChange={handleYearChange}
