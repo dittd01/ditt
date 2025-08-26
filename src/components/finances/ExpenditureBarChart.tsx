@@ -30,9 +30,9 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
       .map((item, index) => ({
         name: lang === 'nb' ? item.name_no : item.name_en,
         value: item.amountBnNOK,
-        fill: 'hsl(var(--primary))',
+        fill: 'hsl(var(--chart-2))', // Using chart-2 for a vibrant green
       }))
-      .sort((a,b) => a.value - b.value); // Sort ascending for horizontal bar chart
+      .sort((a,b) => b.value - a.value); // Sort descending for vertical bar chart
   }, [data, lang]);
 
   return (
@@ -41,27 +41,27 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
         <CardTitle>Expenditure Details ({data.year})</CardTitle>
         <CardDescription>Government expenditure by function, in billions of NOK.</CardDescription>
       </CardHeader>
-      <CardContent className="h-[400px] w-full pr-10">
+      <CardContent className="h-[400px] w-full pr-4">
         <ResponsiveContainer>
             <BarChart
                 data={chartData}
-                layout="vertical"
-                margin={{ top: 5, right: 20, left: 100, bottom: 5 }}
+                margin={{ top: 5, right: 20, left: 10, bottom: 80 }}
             >
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                <XAxis type="number" tickFormatter={(value) => `${value}`} />
-                <YAxis 
-                    type="category" 
-                    dataKey="name" 
-                    width={150} 
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis 
+                    dataKey="name"
+                    angle={-45}
+                    textAnchor="end"
+                    height={70}
+                    interval={0}
                     tick={{ fontSize: 12 }}
-                    axisLine={false}
-                    tickLine={false}
+                />
+                <YAxis
+                    tickFormatter={(value) => `${value}`}
+                    domain={[0, 1100]}
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
-                <Bar dataKey="value" name="Expenditure" radius={[0, 4, 4, 0]}>
-                    <LabelList dataKey="value" position="right" offset={10} className="fill-foreground font-medium" />
-                </Bar>
+                <Bar dataKey="value" name="Expenditure" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
             </BarChart>
         </ResponsiveContainer>
       </CardContent>
