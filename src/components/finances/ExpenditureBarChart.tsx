@@ -15,6 +15,7 @@ interface ExpenditureBarChartProps {
   title: string;
   isDrilldown?: boolean;
   onBarClick?: (data: ExpenditureByFunction | null) => void;
+  colorTheme?: 'green' | 'red';
 }
 
 const CustomTooltip = ({ active, payload }: any) => {
@@ -39,7 +40,15 @@ const generateGreenShades = (isDark: boolean) => {
   return Array.from({ length: 10 }, (_, i) => `hsl(103, 31%, ${baseLightness + (i * step)}%)`);
 };
 
-export function ExpenditureBarChart({ data, title, onBarClick, isDrilldown = false }: ExpenditureBarChartProps) {
+// A monochromatic red color scale for the breakdown chart.
+const generateRedShades = (isDark: boolean) => {
+  const baseLightness = isDark ? 60 : 34;
+  const step = isDark ? -5 : 6;
+  return Array.from({ length: 10 }, (_, i) => `hsl(0, 78%, ${baseLightness + (i * step)}%)`);
+};
+
+
+export function ExpenditureBarChart({ data, title, onBarClick, isDrilldown = false, colorTheme = 'green' }: ExpenditureBarChartProps) {
   const { resolvedTheme } = useTheme();
   const [lang, setLang] = useState('en');
   const isMobile = useIsMobile();
@@ -47,9 +56,13 @@ export function ExpenditureBarChart({ data, title, onBarClick, isDrilldown = fal
   
   useEffect(() => {
     if (resolvedTheme) {
-        setColors(generateGreenShades(resolvedTheme === 'dark'));
+        if (colorTheme === 'red') {
+            setColors(generateRedShades(resolvedTheme === 'dark'));
+        } else {
+            setColors(generateGreenShades(resolvedTheme === 'dark'));
+        }
     }
-  }, [resolvedTheme]);
+  }, [resolvedTheme, colorTheme]);
 
   useEffect(() => {
     const selectedLang = localStorage.getItem('selectedLanguage') || 'en';

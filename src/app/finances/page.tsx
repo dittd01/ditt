@@ -60,6 +60,14 @@ export default function FinancesPage() {
       : `Breakdown: ${selectedL1.name_en || '...'} - ${selectedL1.amountBnNOK} bn NOK ${formattedPercentage}`;
   }, [selectedL1, lang, totalL1Expenditure]);
 
+  const handleL1Select = (data: ExpenditureByFunction | null) => {
+    setSelectedL1(data);
+  }
+
+  const country = allFinanceData.countries[0];
+  const year = allFinanceData.fiscalYears.find(fy => fy.year === country.defaultYear)!;
+  const mainChartTitle = lang === 'nb' ? 'Slik brukes skattepengene dine (2024)' : 'How Your Tax Money Is Spent (2024)';
+
   if (isLoading) {
     // You can return a loading skeleton here
     return (
@@ -76,14 +84,6 @@ export default function FinancesPage() {
       </div>
     );
   }
-
-  const handleL1Select = (data: ExpenditureByFunction | null) => {
-    setSelectedL1(data);
-  }
-
-  const country = allFinanceData.countries[0];
-  const year = allFinanceData.fiscalYears.find(fy => fy.year === country.defaultYear)!;
-  const mainChartTitle = lang === 'nb' ? 'Slik brukes skattepengene dine (2024)' : 'How Your Tax Money Is Spent (2024)';
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
@@ -103,11 +103,13 @@ export default function FinancesPage() {
           data={countryData.expenditure} 
           onBarClick={handleL1Select}
           title={mainChartTitle}
+          colorTheme="green"
         />
         <ExpenditureBarChart 
           data={l2Data}
           title={breakdownTitle}
           isDrilldown={true}
+          colorTheme="red"
         />
       </div>
       <Sources sources={countryData.sources} />
