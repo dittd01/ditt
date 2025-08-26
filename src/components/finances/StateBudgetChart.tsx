@@ -69,7 +69,7 @@ export function StateBudgetChart({ data }: StateBudgetChartProps) {
                     tick={{ fontSize: 12 }}
                 />
                 <YAxis
-                    tickFormatter={(value) => `${(value / 1000).toLocaleString()}k`}
+                    tickFormatter={(value) => value.toLocaleString()}
                     tick={{ fontSize: 12 }}
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
