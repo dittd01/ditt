@@ -1,27 +1,21 @@
 
 'use client';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import type { FinanceData } from '@/lib/types';
 import { Button } from '@/components/ui/button';
+import { useTheme } from 'next-themes';
 
 interface ExpenditureChartProps {
   data: FinanceData;
 }
 
-const COLORS = [
-  'hsl(var(--chart-1))',
-  'hsl(var(--chart-2))',
-  'hsl(var(--chart-3))',
-  'hsl(var(--chart-4))',
-  'hsl(var(--chart-5))',
-  'hsl(340, 82%, 52%)', // Vivid Pink
-  'hsl(48, 96%, 50%)',  // Vivid Yellow
-  'hsl(198, 93%, 48%)', // Vivid Cyan
-  'hsl(270, 75%, 60%)', // Vivid Purple
-  'hsl(150, 65%, 45%)', // Vivid Green
-];
+const generateGreenShades = (isDark: boolean) => {
+  const baseLightness = isDark ? 65 : 25; // Dark mode starts lighter, light mode starts darker
+  const step = isDark ? -5 : 6;
+  return Array.from({ length: 10 }, (_, i) => `hsl(103, 31%, ${baseLightness + (i * step)}%)`);
+};
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
@@ -37,16 +31,26 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 export function ExpenditureChart({ data }: ExpenditureChartProps) {
   const [lang, setLang] = useState('en');
+  const { resolvedTheme } = useTheme();
+  const [colors, setColors] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (resolvedTheme) {
+        setColors(generateGreenShades(resolvedTheme === 'dark'));
+    }
+  }, [resolvedTheme]);
+
 
   const chartData = useMemo(() => {
+    if (colors.length === 0) return [];
     const totalExpenditure = data.expenditure.reduce((sum, item) => sum + item.amountBnNOK, 0);
     return data.expenditure.map((item, index) => ({
       name: lang === 'nb' ? item.name_no : item.name_en,
       value: item.amountBnNOK,
       share: (item.amountBnNOK / totalExpenditure) * 100,
-      fill: COLORS[index % COLORS.length],
+      fill: colors[index % colors.length],
     })).sort((a,b) => b.value - a.value);
-  }, [data, lang]);
+  }, [data, lang, colors]);
 
   return (
     <Card>
