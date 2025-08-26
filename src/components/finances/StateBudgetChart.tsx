@@ -65,12 +65,13 @@ export function StateBudgetChart({ data }: StateBudgetChartProps) {
                 />
                 <YAxis
                     tickFormatter={(value) => `${(value / 1000).toLocaleString()}k`}
+                    tick={{ fontSize: 12 }}
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
-                <Legend />
-                <Bar dataKey="Non-Petroleum Revenue" stackId="revenue" fill="hsl(var(--chart-2))" />
+                <Legend wrapperStyle={{ fontSize: '12px' }} />
+                <Bar dataKey="Non-Petroleum Revenue" stackId="revenue" fill="hsl(120, 60%, 30%)" />
                 <Bar dataKey="Petroleum Revenue" stackId="revenue" fill="hsl(120, 40%, 60%)" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Non-Petroleum Expenditure" stackId="expenditure" fill="hsl(var(--chart-1))" />
+                <Bar dataKey="Non-Petroleum Expenditure" stackId="expenditure" fill="hsl(0, 70%, 40%)" />
                 <Bar dataKey="Petroleum Expenditure" stackId="expenditure" fill="hsl(0, 70%, 70%)" radius={[4, 4, 0, 0]} />
             </BarChart>
         </ResponsiveContainer>
