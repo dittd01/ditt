@@ -343,7 +343,7 @@ const againstStatementsByTopic: Record<string, string[]> = {
     ]
 };
 
-const allMockArguments: Argument[] = [];
+let allMockArguments: Argument[] = [];
 
 const createArgsForTopic = (topicId: string, forStatements: string[], againstStatements: string[]) => {
     const users = Array.from({ length: 100 }, (_, i) => {
@@ -449,6 +449,8 @@ const createArgsForTopic = (topicId: string, forStatements: string[], againstSta
     addReplies(20);
 };
 
+// Clear existing arguments before regenerating to avoid duplicates on hot-reload
+allMockArguments = [];
 createArgsForTopic('3', forStatementsByTopic['3'] || [], againstStatementsByTopic['3'] || []);
 createArgsForTopic('5', forStatementsByTopic['5'] || [], againstStatementsByTopic['5'] || []);
 createArgsForTopic('21', forStatementsByTopic['21'] || [], againstStatementsByTopic['21'] || []);
