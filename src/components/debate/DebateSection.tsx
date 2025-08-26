@@ -13,13 +13,6 @@ import { currentUser } from '@/lib/user-data';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { generateRebuttalAction } from '@/app/actions';
-import { DebateTree } from './DebateTree';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 
 interface DebateSectionProps {
@@ -156,16 +149,18 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
     return (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes);
   }
 
-  const topLevelFor = useMemo(() => 
-    debateArgs.filter(a => a.parentId === 'root' && a.side === 'for').sort(sortArguments),
-    [debateArgs, sortBy]
-  );
+  const argumentsByParentId = useMemo(() => {
+    const grouped = new Map<string, Argument[]>();
+    debateArgs.forEach(arg => {
+        const parentId = arg.parentId || 'root';
+        if (!grouped.has(parentId)) {
+            grouped.set(parentId, []);
+        }
+        grouped.get(parentId)!.push(arg);
+    });
+    return grouped;
+  }, [debateArgs]);
   
-  const topLevelAgainst = useMemo(() =>
-    debateArgs.filter(a => a.parentId === 'root' && a.side === 'against').sort(sortArguments),
-    [debateArgs, sortBy]
-  );
-
 
   const handleAddArgument = (side: 'for' | 'against') => {
     setRebuttalHint(null);
@@ -188,7 +183,7 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
     setShowComposer(null); // Ensure top-level composers are closed.
 
     const opposingSide = argumentToCounter.side === 'for' ? 'against' : 'for';
-    const opposingArguments = opposingSide === 'for' ? topLevelFor : topLevelAgainst;
+    const opposingArguments = (argumentsByParentId.get('root') || []).filter(a => a.side === opposingSide);
 
     const result = await generateRebuttalAction({
         topicQuestion: topicQuestion,
@@ -253,7 +248,7 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
   }
 
   const renderArgumentTree = (arg: Argument): React.ReactNode => {
-    const replies = debateArgs.filter(reply => reply.parentId === arg.id).sort((a,b) => (b.upvotes-b.downvotes) - (a.upvotes-a.downvotes));
+    const replies = (argumentsByParentId.get(arg.id) || []).sort(sortArguments);
     const showReplyComposer = replyingToId === arg.id;
 
     return (
@@ -281,6 +276,17 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
         </div>
     )
   }
+  
+  const topLevelFor = useMemo(() =>
+    (argumentsByParentId.get('root') || []).filter(a => a.side === 'for').sort(sortArguments),
+    [argumentsByParentId, sortBy]
+  );
+  
+  const topLevelAgainst = useMemo(() =>
+    (argumentsByParentId.get('root') || []).filter(a => a.side === 'against').sort(sortArguments),
+    [argumentsByParentId, sortBy]
+  );
+
 
   if (loading) {
     return <DebateSection.Skeleton />;
@@ -288,10 +294,6 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
 
   return (
     <div>
-        <div className="mb-8">
-            <DebateTree args={debateArgs} topicQuestion={topicQuestion} lang={lang} />
-        </div>
-
         <div className="flex justify-end mb-6 pb-4 border-b">
             <Tabs value={sortBy} onValueChange={(value) => setSortBy(value as SortByType)} className="w-full sm:w-auto">
                 <TabsList>
