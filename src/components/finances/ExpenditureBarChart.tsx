@@ -20,7 +20,7 @@ const CustomTooltip = ({ active, payload }: any) => {
             <div className="h-2 w-2 rounded-full" style={{ backgroundColor: payload[0].fill }}/>
             <p className="font-bold">{`${payload[0].payload.name}`}</p>
         </div>
-        <p className="text-sm text-muted-foreground">{`NOK ${payload[0].value.toLocaleString()} bn`}</p>
+        <p className="text-sm text-muted-foreground">{`NOK ${payload[0].value.toLocaleString()} bn (${payload[0].payload.percentage.toFixed(1)}%)`}</p>
       </div>
     );
   }
@@ -64,16 +64,18 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
 
   const { chartData, totalExpenditure } = useMemo(() => {
     if (colors.length === 0) return { chartData: [], totalExpenditure: 0 };
+    
+    const total = data.expenditure.reduce((sum, item) => sum + item.amountBnNOK, 0);
+
     const expenditureData = data.expenditure
       .map((item, index) => ({
         name: lang === 'nb' ? item.name_no : item.name_en,
         value: item.amountBnNOK,
+        percentage: total > 0 ? (item.amountBnNOK / total) * 100 : 0,
         fill: colors[index % colors.length],
       }))
       .sort((a,b) => a.value - b.value);
     
-    const total = expenditureData.reduce((sum, item) => sum + item.value, 0);
-
     return { chartData: expenditureData, totalExpenditure: total };
   }, [data, lang, colors]);
   
@@ -90,7 +92,7 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
             <BarChart
                 data={chartData}
                 layout="vertical"
-                margin={{ top: 5, right: 20, left: 10, bottom: 20 }}
+                margin={{ top: 5, right: 50, left: 10, bottom: 20 }}
             >
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                 <XAxis 
@@ -118,6 +120,14 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
                         offset={8}
                         className="fill-background font-semibold"
                         formatter={(value: number) => value.toLocaleString()}
+                        style={{ fontSize: 12 }}
+                    />
+                    <LabelList 
+                        dataKey="percentage"
+                        position="right"
+                        offset={8}
+                        className="fill-muted-foreground"
+                        formatter={(value: number) => `(${value.toFixed(1)}%)`}
                         style={{ fontSize: 12 }}
                     />
                 </Bar>
