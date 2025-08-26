@@ -86,7 +86,7 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
             <BarChart
                 data={chartData}
                 layout="vertical"
-                margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                margin={{ top: 5, right: 20, left: 10, bottom: 20 }}
             >
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                 <XAxis 
@@ -96,7 +96,7 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
                     tick={{ fontSize: 12 }}
                     tickFormatter={(value) => `${value}`}
                 >
-                  <Label value="NOK (billions)" offset={-5} position="insideBottom" />
+                  <Label value="NOK (billions)" offset={0} position="insideBottom" style={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
                 </XAxis>
                 <YAxis
                     type="category"
@@ -114,6 +114,7 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
                         offset={8}
                         className="fill-background font-semibold"
                         formatter={(value: number) => value.toLocaleString()}
+                        style={{ fontSize: 12 }}
                     />
                 </Bar>
             </BarChart>
