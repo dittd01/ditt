@@ -35,9 +35,9 @@ export default async function FinancesPage() {
       <KpiCards data={countryData} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <StateBudgetChart data={countryData} />
-        <ExpenditureChart data={countryData} />
       </div>
       <ExpenditureBarChart data={countryData} />
+      <ExpenditureChart data={countryData} />
       <Sources sources={countryData.sources} />
     </div>
   );
