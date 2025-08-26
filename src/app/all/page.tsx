@@ -37,13 +37,10 @@ function AllTopicsContent({ groupedTopics, votedTopicIds, lang }: { groupedTopic
     }, [groupedTopics]);
 
     // This effect runs once on the client after the initial server render.
-    // It sets the initial state of the accordions to be all open, improving discoverability.
     useEffect(() => {
         setIsClient(true);
-        if (allSubcategoryIds.length > 0) {
-            setOpenSubcategories(allSubcategoryIds);
-        }
-    }, [allSubcategoryIds]);
+        // By default, the accordion is now collapsed.
+    }, []);
 
     if (!isClient) {
         return (
