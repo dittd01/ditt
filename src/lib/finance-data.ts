@@ -62,6 +62,15 @@ const expenditureLevel2: ExpenditureByFunction[] = [
     { countryIso3: 'NOR', year: 2024, cofogL1: '09', cofogL2: '09.2', name_no: 'Videregående opplæring', name_en: 'Secondary education', amountBnNOK: 65 },
     { countryIso3: 'NOR', year: 2024, cofogL1: '09', cofogL2: '09.4', name_no: 'Høyere utdanning', name_en: 'Tertiary education', amountBnNOK: 70 },
     { countryIso3: 'NOR', year: 2024, cofogL1: '09', cofogL2: '09.8', name_no: 'Annen utdanning', name_en: 'Other education', amountBnNOK: 14 },
+    
+    // Breakdown for Social Protection (10)
+    { countryIso3: 'NOR', year: 2024, cofogL1: '10', cofogL2: '10.2', name_no: 'Alderspensjon', name_en: 'Old-age pension', amountBnNOK: 365.8 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '10', cofogL2: '10.1', name_no: 'Sykdom og uførhet', name_en: 'Sickness and disability', amountBnNOK: 349.9 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '10', cofogL2: '10.4', name_no: 'Barnehage, barnevern og barnetrygd', name_en: 'Family and children', amountBnNOK: 158.2 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '10', cofogL2: '10.7', name_no: 'Sosiale stønader', name_en: 'Social benefits', amountBnNOK: 53 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '10', cofogL2: '10.6', name_no: 'Arbeidsledighet', name_en: 'Unemployment', amountBnNOK: 15.5 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '10', cofogL2: '10.9', name_no: 'Annet', name_en: 'Other', amountBnNOK: 18 },
+    { countryIso3: 'NOR', year: 2024, cofogL1: '10', cofogL2: '10.8', name_no: 'Forskning og utvikling', name_en: 'Research and development', amountBnNOK: 1.8 },
 ];
 
 
