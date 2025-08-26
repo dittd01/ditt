@@ -35,7 +35,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 const valueFormatter = (value: number) => {
     if (value < 100) return ''; // Don't show labels for very small segments
-    return new Intl.NumberFormat('nb-NO', { notation: 'compact', compactDisplay: 'short' }).format(value * 1000000000);
+    return `${Math.round(value)} mrd.`;
 }
 
 export function StateBudgetChart({ data }: StateBudgetChartProps) {
