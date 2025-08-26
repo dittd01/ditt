@@ -1,0 +1,201 @@
+
+'use client';
+
+import * as React from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from '@/components/ui/drawer';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import { Check, Copy, ChevronDown } from 'lucide-react';
+import type { SharePayload, ShareTarget } from '@/lib/share/schema';
+import { SHARE_TARGETS } from '@/lib/share/targets';
+import { PRIMARY_TARGETS_NB_NO, PRIMARY_TARGETS_EN } from '@/config/share';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { trackShare } from '@/lib/share/analytics';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
+import { Separator } from '@/components/ui/separator';
+
+interface ShareSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  payload: SharePayload | null;
+}
+
+const getPrimaryTargets = (locale: string): ShareTarget[] => {
+  const targetIds = locale.startsWith('nb') ? PRIMARY_TARGETS_NB_NO : PRIMARY_TARGETS_EN;
+  return targetIds.map(id => SHARE_TARGETS[id]).filter(t => t && t.available());
+};
+
+const getSecondaryTargets = (locale: string): ShareTarget[] => {
+  const primaryIds = new Set(locale.startsWith('nb') ? PRIMARY_TARGETS_NB_NO : PRIMARY_TARGETS_EN);
+  return Object.values(SHARE_TARGETS)
+    .filter(t => t.id !== 'native' && !primaryIds.has(t.id) && t.available())
+    .sort((a, b) => a.name.localeCompare(b.name));
+};
+
+export function ShareSheet({ open, onOpenChange, payload }: ShareSheetProps) {
+  const { toast } = useToast();
+  const isMobile = useIsMobile();
+  const [hasCopied, setHasCopied] = React.useState(false);
+  const [locale, setLocale] = React.useState('en');
+
+  React.useEffect(() => {
+    if (open) {
+      setLocale(navigator.language);
+      trackShare({ targetId: 'sheet_open', url: payload?.url || '', status: 'impression' });
+    }
+  }, [open, payload]);
+
+  const handleCopyLink = async () => {
+    if (!payload?.url) return;
+
+    try {
+      const urlToCopy = SHARE_TARGETS.copy.buildUrl(payload);
+      await navigator.clipboard.writeText(urlToCopy);
+      setHasCopied(true);
+      toast({
+        title: 'Link Copied!',
+        description: 'The link has been copied to your clipboard.',
+      });
+      trackShare({ targetId: 'copy', url: urlToCopy, status: 'success' });
+      setTimeout(() => setHasCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      toast({
+        variant: 'destructive',
+        title: 'Copy Failed',
+        description: 'Could not copy the link. Please try again.',
+      });
+       trackShare({ targetId: 'copy', url: payload.url, status: 'error' });
+    }
+  };
+  
+  const handleShareClick = (target: ShareTarget) => {
+    if (!payload) return;
+    const url = target.buildUrl(payload);
+    window.open(url, '_blank', 'noopener,noreferrer');
+    trackShare({ targetId: target.id, url, status: 'success' });
+  };
+
+  const primaryTargets = getPrimaryTargets(locale);
+  const secondaryTargets = getSecondaryTargets(locale);
+
+  const sheetContent = (
+    <div className="space-y-4 p-1">
+      <div className="space-y-2">
+        <p className="font-medium text-sm">Share this topic</p>
+        <p className="text-xs text-muted-foreground">
+          Anyone with the link can view this poll.
+        </p>
+      </div>
+      <div className="flex items-center space-x-2">
+        <Input
+          value={payload?.url || ''}
+          readOnly
+          className="h-9 flex-1"
+          aria-label="Shareable link"
+        />
+        <Button
+          type="button"
+          size="sm"
+          className="px-3"
+          onClick={handleCopyLink}
+        >
+          <span className="sr-only">Copy</span>
+          {hasCopied ? (
+            <Check className="h-4 w-4" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+      
+      <Separator />
+
+      <div className="grid grid-cols-5 gap-y-4 pt-2">
+        {primaryTargets.map((target) => (
+            <button
+                key={target.id}
+                onClick={() => handleShareClick(target)}
+                className="flex flex-col items-center gap-1.5 rounded-md p-2 text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            >
+                <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-muted">
+                    {target.icon && <target.icon className="h-6 w-6" />}
+                </div>
+                <span className="text-center">{target.name}</span>
+            </button>
+        ))}
+      </div>
+      
+      {secondaryTargets.length > 0 && (
+         <Collapsible>
+            <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-center gap-2 text-muted-foreground">
+                    <span>More options</span>
+                    <ChevronDown className="h-4 w-4" />
+                </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+                <div className="grid grid-cols-5 gap-y-4 pt-4">
+                     {secondaryTargets.map((target) => (
+                        <button
+                            key={target.id}
+                            onClick={() => handleShareClick(target)}
+                            className="flex flex-col items-center gap-1.5 rounded-md p-2 text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                        >
+                            <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-muted">
+                                {target.icon && <target.icon className="h-6 w-6" />}
+                            </div>
+                            <span className="text-center">{target.name}</span>
+                        </button>
+                    ))}
+                </div>
+            </CollapsibleContent>
+         </Collapsible>
+      )}
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent>
+          <DrawerHeader className="text-left">
+            <DrawerTitle>Share Topic</DrawerTitle>
+            <DrawerDescription>
+              Choose an app to share this topic with.
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="px-4 pb-4">{sheetContent}</div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Share Topic</DialogTitle>
+          <DialogDescription>
+            Choose where you'd like to share this topic.
+          </DialogDescription>
+        </DialogHeader>
+        {sheetContent}
+      </DialogContent>
+    </Dialog>
+  );
+}

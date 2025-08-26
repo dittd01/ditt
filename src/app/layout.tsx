@@ -1,9 +1,11 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { SiteHeader } from '@/components/layout/site-header';
 import { ThemeProvider } from '@/components/layout/theme-provider';
+import { ShareProvider } from '@/components/share/ShareProvider';
 
 export const metadata: Metadata = {
   title: 'Ditt Demokrati - Anonymous Voting',
@@ -61,11 +63,13 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
         >
+          <ShareProvider>
             <div className="relative flex min-h-screen flex-col">
               <SiteHeader />
               <div className="flex-1">{children}</div>
             </div>
             <Toaster />
+          </ShareProvider>
         </ThemeProvider>
       </body>
     </html>
