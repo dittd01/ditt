@@ -6,6 +6,7 @@ import { StateBudgetChart } from '@/components/finances/StateBudgetChart';
 import { Sources } from '@/components/finances/Sources';
 import { getFinanceDataForCountry } from './actions';
 import { allFinanceData } from '@/lib/finance-data';
+import { ExpenditureChart } from '@/components/finances/ExpenditureChart';
 
 
 export default async function FinancesPage() {
@@ -34,6 +35,7 @@ export default async function FinancesPage() {
       <KpiCards data={countryData} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <StateBudgetChart data={countryData} />
+        <ExpenditureChart data={countryData} />
       </div>
       <ExpenditureBarChart data={countryData} />
       <Sources sources={countryData.sources} />
