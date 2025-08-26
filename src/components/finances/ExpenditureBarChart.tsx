@@ -62,15 +62,19 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
     };
   }, []);
 
-  const chartData = useMemo(() => {
-    if (colors.length === 0) return [];
-    return data.expenditure
+  const { chartData, totalExpenditure } = useMemo(() => {
+    if (colors.length === 0) return { chartData: [], totalExpenditure: 0 };
+    const expenditureData = data.expenditure
       .map((item, index) => ({
         name: lang === 'nb' ? item.name_no : item.name_en,
         value: item.amountBnNOK,
         fill: colors[index % colors.length],
       }))
       .sort((a,b) => a.value - b.value);
+    
+    const total = expenditureData.reduce((sum, item) => sum + item.value, 0);
+
+    return { chartData: expenditureData, totalExpenditure: total };
   }, [data, lang, colors]);
   
   const chartHeight = chartData.length * (isMobile ? 36 : 40) + 40;
@@ -78,7 +82,7 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>How Your Tax Money Is Spent ({data.year})</CardTitle>
+        <CardTitle>How Your Tax Money Is Spent ({data.year}) - Total: {totalExpenditure.toLocaleString()} bn NOK</CardTitle>
         <CardDescription>Government expenditure by function, in billions of NOK.</CardDescription>
       </CardHeader>
       <CardContent className="w-full pr-4" style={{ height: `${chartHeight}px` }}>
