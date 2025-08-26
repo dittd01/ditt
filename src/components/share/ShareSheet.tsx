@@ -27,6 +27,9 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { trackShare } from '@/lib/share/analytics';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
+import { QrCard } from './QrCard';
+import { EmbedCard } from './EmbedCard';
+
 
 interface ShareSheetProps {
   open: boolean;
@@ -51,12 +54,18 @@ export function ShareSheet({ open, onOpenChange, payload }: ShareSheetProps) {
   const isMobile = useIsMobile();
   const [hasCopied, setHasCopied] = React.useState(false);
   const [locale, setLocale] = React.useState('en');
+  const [showQr, setShowQr] = React.useState(false);
+  const [showEmbed, setShowEmbed] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
 
   React.useEffect(() => {
     if (open) {
+      // Why: Reset transient state every time the sheet opens.
+      // This ensures a clean slate for each interaction.
       setLocale(navigator.language);
+      setShowQr(false);
+      setShowEmbed(false);
       trackShare({ targetId: 'sheet_open', url: payload?.url || '', status: 'impression' });
     }
   }, [open, payload]);
@@ -87,6 +96,17 @@ export function ShareSheet({ open, onOpenChange, payload }: ShareSheetProps) {
   
   const handleShareClick = (target: ShareTarget) => {
     if (!payload) return;
+    
+    // Why: "Special" type targets handle their own UI toggling
+    // instead of opening a new window.
+    if (target.type === 'special') {
+        if (target.id === 'qr') setShowQr(s => !s);
+        if (target.id === 'embed') setShowEmbed(s => !s);
+        setShowQr(target.id === 'qr' ? !showQr : false);
+        setShowEmbed(target.id === 'embed' ? !showEmbed : false);
+        return;
+    }
+    
     const url = target.buildUrl(payload);
     window.open(url, '_blank', 'noopener,noreferrer');
     trackShare({ targetId: target.id, url, status: 'success' });
@@ -125,6 +145,9 @@ export function ShareSheet({ open, onOpenChange, payload }: ShareSheetProps) {
         </Button>
       </div>
       
+      {showQr && payload && <QrCard url={payload.url} />}
+      {showEmbed && payload && <EmbedCard url={payload.url} />}
+
       <Separator />
 
       <div className="grid grid-cols-4 gap-y-4 pt-2">

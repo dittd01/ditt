@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import type { ShareTarget } from './schema';
 import { buildUrl } from './url';
-import { SHARE_ENABLE_POCKET } from '@/config/share';
+import { SHARE_ENABLE_POCKET, SHARE_ALLOW_EMBED } from '@/config/share';
 
 // --- Platform-Specific Icons ---
 // Why: Using inline SVGs is the most efficient way to add a few custom brand icons
@@ -206,4 +206,20 @@ export const SHARE_TARGETS: Record<string, ShareTarget> = {
       return `https://getpocket.com/save?url=${encodeURIComponent(url)}&title=${encodeURIComponent(payload.title || '')}`;
     },
   },
+  qr: {
+    id: 'qr',
+    name: 'QR Code',
+    type: 'special',
+    icon: QrCode,
+    available: () => true,
+    buildUrl: (payload) => buildUrl(payload, 'qr'),
+  },
+  embed: {
+    id: 'embed',
+    name: 'Embed',
+    type: 'special',
+    icon: Code,
+    available: () => SHARE_ALLOW_EMBED,
+    buildUrl: (payload) => buildUrl(payload, 'embed'),
+  }
 };
