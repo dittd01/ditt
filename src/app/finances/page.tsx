@@ -86,16 +86,18 @@ export default function FinancesPage() {
         <StateBudgetChart data={countryData} />
         <ExpenditureChart data={countryData} />
       </div>
-      <ExpenditureBarChart 
-        data={countryData.expenditure} 
-        onBarClick={handleL1Select}
-        title={mainChartTitle}
-      />
-      <ExpenditureBarChart 
-        data={l2Data}
-        title={breakdownTitle}
-        isDrilldown={true}
-      />
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <ExpenditureBarChart 
+          data={countryData.expenditure} 
+          onBarClick={handleL1Select}
+          title={mainChartTitle}
+        />
+        <ExpenditureBarChart 
+          data={l2Data}
+          title={breakdownTitle}
+          isDrilldown={true}
+        />
+      </div>
       <Sources sources={countryData.sources} />
     </div>
   );
