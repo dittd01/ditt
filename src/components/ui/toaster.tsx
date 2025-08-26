@@ -1,5 +1,7 @@
+
 "use client"
 
+import * as React from "react"
 import { useToast } from "@/hooks/use-toast"
 import {
   Toast,
@@ -11,7 +13,25 @@ import {
 } from "@/components/ui/toast"
 
 export function Toaster() {
-  const { toasts } = useToast()
+  const { toasts, dismiss } = useToast()
+
+  React.useEffect(() => {
+    const handleInteraction = () => {
+      // Dismiss all toasts on user interaction
+      dismiss()
+    }
+
+    if (toasts.length > 0) {
+      window.addEventListener("mousemove", handleInteraction, { once: true })
+      window.addEventListener("touchstart", handleInteraction, { once: true })
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleInteraction)
+      window.removeEventListener("touchstart", handleInteraction)
+    }
+  }, [toasts, dismiss])
+
 
   return (
     <ToastProvider>
