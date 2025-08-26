@@ -1,4 +1,6 @@
 
+'use client';
+
 import React, { useMemo, useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { allTopics, categories } from '@/lib/data';
@@ -24,6 +26,7 @@ type GroupedTopics = {
 // Client Component to manage accordion state and user interactions
 function AllTopicsContent({ groupedTopics, votedTopicIds, lang }: { groupedTopics: GroupedTopics, votedTopicIds: Set<string>, lang: 'en' | 'nb' }) {
     const [openSubcategories, setOpenSubcategories] = useState<string[]>([]);
+    const [isClient, setIsClient] = useState(false);
 
     // Memoize the list of all subcategory IDs to avoid recalculating on every render.
     // This is a performance optimization.
@@ -36,10 +39,28 @@ function AllTopicsContent({ groupedTopics, votedTopicIds, lang }: { groupedTopic
     // This effect runs once on the client after the initial server render.
     // It sets the initial state of the accordions to be all open, improving discoverability.
     useEffect(() => {
+        setIsClient(true);
         if (allSubcategoryIds.length > 0) {
             setOpenSubcategories(allSubcategoryIds);
         }
     }, [allSubcategoryIds]);
+
+    if (!isClient) {
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <div className="text-center mb-8">
+                    <div className="h-10 bg-muted rounded w-1/2 mx-auto"></div>
+                    <div className="h-6 bg-muted rounded w-3/4 mx-auto mt-2"></div>
+                </div>
+                <div className="h-10 bg-muted rounded w-full mb-4"></div>
+                <div className="space-y-4">
+                    <div className="h-16 bg-muted rounded-lg w-full"></div>
+                    <div className="h-16 bg-muted rounded-lg w-full"></div>
+                    <div className="h-16 bg-muted rounded-lg w-full"></div>
+                </div>
+            </div>
+        );
+    }
 
     const expandAll = () => setOpenSubcategories(allSubcategoryIds);
     const collapseAll = () => setOpenSubcategories([]);
@@ -104,10 +125,28 @@ function AllTopicsContent({ groupedTopics, votedTopicIds, lang }: { groupedTopic
     )
 }
 
-function AllTopicsPageContent({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
-    // This logic remains on the server, ensuring data is processed before sending to the client.
-    const categoryFilter = searchParams?.category || 'all';
-    const subcategoryFilter = searchParams?.subcategory || 'all';
+
+function AllTopicsPageContent() {
+    const searchParams = useSearchParams();
+    const [votedTopicIds, setVotedTopicIds] = useState(new Set<string>());
+    const [lang, setLang] = useState<'en' | 'nb'>('en');
+
+    useEffect(() => {
+        const selectedLang = (localStorage.getItem('selectedLanguage') || 'en') as 'en' | 'nb';
+        setLang(selectedLang);
+        
+        const votedIds = new Set<string>();
+        allTopics.forEach(topic => {
+            if (localStorage.getItem(`voted_on_${topic.id}`)) {
+            votedIds.add(topic.id);
+            }
+        });
+        setVotedTopicIds(votedIds);
+
+    }, [searchParams]); // Re-check if params change, though not strictly necessary for voted status
+
+    const categoryFilter = searchParams?.get('category') || 'all';
+    const subcategoryFilter = searchParams?.get('subcategory') || 'all';
 
     const filteredTopics = useMemo(() => {
         return allTopics.filter(topic => {
@@ -158,13 +197,6 @@ function AllTopicsPageContent({ searchParams }: { searchParams: { [key: string]:
         return groups;
     }, [filteredTopics, categoryFilter]);
     
-    // In a real app, this would also be determined on the server based on the user's session.
-    // For the prototype, we pass this logic to the client component to read from localStorage.
-    const votedTopicIds = new Set<string>(); // Placeholder, will be populated on client.
-    
-    // Dummy language for server render, will be corrected on client.
-    const lang = 'en';
-
     return <AllTopicsContent groupedTopics={groupedTopics} votedTopicIds={votedTopicIds} lang={lang} />;
 }
 
@@ -173,15 +205,7 @@ function AllTopicsPageContent({ searchParams }: { searchParams: { [key: string]:
 export default function AllTopicsPage() {
     return (
         <Suspense fallback={<div>Loading...</div>}>
-            <AllTopicsPageWrapper />
+            <AllTopicsPageContent />
         </Suspense>
     );
-}
-
-// A wrapper component to safely use the useSearchParams hook.
-function AllTopicsPageWrapper() {
-    const searchParams = useSearchParams();
-    // Convert searchParams to a simple object to pass to the server component logic container.
-    const params = Object.fromEntries(searchParams.entries());
-    return <AllTopicsPageContent searchParams={params} />;
 }
