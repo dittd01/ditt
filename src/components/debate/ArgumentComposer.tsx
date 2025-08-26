@@ -76,7 +76,7 @@ export function ArgumentComposer({
     setStep('LOADING');
     const input: CurateArgumentInput = {
       userText: values.text,
-      existingArguments: existingArguments.map(arg => ({id: arg.id, text: arg.text})),
+      existingArguments,
       side,
     };
     const result = await curateArgumentAction(input);
