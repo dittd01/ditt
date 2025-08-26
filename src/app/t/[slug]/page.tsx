@@ -76,8 +76,11 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
       const newTopic = topics[newIndex];
       if (newTopic) {
         const newUrl = `/t/${newTopic.slug}`;
-        router.replace(newUrl, { scroll: false });
-        window.scrollTo(0, 0); // Manually scroll to top immediately
+        router.replace(newUrl);
+        // Why: Explicitly scroll to the top. `router.replace` without `scroll: false`
+        // should handle this, but this is a more robust way to guarantee it,
+        // preventing inconsistent browser behavior.
+        window.scrollTo(0, 0);
       }
     };
     
