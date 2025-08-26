@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FinanceHeader } from '@/components/finances/FinanceHeader';
 import { KpiCards } from '@/components/finances/KpiCards';
 import { ExpenditureBarChart } from '@/components/finances/ExpenditureBarChart';
@@ -37,6 +37,11 @@ export default function FinancesPage() {
     fetchData();
   }, []);
 
+  const totalL1Expenditure = useMemo(() => {
+    if (!countryData?.expenditure) return 0;
+    return countryData.expenditure.reduce((sum, item) => sum + item.amountBnNOK, 0);
+  }, [countryData?.expenditure]);
+
   if (isLoading) {
     // You can return a loading skeleton here
     return (
@@ -66,11 +71,18 @@ export default function FinancesPage() {
   const year = allFinanceData.fiscalYears.find(fy => fy.year === country.defaultYear)!;
 
   const mainChartTitle = lang === 'nb' ? 'Slik brukes skattepengene dine (2024)' : 'How Your Tax Money Is Spent (2024)';
-  const breakdownTitle = selectedL1
-    ? lang === 'nb' 
-      ? `Fordeling: ${selectedL1.name_no || '...'}` 
-      : `Breakdown: ${selectedL1.name_en || '...'}`
-    : lang === 'nb' ? 'Fordeling' : 'Breakdown';
+  
+  const breakdownTitle = useMemo(() => {
+    if (!selectedL1) {
+        return lang === 'nb' ? 'Fordeling' : 'Breakdown';
+    }
+    const percentage = totalL1Expenditure > 0 ? (selectedL1.amountBnNOK / totalL1Expenditure) * 100 : 0;
+    const formattedPercentage = `(${(percentage).toFixed(1)}%)`;
+
+    return lang === 'nb' 
+      ? `Fordeling: ${selectedL1.name_no || '...'} - ${selectedL1.amountBnNOK} mrd. kr ${formattedPercentage}` 
+      : `Breakdown: ${selectedL1.name_en || '...'} - ${selectedL1.amountBnNOK} bn NOK ${formattedPercentage}`;
+  }, [selectedL1, lang, totalL1Expenditure]);
 
 
   return (
