@@ -1,7 +1,6 @@
 
 import { FinanceHeader } from '@/components/finances/FinanceHeader';
 import { KpiCards } from '@/components/finances/KpiCards';
-import { ExpenditureChart } from '@/components/finances/ExpenditureChart';
 import { ExpenditureBarChart } from '@/components/finances/ExpenditureBarChart';
 import { RevenueExpenditureChart } from '@/components/finances/RevenueExpenditureChart';
 import { StateBudgetChart } from '@/components/finances/StateBudgetChart';
@@ -35,10 +34,7 @@ export default async function FinancesPage() {
       />
       <KpiCards data={countryData} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-            <ExpenditureChart data={countryData} />
-        </div>
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-3">
             <RevenueExpenditureChart data={countryData} />
         </div>
       </div>
