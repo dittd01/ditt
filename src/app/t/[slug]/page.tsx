@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/carousel"
 import React from 'react';
 import { DebateSimulator } from '@/components/debate/DebateSimulator';
+import { ScrollToTopButton } from '@/components/ScrollToTopButton';
 
 /**
  * @fileoverview This component orchestrates the topic carousel functionality.
@@ -248,6 +249,7 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
       </CarouselContent>
       <CarouselPrevious />
       <CarouselNext />
+      <ScrollToTopButton />
     </Carousel>
   );
 }
