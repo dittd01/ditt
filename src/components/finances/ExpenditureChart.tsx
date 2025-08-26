@@ -16,11 +16,11 @@ const COLORS = [
   'hsl(var(--chart-3))',
   'hsl(var(--chart-4))',
   'hsl(var(--chart-5))',
-  'hsl(20, 80%, 50%)',
-  'hsl(260, 80%, 60%)',
-  'hsl(320, 80%, 60%)',
-  'hsl(60, 80%, 50%)',
-  'hsl(180, 80%, 40%)',
+  'hsl(340, 82%, 52%)', // Vivid Pink
+  'hsl(48, 96%, 50%)',  // Vivid Yellow
+  'hsl(198, 93%, 48%)', // Vivid Cyan
+  'hsl(270, 75%, 60%)', // Vivid Purple
+  'hsl(150, 65%, 45%)', // Vivid Green
 ];
 
 const CustomTooltip = ({ active, payload }: any) => {
