@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -75,7 +76,7 @@ export function ArgumentComposer({
     setStep('LOADING');
     const input: CurateArgumentInput = {
       userText: values.text,
-      existingArguments,
+      existingArguments: existingArguments.map(arg => ({id: arg.id, text: arg.text})),
       side,
     };
     const result = await curateArgumentAction(input);
@@ -277,7 +278,7 @@ export function ArgumentComposer({
         
         case 'ERROR':
              return (
-                <CardFooter className="justify-between">
+                <CardFooter className="flex-col sm:flex-row justify-between gap-2 border-t pt-4">
                     <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
                     <div className="flex gap-2">
                       <Button type="button" variant="outline" onClick={() => handleInitialSubmit(form.getValues())}>Try Again</Button>
