@@ -6,6 +6,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { SiteHeader } from '@/components/layout/site-header';
 import { ThemeProvider } from '@/components/layout/theme-provider';
 import { ShareProvider } from '@/components/share/ShareProvider';
+import { FlagProvider } from '@/lib/flags/provider';
+import { Vitals } from '@/lib/vitals/client';
 
 export const metadata: Metadata = {
   title: 'Ditt Demokrati - Anonymous Voting',
@@ -57,20 +59,23 @@ export default function RootLayout({
         />
       </head>
       <body className={cn('min-h-screen bg-background font-sans antialiased')}>
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-        >
-          <ShareProvider>
-            <div className="relative flex min-h-screen flex-col">
-              <SiteHeader />
-              <div className="flex-1">{children}</div>
-            </div>
-            <Toaster />
-          </ShareProvider>
-        </ThemeProvider>
+        <FlagProvider>
+          <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+          >
+            <ShareProvider>
+              <div className="relative flex min-h-screen flex-col">
+                <SiteHeader />
+                <div className="flex-1">{children}</div>
+              </div>
+              <Toaster />
+            </ShareProvider>
+          </ThemeProvider>
+          <Vitals />
+        </FlagProvider>
       </body>
     </html>
   );
