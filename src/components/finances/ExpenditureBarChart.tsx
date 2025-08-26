@@ -1,6 +1,6 @@
 
 'use client';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList, Label } from 'recharts';
 import type { FinanceData } from '@/lib/types';
@@ -43,6 +43,21 @@ const COLORS = [
 export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
   const [lang, setLang] = useState('en');
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+    setLang(selectedLang);
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'selectedLanguage') {
+        setLang(event.newValue || 'en');
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   const chartData = useMemo(() => {
     return data.expenditure
@@ -106,10 +121,6 @@ export function ExpenditureBarChart({ data }: ExpenditureBarChartProps) {
             </BarChart>
         </ResponsiveContainer>
       </CardContent>
-      <CardFooter className="flex justify-end gap-2">
-         <Button variant={lang === 'en' ? 'default' : 'ghost'} size="sm" onClick={() => setLang('en')}>EN</Button>
-         <Button variant={lang === 'nb' ? 'default' : 'ghost'} size="sm" onClick={() => setLang('nb')}>NO</Button>
-      </CardFooter>
     </Card>
   );
 }
