@@ -2,14 +2,16 @@
 'use client';
 
 import React, { useMemo, useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { allTopics, categories } from '@/lib/data';
 import type { Topic, Category, Subcategory } from '@/lib/types';
 import { VoteCard } from '@/components/VoteCard';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import { ChevronsUpDown } from 'lucide-react';
+import { ChevronsUpDown, Search } from 'lucide-react';
 import { TopicFilters } from '@/components/TopicFilters';
+import { Input } from '@/components/ui/input';
+import { useDebounce } from 'use-debounce';
 
 type GroupedTopics = {
     [categoryId: string]: {
@@ -124,9 +126,17 @@ function AllTopicsContent({ groupedTopics, votedTopicIds, lang }: { groupedTopic
 
 
 function AllTopicsPageContent() {
+    const router = useRouter();
+    const pathname = usePathname();
     const searchParams = useSearchParams();
     const [votedTopicIds, setVotedTopicIds] = useState(new Set<string>());
     const [lang, setLang] = useState<'en' | 'nb'>('en');
+
+    const categoryFilter = searchParams.get('category') || 'all';
+    const subcategoryFilter = searchParams.get('subcategory') || 'all';
+    const initialSearch = searchParams.get('q') || '';
+    const [searchQuery, setSearchQuery] = useState(initialSearch);
+    const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
 
     useEffect(() => {
         const selectedLang = (localStorage.getItem('selectedLanguage') || 'en') as 'en' | 'nb';
@@ -140,18 +150,30 @@ function AllTopicsPageContent() {
         });
         setVotedTopicIds(votedIds);
 
-    }, [searchParams]); // Re-check if params change, though not strictly necessary for voted status
+    }, []);
 
-    const categoryFilter = searchParams?.get('category') || 'all';
-    const subcategoryFilter = searchParams?.get('subcategory') || 'all';
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (debouncedSearchQuery) {
+            params.set('q', debouncedSearchQuery);
+        } else {
+            params.delete('q');
+        }
+        router.replace(`${pathname}?${params.toString()}`);
+    }, [debouncedSearchQuery, pathname, router, searchParams]);
 
     const filteredTopics = useMemo(() => {
         return allTopics.filter(topic => {
             const categoryMatch = categoryFilter === 'all' || topic.categoryId === categoryFilter;
             const subcategoryMatch = subcategoryFilter === 'all' || topic.subcategoryId === subcategoryFilter;
-            return categoryMatch && subcategoryMatch;
+            const searchMatch = debouncedSearchQuery
+                ? topic.question.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+                  topic.description.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+                : true;
+
+            return categoryMatch && subcategoryMatch && searchMatch;
         });
-    }, [categoryFilter, subcategoryFilter]);
+    }, [categoryFilter, subcategoryFilter, debouncedSearchQuery]);
     
     const groupedTopics = useMemo(() => {
         const groups: GroupedTopics = {};
@@ -194,7 +216,23 @@ function AllTopicsPageContent() {
         return groups;
     }, [filteredTopics, categoryFilter]);
     
-    return <AllTopicsContent groupedTopics={groupedTopics} votedTopicIds={votedTopicIds} lang={lang} />;
+    const searchPlaceholder = lang === 'nb' ? 'Søk i alle temaer...' : 'Search all topics...';
+
+    return (
+        <>
+            <div className="relative max-w-lg mx-auto mt-8 mb-12">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                    type="search"
+                    placeholder={searchPlaceholder}
+                    className="w-full pl-10 h-12 text-base"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            </div>
+            <AllTopicsContent groupedTopics={groupedTopics} votedTopicIds={votedTopicIds} lang={lang} />
+        </>
+    );
 }
 
 // The main export is a Server Component that wraps the logic in a Suspense boundary.
