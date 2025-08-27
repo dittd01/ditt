@@ -68,9 +68,22 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
       
       const rootNode = d3.stratify<Argument>().id(d => d.id).parentId(d => d.parentId)(dataForStratify);
       
-      const nodeWidth = 120;
-      const nodeHeight = 40;
-      const treeLayout = d3.tree().nodeSize([nodeWidth + 20, nodeHeight + 30]);
+      const maxUpvotes = d3.max(args, d => d.upvotes) || 1;
+      const sizeScale = d3.scaleSqrt().domain([0, maxUpvotes]).range([0.5, 1.5]);
+
+      const baseNodeWidth = 40;
+      const baseNodeHeight = 20;
+
+      const getNodeWidth = (d: Argument) => {
+        if(d.id === 'root') return 120;
+        return baseNodeWidth * sizeScale(d.upvotes);
+      }
+      const getNodeHeight = (d: Argument) => {
+        if(d.id === 'root') return 40;
+        return baseNodeHeight * sizeScale(d.upvotes);
+      }
+      
+      const treeLayout = d3.tree().nodeSize([140, 60]);
       const hierarchy = treeLayout(rootNode);
       
       let x0 = Infinity;
@@ -81,7 +94,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
       });
 
       const g = svg.append('g')
-        .attr('transform', `translate(${dimensions.width / 2 - (x0 + x1) / 2}, ${nodeHeight})`);
+        .attr('transform', `translate(${dimensions.width / 2}, ${getNodeHeight(topicRoot)})`);
 
       const linkGenerator = d3.linkVertical()
         .x(d => (d as any).x)
@@ -111,22 +124,25 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
       };
 
       node.append('rect')
-        .attr('x', -nodeWidth / 2)
-        .attr('y', -nodeHeight / 2)
-        .attr('width', nodeWidth)
-        .attr('height', nodeHeight)
-        .attr('rx', 8)
-        .attr('ry', 8)
+        .attr('x', d => -getNodeWidth(d.data) / 2)
+        .attr('y', d => -getNodeHeight(d.data) / 2)
+        .attr('width', d => getNodeWidth(d.data))
+        .attr('height', d => getNodeHeight(d.data))
+        .attr('rx', 4)
+        .attr('ry', 4)
         .attr('fill', 'hsl(var(--card))')
         .attr('stroke', getColor)
-        .attr('stroke-width', 2);
+        .attr('stroke-width', 1.5);
 
       node.append('text')
         .attr('dy', '0.31em')
         .attr('x', 0)
         .attr('text-anchor', 'middle')
-        .text(d => d.data.author?.name)
-        .style('font-size', '10px')
+        .text(d => {
+            const showText = getNodeWidth(d.data) > 50;
+            return showText ? d.data.author?.name : '';
+        })
+        .style('font-size', '9px')
         .style('fill', 'hsl(var(--muted-foreground))');
 
       node.on('mouseover', (event, d) => {
@@ -136,7 +152,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
               .html(`
                 <div class="flex items-center gap-2 mb-1">
                   <div class="h-2 w-2 rounded-full" style="background-color: ${color}"></div>
-                  <p class="font-semibold text-popover-foreground">${d.data.author?.name}</p>
+                  <p class="font-semibold text-popover-foreground">${d.data.author?.name} (${d.data.upvotes} upvotes)</p>
                 </div>
                 <p class="text-muted-foreground">${d.data.text}</p>
               `);
@@ -167,7 +183,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
             <p className="text-muted-foreground">Not enough data to display chart.</p>
           </div>
         ) : (
-            <svg ref={svgRef} width={dimensions.width} height={dimensions.height} />
+            <svg ref={svgRef} width={dimensions.width} height={dimensions.height * 1.5} />
         )}
       </CardContent>
     </Card>
