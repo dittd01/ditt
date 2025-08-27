@@ -28,6 +28,7 @@ import {
   Settings,
   LogOut,
   Cpu,
+  Server,
 } from 'lucide-react';
 import Link from 'next/link';
 import { AdminHeader } from '@/components/admin/AdminHeader';
@@ -43,6 +44,7 @@ const navItems = [
   { href: '/admin/audit-logs', icon: Shield, label: 'Audit Logs', roles: ['Admin', 'Owner'] },
   { href: '/admin/feature-flags', icon: FileText, label: 'Feature Flags', roles: ['Admin', 'Owner'] },
   { href: '/admin/health', icon: HeartPulse, label: 'Health', roles: ['Admin', 'Owner'] },
+  { href: '/admin/architecture', icon: Server, label: 'Architecture', roles: ['Admin', 'Owner'] },
   { href: '/admin/tech-stack', icon: Cpu, label: 'Tech Stack', roles: ['Admin', 'Owner'] },
   { href: '/admin/exports', icon: Download, label: 'Exports', roles: ['Analyst', 'Admin', 'Owner'] },
 ];

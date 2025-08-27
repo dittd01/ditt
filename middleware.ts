@@ -6,12 +6,13 @@ import { getUser, hasRole } from '@/lib/auth';
 // Why: The matcher config is the most efficient way to apply middleware.
 // It ensures the middleware function only runs for paths that match this pattern,
 // avoiding unnecessary execution on asset requests, API routes, etc.
+// We are now protecting both /admin and /ops routes.
 export const config = {
-  matcher: '/ops/:path*',
+  matcher: ['/ops/:path*', '/admin/:path*'],
 };
 
 /**
- * Middleware to protect operational routes.
+ * Middleware to protect operational and admin routes.
  * It verifies that the user is authenticated and has the required 'admin' or 'staff' role.
  *
  * @param {NextRequest} request - The incoming request object.
@@ -19,7 +20,7 @@ export const config = {
  * or a redirect to the 404 page for unauthorized users.
  */
 export function middleware(request: NextRequest) {
-  // Why: We fetch the user on every request to an /ops/ route. This ensures that
+  // Why: We fetch the user on every request to an /ops/ or /admin/ route. This ensures that
   // session changes (like logout or role changes) are immediately respected.
   const user = getUser();
   const isAuthorized = hasRole(user, ['admin', 'staff']);
