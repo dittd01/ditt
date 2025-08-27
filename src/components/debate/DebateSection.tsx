@@ -16,6 +16,7 @@ import { generateRebuttalAction } from '@/app/actions';
 import { DebateTree } from './DebateTree';
 import { DebateHierarchy } from './DebateHierarchy';
 import { cn } from '@/lib/utils';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
 
 
 interface DebateSectionProps {
@@ -63,7 +64,6 @@ const translations = {
 }
 
 type SortByType = 'votes' | 'newest';
-type ActiveTab = 'arguments' | 'visualization';
 type VizType = 'radial' | 'tree';
 
 // Skeleton component for loading state
@@ -92,7 +92,6 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
   const [sortBy, setSortBy] = useState<SortByType>('votes');
   const [rebuttalHint, setRebuttalHint] = useState<string | null>(null);
   const [isHintLoading, setIsHintLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<ActiveTab>('arguments');
   const [vizType, setVizType] = useState<VizType>('radial');
   const argumentRefs = useRef<Map<string, HTMLElement | null>>(new Map());
   const { toast } = useToast();
@@ -172,19 +171,15 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
   }, [debateArgs]);
   
   const handleArgumentNodeClick = (argument: Argument) => {
-    setActiveTab('arguments');
-    // Allow React to re-render and switch tabs before we scroll
-    setTimeout(() => {
-        const element = argumentRefs.current.get(argument.id);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            // Highlight the card briefly
-            element.classList.add('ring-2', 'ring-primary', 'transition-all', 'duration-1000');
-            setTimeout(() => {
-                 element.classList.remove('ring-2', 'ring-primary', 'transition-all', 'duration-1000');
-            }, 2000);
-        }
-    }, 100);
+    const element = argumentRefs.current.get(argument.id);
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Highlight the card briefly
+        element.classList.add('ring-2', 'ring-primary', 'transition-all', 'duration-1000');
+        setTimeout(() => {
+             element.classList.remove('ring-2', 'ring-primary', 'transition-all', 'duration-1000');
+        }, 2000);
+    }
   };
 
 
@@ -319,78 +314,14 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
   }
 
   return (
-    <Tabs defaultValue="arguments" value={activeTab} onValueChange={(value) => setActiveTab(value as ActiveTab)} className="w-full">
-        <div className="flex justify-between items-center mb-6 pb-4 border-b">
-            <TabsList>
-                <TabsTrigger value="arguments">{t.arguments}</TabsTrigger>
-                <TabsTrigger value="visualization">{t.visualization}</TabsTrigger>
-            </TabsList>
-            <TabsList>
-                <TabsTrigger value="votes" onClick={() => setSortBy('votes')} className="data-[state=active]:bg-primary/10">{t.mostVoted}</TabsTrigger>
-                <TabsTrigger value="newest" onClick={() => setSortBy('newest')} className="data-[state=active]:bg-primary/10">{t.newest}</TabsTrigger>
-            </TabsList>
-        </div>
-        <TabsContent value="arguments">
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                {/* Arguments For Column */}
-                <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                        <h3 className="text-xl font-semibold text-[hsl(var(--chart-2))]">
-                            {t.for}
-                        </h3>
-                        <Button variant="ghost" size="icon" onClick={() => handleAddArgument('for')} className="text-[hsl(var(--chart-2))] hover:text-[hsl(var(--chart-2))] hover:bg-green-500/10">
-                            <PlusCircle className="h-5 w-5" />
-                        </Button>
-                    </div>
-                    {showComposer === 'for' && (
-                        <ArgumentComposer
-                            side="for"
-                            topicId={topicId}
-                            existingArguments={topLevelFor}
-                            onCancel={handleCancelComposer}
-                            onSubmit={handleSubmit}
-                            onMerge={handleMerge}
-                        />
-                    )}
-                    <div className="space-y-4">
-                        {topLevelFor.length > 0 
-                            ? topLevelFor.map(renderArgumentTree) 
-                            : <p className="text-muted-foreground p-4 text-center">{t.noArguments}</p>
-                        }
-                    </div>
-                </div>
-
-                {/* Arguments Against Column */}
-                <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                        <h3 className="text-xl font-semibold text-destructive">
-                            {t.against}
-                        </h3>
-                        <Button variant="ghost" size="icon" onClick={() => handleAddArgument('against')} className="text-destructive hover:text-destructive hover:bg-red-500/10">
-                            <PlusCircle className="h-5 w-5" />
-                        </Button>
-                    </div>
-                    {showComposer === 'against' && (
-                        <ArgumentComposer
-                            side="against"
-                            topicId={topicId}
-                            existingArguments={topLevelAgainst}
-                            onCancel={handleCancelComposer}
-                            onSubmit={handleSubmit}
-                            onMerge={handleMerge}
-                        />
-                    )}
-                    <div className="space-y-4">
-                        {topLevelAgainst.length > 0 
-                            ? topLevelAgainst.map(renderArgumentTree)
-                            : <p className="text-muted-foreground p-4 text-center">{t.noArguments}</p>
-                        }
-                    </div>
-                </div>
-            </div>
-        </TabsContent>
-        <TabsContent value="visualization" className="space-y-4">
-             <div className="flex justify-center border bg-card rounded-md p-1">
+    <div className="space-y-8">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>{t.visualization}</CardTitle>
+            <CardDescription>A map of the argument structure. Click a node to jump to it.</CardDescription>
+          </div>
+           <div className="flex justify-center border bg-card rounded-md p-1">
                 <Button
                     variant={vizType === 'radial' ? 'secondary' : 'ghost'}
                     size="icon"
@@ -408,7 +339,9 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
                     <Network />
                 </Button>
              </div>
-             <div className={cn(vizType === 'radial' ? 'block' : 'hidden')}>
+        </CardHeader>
+        <CardContent>
+            <div className={cn(vizType === 'radial' ? 'block' : 'hidden')}>
                 <DebateTree 
                     args={debateArgs} 
                     topicQuestion={topicQuestion} 
@@ -424,7 +357,77 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
                     onNodeClick={handleArgumentNodeClick}
                 />
             </div>
-        </TabsContent>
-    </Tabs>
+        </CardContent>
+      </Card>
+
+       <div className="flex justify-between items-center mb-6 pb-4 border-b">
+            <h2 className="text-2xl font-bold font-headline">{t.arguments}</h2>
+            <Tabs defaultValue="votes" onValueChange={(value) => setSortBy(value as SortByType)}>
+                <TabsList>
+                    <TabsTrigger value="votes">{t.mostVoted}</TabsTrigger>
+                    <TabsTrigger value="newest">{t.newest}</TabsTrigger>
+                </TabsList>
+            </Tabs>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+            {/* Arguments For Column */}
+            <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-xl font-semibold text-[hsl(var(--chart-2))]">
+                        {t.for}
+                    </h3>
+                    <Button variant="ghost" size="icon" onClick={() => handleAddArgument('for')} className="text-[hsl(var(--chart-2))] hover:text-[hsl(var(--chart-2))] hover:bg-green-500/10">
+                        <PlusCircle className="h-5 w-5" />
+                    </Button>
+                </div>
+                {showComposer === 'for' && (
+                    <ArgumentComposer
+                        side="for"
+                        topicId={topicId}
+                        existingArguments={topLevelFor}
+                        onCancel={handleCancelComposer}
+                        onSubmit={handleSubmit}
+                        onMerge={handleMerge}
+                    />
+                )}
+                <div className="space-y-4">
+                    {topLevelFor.length > 0 
+                        ? topLevelFor.map(renderArgumentTree) 
+                        : <p className="text-muted-foreground p-4 text-center">{t.noArguments}</p>
+                    }
+                </div>
+            </div>
+
+            {/* Arguments Against Column */}
+            <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-xl font-semibold text-destructive">
+                        {t.against}
+                    </h3>
+                    <Button variant="ghost" size="icon" onClick={() => handleAddArgument('against')} className="text-destructive hover:text-destructive hover:bg-red-500/10">
+                        <PlusCircle className="h-5 w-5" />
+                    </Button>
+                </div>
+                {showComposer === 'against' && (
+                    <ArgumentComposer
+                        side="against"
+                        topicId={topicId}
+                        existingArguments={topLevelAgainst}
+                        onCancel={handleCancelComposer}
+                        onSubmit={handleSubmit}
+                        onMerge={handleMerge}
+                    />
+                )}
+                <div className="space-y-4">
+                    {topLevelAgainst.length > 0 
+                        ? topLevelAgainst.map(renderArgumentTree)
+                        : <p className="text-muted-foreground p-4 text-center">{t.noArguments}</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
   );
 }
+
