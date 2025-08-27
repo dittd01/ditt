@@ -33,9 +33,34 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
     }
     return () => resizeObserver.disconnect();
   }, [isMobile, args.length]);
+  
+  const filteredArgs = useMemo(() => {
+    const topLevelArgs = args
+      .filter(arg => arg.parentId === 'root')
+      .sort((a, b) => b.upvotes - a.upvotes)
+      .slice(0, 10);
+      
+    const topLevelArgIds = new Set(topLevelArgs.map(arg => arg.id));
+    const descendants = new Set<Argument>();
+    const queue: string[] = [...topLevelArgIds];
+    
+    while(queue.length > 0) {
+        const parentId = queue.shift();
+        if(!parentId) continue;
+
+        const children = args.filter(arg => arg.parentId === parentId);
+        children.forEach(child => {
+            descendants.add(child);
+            queue.push(child.id);
+        })
+    }
+
+    return [...topLevelArgs, ...Array.from(descendants)];
+  }, [args])
+
 
   useEffect(() => {
-    if (!args || dimensions.width === 0 || !svgRef.current || !containerRef.current) {
+    if (!filteredArgs || dimensions.width === 0 || !svgRef.current || !containerRef.current) {
       return;
     }
     
@@ -58,19 +83,18 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         upvotes: 0, downvotes: 0, replyCount: 0, createdAt: new Date().toISOString()
       };
 
-      const validIds = new Set(args.map(arg => arg.id));
+      const validIds = new Set(filteredArgs.map(arg => arg.id));
       validIds.add(topicRoot.id);
-      const sanitizedArgs = args.map(arg => ({ ...arg, parentId: arg.parentId && validIds.has(arg.parentId) ? arg.parentId : 'root' }));
+      const sanitizedArgs = filteredArgs.map(arg => ({ ...arg, parentId: arg.parentId && validIds.has(arg.parentId) ? arg.parentId : 'root' }));
       const dataForStratify = [topicRoot, ...sanitizedArgs];
       
       const rootNode = d3.stratify<Argument>().id(d => d.id).parentId(d => d.parentId)(dataForStratify);
       
-      // Use tree.size() to make the layout fit the container dimensions
       const treeLayout = d3.tree().size([dimensions.width - 40, dimensions.height - 80]);
       const hierarchy = treeLayout(rootNode);
       
       const g = svg.append('g')
-        .attr('transform', `translate(20, 40)`); // Add padding
+        .attr('transform', `translate(20, 40)`);
 
       const linkGenerator = d3.linkVertical()
         .x(d => (d as any).x)
@@ -85,6 +109,9 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         .data(hierarchy.links())
         .join('path')
           .attr('d', linkGenerator as any);
+      
+      const maxUpvotes = d3.max(filteredArgs, d => d.upvotes) || 1;
+      const widthScale = d3.scaleLinear().domain([0, maxUpvotes]).range([20, 50]).clamp(true);
 
       const node = g.append('g')
         .selectAll('g')
@@ -98,15 +125,13 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         if (d.depth === 0) return 'hsl(var(--primary))';
         return d.data.side === 'for' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))';
       };
-
-      // Define node dimensions
-      const nodeWidth = 20;
+      
       const nodeHeight = 12;
 
       node.append('rect')
-        .attr('x', -nodeWidth / 2)
+        .attr('x', d => -widthScale(d.data.upvotes || 0) / 2)
         .attr('y', -nodeHeight / 2)
-        .attr('width', nodeWidth)
+        .attr('width', d => widthScale(d.data.upvotes || 0))
         .attr('height', nodeHeight)
         .attr('rx', 3)
         .attr('ry', 3)
@@ -114,10 +139,9 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         .attr('stroke', getColor)
         .attr('stroke-width', 2);
       
-      // Only add text for the root node
       node.filter(d => d.depth === 0).append('text')
         .attr('dy', '0.31em')
-        .attr('y', nodeHeight) // Position text below the root node
+        .attr('y', nodeHeight)
         .attr('text-anchor', 'middle')
         .text('Topic')
         .style('font-size', '10px')
@@ -146,16 +170,16 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
     } catch(e) {
       console.error("D3 Hierarchy error:", e);
     }
-  }, [args, topicQuestion, dimensions, onNodeClick, lang, isMobile]);
+  }, [filteredArgs, topicQuestion, dimensions, onNodeClick, lang, isMobile, args]);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Debate Hierarchy</CardTitle>
-        <CardDescription>A top-down tree view of the argument structure.</CardDescription>
+        <CardDescription>A top-down tree view of the 10 most upvoted arguments and their replies.</CardDescription>
       </CardHeader>
       <CardContent ref={containerRef} className="h-[400px] md:h-[700px] w-full p-0 relative overflow-auto">
-        {args.length === 0 ? (
+        {filteredArgs.length === 0 ? (
           <div className="flex items-center justify-center py-16">
             <p className="text-muted-foreground">Not enough data to display chart.</p>
           </div>
