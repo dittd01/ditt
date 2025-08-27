@@ -74,9 +74,15 @@ export function ArgumentComposer({
 
   async function handleInitialSubmit(values: ArgumentFormValues) {
     setStep('LOADING');
+    
+    // Why: The server-side schema for existingArguments is a simple {id, text} array.
+    // We must map the client-side data structure to match what the Genkit flow expects
+    // to avoid a Zod validation error on the server.
+    const simplifiedExistingArgs = existingArguments.map(arg => ({ id: arg.id, text: arg.text }));
+    
     const input: CurateArgumentInput = {
       userText: values.text,
-      existingArguments: existingArguments,
+      existingArguments: simplifiedExistingArgs,
       side,
     };
     
