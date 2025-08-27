@@ -44,9 +44,9 @@ export async function curateArgument(input: CurateArgumentInput): Promise<Curate
   return curateArgumentFlow(input);
 }
 
-// Why: A dedicated prompt with a strongly-typed schema ensures the LLM's response
-// is structured and predictable, reducing the risk of runtime errors.
-// This is the core instruction set for the AI agent.
+// Why: A single, unified prompt with a strongly-typed schema ensures the LLM's response
+// is structured and predictable, reducing the risk of runtime errors. This single prompt
+// handles both the initial argument case (empty existingArguments) and subsequent cases.
 const prompt = ai.definePrompt({
   name: 'curateArgumentPrompt',
   input: { schema: CurateArgumentInputSchema },
@@ -64,6 +64,8 @@ const prompt = ai.definePrompt({
             {{#each existingArguments}}
             - ID: {{this.id}}, Text: "{{this.text}}"
             {{/each}}
+            {{else}}
+            (No existing arguments)
             {{/if}}
         -   Calculate a similarity score for the most similar existing argument.
         -   **Decision Rule**: If the similarity score is > 0.9, you MUST set the action to "merge". Otherwise, set the action to "create". If there are no existing arguments, the action is always "create".
@@ -91,6 +93,7 @@ const curateArgumentFlow = ai.defineFlow(
     outputSchema: CurateArgumentOutputSchema,
   },
   async (input) => {
+    // We now use the single, unified prompt for all cases.
     const { output } = await prompt(input);
 
     if (!output) {
