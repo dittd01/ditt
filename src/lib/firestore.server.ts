@@ -1,23 +1,30 @@
 
+'use server';
+
 import admin from 'firebase-admin';
 import { App, getApp, getApps, initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
-// Why: A global variable to track if we are in mock mode.
-// This prevents repeated error messages and allows other parts of the app
-// to gracefully handle the absence of a live database connection.
 let isMock = false;
 
 const getFirebaseAdminApp = (): App => {
+    // Why: In serverless environments, multiple initializations can occur.
+    // We check if any apps exist. If so, we try to get the default app.
+    // If that fails (which is what's causing the user's error), we know
+    // an app exists but isn't the default, so we create a new, uniquely named one.
     if (getApps().length > 0) {
-        return getApp();
+        try {
+            return getApp();
+        } catch (e) {
+            // A non-default app likely exists. Create a new one.
+            const appName = `firebase-admin-app-${Date.now()}`;
+            console.log(`Default app not found, creating new app: ${appName}`);
+            return initializeApp(getCredentials(), appName);
+        }
     }
-    
+
     const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-    
-    // Why: Check if the service account key is missing. If so, we enter mock mode.
-    // This makes local development much smoother, as developers don't need to
-    // set up Firebase credentials just to run the UI.
+
     if (!serviceAccountKey) {
         console.warn(`
         ================================================================
@@ -28,33 +35,32 @@ const getFirebaseAdminApp = (): App => {
         ================================================================
         `);
         isMock = true;
-        // Why: We still need to initialize a mock app to prevent other parts
-        // of the code that import 'db' from crashing.
-        return initializeApp({ projectId: 'mock-project' }, 'mock-app');
+        // Return a mock app to prevent crashes.
+        return initializeApp({ projectId: 'mock-project' });
     }
 
+    return initializeApp(getCredentials());
+};
+
+function getCredentials() {
     try {
+        const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY!;
         const credentials = JSON.parse(serviceAccountKey);
-        return initializeApp({
+        return {
             credential: admin.credential.cert(credentials),
-        });
-    } catch(e) {
+        };
+    } catch (e) {
         console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY. Make sure it's a valid JSON string.", e);
-        // Why: If parsing fails, we also fall back to mock mode. This prevents
-        // a crash loop if the environment variable is set but malformed.
         console.warn('Falling back to MOCK MODE due to invalid credentials.');
         isMock = true;
-        return initializeApp({ projectId: 'mock-project-error' }, 'mock-app-error');
+        // Return mock credentials to prevent a hard crash.
+        return { projectId: 'mock-project-error' };
     }
 }
 
 export const adminApp = getFirebaseAdminApp();
-// Why: Export the 'db' instance, which will be either the real Firestore instance
-// or the mock one, allowing components to use it without knowing the mode.
 export const db = getFirestore(adminApp);
 
-// Why: Exporting a function to check the mode allows other server modules
-// (like the flagStore) to adapt their behavior accordingly.
 export function isFirestoreMock(): boolean {
     return isMock;
 }
