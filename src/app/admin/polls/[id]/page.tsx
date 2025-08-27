@@ -224,8 +224,8 @@ export default function EditPollPage() {
 
   const { fields: optionFields, append: appendOption, remove: removeOption } = useFieldArray({ control: form.control, name: "options" });
   const { fields: sourceFields, append: appendSource, remove: removeSource, replace: replaceSources } = useFieldArray({ control: form.control, name: "sources" });
-  const { fields: proFields, append: appendPro, replace: replacePros } = useFieldArray({ control: form.control, name: "pros" });
-  const { fields: conFields, append: appendCon, replace: replaceCons } = useFieldArray({ control: form.control, name: "cons" });
+  const { fields: proFields, append: appendPro, remove: removePro, replace: replacePros } = useFieldArray({ control: form.control, name: "pros" });
+  const { fields: conFields, append: appendCon, remove: removeCon, replace: replaceCons } = useFieldArray({ control: form.control, name: "cons" });
 
   const watchCategoryId = form.watch('categoryId');
   const watchIsDefaultOptions = form.watch('isDefaultOptions');
@@ -570,17 +570,31 @@ export default function EditPollPage() {
             <Card>
                 <CardHeader><CardTitle>Pros & Cons</CardTitle></CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <FormLabel>Pros</FormLabel>
+                    <div className="space-y-3">
+                        <FormLabel>Arguments For (Pros)</FormLabel>
                         {proFields.map((field, index) => (
-                             <FormField key={field.id} control={form.control} name={`pros.${index}`} render={({field}) => <Input {...field} />} />
+                             <FormField key={field.id} control={form.control} name={`pros.${index}`} render={({field}) => (
+                                <div className="flex items-start gap-2">
+                                    <Textarea {...field} placeholder={`Pro argument ${index + 1}`} className="flex-1" />
+                                    <Button type="button" variant="ghost" size="icon" onClick={() => removePro(index)}>
+                                        <Trash2 className="h-4 w-4 text-muted-foreground"/>
+                                    </Button>
+                                </div>
+                             )} />
                         ))}
                          <Button type="button" variant="outline" size="sm" onClick={() => appendPro('')}><PlusCircle className="mr-2 h-4 w-4" />Add Pro</Button>
                     </div>
-                     <div className="space-y-2">
-                        <FormLabel>Cons</FormLabel>
+                     <div className="space-y-3">
+                        <FormLabel>Arguments Against (Cons)</FormLabel>
                         {conFields.map((field, index) => (
-                             <FormField key={field.id} control={form.control} name={`cons.${index}`} render={({field}) => <Input {...field} />} />
+                             <FormField key={field.id} control={form.control} name={`cons.${index}`} render={({field}) => (
+                                <div className="flex items-start gap-2">
+                                    <Textarea {...field} placeholder={`Con argument ${index + 1}`} className="flex-1" />
+                                     <Button type="button" variant="ghost" size="icon" onClick={() => removeCon(index)}>
+                                        <Trash2 className="h-4 w-4 text-muted-foreground"/>
+                                    </Button>
+                                </div>
+                             )} />
                         ))}
                          <Button type="button" variant="outline" size="sm" onClick={() => appendCon('')}><PlusCircle className="mr-2 h-4 w-4" />Add Con</Button>
                     </div>
