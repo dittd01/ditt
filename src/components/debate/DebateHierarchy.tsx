@@ -14,9 +14,6 @@ interface DebateHierarchyProps {
   onNodeClick: (argument: Argument) => void;
 }
 
-const HSL_FOR = { h: 103, s: 0.31, l: 0.25 };
-const HSL_AGAINST = { h: 0, s: 0.78, l: 0.34 };
-
 export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: DebateHierarchyProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -68,33 +65,12 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
       
       const rootNode = d3.stratify<Argument>().id(d => d.id).parentId(d => d.parentId)(dataForStratify);
       
-      const maxUpvotes = d3.max(args, d => d.upvotes) || 1;
-      const sizeScale = d3.scaleSqrt().domain([0, maxUpvotes]).range([0.8, 1.5]);
-
-      const baseNodeWidth = 30;
-      const baseNodeHeight = 15;
-
-      const getNodeWidth = (d: Argument) => {
-        if(d.id === 'root') return 100;
-        return baseNodeWidth * sizeScale(d.upvotes);
-      }
-      const getNodeHeight = (d: Argument) => {
-        if(d.id === 'root') return 30;
-        return baseNodeHeight * sizeScale(d.upvotes);
-      }
-      
-      const treeLayout = d3.tree().nodeSize([70, 60]); // Tighter spacing
+      // Use tree.size() to make the layout fit the container dimensions
+      const treeLayout = d3.tree().size([dimensions.width - 40, dimensions.height - 80]);
       const hierarchy = treeLayout(rootNode);
       
-      let x0 = Infinity;
-      let x1 = -x0;
-      hierarchy.each(d => {
-        if (d.x > x1) x1 = d.x;
-        if (d.x < x0) x0 = d.x;
-      });
-
       const g = svg.append('g')
-        .attr('transform', `translate(${dimensions.width / 2}, ${getNodeHeight(topicRoot)})`);
+        .attr('transform', `translate(20, 40)`); // Add padding
 
       const linkGenerator = d3.linkVertical()
         .x(d => (d as any).x)
@@ -104,7 +80,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         .attr('fill', 'none')
         .attr('stroke', 'hsl(var(--border))')
         .attr('stroke-opacity', 0.6)
-        .attr('stroke-width', 1)
+        .attr('stroke-width', 1.5)
         .selectAll('path')
         .data(hierarchy.links())
         .join('path')
@@ -123,20 +99,25 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         return d.data.side === 'for' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))';
       };
 
+      // Define node dimensions
+      const nodeWidth = 20;
+      const nodeHeight = 12;
+
       node.append('rect')
-        .attr('x', d => -getNodeWidth(d.data) / 2)
-        .attr('y', d => -getNodeHeight(d.data) / 2)
-        .attr('width', d => getNodeWidth(d.data))
-        .attr('height', d => getNodeHeight(d.data))
-        .attr('rx', 4)
-        .attr('ry', 4)
+        .attr('x', -nodeWidth / 2)
+        .attr('y', -nodeHeight / 2)
+        .attr('width', nodeWidth)
+        .attr('height', nodeHeight)
+        .attr('rx', 3)
+        .attr('ry', 3)
         .attr('fill', 'hsl(var(--card))')
         .attr('stroke', getColor)
-        .attr('stroke-width', 1.5);
+        .attr('stroke-width', 2);
       
+      // Only add text for the root node
       node.filter(d => d.depth === 0).append('text')
         .attr('dy', '0.31em')
-        .attr('x', 0)
+        .attr('y', nodeHeight) // Position text below the root node
         .attr('text-anchor', 'middle')
         .text('Topic')
         .style('font-size', '10px')
@@ -179,7 +160,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
             <p className="text-muted-foreground">Not enough data to display chart.</p>
           </div>
         ) : (
-            <svg ref={svgRef} width={dimensions.width} height={dimensions.height * 1.5} />
+            <svg ref={svgRef} width={dimensions.width} height={dimensions.height} />
         )}
       </CardContent>
     </Card>
