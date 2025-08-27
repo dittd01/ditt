@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import type { Argument, SimArgument } from '@/lib/types';
+import type { Argument, SimArgument, Topic } from '@/lib/types';
 import { ArgumentCard } from './ArgumentCard';
 import { Button } from '../ui/button';
 import { PlusCircle, Lightbulb, Loader2 } from 'lucide-react';
@@ -13,6 +13,7 @@ import { currentUser } from '@/lib/user-data';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { generateRebuttalAction } from '@/app/actions';
+import { DebateTree } from './DebateTree';
 
 
 interface DebateSectionProps {
@@ -29,6 +30,7 @@ interface DebateSectionProps {
 const translations = {
     en: {
         arguments: 'Arguments',
+        visualization: 'Visualization',
         for: 'Arguments for',
         against: 'Arguments against',
         addArgument: 'Add Argument',
@@ -43,6 +45,7 @@ const translations = {
     },
     nb: {
         arguments: 'Argumenter',
+        visualization: 'Visualisering',
         for: 'Argumenter for',
         against: 'Argumenter mot',
         addArgument: 'Legg til argument',
@@ -293,73 +296,79 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
   }
 
   return (
-    <div>
-        <div className="flex justify-end mb-6 pb-4 border-b">
-            <Tabs value={sortBy} onValueChange={(value) => setSortBy(value as SortByType)} className="w-full sm:w-auto">
-                <TabsList>
-                    <TabsTrigger value="votes">{t.mostVoted}</TabsTrigger>
-                    <TabsTrigger value="newest">{t.newest}</TabsTrigger>
-                </TabsList>
-            </Tabs>
+    <Tabs defaultValue="arguments" className="w-full">
+        <div className="flex justify-between items-center mb-6 pb-4 border-b">
+            <TabsList>
+                <TabsTrigger value="arguments">{t.arguments}</TabsTrigger>
+                <TabsTrigger value="visualization">{t.visualization}</TabsTrigger>
+            </TabsList>
+            <TabsList>
+                <TabsTrigger value="votes" onClick={() => setSortBy('votes')} className="data-[state=active]:bg-primary/10">{t.mostVoted}</TabsTrigger>
+                <TabsTrigger value="newest" onClick={() => setSortBy('newest')} className="data-[state=active]:bg-primary/10">{t.newest}</TabsTrigger>
+            </TabsList>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-            {/* Arguments For Column */}
-            <div className="space-y-4">
-                 <div className="flex justify-between items-center">
-                    <h3 className="text-xl font-semibold text-[hsl(var(--chart-2))]">
-                        {t.for}
-                    </h3>
-                    <Button variant="ghost" size="icon" onClick={() => handleAddArgument('for')} className="text-[hsl(var(--chart-2))] hover:text-[hsl(var(--chart-2))] hover:bg-green-500/10">
-                        <PlusCircle className="h-5 w-5" />
-                    </Button>
-                </div>
-                 {showComposer === 'for' && (
-                    <ArgumentComposer
-                        side="for"
-                        topicId={topicId}
-                        existingArguments={debateArgs}
-                        onCancel={handleCancelComposer}
-                        onSubmit={handleSubmit}
-                        onMerge={handleMerge}
-                    />
-                 )}
+        <TabsContent value="arguments">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                {/* Arguments For Column */}
                 <div className="space-y-4">
-                    {topLevelFor.length > 0 
-                        ? topLevelFor.map(renderArgumentTree) 
-                        : <p className="text-muted-foreground p-4 text-center">{t.noArguments}</p>
-                    }
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-xl font-semibold text-[hsl(var(--chart-2))]">
+                            {t.for}
+                        </h3>
+                        <Button variant="ghost" size="icon" onClick={() => handleAddArgument('for')} className="text-[hsl(var(--chart-2))] hover:text-[hsl(var(--chart-2))] hover:bg-green-500/10">
+                            <PlusCircle className="h-5 w-5" />
+                        </Button>
+                    </div>
+                    {showComposer === 'for' && (
+                        <ArgumentComposer
+                            side="for"
+                            topicId={topicId}
+                            existingArguments={debateArgs}
+                            onCancel={handleCancelComposer}
+                            onSubmit={handleSubmit}
+                            onMerge={handleMerge}
+                        />
+                    )}
+                    <div className="space-y-4">
+                        {topLevelFor.length > 0 
+                            ? topLevelFor.map(renderArgumentTree) 
+                            : <p className="text-muted-foreground p-4 text-center">{t.noArguments}</p>
+                        }
+                    </div>
                 </div>
-            </div>
 
-            {/* Arguments Against Column */}
-            <div className="space-y-4">
-                 <div className="flex justify-between items-center">
-                    <h3 className="text-xl font-semibold text-destructive">
-                        {t.against}
-                    </h3>
-                     <Button variant="ghost" size="icon" onClick={() => handleAddArgument('against')} className="text-destructive hover:text-destructive hover:bg-red-500/10">
-                        <PlusCircle className="h-5 w-5" />
-                    </Button>
-                </div>
-                 {showComposer === 'against' && (
-                    <ArgumentComposer
-                        side="against"
-                        topicId={topicId}
-                        existingArguments={debateArgs}
-                        onCancel={handleCancelComposer}
-                        onSubmit={handleSubmit}
-                        onMerge={handleMerge}
-                    />
-                 )}
-                 <div className="space-y-4">
-                    {topLevelAgainst.length > 0 
-                        ? topLevelAgainst.map(renderArgumentTree)
-                        : <p className="text-muted-foreground p-4 text-center">{t.noArguments}</p>
-                    }
+                {/* Arguments Against Column */}
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-xl font-semibold text-destructive">
+                            {t.against}
+                        </h3>
+                        <Button variant="ghost" size="icon" onClick={() => handleAddArgument('against')} className="text-destructive hover:text-destructive hover:bg-red-500/10">
+                            <PlusCircle className="h-5 w-5" />
+                        </Button>
+                    </div>
+                    {showComposer === 'against' && (
+                        <ArgumentComposer
+                            side="against"
+                            topicId={topicId}
+                            existingArguments={debateArgs}
+                            onCancel={handleCancelComposer}
+                            onSubmit={handleSubmit}
+                            onMerge={handleMerge}
+                        />
+                    )}
+                    <div className="space-y-4">
+                        {topLevelAgainst.length > 0 
+                            ? topLevelAgainst.map(renderArgumentTree)
+                            : <p className="text-muted-foreground p-4 text-center">{t.noArguments}</p>
+                        }
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </TabsContent>
+        <TabsContent value="visualization">
+            <DebateTree args={debateArgs} topicQuestion={topicQuestion} lang={lang} />
+        </TabsContent>
+    </Tabs>
   );
 }
