@@ -315,53 +315,45 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
 
   return (
     <div className="space-y-8">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>{t.visualization}</CardTitle>
-            <CardDescription>A map of the argument structure. Click a node to jump to it.</CardDescription>
-          </div>
-           <div className="flex justify-center border bg-card rounded-md p-1">
-                <Button
-                    variant={vizType === 'radial' ? 'secondary' : 'ghost'}
-                    size="icon"
-                    onClick={() => setVizType('radial')}
-                    aria-label="Radial View"
-                >
-                    <Donut />
-                </Button>
-                <Button
-                    variant={vizType === 'tree' ? 'secondary' : 'ghost'}
-                    size="icon"
-                    onClick={() => setVizType('tree')}
-                    aria-label="Tree View"
-                >
-                    <Network />
-                </Button>
-             </div>
-        </CardHeader>
-        <CardContent>
-            <div className={cn(vizType === 'radial' ? 'block' : 'hidden')}>
-                <DebateTree 
-                    args={debateArgs} 
-                    topicQuestion={topicQuestion} 
-                    lang={lang}
-                    onNodeClick={handleArgumentNodeClick}
-                />
-            </div>
-             <div className={cn(vizType === 'tree' ? 'block' : 'hidden')}>
-                <DebateHierarchy
-                    args={debateArgs}
-                    topicQuestion={topicQuestion}
-                    lang={lang}
-                    onNodeClick={handleArgumentNodeClick}
-                />
-            </div>
-        </CardContent>
-      </Card>
+      <div className={cn(vizType === 'radial' ? 'block' : 'hidden')}>
+        <DebateTree 
+            args={debateArgs} 
+            topicQuestion={topicQuestion} 
+            lang={lang}
+            onNodeClick={handleArgumentNodeClick}
+        />
+      </div>
+      <div className={cn(vizType === 'tree' ? 'block' : 'hidden')}>
+        <DebateHierarchy
+            args={debateArgs}
+            topicQuestion={topicQuestion}
+            lang={lang}
+            onNodeClick={handleArgumentNodeClick}
+        />
+      </div>
 
        <div className="flex justify-between items-center mb-6 pb-4 border-b">
-            <h2 className="text-2xl font-bold font-headline">{t.arguments}</h2>
+            <div className="flex items-center gap-2">
+                <h2 className="text-2xl font-bold font-headline">{t.arguments}</h2>
+                <div className="flex justify-center border bg-card rounded-md p-1">
+                    <Button
+                        variant={vizType === 'radial' ? 'secondary' : 'ghost'}
+                        size="icon"
+                        onClick={() => setVizType('radial')}
+                        aria-label="Radial View"
+                    >
+                        <Donut />
+                    </Button>
+                    <Button
+                        variant={vizType === 'tree' ? 'secondary' : 'ghost'}
+                        size="icon"
+                        onClick={() => setVizType('tree')}
+                        aria-label="Tree View"
+                    >
+                        <Network />
+                    </Button>
+                </div>
+            </div>
             <Tabs defaultValue="votes" onValueChange={(value) => setSortBy(value as SortByType)}>
                 <TabsList>
                     <TabsTrigger value="votes">{t.mostVoted}</TabsTrigger>
@@ -430,4 +422,5 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
     </div>
   );
 }
+
 
