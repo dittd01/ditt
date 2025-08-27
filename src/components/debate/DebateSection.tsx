@@ -1,11 +1,12 @@
 
+
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import type { Argument, SimArgument, Topic } from '@/lib/types';
 import { ArgumentCard } from './ArgumentCard';
 import { Button } from '../ui/button';
-import { PlusCircle, Lightbulb, Loader2 } from 'lucide-react';
+import { PlusCircle, Lightbulb, Loader2, Donut, Network } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { ArgumentComposer } from './ArgumentComposer';
 import { currentUser } from '@/lib/user-data';
@@ -13,6 +14,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { generateRebuttalAction } from '@/app/actions';
 import { DebateTree } from './DebateTree';
+import { DebateHierarchy } from './DebateHierarchy';
+import { cn } from '@/lib/utils';
 
 
 interface DebateSectionProps {
@@ -61,6 +64,7 @@ const translations = {
 
 type SortByType = 'votes' | 'newest';
 type ActiveTab = 'arguments' | 'visualization';
+type VizType = 'radial' | 'tree';
 
 // Skeleton component for loading state
 DebateSection.Skeleton = function DebateSectionSkeleton() {
@@ -89,6 +93,7 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
   const [rebuttalHint, setRebuttalHint] = useState<string | null>(null);
   const [isHintLoading, setIsHintLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>('arguments');
+  const [vizType, setVizType] = useState<VizType>('radial');
   const argumentRefs = useRef<Map<string, HTMLElement | null>>(new Map());
   const { toast } = useToast();
 
@@ -384,13 +389,41 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
                 </div>
             </div>
         </TabsContent>
-        <TabsContent value="visualization">
-            <DebateTree 
-                args={debateArgs} 
-                topicQuestion={topicQuestion} 
-                lang={lang}
-                onNodeClick={handleArgumentNodeClick}
-            />
+        <TabsContent value="visualization" className="space-y-4">
+             <div className="flex justify-center border bg-card rounded-md p-1">
+                <Button
+                    variant={vizType === 'radial' ? 'secondary' : 'ghost'}
+                    size="icon"
+                    onClick={() => setVizType('radial')}
+                    aria-label="Radial View"
+                >
+                    <Donut />
+                </Button>
+                <Button
+                    variant={vizType === 'tree' ? 'secondary' : 'ghost'}
+                    size="icon"
+                    onClick={() => setVizType('tree')}
+                    aria-label="Tree View"
+                >
+                    <Network />
+                </Button>
+             </div>
+             <div className={cn(vizType === 'radial' ? 'block' : 'hidden')}>
+                <DebateTree 
+                    args={debateArgs} 
+                    topicQuestion={topicQuestion} 
+                    lang={lang}
+                    onNodeClick={handleArgumentNodeClick}
+                />
+            </div>
+             <div className={cn(vizType === 'tree' ? 'block' : 'hidden')}>
+                <DebateHierarchy
+                    args={debateArgs}
+                    topicQuestion={topicQuestion}
+                    lang={lang}
+                    onNodeClick={handleArgumentNodeClick}
+                />
+            </div>
         </TabsContent>
     </Tabs>
   );
