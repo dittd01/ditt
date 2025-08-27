@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useMemo, useRef, useEffect, useState } from 'react';
@@ -46,6 +47,31 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
     const tooltip = d3.select(containerRef.current)
       .append('div')
       .attr('class', 'd3-tooltip fixed rounded-lg border bg-popover p-2 shadow-sm text-sm transition-opacity opacity-0 pointer-events-none max-w-xs z-50');
+
+    // Helper function for text wrapping
+    function wrap(text: any, width: number) {
+        text.each(function(this: any) {
+            var text = d3.select(this),
+                words = text.text().split(/\s+/).reverse(),
+                word,
+                line: string[] = [],
+                lineNumber = 0,
+                lineHeight = 1.1, // ems
+                y = text.attr("y"),
+                dy = parseFloat(text.attr("dy")),
+                tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+            while (word = words.pop()) {
+                line.push(word);
+                tspan.text(line.join(" "));
+                if ((tspan.node() as SVGTSpanElement).getComputedTextLength() > width) {
+                    line.pop();
+                    tspan.text(line.join(" "));
+                    line = [word];
+                    tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                }
+            }
+        });
+    }
 
     try {
         const forArgs = args.filter(arg => arg.side === 'for');
@@ -160,23 +186,28 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         drawTree(againstHierarchy, 'left');
 
         const rootNode = g.append('g');
-        rootNode.append('rect')
-            .attr('x', -70)
-            .attr('y', -15)
-            .attr('width', 140)
-            .attr('height', 30)
-            .attr('rx', 5)
-            .attr('ry', 5)
+        const rootRect = rootNode.append('rect')
             .attr('fill', 'hsl(var(--primary))')
-            .attr('stroke', 'hsl(var(--primary-foreground))');
+            .attr('stroke', 'hsl(var(--primary-foreground))')
+            .attr('rx', 5)
+            .attr('ry', 5);
             
-        rootNode.append('text')
+        const rootText = rootNode.append('text')
             .attr('dy', '0.31em')
             .attr('text-anchor', 'middle')
-            .text(topicQuestion.length > 20 ? topicQuestion.substring(0, 20) + '...' : topicQuestion)
-            .style('font-size', '12px')
+            .text(topicQuestion)
+            .style('font-size', '10px')
             .style('fill', 'hsl(var(--primary-foreground))')
-            .style('font-weight', 'bold');
+            .call(wrap, 130);
+
+        const textBBox = rootText.node()!.getBBox();
+        const padding = 10;
+        rootRect
+            .attr('x', textBBox.x - padding / 2)
+            .attr('y', textBBox.y - padding / 2)
+            .attr('width', textBBox.width + padding)
+            .attr('height', textBBox.height + padding);
+
 
         // Zoom to fit logic
         const bounds = (g.node() as SVGGElement).getBBox();
