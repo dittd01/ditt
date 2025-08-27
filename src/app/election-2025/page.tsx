@@ -7,7 +7,7 @@ import { parties as partyDetails } from '@/lib/election-data';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CheckCircle, RefreshCw, Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { ElectionChart } from '@/components/ElectionChart';
 import type { Topic } from '@/lib/types';
@@ -15,6 +15,7 @@ import { getElectionData, castVote } from '@/app/election/actions';
 
 export default function ElectionPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const { toast } = useToast();
   const [voterId, setVoterId] = useState<string | null>(null);
   const [votedFor, setVotedFor] = useState<string | null>(null);
@@ -46,7 +47,7 @@ export default function ElectionPage() {
         title: 'Authentication Required',
         description: 'You must be logged in to vote.',
       });
-      router.push('/login');
+      router.push(`/auth/login?returnTo=${pathname}`);
       return;
     }
 

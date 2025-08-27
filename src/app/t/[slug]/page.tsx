@@ -218,6 +218,7 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
 
 function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boolean }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { toast } = useToast();
   
   const [currentTopic, setCurrentTopic] = useState<Topic>(topic);
@@ -247,7 +248,7 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
         title: t.authRequiredTitle,
         description: t.authRequiredDescription,
       });
-      router.push('/login');
+      router.push(`/auth/login?returnTo=${pathname}`);
       return;
     }
     

@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -19,10 +19,13 @@ import Link from 'next/link';
 
 export default function SetupPasskeyPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [personHash, setPersonHash] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const returnTo = searchParams.get('returnTo') || '/';
   
   useEffect(() => {
     const hash = localStorage.getItem('anonymousVoterId');
@@ -53,7 +56,7 @@ export default function SetupPasskeyPage() {
         });
         localStorage.removeItem('lastSeenTimestamp'); 
         window.dispatchEvent(new Event('authChange'));
-        router.push('/');
+        router.push(returnTo);
       } else {
         setError(result.message || 'An unknown error occurred.');
         setLoading(false);
@@ -67,7 +70,7 @@ export default function SetupPasskeyPage() {
   const handleSkip = () => {
     localStorage.removeItem('lastSeenTimestamp'); 
     window.dispatchEvent(new Event('authChange'));
-    router.push('/');
+    router.push(returnTo);
   }
 
   return (

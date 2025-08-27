@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -23,10 +23,21 @@ import { currentUser } from '@/lib/user-data';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [fnr, setFnr] = useState(''); // Fødselsnummer
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const returnTo = searchParams.get('returnTo') || '/';
+
+  const handleSuccessfulLogin = (personHash: string) => {
+    localStorage.setItem('anonymousVoterId', personHash);
+    localStorage.removeItem('lastSeenTimestamp');
+    window.dispatchEvent(new Event('authChange'));
+    router.push(returnTo);
+    router.refresh();
+  };
 
   const handleBankIdLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,25 +55,11 @@ export default function LoginPage() {
             description: result.message,
         });
 
-        // This is a simplified login mechanism for the prototype.
-        // We store the secure person_hash as the anonymous ID.
-        // In a real implementation, this would be a short-lived JWT.
-        localStorage.setItem('anonymousVoterId', result.personHash);
-        
-        // **FIX**: Special handling for the developer test user to bypass passkey flow.
-        if (result.personHash === currentUser.uid) {
-            localStorage.removeItem('lastSeenTimestamp'); 
-            window.dispatchEvent(new Event('authChange'));
-            router.push('/');
-            router.refresh();
-            return;
-        }
-
         if (result.isNewUser) {
-            router.push('/auth/setup-passkey');
+            localStorage.setItem('anonymousVoterId', result.personHash);
+            router.push(`/auth/setup-passkey?returnTo=${encodeURIComponent(returnTo)}`);
         } else {
-            // Existing user, attempt passkey login automatically
-            handlePasskeyLogin(true);
+            handleSuccessfulLogin(result.personHash);
         }
 
     } else {
@@ -73,16 +70,12 @@ export default function LoginPage() {
   
   const handlePasskeyLogin = async (isFollowUp = false) => {
     // Development backdoor for instant test user login
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production' && fnr === '00000000000') {
       toast({
         title: 'Dev Login Successful',
         description: 'Logged in as testuser.',
       });
-      localStorage.setItem('anonymousVoterId', currentUser.uid);
-      localStorage.removeItem('lastSeenTimestamp');
-      window.dispatchEvent(new Event('authChange'));
-      router.push('/');
-      router.refresh();
+      handleSuccessfulLogin(currentUser.uid);
       return;
     }
 
@@ -92,15 +85,11 @@ export default function LoginPage() {
     try {
         const result = await startLogin();
         if(result.success && result.personHash) {
-            localStorage.setItem('anonymousVoterId', result.personHash);
-            localStorage.removeItem('lastSeenTimestamp'); 
-            window.dispatchEvent(new Event('authChange'));
-            router.push('/');
-            router.refresh();
              toast({
                 title: "Login Successful",
                 description: "Welcome back!",
             });
+            handleSuccessfulLogin(result.personHash);
         } else {
             if (!isFollowUp) {
                 setError(result.message || 'Passkey login failed.');

@@ -16,7 +16,7 @@ import { useEffect, useRef, useState } from 'react';
 import { MiniTrendChart } from './MiniTrendChart';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 
 interface VoteCardProps {
@@ -41,6 +41,7 @@ const getCategoryIconName = (categoryId: string): string | null => {
 export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: VoteCardProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const pathname = usePathname();
   const [topic, setTopic] = useState(initialTopic);
   const [votedOn, setVotedOn] = useState<string | null>(null);
   
@@ -152,7 +153,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
             title: 'Authentication Required',
             description: 'You must be logged in to vote.',
         });
-        router.push('/auth/login');
+        router.push(`/auth/login?returnTo=${pathname}`);
         return;
     }
 

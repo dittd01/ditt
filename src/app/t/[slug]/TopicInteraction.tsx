@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { CheckCircle, RefreshCw, ThumbsUp, ThumbsDown, ListTree, Sun, Info } from 'lucide-react';
@@ -79,6 +79,7 @@ interface TopicInteractionProps {
 // This new Client Component handles all user interactions on the page.
 export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInteractionProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { toast } = useToast();
   
   // State for all interactive parts of the page.
