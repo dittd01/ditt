@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
@@ -281,7 +280,7 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
                     <ArgumentComposer
                         side={arg.side === 'for' ? 'against' : 'for'}
                         topicId={topicId}
-                        existingArguments={debateArgs}
+                        existingArguments={debateArgs.filter(a => a.parentId === 'root')}
                         onCancel={handleCancelComposer}
                         onSubmit={handleSubmit}
                         onMerge={handleMerge}
@@ -342,7 +341,7 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
                         <ArgumentComposer
                             side="for"
                             topicId={topicId}
-                            existingArguments={debateArgs}
+                            existingArguments={topLevelFor}
                             onCancel={handleCancelComposer}
                             onSubmit={handleSubmit}
                             onMerge={handleMerge}
@@ -370,7 +369,7 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
                         <ArgumentComposer
                             side="against"
                             topicId={topicId}
-                            existingArguments={debateArgs}
+                            existingArguments={topLevelAgainst}
                             onCancel={handleCancelComposer}
                             onSubmit={handleSubmit}
                             onMerge={handleMerge}

@@ -59,7 +59,7 @@ const prompt = ai.definePrompt({
 
     1.  **Analyze for Duplication**:
         -   Carefully read the user's submission: "{{userText}}".
-        -   Compare it semantically against the list of existing arguments. If the list is empty, skip this and proceed to step 2.
+        -   Compare it semantically against the list of existing top-level arguments provided. If the list is empty, skip this and proceed to step 2.
             {{#if existingArguments}}
             **Existing Arguments:**
             {{#each existingArguments}}
