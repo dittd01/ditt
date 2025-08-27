@@ -30,8 +30,7 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const tooltipRef = useRef<HTMLDivElement>(null);
-
+  
   useEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
         if (entries[0]) {
@@ -47,14 +46,20 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
   }, [isMobile]);
 
   useEffect(() => {
-    if (!args || dimensions.width === 0 || !svgRef.current || !tooltipRef.current) {
+    if (!args || dimensions.width === 0 || !svgRef.current || !containerRef.current) {
       return;
     }
     
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
-    const tooltip = d3.select(tooltipRef.current);
+    // Why: Create the tooltip div using D3 and append it to the container.
+    // This gives D3 full control over its lifecycle, avoiding React conflicts.
+    d3.select(containerRef.current).select('.d3-tooltip').remove(); // Clean up old tooltip
+    const tooltip = d3.select(containerRef.current)
+      .append('div')
+      .attr('class', 'd3-tooltip fixed rounded-lg border bg-popover p-2 shadow-sm text-sm transition-opacity opacity-0 pointer-events-none max-w-xs z-50')
+
 
     const g = svg.append('g')
       .attr('transform', `translate(${dimensions.width / 2},${dimensions.height / 2})`);
@@ -114,6 +119,7 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
           .attr('stroke-width', 1)
           .attr('class', 'transition-opacity hover:opacity-80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring')
           .on('click', (event, d) => d.depth > 0 && onNodeClick(d.data))
+          // Why: Use D3's event listeners to directly control the tooltip div.
           .on('mouseover', (event, d) => {
             if (d.depth > 0) {
               const color = d.data.side === 'for' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))';
@@ -129,11 +135,13 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
             }
           })
           .on('mousemove', (event) => {
+            // Why: Position the tooltip near the cursor for a natural feel.
             tooltip
               .style('left', (event.pageX + 15) + 'px')
               .style('top', (event.pageY + 15) + 'px');
           })
           .on('mouseleave', () => {
+            // Why: Hide the tooltip when the mouse leaves the segment.
             tooltip.style('opacity', 0);
           });
 
@@ -154,13 +162,9 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
             <p className="text-muted-foreground">Not enough data to display chart.</p>
           </div>
         ) : (
-          <>
+            // Why: The SVG is now just a canvas. The tooltip div is a sibling,
+            // appended and controlled by the D3 logic in the useEffect hook.
             <svg ref={svgRef} width="100%" height="100%" />
-            <div 
-              ref={tooltipRef} 
-              className="fixed rounded-lg border bg-popover p-2 shadow-sm text-sm transition-opacity opacity-0 pointer-events-none max-w-xs z-50"
-            />
-          </>
         )}
       </CardContent>
     </Card>
