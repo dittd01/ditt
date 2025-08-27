@@ -25,13 +25,13 @@ export function middleware(request: NextRequest) {
   const user = getUser();
   const isAuthorized = hasRole(user, ['admin', 'staff']);
 
-  // Why: If the user is not authorized, we redirect them to a generic 404 page.
+  // Why: If the user is not authorized, we rewrite to a generic 404 page.
   // This is a form of security through obscurity; we don't want to reveal that a
   // protected page even exists at that URL. Returning a 403 (Forbidden) would
   // confirm the page's existence.
   if (!isAuthorized) {
     const url = request.nextUrl.clone();
-    url.pathname = '/404'; // Redirect to the standard 404 page
+    url.pathname = '/404'; // Rewrite to the standard 404 page
     return NextResponse.rewrite(url);
   }
 
