@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useMemo, useRef, useEffect, useState } from 'react';
@@ -28,9 +29,9 @@ interface HierarchyNode extends d3.HierarchyNode<Argument> {
 }
 
 const COLORS = {
-  for: 'hsl(var(--chart-2))',
-  against: 'hsl(var(--chart-1))',
-  neutral: 'hsl(var(--muted-foreground))',
+  for: 'hsl(142.1 76.2% 36.3%)', // A rich green
+  against: 'hsl(350 85% 60%)',  // A reddish-orange
+  neutral: 'hsl(221 83% 53%)', // A muted blue for the center
 };
 
 const CustomTooltipContent = ({ argument }: { argument: Argument }) => {
@@ -59,7 +60,7 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
     const resizeObserver = new ResizeObserver(entries => {
         if (entries[0]) {
             const { width } = entries[0].contentRect;
-            const height = isMobile ? 300 : Math.min(width, 500); 
+            const height = isMobile ? Math.min(width, 400) : Math.min(width, 500);
             setDimensions({ width, height });
         }
     });
@@ -86,12 +87,12 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
         upvotes: 0, downvotes: 0, replyCount: 0, createdAt: new Date().toISOString()
       };
 
-      const idToNodeMap = new Map(args.map(arg => [arg.id, arg]));
-      idToNodeMap.set(topicRoot.id, topicRoot);
+      const validIds = new Set(args.map(arg => arg.id));
+      validIds.add('root');
 
       const sanitizedArgs = args.map(arg => ({
         ...arg,
-        parentId: idToNodeMap.has(arg.parentId) ? arg.parentId : 'root'
+        parentId: validIds.has(arg.parentId) ? arg.parentId : 'root'
       }));
 
       const dataForStratify = [topicRoot, ...sanitizedArgs];
@@ -100,11 +101,11 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
         .id(d => d.id)
         .parentId(d => d.parentId)(dataForStratify);
       
-      root.sum(d => (d.id === 'root' ? 0 : 1));
+      root.sum(d => (d.id === 'root' ? 0 : 1 + (d.replyCount > 0 ? d.replyCount * 0.5 : 0)));
 
       const radius = Math.min(dimensions.width, dimensions.height) / 2;
       const partition = d3.partition<Argument>()
-        .size([2 * Math.PI, radius])
+        .size([2 * Math.PI, radius * 0.9]) // Use 90% of radius for partition
         .padding(0.005);
         
       const partitionedRoot = partition(root) as HierarchyNode;
@@ -119,22 +120,24 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
   const arcGenerator = d3.arc<HierarchyNode>()
     .startAngle(d => d.x0)
     .endAngle(d => d.x1)
-    .padAngle(0.01)
+    .padAngle(d => d.depth > 1 ? 0.01 : 0.005)
     .padRadius(1)
     .innerRadius(d => d.y0 + 4)
-    .outerRadius(d => Math.max(d.y0 + 4, d.y1 - 2));
+    .outerRadius(d => Math.max(d.y0 + 4, d.y1 - 2))
+    .cornerRadius(d => d.depth > 1 ? 2 : 0);
 
 
   const getColor = (d: HierarchyNode) => {
-    if (d.depth === 0) return COLORS.neutral;
+    if (d.depth === 0) return 'none'; // Make center transparent to show circle below
     
+    // Create lighter/darker shades based on depth
     const baseColor = d.data.side === 'for' ? COLORS.for : COLORS.against;
     const hslColor = d3.hsl(baseColor);
     
-    const totalVotes = d.data.upvotes + d.data.downvotes;
-    const saturation = 0.4 + Math.min(0.6, (totalVotes / 50) * 0.6);
-    hslColor.s = saturation;
-
+    if (d.depth % 2 === 0) {
+      hslColor.l *= 0.85; // Make every other level slightly darker
+    }
+    
     return hslColor.toString();
   };
 
@@ -152,6 +155,7 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
         ) : (
           <svg ref={svgRef} width="100%" height="100%">
             <g transform={`translate(${dimensions.width / 2},${dimensions.height / 2})`}>
+              <circle r={nodes[1]?.y0} fill={COLORS.neutral} stroke="hsl(var(--border))" strokeWidth="1" />
               <TooltipProvider>
               {nodes.map((d, i) => (
                   <Tooltip key={d.data.id || i} delayDuration={150}>
@@ -160,7 +164,7 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
                               d={arcGenerator(d) || ''}
                               fill={getColor(d)}
                               stroke="hsl(var(--card))"
-                              strokeWidth={0.5}
+                              strokeWidth={1}
                               className="transition-opacity hover:opacity-80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
                           />
                       </TooltipTrigger>
@@ -172,15 +176,6 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
                   </Tooltip>
               ))}
               </TooltipProvider>
-               <text
-                  x={0}
-                  y={0}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  className="fill-card-foreground font-semibold text-xs md:text-sm pointer-events-none"
-               >
-                  {lang === 'nb' ? 'Tese' : 'Thesis' }
-               </text>
             </g>
           </svg>
         )}
