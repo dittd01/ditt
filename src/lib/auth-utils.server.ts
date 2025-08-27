@@ -34,7 +34,7 @@ import {
     verifyAuthenticationResponse,
 } from '@simplewebauthn/server';
 import type { RegistrationResponseJSON, AuthenticationResponseJSON, PublicKeyCredentialCreationOptionsJSON, AuthenticatorDevice, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types';
-import type { Device, Eligibility } from './types';
+import type { Device } from './types';
 
 
 // In a real application, this would be loaded securely from a secret manager (e.g., Google Secret Manager)
@@ -149,7 +149,7 @@ export async function generateRegistrationChallenge(personHash: string): Promise
         rpID,
         // The `simplewebauthn` library requires the userID to be a Buffer for security reasons.
         // This prevents certain types of attacks and ensures data integrity.
-        userID: Buffer.from(personHash), 
+        userID: personHash, 
         userName: user.username,
         timeout: 60000,
         attestationType: 'none',
@@ -157,7 +157,7 @@ export async function generateRegistrationChallenge(personHash: string): Promise
         // of already registered credential IDs. The authenticator (e.g., browser) will
         // error if it's asked to re-register an existing credential.
         excludeCredentials: user.devices.map(dev => ({
-            id: Buffer.from(dev.webauthn!.credentialID, 'base64url'),
+            id: dev.webauthn!.credentialID,
             type: 'public-key',
             transports: dev.webauthn?.transports,
         })),
@@ -174,16 +174,7 @@ export async function generateRegistrationChallenge(personHash: string): Promise
     // prevent replay attacks. The challenge is retrieved during the verification step.
     mockChallengeStore[personHash] = options.challenge;
     
-    // The user.id is sent to the client as the original string for easier handling.
-    // The client will be responsible for converting this string back to an ArrayBuffer
-    // before passing it to the `navigator.credentials.create()` API.
-    return {
-        ...options,
-        user: {
-            ...options.user,
-            id: personHash, 
-        }
-    };
+    return options;
 }
 
 

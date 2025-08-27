@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,7 +22,7 @@ import { startRegistration } from '@/lib/passkey';
 import { featureFlagsData } from '@/app/admin/data';
 import { Separator } from '@/components/ui/separator';
 
-export default function VerifyLinkPage() {
+function VerifyLinkPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -205,4 +205,12 @@ export default function VerifyLinkPage() {
       </Card>
     </div>
   );
+}
+
+export default function VerifyLinkPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+      <VerifyLinkPageContent />
+    </Suspense>
+  )
 }

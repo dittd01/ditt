@@ -9,7 +9,7 @@ import { curateArgument, type CurateArgumentInput, type CurateArgumentOutput } f
 import { generateRebuttal, type GenerateRebuttalInput, type GenerateRebuttalOutput } from '@/ai/flows/generate-rebuttal';
 import { categories, allTopics } from '@/lib/data';
 import { calculateQVCost } from '@/lib/qv';
-import type { Topic, FinanceData } from '@/lib/types';
+import type { Topic, FinanceData, Device } from '@/lib/types';
 import { 
     generateRegistrationChallenge, 
     verifyRegistration,
@@ -17,7 +17,7 @@ import {
     verifyLogin,
     getDevicesForUser
 } from '@/lib/auth-utils.server';
-import type { RegistrationResponseJSON, AuthenticationResponseJSON } from '@simplewebauthn/types';
+import type { RegistrationResponseJSON, AuthenticationResponseJSON, PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types';
 import { z } from 'zod';
 import { allFinanceData } from '@/lib/finance-data';
 
@@ -184,23 +184,23 @@ export async function generateRebuttalAction(input: GenerateRebuttalInput): Prom
 
 // --- WebAuthn Actions ---
 
-export async function getRegistrationChallengeAction(personHash: string) {
+export async function getRegistrationChallengeAction(personHash: string): Promise<PublicKeyCredentialCreationOptionsJSON> {
     return generateRegistrationChallenge(personHash);
 }
 
-export async function verifyRegistrationAction(personHash: string, response: RegistrationResponseJSON) {
+export async function verifyRegistrationAction(personHash: string, response: RegistrationResponseJSON): Promise<{ verified: boolean; error?: string; }> {
     return await verifyRegistration(personHash, response);
 }
 
-export async function getLoginChallengeAction() {
+export async function getLoginChallengeAction(): Promise<PublicKeyCredentialRequestOptionsJSON> {
     return generateLoginChallenge();
 }
 
-export async function verifyLoginAction(response: AuthenticationResponseJSON) {
+export async function verifyLoginAction(response: AuthenticationResponseJSON): Promise<{ verified: boolean; personHash?: string; error?: string; }> {
     return await verifyLogin(response);
 }
 
-export async function getDevicesForUserAction(personHash: string) {
+export async function getDevicesForUserAction(personHash: string): Promise<Device[]> {
     return await getDevicesForUser(personHash);
 }
 
