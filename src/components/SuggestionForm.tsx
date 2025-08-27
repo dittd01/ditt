@@ -21,7 +21,7 @@ import { Badge } from './ui/badge';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle, AlertActions } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { featureFlagsData } from '@/app/admin/data';
+import { useFlags } from '@/lib/flags/provider';
 import { currentUser } from '@/lib/user-data';
 
 const suggestionSchema = z.object({
@@ -46,7 +46,8 @@ export function SuggestionForm() {
   const [newTopicSlug, setNewTopicSlug] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState<string | null>(null);
 
-  const requireAdminApproval = featureFlagsData.find(f => f.key === 'suggestions.require_admin_approval')?.enabled ?? false;
+  const flags = useFlags();
+  const requireAdminApproval = flags.suggestions_require_admin_approval;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(suggestionSchema),

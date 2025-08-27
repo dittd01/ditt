@@ -45,6 +45,7 @@ export const FlagKeySchema = z.enum([
     'exp.navV2',
     'perm.betaArea',
     'feature.debateVisualization',
+    'suggestions.require_admin_approval',
 ]);
 export type FlagKey = z.infer<typeof FlagKeySchema>;
 
@@ -80,5 +81,10 @@ export const FLAG_DEFAULTS: FlagDefaults = {
         value: true,
         type: 'feature',
         description: 'Enables the D3-based radial and tree visualizations for debates.',
+    },
+    'suggestions.require_admin_approval': {
+        value: true,
+        type: 'feature',
+        description: 'If enabled, all AI-approved user topic suggestions must be manually approved by an admin.',
     },
 };
