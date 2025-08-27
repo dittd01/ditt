@@ -73,7 +73,7 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
         return null;
     }
     
-    // Create a synthetic root node for the entire topic.
+    // 1. Create a synthetic root node for the entire topic.
     // D3's stratify function identifies the root as the node whose parentId does not
     // correspond to any id in the dataset. Using `''` as parentId is a standard way to define the root.
     const topicRoot: Argument = {
@@ -86,11 +86,11 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
         upvotes: 0, downvotes: 0, replyCount: 0, createdAt: new Date().toISOString()
     };
     
-    // Set of all valid IDs that can be parents.
+    // 2. Create a set of all valid IDs that can be parents.
     const allValidParentIds = new Set(args.map(a => a.id));
     allValidParentIds.add('root');
 
-    // Sanitize argument data to ensure all arguments have a valid parent.
+    // 3. Sanitize argument data to ensure all arguments have a valid parent.
     // Any argument with a missing or invalid parentId will be re-parented to the topic root.
     const sanitizedArgs = args.map(arg => ({
         ...arg,
