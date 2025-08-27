@@ -24,7 +24,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
     const resizeObserver = new ResizeObserver(entries => {
         if (entries[0]) {
             const { width } = entries[0].contentRect;
-            const height = isMobile ? Math.min(width, 400) : Math.min(width, 700);
+            const height = isMobile ? Math.min(width, 400) : Math.min(width, 500);
             setDimensions({ width, height });
         }
     });
@@ -161,9 +161,9 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
 
         const rootNode = g.append('g');
         rootNode.append('rect')
-            .attr('x', -50)
+            .attr('x', -70)
             .attr('y', -15)
-            .attr('width', 100)
+            .attr('width', 140)
             .attr('height', 30)
             .attr('rx', 5)
             .attr('ry', 5)
@@ -173,7 +173,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         rootNode.append('text')
             .attr('dy', '0.31em')
             .attr('text-anchor', 'middle')
-            .text('Topic')
+            .text(topicQuestion.length > 20 ? topicQuestion.substring(0, 20) + '...' : topicQuestion)
             .style('font-size', '12px')
             .style('fill', 'hsl(var(--primary-foreground))')
             .style('font-weight', 'bold');
@@ -210,7 +210,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         <CardTitle>Debate Hierarchy</CardTitle>
         <CardDescription>Top 10 arguments for (green, right) and against (red, left). Box width shows upvotes.</CardDescription>
       </CardHeader>
-      <CardContent ref={containerRef} className="h-[400px] md:h-[700px] w-full p-0 relative overflow-hidden">
+      <CardContent ref={containerRef} className="h-[400px] md:h-[500px] w-full p-0 relative overflow-hidden">
         {args.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground">Not enough data to display chart.</p>
