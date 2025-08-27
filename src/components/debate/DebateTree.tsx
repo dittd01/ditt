@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useMemo, useRef, useEffect, useState } from 'react';
@@ -74,36 +73,39 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
         return null;
     }
     
+    // Create a synthetic root node for the entire topic.
+    // D3's stratify function identifies the root as the node whose parentId does not
+    // correspond to any id in the dataset. Using `null` or an empty string is standard.
     const topicRoot: Argument = {
         id: 'root',
         topicId: args[0]?.topicId || '',
-        parentId: '', // Root node has an empty parentId for stratification logic
+        parentId: '', // This makes it the root for d3.stratify.
         side: 'for', 
         author: { name: 'Topic' },
         text: topicQuestion,
         upvotes: 0, downvotes: 0, replyCount: 0, createdAt: new Date().toISOString()
     };
     
-    const dataWithRoot = [topicRoot, ...args];
-    
-    const idToNodeMap = new Map(dataWithRoot.map(item => [item.id, item]));
+    const allNodesWithIds = new Set(args.map(a => a.id).concat('root'));
 
-    // Ensure parentId is either valid or 'root' for top-level arguments
-    const sanitizedData = dataWithRoot.map(item => {
-        if (item.id !== 'root' && (!item.parentId || !idToNodeMap.has(item.parentId))) {
-            return { ...item, parentId: 'root' };
-        }
-        return item;
-    });
+    // Sanitize argument data to ensure all arguments have a valid parent.
+    // Top-level arguments from the data source have parentId 'root'.
+    // Any argument with a missing or invalid parentId will be re-parented to the topic root.
+    const sanitizedArgs = args.map(arg => ({
+        ...arg,
+        parentId: allNodesWithIds.has(arg.parentId) ? arg.parentId : 'root'
+    }));
 
-    if (sanitizedData.length <= 1) return null;
+    const dataForStratify = [topicRoot, ...sanitizedArgs];
 
     try {
-        const stratifiedData = d3.stratify<Argument>()
+        const root = d3.stratify<Argument>()
             .id(d => d.id)
-            .parentId(d => d.parentId)(sanitizedData); // d3 will use the empty parentId of 'root' to identify it as the root.
+            .parentId(d => d.parentId)(dataForStratify);
         
-        stratifiedData.sum(d => (d.id === 'root' ? 0 : 1 + (d.downvotes || 0) * 0.1));
+        // Use a sum function to determine the size of each arc.
+        // We give each node a base value of 1 so it's visible.
+        root.sum(d => (d.id === 'root' ? 0 : 1));
 
         const radius = Math.min(dimensions.width, dimensions.height) / 2;
         
@@ -111,7 +113,7 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
             .size([2 * Math.PI, radius])
             .padding(0.005);
             
-        return partition(stratifiedData) as HierarchyNode;
+        return partition(root) as HierarchyNode;
     } catch(e) {
         console.error("D3 Stratify error:", e);
         return null;
