@@ -81,8 +81,10 @@ export default function ArchitecturePage() {
                         i can not see the diagram
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="flex justify-center">
-                    <MermaidChart chart={architectureDiagram} />
+                <CardContent className="flex justify-center p-8">
+                    <div className="w-full h-full min-h-[400px]">
+                        <MermaidChart chart={architectureDiagram} />
+                    </div>
                 </CardContent>
             </Card>
 
