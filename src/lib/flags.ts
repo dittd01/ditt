@@ -78,7 +78,7 @@ export const FLAG_DEFAULTS: FlagDefaults = {
         description: 'Grants access to the beta features section for users with the "beta" role.',
     },
     'feature.debateVisualization': {
-        value: true,
+        value: false,
         type: 'feature',
         description: 'Enables the D3-based radial and tree visualizations for debates.',
     },
@@ -88,3 +88,4 @@ export const FLAG_DEFAULTS: FlagDefaults = {
         description: 'If enabled, all AI-approved user topic suggestions must be manually approved by an admin.',
     },
 };
+
