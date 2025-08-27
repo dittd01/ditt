@@ -413,7 +413,7 @@ export default function EditPollPage() {
         >
           <div className="flex items-center gap-2">
             <Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Back</Button>
-            {isNew && <Button variant="ghost" type="button" onClick={handleClearForm}><XCircle className="mr-2 h-4 w-4" />Clear form</Button>}
+            {isNew && <Button variant="outline" type="button" onClick={handleClearForm}><XCircle className="mr-2 h-4 w-4" />Clear form</Button>}
             <Button variant="outline"><Eye className="mr-2 h-4 w-4" /> Preview</Button>
             {isNew ? (
               <>
