@@ -30,8 +30,8 @@ interface HierarchyNode extends d3.HierarchyNode<Argument> {
 }
 
 const COLORS = {
-  for: 'hsl(140, 70%, 45%)',
-  against: 'hsl(0, 80%, 55%)',
+  for: 'hsl(var(--chart-2))',
+  against: 'hsl(var(--chart-1))',
   neutral: 'hsl(var(--muted-foreground))',
 };
 
@@ -78,34 +78,29 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
     }
 
     try {
-      const validIds = new Set(args.map(arg => arg.id));
-      validIds.add('root');
-
-      const sanitizedArgs = args.map(arg => ({
-        ...arg,
-        parentId: validIds.has(arg.parentId) ? arg.parentId : 'root'
-      }));
-
       const topicRoot: Argument = {
         id: 'root',
         topicId: args[0]?.topicId || '',
-        parentId: '',
+        parentId: '', // D3 stratify needs a root with a parentId that doesn't exist among other IDs.
         side: 'for', 
         author: { name: 'Topic' },
         text: topicQuestion,
         upvotes: 0, downvotes: 0, replyCount: 0, createdAt: new Date().toISOString()
       };
 
+      const validIds = new Set(args.map(arg => arg.id));
+      validIds.add(topicRoot.id);
+
+      const sanitizedArgs = args.map(arg => ({
+        ...arg,
+        parentId: arg.parentId && validIds.has(arg.parentId) ? arg.parentId : 'root'
+      }));
+
       const dataForStratify = [topicRoot, ...sanitizedArgs];
       
       const rootNode = d3.stratify<Argument>()
         .id(d => d.id)
         .parentId(d => d.parentId)(dataForStratify);
-      
-      if (!rootNode) {
-          setNodes([]);
-          return;
-      }
       
       rootNode.sum(d => (d.id === 'root' ? 0 : 1 + (d.replyCount > 0 ? d.replyCount * 0.5 : 0)));
 
@@ -154,7 +149,7 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
         <CardDescription>A radial map of the argument structure. Inner rings are top-level arguments.</CardDescription>
       </CardHeader>
       <CardContent ref={containerRef} className="h-[300px] md:h-[500px] w-full p-0 relative">
-        {nodes.length === 0 ? (
+        {nodes.length <= 1 ? (
           <div className="flex items-center justify-center py-16">
             <p className="text-muted-foreground">Not enough data to display chart.</p>
           </div>
