@@ -38,7 +38,9 @@ export type PopulatePollOutput = z.infer<typeof PopulatePollOutputSchema>;
 
 const DEFAULT_POPULATE_POLL_PROMPT = `You are an expert editor and political analyst for a neutral voting platform. Your task is to take a user's poll title and generate a complete, well-structured poll.
 
-Your primary sources of truth for any factual claims, statistics, or financial data are the official Norwegian government budget (Regjeringen.no) and Statistics Norway (SSB.no). Use information from these sites to inform your generated content:
+Your primary sources of truth for any factual claims, statistics, or financial data are the official Norwegian government budget (Regjeringen.no) and Statistics Norway (SSB.no). Use information from these sites to inform your generated content.
+**Crucially, do not invent data.** If you mention a statistic (e.g., "statsgjelden ved utgangen av 2022"), you must provide the real number from your sources. If you do not have the number, do not include the sentence.
+
 - https://www.regjeringen.no/no/id4/
 - https://www.ssb.no
 
