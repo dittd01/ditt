@@ -32,6 +32,7 @@ const PopulatePollOutputSchema = z.object({
   cons: z.array(z.string()).describe('An array of 3 distinct, compelling arguments against the proposal.'),
   tags: z.array(z.string()).describe('An array of 3-5 relevant, single-word, lowercase tags for the topic.'),
   background_md: z.string().optional().describe('A comprehensive (5-15 sentences), neutral, and encyclopedic background for the topic.'),
+  sources: z.array(z.object({ title: z.string(), url: z.string().url() })).optional().describe('An array of source objects, each with a title and a URL.'),
 });
 export type PopulatePollOutput = z.infer<typeof PopulatePollOutputSchema>;
 
@@ -51,6 +52,7 @@ Follow these instructions precisely:
 6.  **Categorize**: Based on the provided taxonomy, assign the poll to the most relevant **category** and **subcategory**. Your output for the category and subcategory fields must be the **ID** (e.g., 'taxation', 'wealth_tax'), not the label.
 7.  **Generate Tags**: Provide an array of 3 to 5 relevant, single-word, lowercase tags for the topic.
 8.  **Generate Background**: Write a more comprehensive (5-15 sentences), neutral, and encyclopedic background for the topic. preferred source: https://www.regjeringen.no/no/id4/ and https://www.ssb.no
+9.  **Add Source Links**: If you used any of the official sources provided to generate the background or description, include them in the 'sources' array. Each source should be an object with a 'title' (e.g., "SSB: Public Finances") and a 'url'.
 
 Return ONLY a single, valid JSON object matching the output schema.
 

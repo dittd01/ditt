@@ -151,6 +151,7 @@ Follow these instructions precisely:
 6.  **Categorize**: Based on the provided taxonomy, assign the poll to the most relevant **category** and **subcategory**. Your output for the category and subcategory fields must be the **ID** (e.g., 'taxation', 'wealth_tax'), not the label.
 7.  **Generate Tags**: Provide an array of 3 to 5 relevant, single-word, lowercase tags for the topic.
 8.  **Generate Background**: Write a more comprehensive (5-15 sentences), neutral, and encyclopedic background for the topic. preferred source: https://www.regjeringen.no/no/id4/ and https://www.ssb.no
+9.  **Add Source Links**: If you used any of the official sources provided to generate the background or description, include them in the 'sources' array. Each source should be an object with a 'title' (e.g., "SSB: Public Finances") and a 'url'.
 
 Return ONLY a single, valid JSON object matching the output schema.
 
@@ -220,7 +221,7 @@ export default function EditPollPage() {
   });
 
   const { fields: optionFields, append: appendOption, remove: removeOption } = useFieldArray({ control: form.control, name: "options" });
-  const { fields: sourceFields, append: appendSource, remove: removeSource } = useFieldArray({ control: form.control, name: "sources" });
+  const { fields: sourceFields, append: appendSource, remove: removeSource, replace: replaceSources } = useFieldArray({ control: form.control, name: "sources" });
   const { fields: proFields, append: appendPro, replace: replacePros } = useFieldArray({ control: form.control, name: "pros" });
   const { fields: conFields, append: appendCon, replace: replaceCons } = useFieldArray({ control: form.control, name: "cons" });
 
@@ -358,9 +359,11 @@ export default function EditPollPage() {
                 categoryId: result.data.category,
                 subcategoryId: result.data.subcategory,
                 tags: result.data.tags,
+                sources: result.data.sources || [],
             });
             replacePros(result.data.pros.map(p => p));
             replaceCons(result.data.cons.map(c => c));
+            replaceSources(result.data.sources || []);
 
             toast({
                 title: 'Content Generated!',
