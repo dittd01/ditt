@@ -47,33 +47,22 @@ const components = [
 ];
 
 const MermaidChart = ({ chart }: { chart: string }) => {
-    const ref = useRef<HTMLDivElement>(null);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        if (ref.current) {
-            mermaid.initialize({
-                startOnLoad: false,
-                theme: 'neutral',
-                securityLevel: 'loose',
-            });
-            mermaid.render('mermaid-graph', chart, (svgCode) => {
-                ref.current!.innerHTML = svgCode;
-                setIsLoading(false);
-            });
-        }
-    }, [chart]);
-
-    return (
-      <div className="relative">
-        {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center">
-                <Skeleton className="w-full h-[400px]" />
-            </div>
-        )}
-        <div ref={ref} className="mermaid-container" />
-      </div>
-    );
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (ref.current) {
+      try {
+        mermaid.parse(chart);
+        ref.current.innerHTML = chart;
+        mermaid.run({
+          nodes: [ref.current],
+        });
+      } catch (e) {
+        console.error('Mermaid parsing error:', e);
+        ref.current.innerHTML = 'Error rendering diagram.';
+      }
+    }
+  }, [chart]);
+  return <div ref={ref} key={chart} className="mermaid" />;
 };
 
 
@@ -89,7 +78,7 @@ export default function ArchitecturePage() {
                 <CardHeader>
                     <CardTitle>Component Diagram</CardTitle>
                     <CardDescription>
-                        This diagram shows the primary services and how they interact.
+                        i can not see the diagram
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="flex justify-center">
