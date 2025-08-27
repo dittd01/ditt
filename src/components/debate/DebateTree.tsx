@@ -28,9 +28,9 @@ interface HierarchyNode extends d3.HierarchyNode<Argument> {
 }
 
 const COLORS = {
-  for: 'hsl(var(--chart-2))', // Emerald-600
-  against: 'hsl(var(--chart-1))', // Rose-600
-  neutral: 'hsl(var(--muted-foreground))', // Slate-500
+  for: 'hsl(var(--chart-2))',
+  against: 'hsl(var(--chart-1))',
+  neutral: 'hsl(var(--muted-foreground))',
 };
 
 const CustomTooltipContent = ({ argument }: { argument: Argument }) => {
@@ -55,8 +55,6 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [nodes, setNodes] = useState<HierarchyNode[]>([]);
 
-  // Step 1: Set up a ResizeObserver to get the container's dimensions.
-  // This effect runs first.
   useEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
         if (entries[0]) {
@@ -71,28 +69,23 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
     return () => resizeObserver.disconnect();
   }, [isMobile]);
 
-  // Step 2: Process data and generate D3 nodes.
-  // This effect runs whenever the data (args) or dimensions change.
-  // Crucially, it will run *after* the dimensions are first measured.
   useEffect(() => {
     if (!args || args.length === 0 || dimensions.width === 0) {
-      setNodes([]); // Clear nodes if there's no data or container size
+      setNodes([]);
       return;
     }
 
     try {
-      // Create a synthetic root node for the topic.
       const topicRoot: Argument = {
         id: 'root',
         topicId: args[0]?.topicId || '',
-        parentId: '', // An empty or non-existent parentId signals this is the root for d3.stratify
+        parentId: '',
         side: 'for', 
         author: { name: 'Topic' },
         text: topicQuestion,
         upvotes: 0, downvotes: 0, replyCount: 0, createdAt: new Date().toISOString()
       };
 
-      // Sanitize arguments to ensure valid parent-child relationships.
       const idToNodeMap = new Map(args.map(arg => [arg.id, arg]));
       idToNodeMap.set(topicRoot.id, topicRoot);
 
@@ -103,14 +96,12 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
 
       const dataForStratify = [topicRoot, ...sanitizedArgs];
 
-      // Create the hierarchy.
       const root = d3.stratify<Argument>()
         .id(d => d.id)
         .parentId(d => d.parentId)(dataForStratify);
       
       root.sum(d => (d.id === 'root' ? 0 : 1));
 
-      // Define the partition layout.
       const radius = Math.min(dimensions.width, dimensions.height) / 2;
       const partition = d3.partition<Argument>()
         .size([2 * Math.PI, radius])
@@ -120,7 +111,7 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
       setNodes(partitionedRoot.descendants() as HierarchyNode[]);
     } catch(e) {
       console.error("D3 Stratify error:", e);
-      setNodes([]); // Clear nodes on error
+      setNodes([]);
     }
   }, [args, topicQuestion, dimensions]);
 
@@ -155,7 +146,7 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
       </CardHeader>
       <CardContent ref={containerRef} className="h-[300px] md:h-[500px] w-full p-0 relative">
         {nodes.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex items-center justify-center py-16">
             <p className="text-muted-foreground">Not enough data to display chart.</p>
           </div>
         ) : (
@@ -197,4 +188,3 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
     </Card>
   );
 }
-
