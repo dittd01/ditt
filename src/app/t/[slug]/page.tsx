@@ -8,7 +8,7 @@ import { getTopicBySlug, getArgumentsForTopic, allTopics } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { VoteChart } from '@/components/VoteChart';
-import { Info, FileText, History, ThumbsUp, ThumbsDown, Link as LinkIcon, Building, Flame, Users, Bookmark, Donut, Network } from 'lucide-react';
+import { Info, FileText, History, ThumbsUp, ThumbsDown, Link as LinkIcon, Building, Flame, Users, Bookmark, Donut, Network, Scale } from 'lucide-react';
 import { RelatedTopics } from '@/components/RelatedTopics';
 import { SuggestionForm } from '@/components/SuggestionForm';
 import { Separator } from '@/components/ui/separator';
@@ -64,6 +64,10 @@ const translations = {
     structuredDebate: 'Structured Debate',
     sources: 'Sources',
     topicDetails: 'Topic Details',
+    background: 'Background',
+    prosAndCons: 'Pros & Cons',
+    argumentsFor: 'Arguments For',
+    argumentsAgainst: 'Arguments Against',
   },
   nb: {
     castVote: 'Avgi din anonyme stemme',
@@ -89,6 +93,10 @@ const translations = {
     structuredDebate: 'Strukturert Debatt',
     sources: 'Kilder',
     topicDetails: 'Detaljer om Temaet',
+    background: 'Bakgrunn',
+    prosAndCons: 'For og imot',
+    argumentsFor: 'Argumenter For',
+    argumentsAgainst: 'Argumenter Mot',
   }
 };
 
@@ -332,6 +340,8 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
   const question = lang === 'nb' ? topic.question : topic.question_en;
   const description = lang === 'nb' ? topic.description : topic.description_en;
 
+  const hasProsCons = (topic.pros && topic.pros.length > 0) || (topic.cons && topic.cons.length > 0);
+
   return (
     <div className="container mx-auto max-w-4xl px-4 py-4 md:py-8">
       {isSimMode && <DebateSimulator topic={topic} />}
@@ -340,11 +350,9 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
           <Card className="bg-blue-950 text-primary-foreground">
             <CardHeader className="p-4 md:p-6">
               <h1 className="text-2xl md:text-3xl font-bold font-headline">{question}</h1>
-              {topic.background_md && (
-                <CardDescription className="pt-2 text-base text-primary-foreground/80">
-                    {topic.background_md}
-                </CardDescription>
-              )}
+              <CardDescription className="pt-2 text-base text-primary-foreground/80">
+                {description}
+              </CardDescription>
             </CardHeader>
             <CardFooter className="p-4 md:p-6 border-t border-primary-foreground/20">
               <TopicFooter topic={currentTopic} />
@@ -363,6 +371,72 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
           {votedOn && <LiveResults topic={currentTopic} />}
 
           <VoteChart topic={currentTopic} />
+
+          <Accordion type="single" collapsible className="w-full space-y-8">
+             {topic.background_md && (
+              <AccordionItem value="background" className="border rounded-lg bg-card text-card-foreground shadow-sm">
+                <AccordionTrigger className="flex justify-start items-center gap-2 p-4 text-base font-semibold hover:no-underline">
+                  <History className="h-5 w-5" />
+                  {t.background}
+                </AccordionTrigger>
+                <AccordionContent className="p-6 pt-0 space-y-6">
+                  <div className="prose prose-sm dark:prose-invert max-w-none pt-4 border-t">
+                     <p>{topic.background_md}</p>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
+            {hasProsCons && (
+                <AccordionItem value="pros-cons" className="border rounded-lg bg-card text-card-foreground shadow-sm">
+                    <AccordionTrigger className="flex justify-start items-center gap-2 p-4 text-base font-semibold hover:no-underline">
+                        <Scale className="h-5 w-5" />
+                        {t.prosAndCons}
+                    </AccordionTrigger>
+                    <AccordionContent className="p-6 pt-0 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
+                            <div className="space-y-3">
+                                <h4 className="font-semibold text-lg flex items-center gap-2 text-green-600">
+                                    <ThumbsUp className="h-5 w-5" /> {t.argumentsFor}
+                                </h4>
+                                <ul className="space-y-2 list-disc pl-5 text-muted-foreground">
+                                    {topic.pros?.map((pro, i) => <li key={i}>{pro}</li>)}
+                                </ul>
+                            </div>
+                            <div className="space-y-3">
+                                <h4 className="font-semibold text-lg flex items-center gap-2 text-red-600">
+                                    <ThumbsDown className="h-5 w-5" /> {t.argumentsAgainst}
+                                </h4>
+                                 <ul className="space-y-2 list-disc pl-5 text-muted-foreground">
+                                    {topic.cons?.map((con, i) => <li key={i}>{con}</li>)}
+                                </ul>
+                            </div>
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+            )}
+
+            {(topic.sources && topic.sources.length > 0) && (
+              <AccordionItem value="sources" className="border rounded-lg bg-card text-card-foreground shadow-sm">
+                <AccordionTrigger className="flex justify-start items-center gap-2 p-4 text-base font-semibold hover:no-underline">
+                  <FileText className="h-5 w-5" />
+                  {t.sources}
+                </AccordionTrigger>
+                <AccordionContent className="p-6 pt-0 space-y-6">
+                  <ul className="space-y-2 pt-4 border-t">
+                    {topic.sources.map((source, index) => (
+                      <li key={index}>
+                        <a href={source.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                          <LinkIcon className="h-4 w-4 shrink-0" />
+                          <span className="truncate">{source.title}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+          </Accordion>
 
           <Separator className="my-12" />
           
@@ -400,38 +474,6 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
               />
             </Suspense>
           </section>
-
-          {(topic.sources && topic.sources.length > 0) && (
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="sources" className="border rounded-lg bg-card text-card-foreground shadow-sm">
-                <AccordionTrigger className="flex justify-start items-center gap-2 p-4 text-base font-semibold hover:no-underline">
-                  <FileText className="h-5 w-5" />
-                  {t.sources}
-                </AccordionTrigger>
-                <AccordionContent className="p-6 pt-0 space-y-6">
-                  <ul className="space-y-2 pt-4 border-t">
-                    {topic.sources.map((source, index) => (
-                      <li key={index}>
-                        <a href={source.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
-                          <LinkIcon className="h-4 w-4 shrink-0" />
-                          <span className="truncate">{source.title}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          )}
-
-          <Card>
-            <CardHeader>
-                <CardTitle>{t.topicDetails}</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 md:p-6 pt-0">
-                    <p className="text-base text-muted-foreground">{description}</p>
-                </CardContent>
-          </Card>
 
           <Separator className="my-12" />
           <section>
