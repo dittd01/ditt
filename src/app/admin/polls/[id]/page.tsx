@@ -508,7 +508,7 @@ export default function EditPollPage() {
                 <FormField control={form.control} name="description_md" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Description</FormLabel>
-                    <FormControl><Textarea {...field} rows={5} /></FormControl>
+                    <FormControl><Textarea {...field} /></FormControl>
                     <FormDescription>A brief, neutral summary of the poll topic. Markdown is supported.</FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -516,7 +516,7 @@ export default function EditPollPage() {
                 <FormField control={form.control} name="background_md" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Background</FormLabel>
-                    <FormControl><Textarea {...field} rows={3} /></FormControl>
+                    <FormControl><Textarea {...field} /></FormControl>
                      <FormDescription>Optional. Provide more context, history, or technical details.</FormDescription>
                     <FormMessage />
                   </FormItem>
