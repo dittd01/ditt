@@ -26,7 +26,7 @@ type GroupedTopics = {
 }
 
 // Client Component to manage accordion state and user interactions
-function AllTopicsContent({ groupedTopics, votedTopicIds, lang }: { groupedTopics: GroupedTopics, votedTopicIds: Set<string>, lang: 'en' | 'nb' }) {
+function AllTopicsContent({ groupedTopics, votedTopicIds, lang, searchQuery, setSearchQuery }: { groupedTopics: GroupedTopics, votedTopicIds: Set<string>, lang: 'en' | 'nb', searchQuery: string, setSearchQuery: (query: string) => void }) {
     const [openSubcategories, setOpenSubcategories] = useState<string[]>([]);
     const [isClient, setIsClient] = useState(false);
 
@@ -60,6 +60,8 @@ function AllTopicsContent({ groupedTopics, votedTopicIds, lang }: { groupedTopic
             </div>
         );
     }
+    
+    const searchPlaceholder = lang === 'nb' ? 'Søk i alle temaer...' : 'Search all topics...';
 
     const expandAll = () => setOpenSubcategories(allSubcategoryIds);
     const collapseAll = () => setOpenSubcategories([]);
@@ -76,6 +78,17 @@ function AllTopicsContent({ groupedTopics, votedTopicIds, lang }: { groupedTopic
             <div className="text-center mb-8">
                 <h1 className="text-4xl font-bold font-headline tracking-tight">{lang === 'nb' ? 'Alle Temaer' : 'All Topics'}</h1>
                 <p className="text-lg text-muted-foreground mt-2">{lang === 'nb' ? 'Bla gjennom alle tilgjengelige avstemninger, organisert etter kategori.' : 'Browse every available poll, organized by category.'}</p>
+            </div>
+            
+            <div className="relative max-w-lg mx-auto mb-12">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                    type="search"
+                    placeholder={searchPlaceholder}
+                    className="w-full pl-10 h-12 text-base"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
             </div>
             
              <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
@@ -216,22 +229,14 @@ function AllTopicsPageContent() {
         return groups;
     }, [filteredTopics, categoryFilter]);
     
-    const searchPlaceholder = lang === 'nb' ? 'Søk i alle temaer...' : 'Search all topics...';
-
     return (
-        <>
-            <div className="relative max-w-lg mx-auto mt-8 mb-12">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                    type="search"
-                    placeholder={searchPlaceholder}
-                    className="w-full pl-10 h-12 text-base"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-            </div>
-            <AllTopicsContent groupedTopics={groupedTopics} votedTopicIds={votedTopicIds} lang={lang} />
-        </>
+        <AllTopicsContent 
+            groupedTopics={groupedTopics} 
+            votedTopicIds={votedTopicIds} 
+            lang={lang} 
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+        />
     );
 }
 
