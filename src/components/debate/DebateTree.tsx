@@ -30,8 +30,8 @@ interface HierarchyNode extends d3.HierarchyNode<Argument> {
 }
 
 const COLORS = {
-  for: 'hsl(var(--chart-2))',
-  against: 'hsl(var(--chart-1))',
+  for: 'hsl(var(--primary))',
+  against: 'hsl(var(--destructive))',
   neutral: 'hsl(var(--muted-foreground))',
 };
 
