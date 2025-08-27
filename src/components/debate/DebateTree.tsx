@@ -77,7 +77,7 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
     const topicRoot: Argument = {
         id: 'root',
         topicId: args[0]?.topicId || '',
-        parentId: '', // Root parentId is an empty string
+        parentId: '', // Root node has an empty parentId for stratification logic
         side: 'for', 
         author: { name: 'Topic' },
         text: topicQuestion,
@@ -88,9 +88,9 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
     
     const idToNodeMap = new Map(dataWithRoot.map(item => [item.id, item]));
 
-    // Ensure parentId is either valid or null (for top-level)
+    // Ensure parentId is either valid or 'root' for top-level arguments
     const sanitizedData = dataWithRoot.map(item => {
-        if (item.parentId && !idToNodeMap.has(item.parentId)) {
+        if (item.id !== 'root' && (!item.parentId || !idToNodeMap.has(item.parentId))) {
             return { ...item, parentId: 'root' };
         }
         return item;
@@ -101,7 +101,7 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
     try {
         const stratifiedData = d3.stratify<Argument>()
             .id(d => d.id)
-            .parentId(d => (d.id === 'root' ? null : d.parentId || 'root'))(sanitizedData);
+            .parentId(d => d.parentId)(sanitizedData); // d3 will use the empty parentId of 'root' to identify it as the root.
         
         stratifiedData.sum(d => (d.id === 'root' ? 0 : 1 + (d.downvotes || 0) * 0.1));
 
