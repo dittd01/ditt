@@ -35,7 +35,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
   }, [isMobile, args.length]);
 
   useEffect(() => {
-    if (!args || dimensions.width === 0 || !svgRef.current || !containerRef.current) {
+    if (!args || args.length === 0 || dimensions.width === 0 || !svgRef.current || !containerRef.current) {
       return;
     }
     
@@ -50,6 +50,28 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
     try {
         const forArgs = args.filter(arg => arg.side === 'for');
         const againstArgs = args.filter(arg => arg.side === 'against');
+        
+        const getDescendants = (arg: Argument, allArgs: Argument[]): Argument[] => {
+            let children = allArgs.filter(a => a.parentId === arg.id);
+            let descendants = [...children];
+            children.forEach(child => {
+                descendants = [...descendants, ...getDescendants(child, allArgs)];
+            });
+            return descendants;
+        };
+
+        const getTopArgsWithDescendants = (sideArgs: Argument[], allSideArgs: Argument[]) => {
+            const topLevel = sideArgs.filter(arg => arg.parentId === 'root');
+            const top10 = topLevel.sort((a,b) => b.upvotes - a.upvotes).slice(0, 10);
+            let allDescendants: Argument[] = [];
+            top10.forEach(topArg => {
+                allDescendants = [...allDescendants, ...getDescendants(topArg, allSideArgs)];
+            });
+            return [...top10, ...allDescendants];
+        };
+        
+        const filteredForArgs = getTopArgsWithDescendants(forArgs, forArgs);
+        const filteredAgainstArgs = getTopArgsWithDescendants(againstArgs, againstArgs);
 
         const topicRoot: Argument = {
             id: 'root', topicId: args[0]?.topicId || '', parentId: '', side: 'for',
@@ -58,6 +80,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         };
 
         const createHierarchy = (filteredArgs: Argument[]) => {
+            if (filteredArgs.length === 0) return null;
             const validIds = new Set(filteredArgs.map(arg => arg.id));
             validIds.add(topicRoot.id);
             const sanitized = filteredArgs.map(arg => ({ ...arg, parentId: arg.parentId && validIds.has(arg.parentId) ? arg.parentId : 'root' }));
@@ -65,19 +88,21 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
             return d3.stratify<Argument>().id(d => d.id).parentId(d => d.parentId)(dataForStratify);
         };
         
-        const forRoot = createHierarchy(forArgs);
-        const againstRoot = createHierarchy(againstArgs);
+        const forRoot = createHierarchy(filteredForArgs);
+        const againstRoot = createHierarchy(filteredAgainstArgs);
 
         const treeLayout = d3.tree().nodeSize([40, 150]);
-        const forHierarchy = treeLayout(forRoot);
-        const againstHierarchy = treeLayout(againstRoot);
+        const forHierarchy = forRoot ? treeLayout(forRoot) : null;
+        const againstHierarchy = againstRoot ? treeLayout(againstRoot) : null;
 
-        const g = svg.append('g').attr('transform', `translate(${dimensions.width / 2}, 40)`);
+        const g = svg.append('g');
 
         const maxUpvotes = d3.max(args, d => d.upvotes) || 1;
         const widthScale = d3.scaleLinear().domain([0, maxUpvotes]).range([40, 140]).clamp(true);
 
-        const drawTree = (hierarchy: d3.HierarchyPointNode<Argument>, direction: 'right' | 'left') => {
+        const drawTree = (hierarchy: d3.HierarchyPointNode<Argument> | null, direction: 'right' | 'left') => {
+            if (!hierarchy) return;
+
             const linkGenerator = d3.linkHorizontal()
               .x(d => (d as any).y * (direction === 'right' ? 1 : -1))
               .y(d => (d as any).x);
@@ -134,8 +159,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         drawTree(forHierarchy, 'right');
         drawTree(againstHierarchy, 'left');
 
-        // Draw root topic node
-        const rootNode = g.append('g').attr('transform', `translate(0, 0)`);
+        const rootNode = g.append('g');
         rootNode.append('rect')
             .attr('x', -50)
             .attr('y', -15)
@@ -154,6 +178,27 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
             .style('fill', 'hsl(var(--primary-foreground))')
             .style('font-weight', 'bold');
 
+        // Zoom to fit logic
+        const bounds = (g.node() as SVGGElement).getBBox();
+        const parent = (svg.node() as Element).parentElement;
+        if (!parent) return;
+
+        const fullWidth = parent.clientWidth;
+        const fullHeight = parent.clientHeight;
+        const width = bounds.width;
+        const height = bounds.height;
+        const midX = bounds.x + width / 2;
+        const midY = bounds.y + height / 2;
+        
+        if (width === 0 || height === 0) return;
+
+        const scale = 0.9 / Math.max(width / fullWidth, height / fullHeight);
+        const translateX = fullWidth / 2 - scale * midX;
+        const translateY = fullHeight / 2 - scale * midY;
+
+        g.attr('transform', `translate(${translateX},${translateY}) scale(${scale})`);
+
+
     } catch(e) {
       console.error("D3 Hierarchy error:", e);
     }
@@ -163,15 +208,15 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
     <Card>
       <CardHeader>
         <CardTitle>Debate Hierarchy</CardTitle>
-        <CardDescription>Arguments for (green, right) and against (red, left). Box width shows upvotes.</CardDescription>
+        <CardDescription>Top 10 arguments for (green, right) and against (red, left). Box width shows upvotes.</CardDescription>
       </CardHeader>
-      <CardContent ref={containerRef} className="h-[400px] md:h-[700px] w-full p-0 relative overflow-auto">
+      <CardContent ref={containerRef} className="h-[400px] md:h-[700px] w-full p-0 relative overflow-hidden">
         {args.length === 0 ? (
-          <div className="flex items-center justify-center py-16">
+          <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground">Not enough data to display chart.</p>
           </div>
         ) : (
-            <svg ref={svgRef} width={dimensions.width} height={dimensions.height} />
+            <svg ref={svgRef} width="100%" height="100%" />
         )}
       </CardContent>
     </Card>
