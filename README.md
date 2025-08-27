@@ -1,3 +1,4 @@
+
 # Ditt Demokrati - Secure Voting Platform
 
 This is a Next.js project for a secure, anonymous voting platform named "Ditt Demokrati" (Your Democracy). It's designed with a strong emphasis on user privacy, security, and a great user experience, using a modern tech stack.
@@ -43,12 +44,16 @@ GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
 
 # Generate a new private key from your Firebase project settings:
 # Project settings > Service accounts > Generate new private key
-# Copy the entire JSON object here.
+# Copy the entire JSON object here as a single line.
 FIREBASE_SERVICE_ACCOUNT_KEY='{"type": "service_account", ...}'
 
 # A long, random, secret string used for securely hashing user identifiers.
 # Keep this secret and do not commit it to version control.
 PERSON_HASH_PEPPER='a-very-secret-and-long-random-string-for-development'
+
+# Used to gate certain actions (like flag writes) to a specific environment.
+# Can be 'development' or 'production'.
+APP_ENV="development"
 ```
 
 **Important**: For a production environment, these values should be managed securely using a secret manager like Google Secret Manager or AWS Secrets Manager.
@@ -71,6 +76,15 @@ npm run dev
 
 The application will now be running at [http://localhost:3000](http://localhost:3000).
 
+### 4. Feature Flags Console
+
+The application includes a feature flags console accessible at `/ops/flags`.
+
+- **Authentication**: Access is restricted by the `middleware.ts` file. By default, it uses a placeholder `getUser()` function in `src/lib/auth.ts`. You must replace this with your actual authentication provider's logic to secure the console.
+- **Usage**: Once authenticated as an `admin` or `staff` user, you can view and manage feature flags. The system will automatically seed the default flags in Firestore on first access.
+
 ## Firestore Security
 
 The project includes a `firestore.rules` file that should be deployed to your Firebase project. These rules are configured to **deny all client-side access** to sensitive collections like `eligibility`, `devices`, and `links`. All interactions with these collections must go through trusted server-side code (e.g., Cloud Functions) using the Firebase Admin SDK.
+
+The rules also contain optional, commented-out sections for the feature flags system. If you need to allow trusted clients to read or write flags directly, you can enable these rules and set up Firebase App Check and custom authentication claims for role-based access.

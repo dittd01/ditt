@@ -3,35 +3,48 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Default deny all reads and writes to all collections.
+    
+    // Deny all client-side reads and writes by default.
+    // All data access should go through trusted server-side code (Admin SDK).
     match /{document=**} {
       allow read, write: if false;
     }
-
-    // Explicitly deny client-side access to sensitive collections.
-    // Access to these should only be granted via server-side Admin SDKs.
     
-    // Stores the mapping from a person's hash to their eligibility status.
+    // --- START: Feature Flag Rules (Optional Client-side Hardening) ---
+    // These rules are a secondary layer of defense. The primary security is enforced
+    // by the middleware and server-side checks. These rules would be used if you ever
+    // needed to allow a trusted client (like the Ops Console itself) to read flags directly.
+    
+    // To enable, you would need to set custom claims on your Firebase Auth users.
+    // `request.auth.token.roles` would be an array like ['admin', 'staff'].
+    
+    match /flags/{flagKey} {
+      // Allow read access for users with 'staff' or 'admin' roles.
+      allow read: if request.auth.token.roles.hasAny(['staff', 'admin']);
+      
+      // Allow write access ONLY for users with the 'admin' role.
+      allow write: if request.auth.token.roles.hasAny(['admin']);
+    }
+    
+    match /flag_audits/{auditId} {
+      // The audit log should be append-only and never be written to by clients.
+      // Read access could be granted to admins for display in a client-side log viewer.
+      allow read: if request.auth.token.roles.hasAny(['admin']);
+      allow write: if false;
+    }
+    // --- END: Feature Flag Rules ---
+    
+    // Deny access to sensitive collections
     match /eligibility/{person_hash} {
       allow read, write: if false;
     }
-    
-    // Stores individual device credentials linked to a person_hash.
+
     match /devices/{deviceId} {
       allow read, write: if false;
     }
 
-    // Stores pending QR code link challenges.
     match /links/{linkId} {
-      allow read, write: if false;
+        allow read, write: if false;
     }
-    
-    // In a real application, you would define rules for other collections.
-    // For example, you might allow authenticated users to read public poll data.
-    // match /topics/{topicId} {
-    //   allow read: if request.auth != null;
-    //   allow write: if false; // Writes should go through a function
-    // }
   }
 }
