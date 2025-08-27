@@ -30,18 +30,28 @@ This platform implements a high-assurance, privacy-preserving authentication sys
 
 - Node.js (v18 or later)
 - npm or yarn
+- A Firebase project
+- A Google AI (Gemini) API Key
 
 ### 1. Set Up Environment Variables
 
-The application requires a secret "pepper" for securely hashing user identifiers. Create a file named `.env.local` in the root of your project and add the following line:
+The application requires several environment variables to run correctly. Create a file named `.env.local` in the root of your project and add the following, replacing the placeholder values with your actual keys.
 
 ```env
-# A long, random, secret string used for hashing.
+# Get your Gemini API key from Google AI Studio: https://aistudio.google.com/app/apikey
+GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
+
+# Generate a new private key from your Firebase project settings:
+# Project settings > Service accounts > Generate new private key
+# Copy the entire JSON object here.
+FIREBASE_SERVICE_ACCOUNT_KEY='{"type": "service_account", ...}'
+
+# A long, random, secret string used for securely hashing user identifiers.
 # Keep this secret and do not commit it to version control.
 PERSON_HASH_PEPPER='a-very-secret-and-long-random-string-for-development'
 ```
 
-**Important**: For production, this value should be managed securely using a secret manager like Google Secret Manager or AWS Secrets Manager.
+**Important**: For a production environment, these values should be managed securely using a secret manager like Google Secret Manager or AWS Secrets Manager.
 
 ### 2. Install Dependencies
 
