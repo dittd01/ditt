@@ -31,15 +31,15 @@ const PopulatePollOutputSchema = z.object({
   pros: z.array(z.string()).describe('An array of 3 distinct, compelling arguments in favor of the proposal.'),
   cons: z.array(z.string()).describe('An array of 3 distinct, compelling arguments against the proposal.'),
   tags: z.array(z.string()).describe('An array of 3-5 relevant, single-word, lowercase tags for the topic.'),
+  background_md: z.string().optional().describe('A comprehensive (5-15 sentences), neutral, and encyclopedic background for the topic.'),
 });
 export type PopulatePollOutput = z.infer<typeof PopulatePollOutputSchema>;
 
 const DEFAULT_POPULATE_POLL_PROMPT = `You are an expert editor and political analyst for a neutral voting platform. Your task is to take a user's poll title and generate a complete, well-structured poll.
 
 Your primary sources of truth for any factual claims, statistics, or financial data are the official Norwegian government budget (Regjeringen.no) and Statistics Norway (SSB.no). Use information from these sites to inform your generated content:
-- https://www.regjeringen.no/no/statsbudsjett/2025/a-aa/id3052994/
+- https://www.regjeringen.no/no/id4/
 - https://www.ssb.no
-- https://www.ssb.no/offentlig-sektor/faktaside/slik-brukes-skattepengene
 
 Follow these instructions precisely:
 
@@ -50,6 +50,7 @@ Follow these instructions precisely:
 5.  **Generate Arguments**: Create exactly three distinct, strong, and concise arguments FOR the proposal (pros) and exactly three distinct, strong, and concise arguments AGAINST it (cons). These should reflect common real-world viewpoints on the issue.
 6.  **Categorize**: Based on the provided taxonomy, assign the poll to the most relevant **category** and **subcategory**. Your output for the category and subcategory fields must be the **ID** (e.g., 'taxation', 'wealth_tax'), not the label.
 7.  **Generate Tags**: Provide an array of 3 to 5 relevant, single-word, lowercase tags for the topic.
+8.  **Generate Background**: Write a more comprehensive (5-15 sentences), neutral, and encyclopedic background for the topic. preferred source: https://www.regjeringen.no/no/id4/ and https://www.ssb.no
 
 Return ONLY a single, valid JSON object matching the output schema.
 

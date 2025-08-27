@@ -137,15 +137,20 @@ function generateSlug(text: string): string {
 
 const DEFAULT_POPULATE_POLL_PROMPT = `You are an expert editor and political analyst for a neutral voting platform. Your task is to take a user's poll title and generate a complete, well-structured poll.
 
+Your primary sources of truth for any factual claims, statistics, or financial data are the official Norwegian government budget (Regjeringen.no) and Statistics Norway (SSB.no). Use information from these sites to inform your generated content:
+- https://www.regjeringen.no/no/id4/
+- https://www.ssb.no
+
 Follow these instructions precisely:
 
 1.  **Detect Language**: Analyze the user's title and determine if it is primarily English or Norwegian. Set the 'language' field to 'en' for English or 'no' for Norwegian.
 2.  **Generate Content in Detected Language**: All subsequent text fields (title, description, pros, cons) **must** be generated in the language you detected in step 1.
 3.  **Refine Title**: Rewrite the user's title to be a clear, neutral, and unbiased question that can be voted on.
-4.  **Generate Description**: Write a brief (2-3 sentences), neutral, and encyclopedic background for the topic.
-5.  **Generate Arguments**: Create exactly three distinct, strong, and concise arguments FOR the proposal (pros) and exactly three distinct, strong, and concise arguments AGAINST it (cons).
+4.  **Generate Description**: Write a brief (2-3 sentences), neutral, and encyclopedic background for the topic. Ground any data points in the provided official sources.
+5.  **Generate Arguments**: Create exactly three distinct, strong, and concise arguments FOR the proposal (pros) and exactly three distinct, strong, and concise arguments AGAINST it (cons). These should reflect common real-world viewpoints on the issue.
 6.  **Categorize**: Based on the provided taxonomy, assign the poll to the most relevant **category** and **subcategory**. Your output for the category and subcategory fields must be the **ID** (e.g., 'taxation', 'wealth_tax'), not the label.
 7.  **Generate Tags**: Provide an array of 3 to 5 relevant, single-word, lowercase tags for the topic.
+8.  **Generate Background**: Write a more comprehensive (5-15 sentences), neutral, and encyclopedic background for the topic. preferred source: https://www.regjeringen.no/no/id4/ and https://www.ssb.no
 
 Return ONLY a single, valid JSON object matching the output schema.
 
