@@ -61,6 +61,6 @@ function getCredentials() {
 export const adminApp = getFirebaseAdminApp();
 export const db = getFirestore(adminApp);
 
-export function isFirestoreMock(): boolean {
+export async function isFirestoreMock(): Promise<boolean> {
     return isMock;
 }
