@@ -36,14 +36,14 @@ import { Button } from '@/components/ui/button';
 
 const navItems = [
   { href: '/admin/overview', icon: Home, label: 'Overview', roles: ['ReadOnly', 'Analyst', 'Moderator', 'Admin', 'Owner'] },
-  { href: '/admin/analytics', icon: BarChart2, label: 'Analytics', roles: ['ReadOnly', 'Analyst', 'Moderator', 'Admin', 'Owner'] },
+  { href: '/admin/analytics', icon: BarChart2, label: 'Analytics', roles: ['ReadOnly',  'Analyst', 'Moderator', 'Admin', 'Owner'] },
   { href: '/admin/polls', icon: List, label: 'Polls', roles: ['ReadOnly', 'Analyst', 'Moderator', 'Admin', 'Owner'] },
   { href: '/admin/topic-curation', icon: Lightbulb, label: 'Topic Curation', roles: ['Moderator', 'Admin', 'Owner'] },
   { href: '/admin/suggestions-queue', icon: MessageSquareQuote, label: 'Suggestions Queue', roles: ['Moderator', 'Admin', 'Owner'] },
   { href: '/admin/users', icon: Users, label: 'Users', roles: ['Admin', 'Owner'] },
   { href: '/admin/audit-logs', icon: Shield, label: 'Audit Logs', roles: ['Admin', 'Owner'] },
   { href: '/admin/feature-flags', icon: FileText, label: 'Feature Flags', roles: ['Admin', 'Owner'] },
-  { href: 'src/app/admin/health', icon: HeartPulse, label: 'Health', roles: ['Admin', 'Owner'] },
+  { href: '/admin/health', icon: HeartPulse, label: 'Health', roles: ['Admin', 'Owner'] },
   { href: '/admin/architecture', icon: Server, label: 'Architecture', roles: ['Admin', 'Owner'] },
   { href: '/admin/tech-stack', icon: Cpu, label: 'Tech Stack', roles: ['Admin', 'Owner'] },
   { href: '/admin/exports', icon: Download, label: 'Exports', roles: ['Analyst', 'Admin', 'Owner'] },
