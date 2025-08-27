@@ -353,6 +353,7 @@ export default function EditPollPage() {
                 ...form.getValues(),
                 title: result.data.title,
                 description_md: result.data.description,
+                background_md: result.data.background_md || '',
                 pros: result.data.pros,
                 cons: result.data.cons,
                 language: result.data.language,
