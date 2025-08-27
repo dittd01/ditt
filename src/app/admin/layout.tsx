@@ -43,7 +43,7 @@ const navItems = [
   { href: '/admin/users', icon: Users, label: 'Users', roles: ['Admin', 'Owner'] },
   { href: '/admin/audit-logs', icon: Shield, label: 'Audit Logs', roles: ['Admin', 'Owner'] },
   { href: '/admin/feature-flags', icon: FileText, label: 'Feature Flags', roles: ['Admin', 'Owner'] },
-  { href: '/admin/health', icon: HeartPulse, label: 'Health', roles: ['Admin', 'Owner'] },
+  { href: 'src/app/admin/health', icon: HeartPulse, label: 'Health', roles: ['Admin', 'Owner'] },
   { href: '/admin/architecture', icon: Server, label: 'Architecture', roles: ['Admin', 'Owner'] },
   { href: '/admin/tech-stack', icon: Cpu, label: 'Tech Stack', roles: ['Admin', 'Owner'] },
   { href: '/admin/exports', icon: Download, label: 'Exports', roles: ['Analyst', 'Admin', 'Owner'] },
