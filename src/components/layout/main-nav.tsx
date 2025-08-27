@@ -48,7 +48,7 @@ export function MainNav() {
               </NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link href="/all" legacyBehavior passHref>
+              <Link href="/all" passHref>
                 <NavigationMenuLink active={pathname === '/all'} className={navigationMenuTriggerStyle()}>
                   {exploreText}
                 </NavigationMenuLink>
