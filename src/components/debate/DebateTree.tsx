@@ -3,7 +3,7 @@
 
 import React, { useMemo, useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-import type { Argument, Topic } from '@/lib/types';
+import type { Argument } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -53,7 +53,10 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  
+  const [nodes, setNodes] = useState<HierarchyNode[]>([]);
+
+  // Step 1: Set up a ResizeObserver to get the container's dimensions.
+  // This effect runs first.
   useEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
         if (entries[0]) {
@@ -68,61 +71,59 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
     return () => resizeObserver.disconnect();
   }, [isMobile]);
 
-  const rootNode = useMemo(() => {
+  // Step 2: Process data and generate D3 nodes.
+  // This effect runs whenever the data (args) or dimensions change.
+  // Crucially, it will run *after* the dimensions are first measured.
+  useEffect(() => {
     if (!args || args.length === 0 || dimensions.width === 0) {
-        return null;
+      setNodes([]); // Clear nodes if there's no data or container size
+      return;
     }
 
     try {
-        // Step 1: Create a Set of all valid IDs for quick lookup.
-        const allIds = new Set(args.map(a => a.id));
-        allIds.add('root');
+      // Create a synthetic root node for the topic.
+      const topicRoot: Argument = {
+        id: 'root',
+        topicId: args[0]?.topicId || '',
+        parentId: '', // An empty or non-existent parentId signals this is the root for d3.stratify
+        side: 'for', 
+        author: { name: 'Topic' },
+        text: topicQuestion,
+        upvotes: 0, downvotes: 0, replyCount: 0, createdAt: new Date().toISOString()
+      };
 
-        // Step 2: Create a synthetic root node for the topic.
-        const topicRoot: Argument = {
-            id: 'root',
-            topicId: args[0]?.topicId || '',
-            parentId: '', // Key for d3.stratify: the node with a non-existent parentId is the root.
-            side: 'for', 
-            author: { name: 'Topic' },
-            text: topicQuestion,
-            upvotes: 0, downvotes: 0, replyCount: 0, createdAt: new Date().toISOString()
-        };
+      // Sanitize arguments to ensure valid parent-child relationships.
+      const idToNodeMap = new Map(args.map(arg => [arg.id, arg]));
+      idToNodeMap.set(topicRoot.id, topicRoot);
 
-        // Step 3: Sanitize the arguments. Any argument with a non-existent parent
-        // will be re-parented to the synthetic root node.
-        const sanitizedArgs = args.map(arg => ({
-            ...arg,
-            // Why: This check ensures every argument has a valid parent. If its `parentId`
-            // is not in the `allIds` set, it's considered an "orphan" and is attached
-            // to the main 'root' of the debate. This prevents d3.stratify from failing.
-            parentId: allIds.has(arg.parentId) ? arg.parentId : 'root'
-        }));
+      const sanitizedArgs = args.map(arg => ({
+        ...arg,
+        parentId: idToNodeMap.has(arg.parentId) ? arg.parentId : 'root'
+      }));
 
-        const dataForStratify = [topicRoot, ...sanitizedArgs];
+      const dataForStratify = [topicRoot, ...sanitizedArgs];
 
-        const root = d3.stratify<Argument>()
-            .id(d => d.id)
-            .parentId(d => d.parentId)(dataForStratify);
+      // Create the hierarchy.
+      const root = d3.stratify<Argument>()
+        .id(d => d.id)
+        .parentId(d => d.parentId)(dataForStratify);
+      
+      root.sum(d => (d.id === 'root' ? 0 : 1));
+
+      // Define the partition layout.
+      const radius = Math.min(dimensions.width, dimensions.height) / 2;
+      const partition = d3.partition<Argument>()
+        .size([2 * Math.PI, radius])
+        .padding(0.005);
         
-        // Use a sum function to determine the size of each arc.
-        // We give each node a base value of 1 so it's visible.
-        root.sum(d => (d.id === 'root' ? 0 : 1));
-
-        const radius = Math.min(dimensions.width, dimensions.height) / 2;
-        
-        const partition = d3.partition<Argument>()
-            .size([2 * Math.PI, radius])
-            .padding(0.005);
-            
-        return partition(root) as HierarchyNode;
+      const partitionedRoot = partition(root) as HierarchyNode;
+      setNodes(partitionedRoot.descendants() as HierarchyNode[]);
     } catch(e) {
-        console.error("D3 Stratify error:", e);
-        return null;
+      console.error("D3 Stratify error:", e);
+      setNodes([]); // Clear nodes on error
     }
   }, [args, topicQuestion, dimensions]);
 
-  const allNodes = useMemo(() => rootNode ? rootNode.descendants() as HierarchyNode[] : [], [rootNode]);
 
   const arcGenerator = d3.arc<HierarchyNode>()
     .startAngle(d => d.x0)
@@ -132,19 +133,6 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
     .innerRadius(d => d.y0 + 4)
     .outerRadius(d => Math.max(d.y0 + 4, d.y1 - 2));
 
-  if (!rootNode) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Debate Visualization</CardTitle>
-          <CardDescription>A radial map of the argument structure.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center py-16">
-          <p className="text-muted-foreground">Not enough data to display chart.</p>
-        </CardContent>
-      </Card>
-    );
-  }
 
   const getColor = (d: HierarchyNode) => {
     if (d.depth === 0) return COLORS.neutral;
@@ -166,40 +154,47 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
         <CardDescription>A radial map of the argument structure. Inner rings are top-level arguments.</CardDescription>
       </CardHeader>
       <CardContent ref={containerRef} className="h-[300px] md:h-[500px] w-full p-0 relative">
-        <svg ref={svgRef} width="100%" height="100%">
-          <g transform={`translate(${dimensions.width / 2},${dimensions.height / 2})`}>
-            <TooltipProvider>
-            {allNodes.map((d, i) => (
-                <Tooltip key={d.data.id || i} delayDuration={150}>
-                    <TooltipTrigger asChild>
-                         <path
-                            d={arcGenerator(d) || ''}
-                            fill={getColor(d)}
-                            stroke="hsl(var(--card))"
-                            strokeWidth={0.5}
-                            className="transition-opacity hover:opacity-80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
-                        />
-                    </TooltipTrigger>
-                     {d.depth > 0 && (
-                        <TooltipContent>
-                           <CustomTooltipContent argument={d.data} />
-                        </TooltipContent>
-                     )}
-                </Tooltip>
-            ))}
-            </TooltipProvider>
-             <text
-                x={0}
-                y={0}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                className="fill-card-foreground font-semibold text-xs md:text-sm pointer-events-none"
-             >
-                {lang === 'nb' ? 'Tese' : 'Thesis' }
-             </text>
-          </g>
-        </svg>
+        {nodes.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-muted-foreground">Not enough data to display chart.</p>
+          </div>
+        ) : (
+          <svg ref={svgRef} width="100%" height="100%">
+            <g transform={`translate(${dimensions.width / 2},${dimensions.height / 2})`}>
+              <TooltipProvider>
+              {nodes.map((d, i) => (
+                  <Tooltip key={d.data.id || i} delayDuration={150}>
+                      <TooltipTrigger asChild>
+                           <path
+                              d={arcGenerator(d) || ''}
+                              fill={getColor(d)}
+                              stroke="hsl(var(--card))"
+                              strokeWidth={0.5}
+                              className="transition-opacity hover:opacity-80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
+                          />
+                      </TooltipTrigger>
+                       {d.depth > 0 && (
+                          <TooltipContent>
+                             <CustomTooltipContent argument={d.data} />
+                          </TooltipContent>
+                       )}
+                  </Tooltip>
+              ))}
+              </TooltipProvider>
+               <text
+                  x={0}
+                  y={0}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  className="fill-card-foreground font-semibold text-xs md:text-sm pointer-events-none"
+               >
+                  {lang === 'nb' ? 'Tese' : 'Thesis' }
+               </text>
+            </g>
+          </svg>
+        )}
       </CardContent>
     </Card>
   );
 }
+
