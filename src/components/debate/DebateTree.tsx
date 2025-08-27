@@ -6,6 +6,7 @@ import * as d3 from 'd3';
 import type { Argument } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 interface DebateTreeProps {
   args: Argument[];
@@ -21,25 +22,15 @@ interface HierarchyNode extends d3.HierarchyNode<Argument> {
     y1: number;
 }
 
-// Why: The HSL values are taken directly from globals.css to ensure consistency
-// and work around the issue of D3 not being able to parse CSS variables.
-const HSL_FOR = { h: 103, s: 0.31, l: 0.25 }; // Corresponds to --primary: 103 31% 25%
-const HSL_AGAINST = { h: 0, s: 0.78, l: 0.34 }; // Corresponds to --destructive: 0 78% 34%
-
-type TooltipData = {
-    visible: boolean;
-    x: number;
-    y: number;
-    argument: Argument | null;
-};
+const HSL_FOR = { h: 103, s: 0.31, l: 0.25 };
+const HSL_AGAINST = { h: 0, s: 0.78, l: 0.34 };
 
 export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTreeProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [tooltipData, setTooltipData] = useState<TooltipData>({ visible: false, x: 0, y: 0, argument: null });
-
+  const tooltipRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
@@ -56,12 +47,14 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
   }, [isMobile]);
 
   useEffect(() => {
-    if (!args || dimensions.width === 0 || !svgRef.current) {
+    if (!args || dimensions.width === 0 || !svgRef.current || !tooltipRef.current) {
       return;
     }
     
     const svg = d3.select(svgRef.current);
-    svg.selectAll('*').remove(); // Clear previous render
+    svg.selectAll('*').remove();
+
+    const tooltip = d3.select(tooltipRef.current);
 
     const g = svg.append('g')
       .attr('transform', `translate(${dimensions.width / 2},${dimensions.height / 2})`);
@@ -122,12 +115,26 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
           .attr('class', 'transition-opacity hover:opacity-80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring')
           .on('click', (event, d) => d.depth > 0 && onNodeClick(d.data))
           .on('mouseover', (event, d) => {
-              if (d.depth > 0) {
-                  setTooltipData({ visible: true, x: event.pageX, y: event.pageY, argument: d.data });
-              }
+            if (d.depth > 0) {
+              const color = d.data.side === 'for' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))';
+              tooltip
+                .style('opacity', 1)
+                .html(`
+                  <div class="flex items-center gap-2 mb-1">
+                    <div class="h-2 w-2 rounded-full" style="background-color: ${color}"></div>
+                    <p class="font-semibold text-popover-foreground">${d.data.author?.name}</p>
+                  </div>
+                  <p class="text-muted-foreground">${d.data.text}</p>
+                `);
+            }
+          })
+          .on('mousemove', (event) => {
+            tooltip
+              .style('left', (event.pageX + 15) + 'px')
+              .style('top', (event.pageY + 15) + 'px');
           })
           .on('mouseleave', () => {
-              setTooltipData(prev => ({ ...prev, visible: false }));
+            tooltip.style('opacity', 0);
           });
 
     } catch(e) {
@@ -147,26 +154,13 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
             <p className="text-muted-foreground">Not enough data to display chart.</p>
           </div>
         ) : (
-          <>
-            <svg ref={svgRef} width="100%" height="100%" />
-            {tooltipData.visible && tooltipData.argument && (
-                <div
-                    className="absolute rounded-lg border bg-popover p-2 shadow-sm text-sm transition-opacity pointer-events-none max-w-xs"
-                    style={{
-                        left: tooltipData.x + 10,
-                        top: tooltipData.y + 10,
-                    }}
-                >
-                    <div className="flex items-center gap-2 mb-1">
-                        <div className="h-2 w-2 rounded-full" style={{ backgroundColor: tooltipData.argument.side === 'for' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))' }}/>
-                        <p className="font-semibold text-popover-foreground">{tooltipData.argument.author?.name}</p>
-                    </div>
-                    <p className="text-muted-foreground">{tooltipData.argument.text}</p>
-                </div>
-            )}
-          </>
+          <svg ref={svgRef} width="100%" height="100%" />
         )}
       </CardContent>
+       <div 
+        ref={tooltipRef} 
+        className="fixed rounded-lg border bg-popover p-2 shadow-sm text-sm transition-opacity opacity-0 pointer-events-none max-w-xs z-50"
+       />
     </Card>
   );
 }
