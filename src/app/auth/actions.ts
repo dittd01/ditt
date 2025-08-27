@@ -4,6 +4,7 @@
 import { computePersonHash, deriveAgeFromFnr } from '@/lib/auth-utils.server';
 import type { Eligibility } from '@/lib/types';
 import { z } from 'zod';
+import { currentUser } from '@/lib/user-data';
 
 const BankIDCallbackSchema = z.object({
   fnr: z.string().regex(/^\d{11}$/, 'Invalid Norwegian Fødselsnummer'),
@@ -40,7 +41,7 @@ export async function handleBankIdCallback(input: BankIDCallbackInput): Promise<
         success: true,
         message: 'Developer login successful for test user.',
         isNewUser: false, // Assume test user already exists and has passkeys
-        personHash: 'mock-uid-123', // The known UID for the default test user
+        personHash: currentUser.uid, // The known UID for the default test user
         eligibility: {
           is_adult: true,
           assurance_level: 'BankID',

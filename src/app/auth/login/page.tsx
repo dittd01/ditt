@@ -19,6 +19,7 @@ import { handleBankIdCallback } from '../actions';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { startLogin } from '@/lib/passkey';
+import { currentUser } from '@/lib/user-data';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -48,13 +49,20 @@ export default function LoginPage() {
         // In a real implementation, this would be a short-lived JWT.
         localStorage.setItem('anonymousVoterId', result.personHash);
         
-        if (result.isNewUser) {
-            router.push('/auth/setup-passkey');
-        } else {
+        // **FIX**: Special handling for the developer test user to bypass passkey flow.
+        if (result.personHash === currentUser.uid) {
             localStorage.removeItem('lastSeenTimestamp'); 
             window.dispatchEvent(new Event('authChange'));
             router.push('/');
             router.refresh();
+            return;
+        }
+
+        if (result.isNewUser) {
+            router.push('/auth/setup-passkey');
+        } else {
+            // Existing user, attempt passkey login automatically
+            handlePasskeyLogin(true);
         }
 
     } else {
@@ -63,7 +71,7 @@ export default function LoginPage() {
     }
   };
   
-  const handlePasskeyLogin = async () => {
+  const handlePasskeyLogin = async (isFollowUp = false) => {
     setLoading(true);
     setError(null);
     
@@ -80,11 +88,15 @@ export default function LoginPage() {
                 description: "Welcome back!",
             });
         } else {
-            setError(result.message || 'Passkey login failed.');
+            if (!isFollowUp) {
+                setError(result.message || 'Passkey login failed.');
+            }
             setLoading(false);
         }
     } catch(e: any) {
-        setError(e.message || 'An unexpected error occurred during passkey login.');
+        if (!isFollowUp) {
+            setError(e.message || 'An unexpected error occurred during passkey login.');
+        }
         setLoading(false);
     }
   }
@@ -110,7 +122,7 @@ export default function LoginPage() {
                </Alert>
             )}
             
-            <Button onClick={handlePasskeyLogin} variant="outline" className="w-full h-12 text-base" disabled={loading}>
+            <Button onClick={() => handlePasskeyLogin(false)} variant="outline" className="w-full h-12 text-base" disabled={loading}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Fingerprint className="mr-2" /> }
                 Sign in with Passkey
             </Button>
@@ -137,7 +149,7 @@ export default function LoginPage() {
                     pattern="\\d{11}"
                     title="Please enter 11 digits."
                 />
-                <p className="text-xs text-muted-foreground">Use any 11 digits for this sandbox.</p>
+                <p className="text-xs text-muted-foreground">For dev, use 00000000000 to log in as testuser.</p>
                 </div>
                  <Button type="submit" className="w-full" disabled={loading || fnr.length !== 11}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
