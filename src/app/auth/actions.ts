@@ -34,6 +34,23 @@ export async function handleBankIdCallback(input: BankIDCallbackInput): Promise<
   try {
     const { fnr } = BankIDCallbackSchema.parse(input);
 
+    // Development backdoor for the test user
+    if (process.env.NODE_ENV !== 'production' && fnr === '00000000000') {
+      return {
+        success: true,
+        message: 'Developer login successful for test user.',
+        isNewUser: false, // Assume test user already exists and has passkeys
+        personHash: 'mock-uid-123', // The known UID for the default test user
+        eligibility: {
+          is_adult: true,
+          assurance_level: 'BankID',
+          createdAt: Date.now(),
+          lastVerifiedAt: Date.now(),
+          bankid_first_verified_at: Date.now(),
+        },
+      };
+    }
+
     // 1. Derive age and check eligibility
     const age = await deriveAgeFromFnr(fnr);
     if (age < 18) {
