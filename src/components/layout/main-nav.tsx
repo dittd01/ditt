@@ -48,11 +48,11 @@ export function MainNav() {
               </NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuLink asChild active={pathname === '/all'}>
-                <Link href="/all" className={navigationMenuTriggerStyle()}>
+              <Link href="/all" legacyBehavior passHref>
+                <NavigationMenuLink active={pathname === '/all'} className={navigationMenuTriggerStyle()}>
                   {exploreText}
-                </Link>
-              </NavigationMenuLink>
+                </NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
             
             <NavigationMenuItem>
