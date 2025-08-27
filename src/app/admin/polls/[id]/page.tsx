@@ -148,11 +148,11 @@ Follow these instructions precisely:
 1.  **Detect Language**: Analyze the user's title and determine if it is primarily English or Norwegian. Set the 'language' field to 'en' for English or 'no' for Norwegian.
 2.  **Generate Content in Detected Language**: All subsequent text fields (title, description, pros, cons) **must** be generated in the language you detected in step 1.
 3.  **Refine Title**: Rewrite the user's title to be a clear, neutral, and unbiased question that can be voted on.
-4.  **Generate Description**: Write a brief (2-3 sentences), neutral, and encyclopedic background for the topic. Ground any data points in the provided official sources.
+4.  **Generate Description**: Write a brief (2-3 sentences), neutral, and encyclopedic background for the topic. This should be a high-level summary. Ground any data points in the provided official sources.
 5.  **Generate Arguments**: Create exactly three distinct, strong, and concise arguments FOR the proposal (pros) and exactly three distinct, strong, and concise arguments AGAINST it (cons). These should reflect common real-world viewpoints on the issue.
 6.  **Categorize**: Based on the provided taxonomy, assign the poll to the most relevant **category** and **subcategory**. Your output for the category and subcategory fields must be the **ID** (e.g., 'taxation', 'wealth_tax'), not the label.
 7.  **Generate Tags**: Provide an array of 3 to 5 relevant, single-word, lowercase tags for the topic.
-8.  **Generate Background**: Write a more comprehensive (5-15 sentences), neutral, and encyclopedic background for the topic. preferred source: https://www.regjeringen.no/no/id4/ and https://www.ssb.no
+8.  **Generate Background**: Write a more comprehensive (5-15 sentences) background that **complements, but does not repeat, the Description**. This section should add more history, context, or technical details. For example, if the Description summarizes a tax proposal, the Background could detail the history of that tax or how it compares to other countries. Use the official sources provided.
 9.  **Add Source Links**: If you used any of the official sources provided to generate the background or description, include them in the 'sources' array. Each source should be an object with a 'title' (e.g., "SSB: Public Finances") and a 'url'.
 
 Return ONLY a single, valid JSON object matching the output schema.
