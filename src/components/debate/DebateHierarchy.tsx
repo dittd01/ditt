@@ -69,10 +69,10 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
       const rootNode = d3.stratify<Argument>().id(d => d.id).parentId(d => d.parentId)(dataForStratify);
       
       const maxUpvotes = d3.max(args, d => d.upvotes) || 1;
-      const sizeScale = d3.scaleSqrt().domain([0, maxUpvotes]).range([0.8, 2.0]); // More subtle scaling
+      const sizeScale = d3.scaleSqrt().domain([0, maxUpvotes]).range([0.8, 1.5]);
 
-      const baseNodeWidth = 30; // Reduced base size
-      const baseNodeHeight = 15; // Reduced base size
+      const baseNodeWidth = 30;
+      const baseNodeHeight = 15;
 
       const getNodeWidth = (d: Argument) => {
         if(d.id === 'root') return 100;
@@ -83,7 +83,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         return baseNodeHeight * sizeScale(d.upvotes);
       }
       
-      const treeLayout = d3.tree().nodeSize([80, 50]); // Adjusted node spacing
+      const treeLayout = d3.tree().nodeSize([70, 60]); // Tighter spacing
       const hierarchy = treeLayout(rootNode);
       
       let x0 = Infinity;
@@ -104,7 +104,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         .attr('fill', 'none')
         .attr('stroke', 'hsl(var(--border))')
         .attr('stroke-opacity', 0.6)
-        .attr('stroke-width', 1.5)
+        .attr('stroke-width', 1)
         .selectAll('path')
         .data(hierarchy.links())
         .join('path')
@@ -134,7 +134,6 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         .attr('stroke', getColor)
         .attr('stroke-width', 1.5);
       
-      // Render text only for the root node to avoid overflow on small nodes
       node.filter(d => d.depth === 0).append('text')
         .attr('dy', '0.31em')
         .attr('x', 0)
