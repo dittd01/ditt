@@ -69,21 +69,21 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
       const rootNode = d3.stratify<Argument>().id(d => d.id).parentId(d => d.parentId)(dataForStratify);
       
       const maxUpvotes = d3.max(args, d => d.upvotes) || 1;
-      const sizeScale = d3.scaleSqrt().domain([0, maxUpvotes]).range([0.5, 1.5]);
+      const sizeScale = d3.scaleSqrt().domain([0, maxUpvotes]).range([0.8, 2.0]); // More subtle scaling
 
-      const baseNodeWidth = 40;
-      const baseNodeHeight = 20;
+      const baseNodeWidth = 30; // Reduced base size
+      const baseNodeHeight = 15; // Reduced base size
 
       const getNodeWidth = (d: Argument) => {
-        if(d.id === 'root') return 120;
+        if(d.id === 'root') return 100;
         return baseNodeWidth * sizeScale(d.upvotes);
       }
       const getNodeHeight = (d: Argument) => {
-        if(d.id === 'root') return 40;
+        if(d.id === 'root') return 30;
         return baseNodeHeight * sizeScale(d.upvotes);
       }
       
-      const treeLayout = d3.tree().nodeSize([140, 60]);
+      const treeLayout = d3.tree().nodeSize([80, 50]); // Adjusted node spacing
       const hierarchy = treeLayout(rootNode);
       
       let x0 = Infinity;
@@ -133,30 +133,27 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         .attr('fill', 'hsl(var(--card))')
         .attr('stroke', getColor)
         .attr('stroke-width', 1.5);
-
-      node.append('text')
+      
+      // Render text only for the root node to avoid overflow on small nodes
+      node.filter(d => d.depth === 0).append('text')
         .attr('dy', '0.31em')
         .attr('x', 0)
         .attr('text-anchor', 'middle')
-        .text(d => {
-            const showText = getNodeWidth(d.data) > 50;
-            return showText ? d.data.author?.name : '';
-        })
-        .style('font-size', '9px')
+        .text('Topic')
+        .style('font-size', '10px')
         .style('fill', 'hsl(var(--muted-foreground))');
 
+
       node.on('mouseover', (event, d) => {
-          if (d.depth > 0) {
-            const color = getColor(d);
-            tooltip.style('opacity', 1)
-              .html(`
-                <div class="flex items-center gap-2 mb-1">
-                  <div class="h-2 w-2 rounded-full" style="background-color: ${color}"></div>
-                  <p class="font-semibold text-popover-foreground">${d.data.author?.name} (${d.data.upvotes} upvotes)</p>
-                </div>
-                <p class="text-muted-foreground">${d.data.text}</p>
-              `);
-          }
+          const color = getColor(d);
+          tooltip.style('opacity', 1)
+            .html(`
+              <div class="flex items-center gap-2 mb-1">
+                <div class="h-2 w-2 rounded-full" style="background-color: ${color}"></div>
+                <p class="font-semibold text-popover-foreground">${d.data.author?.name || 'Topic'} (${d.data.upvotes || 0} upvotes)</p>
+              </div>
+              <p class="text-muted-foreground">${d.data.text}</p>
+            `);
         })
         .on('mousemove', (event) => {
           tooltip.style('left', (event.pageX + 15) + 'px')
@@ -169,7 +166,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
     } catch(e) {
       console.error("D3 Hierarchy error:", e);
     }
-  }, [args, topicQuestion, dimensions, onNodeClick]);
+  }, [args, topicQuestion, dimensions, onNodeClick, lang, isMobile]);
 
   return (
     <Card>
