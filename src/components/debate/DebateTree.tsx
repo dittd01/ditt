@@ -135,7 +135,7 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
           <CardTitle>Debate Visualization</CardTitle>
           <CardDescription>A radial map of the argument structure.</CardDescription>
         </CardHeader>
-        <CardContent className="h-[400px] flex items-center justify-center">
+        <CardContent className="flex items-center justify-center py-16">
           <p className="text-muted-foreground">Not enough data to display chart.</p>
         </CardContent>
       </Card>
