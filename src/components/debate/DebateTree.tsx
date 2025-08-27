@@ -6,13 +6,6 @@ import * as d3 from 'd3';
 import type { Argument } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 
 interface DebateTreeProps {
   args: Argument[];
@@ -33,20 +26,11 @@ interface HierarchyNode extends d3.HierarchyNode<Argument> {
 const HSL_FOR = { h: 103, s: 0.31, l: 0.25 }; // Corresponds to --primary: 103 31% 25%
 const HSL_AGAINST = { h: 0, s: 0.78, l: 0.34 }; // Corresponds to --destructive: 0 78% 34%
 
-const CustomTooltipContent = ({ argument }: { argument: Argument }) => {
-    if (!argument || !argument.author) {
-        return null;
-    }
-    const color = argument.side === 'for' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))';
-    return (
-        <div className="max-w-xs text-sm">
-            <div className="flex items-center gap-2 mb-1">
-                <div className="h-2 w-2 rounded-full" style={{ backgroundColor: color }}/>
-                <p className="font-semibold text-popover-foreground">{argument.author.name}</p>
-            </div>
-            <p className="text-muted-foreground">{argument.text}</p>
-        </div>
-    );
+type TooltipData = {
+    visible: boolean;
+    x: number;
+    y: number;
+    argument: Argument | null;
 };
 
 export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTreeProps) {
@@ -54,7 +38,8 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [nodes, setNodes] = useState<HierarchyNode[]>([]);
+  const [tooltipData, setTooltipData] = useState<TooltipData>({ visible: false, x: 0, y: 0, argument: null });
+
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
@@ -71,16 +56,21 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
   }, [isMobile]);
 
   useEffect(() => {
-    if (!args || dimensions.width === 0) {
-      setNodes([]);
+    if (!args || dimensions.width === 0 || !svgRef.current) {
       return;
     }
+    
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove(); // Clear previous render
+
+    const g = svg.append('g')
+      .attr('transform', `translate(${dimensions.width / 2},${dimensions.height / 2})`);
 
     try {
       const topicRoot: Argument = {
         id: 'root',
         topicId: args[0]?.topicId || '',
-        parentId: '', // D3 stratify needs a root with a parentId that doesn't exist among other IDs.
+        parentId: '',
         side: 'for', 
         author: { name: 'Topic' },
         text: topicQuestion,
@@ -89,57 +79,61 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
 
       const validIds = new Set(args.map(arg => arg.id));
       validIds.add(topicRoot.id);
-
-      const sanitizedArgs = args.map(arg => ({
-        ...arg,
-        parentId: arg.parentId && validIds.has(arg.parentId) ? arg.parentId : 'root'
-      }));
-
+      const sanitizedArgs = args.map(arg => ({ ...arg, parentId: arg.parentId && validIds.has(arg.parentId) ? arg.parentId : 'root' }));
       const dataForStratify = [topicRoot, ...sanitizedArgs];
       
-      const rootNode = d3.stratify<Argument>()
-        .id(d => d.id)
-        .parentId(d => d.parentId)(dataForStratify);
-      
+      const rootNode = d3.stratify<Argument>().id(d => d.id).parentId(d => d.parentId)(dataForStratify);
       rootNode.sum(d => (d.id === 'root' ? 0 : 1 + (d.replyCount > 0 ? d.replyCount * 0.5 : 0)));
 
       const radius = Math.min(dimensions.width, dimensions.height) / 2;
-      const partition = d3.partition<Argument>()
-        .size([2 * Math.PI, radius * 0.9])
-        .padding(0.01);
-        
+      const partition = d3.partition<Argument>().size([2 * Math.PI, radius * 0.9]).padding(0.01);
       const partitionedRoot = partition(rootNode);
-      setNodes(partitionedRoot.descendants() as HierarchyNode[]);
+      const nodes = partitionedRoot.descendants() as HierarchyNode[];
+
+      const arcGenerator = d3.arc<HierarchyNode>()
+        .startAngle(d => d.x0)
+        .endAngle(d => d.x1)
+        .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.005))
+        .padRadius(1)
+        .innerRadius(d => d.y0 + 4)
+        .outerRadius(d => Math.max(d.y0 + 4, d.y1 - 2))
+        .cornerRadius(d => d.depth > 1 ? 4 : 2);
+
+      const getColor = (d: HierarchyNode) => {
+        if (d.depth === 0) return 'none';
+        const baseColor = d.data.side === 'for' ? HSL_FOR : HSL_AGAINST;
+        const hslColor = d3.hsl(baseColor.h, baseColor.s, baseColor.l);
+        if (d.depth > 1) { 
+          hslColor.l -= (d.depth - 1) * 0.08;
+          hslColor.s -= (d.depth - 1) * 0.06;
+        }
+        return hslColor.toString();
+      };
+      
+      g.append('circle').attr('r', nodes.length > 1 ? nodes[1].y0 : 0).attr('fill', 'hsl(var(--muted))').attr('stroke', 'hsl(var(--border))').attr('stroke-width', 1);
+
+      g.selectAll('path')
+        .data(nodes)
+        .join('path')
+          .attr('d', d => arcGenerator(d) || '')
+          .attr('fill', d => getColor(d))
+          .attr('stroke', 'hsl(var(--card))')
+          .attr('stroke-width', 1)
+          .attr('class', 'transition-opacity hover:opacity-80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring')
+          .on('click', (event, d) => d.depth > 0 && onNodeClick(d.data))
+          .on('mouseover', (event, d) => {
+              if (d.depth > 0) {
+                  setTooltipData({ visible: true, x: event.pageX, y: event.pageY, argument: d.data });
+              }
+          })
+          .on('mouseleave', () => {
+              setTooltipData(prev => ({ ...prev, visible: false }));
+          });
+
     } catch(e) {
       console.error("D3 Stratify error:", e);
-      setNodes([]);
     }
-  }, [args, topicQuestion, dimensions]);
-
-
-  const arcGenerator = d3.arc<HierarchyNode>()
-    .startAngle(d => d.x0)
-    .endAngle(d => d.x1)
-    .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.005))
-    .padRadius(1)
-    .innerRadius(d => d.y0 + 4)
-    .outerRadius(d => Math.max(d.y0 + 4, d.y1 - 2))
-    .cornerRadius(d => d.depth > 1 ? 4 : 2);
-
-
-  const getColor = (d: HierarchyNode) => {
-    if (d.depth === 0) return 'none';
-    
-    const baseColor = d.data.side === 'for' ? HSL_FOR : HSL_AGAINST;
-    const hslColor = d3.hsl(baseColor.h, baseColor.s, baseColor.l);
-    
-    if (d.depth > 1) { 
-      hslColor.l -= (d.depth - 1) * 0.08;
-      hslColor.s -= (d.depth - 1) * 0.06;
-    }
-    
-    return hslColor.toString();
-  };
+  }, [args, topicQuestion, dimensions, onNodeClick]);
 
   return (
     <Card>
@@ -148,37 +142,29 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
         <CardDescription>A radial map of the argument structure. Inner rings are top-level arguments.</CardDescription>
       </CardHeader>
       <CardContent ref={containerRef} className="h-[300px] md:h-[500px] w-full p-0 relative">
-        {nodes.length <= 1 ? (
+        {args.length === 0 ? (
           <div className="flex items-center justify-center py-16">
             <p className="text-muted-foreground">Not enough data to display chart.</p>
           </div>
         ) : (
-          <svg ref={svgRef} width="100%" height="100%">
-            <g transform={`translate(${dimensions.width / 2},${dimensions.height / 2})`}>
-              <circle r={nodes.length > 1 ? nodes[1].y0 : 0} fill="hsl(var(--muted))" stroke="hsl(var(--border))" strokeWidth="1" />
-              <TooltipProvider>
-              {nodes.map((d, i) => (
-                  <Tooltip key={d.data.id || i} delayDuration={150}>
-                      <TooltipTrigger asChild>
-                           <path
-                              d={arcGenerator(d) || ''}
-                              fill={getColor(d)}
-                              stroke="hsl(var(--card))"
-                              strokeWidth={1}
-                              className="transition-opacity hover:opacity-80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
-                              onClick={() => d.depth > 0 && onNodeClick(d.data)}
-                          />
-                      </TooltipTrigger>
-                       {d.depth > 0 && (
-                          <TooltipContent>
-                             <CustomTooltipContent argument={d.data} />
-                          </TooltipContent>
-                       )}
-                  </Tooltip>
-              ))}
-              </TooltipProvider>
-            </g>
-          </svg>
+          <>
+            <svg ref={svgRef} width="100%" height="100%" />
+            {tooltipData.visible && tooltipData.argument && (
+                <div
+                    className="absolute rounded-lg border bg-popover p-2 shadow-sm text-sm transition-opacity pointer-events-none max-w-xs"
+                    style={{
+                        left: tooltipData.x + 10,
+                        top: tooltipData.y + 10,
+                    }}
+                >
+                    <div className="flex items-center gap-2 mb-1">
+                        <div className="h-2 w-2 rounded-full" style={{ backgroundColor: tooltipData.argument.side === 'for' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))' }}/>
+                        <p className="font-semibold text-popover-foreground">{tooltipData.argument.author?.name}</p>
+                    </div>
+                    <p className="text-muted-foreground">{tooltipData.argument.text}</p>
+                </div>
+            )}
+          </>
         )}
       </CardContent>
     </Card>
