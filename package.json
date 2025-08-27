@@ -42,7 +42,7 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@simplewebauthn/browser": "^10.0.0",
     "@simplewebauthn/server": "^10.0.0",
-  "d3": "^7.9.0",
+    "d3": "^7.9.0",
     "@simplewebauthn/types": "^10.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
