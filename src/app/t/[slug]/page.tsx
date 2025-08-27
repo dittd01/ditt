@@ -8,7 +8,7 @@ import { getTopicBySlug, getArgumentsForTopic, allTopics } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { VoteChart } from '@/components/VoteChart';
-import { Info, FileText, History, ThumbsUp, ThumbsDown, Link as LinkIcon, Building, Flame, Users, Bookmark } from 'lucide-react';
+import { Info, FileText, History, ThumbsUp, ThumbsDown, Link as LinkIcon, Building, Flame, Users, Bookmark, Donut, Network } from 'lucide-react';
 import { RelatedTopics } from '@/components/RelatedTopics';
 import { SuggestionForm } from '@/components/SuggestionForm';
 import { Separator } from '@/components/ui/separator';
@@ -224,6 +224,7 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
   const [votedOn, setVotedOn] = useState<string | null>(null);
   const [lang, setLang] = useState<'en' | 'nb'>('en');
   const [voterId, setVoterId] = useState<string | null>(null);
+  const [vizType, setVizType] = useState<'radial' | 'tree'>('radial');
   
   useEffect(() => {
     const selectedLang = (localStorage.getItem('selectedLanguage') || 'en') as 'en' | 'nb';
@@ -363,13 +364,34 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
           <Separator className="my-12" />
           
           <section>
-            <h2 className="text-2xl font-bold font-headline mb-6">{t.structuredDebate}</h2>
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold font-headline">{t.structuredDebate}</h2>
+                <div className="flex justify-center border bg-card rounded-md p-1">
+                    <Button
+                        variant={vizType === 'radial' ? 'secondary' : 'ghost'}
+                        size="icon"
+                        onClick={() => setVizType('radial')}
+                        aria-label="Radial View"
+                    >
+                        <Donut />
+                    </Button>
+                    <Button
+                        variant={vizType === 'tree' ? 'secondary' : 'ghost'}
+                        size="icon"
+                        onClick={() => setVizType('tree')}
+                        aria-label="Tree View"
+                    >
+                        <Network />
+                    </Button>
+                </div>
+            </div>
             <Suspense fallback={<DebateSection.Skeleton />}>
               <DebateSection 
                 topicId={topic.id} 
                 topicQuestion={question} 
                 initialArgs={initialDebateArgs} 
-                lang={lang} 
+                lang={lang}
+                vizType={vizType}
               />
             </Suspense>
           </section>

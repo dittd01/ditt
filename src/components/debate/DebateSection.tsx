@@ -28,6 +28,7 @@ interface DebateSectionProps {
   // switch the component's data source without adding complex logic inside.
   // It makes the component testable and adheres to dependency injection principles.
   syntheticArgs?: SimArgument[] | null;
+  vizType: 'radial' | 'tree';
 }
 
 const translations = {
@@ -64,7 +65,6 @@ const translations = {
 }
 
 type SortByType = 'votes' | 'newest';
-type VizType = 'radial' | 'tree';
 
 // Skeleton component for loading state
 DebateSection.Skeleton = function DebateSectionSkeleton() {
@@ -84,7 +84,7 @@ DebateSection.Skeleton = function DebateSectionSkeleton() {
 }
 
 
-export function DebateSection({ topicId, topicQuestion, initialArgs, lang, syntheticArgs }: DebateSectionProps) {
+export function DebateSection({ topicId, topicQuestion, initialArgs, lang, syntheticArgs, vizType }: DebateSectionProps) {
   const [debateArgs, setDebateArgs] = useState<Argument[]>(initialArgs);
   const [loading, setLoading] = useState(true);
   const [showComposer, setShowComposer] = useState<'for' | 'against' | null>(null);
@@ -92,7 +92,6 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
   const [sortBy, setSortBy] = useState<SortByType>('votes');
   const [rebuttalHint, setRebuttalHint] = useState<string | null>(null);
   const [isHintLoading, setIsHintLoading] = useState(false);
-  const [vizType, setVizType] = useState<VizType>('radial');
   const argumentRefs = useRef<Map<string, HTMLElement | null>>(new Map());
   const { toast } = useToast();
 
@@ -315,45 +314,24 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
 
   return (
     <div className="space-y-8">
-      <div className={cn(vizType === 'radial' ? 'block' : 'hidden')}>
-        <DebateTree 
-            args={debateArgs} 
-            topicQuestion={topicQuestion} 
-            lang={lang}
-            onNodeClick={handleArgumentNodeClick}
-        />
-      </div>
-      <div className={cn(vizType === 'tree' ? 'block' : 'hidden')}>
-        <DebateHierarchy
-            args={debateArgs}
-            topicQuestion={topicQuestion}
-            lang={lang}
-            onNodeClick={handleArgumentNodeClick}
-        />
-      </div>
+        <div className={cn(vizType === 'radial' ? 'block' : 'hidden')}>
+            <DebateTree 
+                args={debateArgs} 
+                topicQuestion={topicQuestion} 
+                lang={lang}
+                onNodeClick={handleArgumentNodeClick}
+            />
+        </div>
+        <div className={cn(vizType === 'tree' ? 'block' : 'hidden')}>
+            <DebateHierarchy
+                args={debateArgs}
+                topicQuestion={topicQuestion}
+                lang={lang}
+                onNodeClick={handleArgumentNodeClick}
+            />
+        </div>
 
-       <div className="flex justify-between items-center mb-6 pb-4 border-b">
-            <div className="flex items-center gap-2">
-                <h2 className="text-2xl font-bold font-headline">{t.arguments}</h2>
-                <div className="flex justify-center border bg-card rounded-md p-1">
-                    <Button
-                        variant={vizType === 'radial' ? 'secondary' : 'ghost'}
-                        size="icon"
-                        onClick={() => setVizType('radial')}
-                        aria-label="Radial View"
-                    >
-                        <Donut />
-                    </Button>
-                    <Button
-                        variant={vizType === 'tree' ? 'secondary' : 'ghost'}
-                        size="icon"
-                        onClick={() => setVizType('tree')}
-                        aria-label="Tree View"
-                    >
-                        <Network />
-                    </Button>
-                </div>
-            </div>
+       <div className="flex justify-end items-center mb-6">
             <Tabs defaultValue="votes" onValueChange={(value) => setSortBy(value as SortByType)}>
                 <TabsList>
                     <TabsTrigger value="votes">{t.mostVoted}</TabsTrigger>
@@ -422,5 +400,3 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
     </div>
   );
 }
-
-
