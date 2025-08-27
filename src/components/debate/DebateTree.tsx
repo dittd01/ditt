@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useMemo, useRef, useEffect, useState } from 'react';
@@ -29,9 +28,9 @@ interface HierarchyNode extends d3.HierarchyNode<Argument> {
 }
 
 const COLORS = {
-  for: 'hsl(142.1 76.2% 36.3%)', // A rich green
-  against: 'hsl(350 85% 60%)',  // A reddish-orange
-  neutral: 'hsl(221 83% 53%)', // A muted blue for the center
+  for: 'hsl(var(--chart-2))',
+  against: 'hsl(var(--chart-1))',
+  neutral: 'hsl(var(--muted-foreground))',
 };
 
 const CustomTooltipContent = ({ argument }: { argument: Argument }) => {
@@ -80,7 +79,7 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
       const topicRoot: Argument = {
         id: 'root',
         topicId: args[0]?.topicId || '',
-        parentId: '',
+        parentId: '', 
         side: 'for', 
         author: { name: 'Topic' },
         text: topicQuestion,
@@ -105,10 +104,10 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
 
       const radius = Math.min(dimensions.width, dimensions.height) / 2;
       const partition = d3.partition<Argument>()
-        .size([2 * Math.PI, radius * 0.9]) // Use 90% of radius for partition
-        .padding(0.005);
+        .size([2 * Math.PI, radius * 0.9])
+        .padding(0.01);
         
-      const partitionedRoot = partition(root) as HierarchyNode;
+      const partitionedRoot = partition(root);
       setNodes(partitionedRoot.descendants() as HierarchyNode[]);
     } catch(e) {
       console.error("D3 Stratify error:", e);
@@ -120,22 +119,21 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
   const arcGenerator = d3.arc<HierarchyNode>()
     .startAngle(d => d.x0)
     .endAngle(d => d.x1)
-    .padAngle(d => d.depth > 1 ? 0.01 : 0.005)
+    .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.01))
     .padRadius(1)
     .innerRadius(d => d.y0 + 4)
     .outerRadius(d => Math.max(d.y0 + 4, d.y1 - 2))
-    .cornerRadius(d => d.depth > 1 ? 2 : 0);
+    .cornerRadius(d => d.depth > 1 ? 4 : 2);
 
 
   const getColor = (d: HierarchyNode) => {
-    if (d.depth === 0) return 'none'; // Make center transparent to show circle below
+    if (d.depth === 0) return 'none';
     
-    // Create lighter/darker shades based on depth
     const baseColor = d.data.side === 'for' ? COLORS.for : COLORS.against;
     const hslColor = d3.hsl(baseColor);
     
     if (d.depth % 2 === 0) {
-      hslColor.l *= 0.85; // Make every other level slightly darker
+      hslColor.l *= 0.85;
     }
     
     return hslColor.toString();
