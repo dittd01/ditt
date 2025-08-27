@@ -185,6 +185,11 @@ export function ArgumentComposer({
                     <AlertDescription>
                         We couldn't get suggestions for your argument at this time. You can try again or post your original text without AI enhancements.
                     </AlertDescription>
+                    <AlertActions>
+                         <Button variant="ghost" onClick={onCancel}>Cancel</Button>
+                         <Button variant="outline" onClick={() => handleInitialSubmit(form.getValues())}>Try Again</Button>
+                         <Button onClick={handleFinalSubmit}>Post Original Anyway</Button>
+                    </AlertActions>
                 </Alert>
             </CardContent>
         )
@@ -249,6 +254,7 @@ export function ArgumentComposer({
   const renderFooter = () => {
     switch (step) {
         case 'LOADING': return null;
+        case 'ERROR': return null;
         case 'MERGE_SUGGESTION':
             return (
                 <CardFooter className="justify-end gap-2">
@@ -277,16 +283,6 @@ export function ArgumentComposer({
                 </CardFooter>
             );
         
-        case 'ERROR':
-             return (
-                <CardFooter className="flex-col sm:flex-row justify-between gap-2 border-t pt-4">
-                    <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
-                    <div className="flex gap-2">
-                      <Button type="button" variant="outline" onClick={() => handleInitialSubmit(form.getValues())}>Try Again</Button>
-                      <Button type="button" onClick={handleFinalSubmit}>Post Original Anyway</Button>
-                    </div>
-                </CardFooter>
-            );
 
         case 'INPUT':
         default:
