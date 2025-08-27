@@ -7,7 +7,7 @@
  */
 import 'server-only'; // Ensures this module is never imported into a client component.
 
-import { db } from './firestore.server';
+import { db, isFirestoreMock } from './firestore.server';
 import { FieldValue } from 'firebase-admin/firestore';
 import { FLAG_DEFAULTS, FlagKeySchema, type FlagDoc, type FlagKey } from './flags';
 import type { User } from './auth';
@@ -47,11 +47,34 @@ async function seedDefaultFlags(dbInstance: FirebaseFirestore.Firestore) {
 }
 
 /**
+ * Creates a default, offline version of the flags.
+ * @returns {FlagDoc[]} An array of flag documents with default values.
+ */
+function getOfflineFlags(reason: string): FlagDoc[] {
+     return Object.entries(FLAG_DEFAULTS).map(([key, def]) => ({
+        key,
+        value: def.value,
+        type: def.type,
+        description: `(${reason}) ${def.description}`,
+        updatedAt: new Date(),
+        updatedBy: 'system@offline',
+    } as FlagDoc));
+}
+
+
+/**
  * Fetches all feature flags from Firestore. If the collection is empty, it seeds the defaults.
  * Implements a fail-closed mechanism: if Firestore is unreachable, it returns all default flags as OFF.
  * @returns {Promise<FlagDoc[]>} A promise that resolves to an array of flag documents.
  */
 export async function listFlags(): Promise<FlagDoc[]> {
+    // Why: If Firestore is in mock mode, we don't even attempt a network call.
+    // We immediately return the default values, ensuring the app remains responsive
+    // during local development without a database connection.
+    if (isFirestoreMock()) {
+        return getOfflineFlags('MOCK');
+    }
+
     try {
         const flagsRef = db.collection(FLAGS_COLLECTION);
         const snapshot = await flagsRef.get();
@@ -77,14 +100,7 @@ export async function listFlags(): Promise<FlagDoc[]> {
         // Why: Fail-closed is a critical safety feature. If we can't reach the flag database,
         // we assume all features are OFF to prevent accidentally enabling a feature that
         // should be disabled.
-        return Object.entries(FLAG_DEFAULTS).map(([key, def]) => ({
-            key,
-            value: false, // All flags default to OFF on failure.
-            type: def.type,
-            description: `(FAIL-CLOSED) ${def.description}`,
-            updatedAt: new Date(),
-            updatedBy: 'system@fail-closed',
-        } as FlagDoc));
+        return getOfflineFlags('FAIL-CLOSED');
     }
 }
 
@@ -96,6 +112,11 @@ export async function listFlags(): Promise<FlagDoc[]> {
  * @returns {Promise<{success: boolean, error?: string}>} An object indicating the outcome.
  */
 export async function setFlag(key: FlagKey, newValue: boolean, actor: User): Promise<{success: boolean, error?: string}> {
+    if (isFirestoreMock()) {
+        console.warn(`[FlagStore] MOCK MODE: Not setting flag '${key}'.`);
+        return { success: false, error: 'Cannot set flag in mock mode.' };
+    }
+    
     const flagRef = db.collection(FLAGS_COLLECTION).doc(key);
     const auditRef = db.collection(AUDIT_COLLECTION).doc();
 
@@ -140,6 +161,9 @@ export async function setFlag(key: FlagKey, newValue: boolean, actor: User): Pro
  * @returns {Promise<AuditDoc[]>} A promise that resolves to an array of audit documents.
  */
 export async function listAudits(limit = 50): Promise<AuditDoc[]> {
+     if (isFirestoreMock()) {
+        return [];
+    }
     try {
         const auditRef = db.collection(AUDIT_COLLECTION);
         const snapshot = await auditRef.orderBy('at', 'desc').limit(limit).get();
