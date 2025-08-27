@@ -118,16 +118,6 @@ export const exportsData = [
     { id: 4, type: 'Polls', params: 'Category: Taxation', status: 'Error', created: '2023-10-26', url: null },
 ];
 
-// Feature Flags Page
-export const featureFlagsData = [
-    { key: 'suggestions.require_admin_approval', desc: 'All new topic suggestions must be approved by an admin', enabled: true, rollout: '100%' },
-    { key: 'suggestions.enabled', desc: 'Allow users to submit new topics', enabled: false, rollout: '0%' },
-    { key: 'polls.shuffle_options', desc: 'Randomize order of Yes/No options', enabled: true, rollout: '100%' },
-    { key: 'realtime.results.enabled', desc: 'Update poll results in real-time via websockets', enabled: true, rollout: '100%' },
-    { key: 'ai.moderation.enabled', desc: 'Use AI to moderate suggestions', enabled: true, rollout: '100%' },
-    { key: 'auth.vipps_reauth.enabled', desc: 'Enable Vipps as a low-cost re-auth option for device linking', enabled: true, rollout: '100%' },
-];
-
 // Audit Logs Page
 export const auditLogsData = [
     { ts: '2023-10-27 10:45:12', actor: 'admin@...', action: 'poll.update_status', entity: 'poll/xyz123', notes: 'Status -> Archived' },
