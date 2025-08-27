@@ -68,9 +68,9 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
       
       const rootNode = d3.stratify<Argument>().id(d => d.id).parentId(d => d.parentId)(dataForStratify);
       
-      const nodeWidth = 140;
-      const nodeHeight = 50;
-      const treeLayout = d3.tree().nodeSize([nodeWidth + 20, nodeHeight + 40]);
+      const nodeWidth = 120;
+      const nodeHeight = 40;
+      const treeLayout = d3.tree().nodeSize([nodeWidth + 20, nodeHeight + 30]);
       const hierarchy = treeLayout(rootNode);
       
       let x0 = Infinity;
