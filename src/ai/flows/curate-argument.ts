@@ -59,12 +59,15 @@ const prompt = ai.definePrompt({
 
     1.  **Analyze for Duplication**:
         -   Carefully read the user's submission: "{{userText}}".
-        -   Compare it semantically against the list of existing arguments: 
+        -   Compare it semantically against the list of existing arguments. If the list is empty, skip this and proceed to step 2.
+            {{#if existingArguments}}
+            **Existing Arguments:**
             {{#each existingArguments}}
             - ID: {{this.id}}, Text: "{{this.text}}"
             {{/each}}
+            {{/if}}
         -   Calculate a similarity score for the most similar existing argument.
-        -   **Decision Rule**: If the similarity score is > 0.9, you MUST set the action to "merge". Otherwise, set the action to "create".
+        -   **Decision Rule**: If the similarity score is > 0.9, you MUST set the action to "merge". Otherwise, set the action to "create". If there are no existing arguments, the action is always "create".
 
     2.  **Normalize and Refine Text**:
         -   Rewrite the user's argument ("{{userText}}") to be as clear, concise, and neutral as possible.
@@ -89,33 +92,6 @@ const curateArgumentFlow = ai.defineFlow(
     outputSchema: CurateArgumentOutputSchema,
   },
   async (input) => {
-
-    // Why: We check for the trivial edge case of no existing arguments here.
-    // This saves a call to the LLM when it's not necessary and simplifies the prompt logic.
-    if (input.existingArguments.length === 0) {
-        const createNewPrompt = ai.definePrompt({
-            name: 'curateFirstArgumentPrompt',
-            input: { schema: z.object({ userText: z.string() }) },
-            output: { schema: z.object({ normalizedText: z.string() }) },
-            prompt: `A user has submitted the first argument in a debate: "{{userText}}".
-            
-            1. Rewrite the argument to be as clear, concise, and neutral as possible. Correct any spelling or grammar errors. This is 'normalizedText'.
-            
-            Return ONLY a single, valid JSON object.`
-        });
-        const { output } = await createNewPrompt({ userText: input.userText });
-        if (!output) {
-            throw new Error('Failed to generate content for the first argument.');
-        }
-        return {
-            action: 'create',
-            normalizedText: output.normalizedText,
-            mergeSuggestion: {},
-            confidence: 0.95,
-        };
-    }
-
-    // Why: If there are existing arguments, we proceed with the full curation and deduplication prompt.
     const { output } = await prompt(input);
 
     if (!output) {
