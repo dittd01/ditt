@@ -24,7 +24,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
     const resizeObserver = new ResizeObserver(entries => {
         if (entries[0]) {
             const { width } = entries[0].contentRect;
-            const height = isMobile ? Math.min(width * 1.5, 600) : Math.min(width, 700);
+            const height = isMobile ? Math.min(width, 400) : Math.min(width, 500);
             setDimensions({ width, height });
         }
     });
@@ -178,7 +178,7 @@ export function DebateHierarchy({ args, topicQuestion, lang, onNodeClick }: Deba
         <CardTitle>Debate Hierarchy</CardTitle>
         <CardDescription>A top-down tree view of the 10 most upvoted arguments and their replies.</CardDescription>
       </CardHeader>
-      <CardContent ref={containerRef} className="h-[400px] md:h-[700px] w-full p-0 relative overflow-auto">
+      <CardContent ref={containerRef} className="h-[400px] md:h-[500px] w-full p-0 relative overflow-auto">
         {filteredArgs.length === 0 ? (
           <div className="flex items-center justify-center py-16">
             <p className="text-muted-foreground">Not enough data to display chart.</p>
