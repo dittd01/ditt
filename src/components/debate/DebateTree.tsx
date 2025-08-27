@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useMemo, useRef, useEffect, useState } from 'react';
@@ -18,6 +19,7 @@ interface DebateTreeProps {
   args: Argument[];
   topicQuestion: string;
   lang: 'en' | 'nb';
+  onNodeClick: (argument: Argument) => void;
 }
 
 interface HierarchyNode extends d3.HierarchyNode<Argument> {
@@ -28,8 +30,8 @@ interface HierarchyNode extends d3.HierarchyNode<Argument> {
 }
 
 const COLORS = {
-  for: 'hsl(140, 70%, 45%)',   // A clearer, more vibrant green
-  against: 'hsl(0, 80%, 55%)', // A clearer, more vibrant red
+  for: 'hsl(140, 70%, 45%)',
+  against: 'hsl(0, 80%, 55%)',
   neutral: 'hsl(var(--muted-foreground))',
 };
 
@@ -48,7 +50,7 @@ const CustomTooltipContent = ({ argument }: { argument: Argument }) => {
     );
 };
 
-export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
+export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTreeProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -76,16 +78,6 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
     }
 
     try {
-      const topicRoot: Argument = {
-        id: 'root',
-        topicId: args[0]?.topicId || '',
-        parentId: '', // D3 stratify needs a root with a parentId that doesn't exist.
-        side: 'for', 
-        author: { name: 'Topic' },
-        text: topicQuestion,
-        upvotes: 0, downvotes: 0, replyCount: 0, createdAt: new Date().toISOString()
-      };
-
       const validIds = new Set(args.map(arg => arg.id));
       validIds.add('root');
 
@@ -94,25 +86,35 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
         parentId: validIds.has(arg.parentId) ? arg.parentId : 'root'
       }));
 
+      const topicRoot: Argument = {
+        id: 'root',
+        topicId: args[0]?.topicId || '',
+        parentId: '',
+        side: 'for', 
+        author: { name: 'Topic' },
+        text: topicQuestion,
+        upvotes: 0, downvotes: 0, replyCount: 0, createdAt: new Date().toISOString()
+      };
+
       const dataForStratify = [topicRoot, ...sanitizedArgs];
       
-      const root = d3.stratify<Argument>()
+      const rootNode = d3.stratify<Argument>()
         .id(d => d.id)
         .parentId(d => d.parentId)(dataForStratify);
       
-      if (!root) {
+      if (!rootNode) {
           setNodes([]);
           return;
       }
       
-      root.sum(d => (d.id === 'root' ? 0 : 1 + (d.replyCount > 0 ? d.replyCount * 0.5 : 0)));
+      rootNode.sum(d => (d.id === 'root' ? 0 : 1 + (d.replyCount > 0 ? d.replyCount * 0.5 : 0)));
 
       const radius = Math.min(dimensions.width, dimensions.height) / 2;
       const partition = d3.partition<Argument>()
         .size([2 * Math.PI, radius * 0.9])
         .padding(0.01);
         
-      const partitionedRoot = partition(root);
+      const partitionedRoot = partition(rootNode);
       setNodes(partitionedRoot.descendants() as HierarchyNode[]);
     } catch(e) {
       console.error("D3 Stratify error:", e);
@@ -124,7 +126,7 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
   const arcGenerator = d3.arc<HierarchyNode>()
     .startAngle(d => d.x0)
     .endAngle(d => d.x1)
-    .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.005)) // Reduced padding for a tighter look
+    .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.005))
     .padRadius(1)
     .innerRadius(d => d.y0 + 4)
     .outerRadius(d => Math.max(d.y0 + 4, d.y1 - 2))
@@ -137,11 +139,9 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
     const baseColor = d.data.side === 'for' ? COLORS.for : COLORS.against;
     const hslColor = d3.hsl(baseColor);
     
-    // Create distinct shades for replies without making them too dark.
-    // We can vary lightness and saturation slightly.
     if (d.depth > 1) { 
-      hslColor.l -= (d.depth - 1) * 0.06; // Progressively darken
-      hslColor.s -= (d.depth - 1) * 0.05; // Progressively desaturate
+      hslColor.l -= (d.depth - 1) * 0.06;
+      hslColor.s -= (d.depth - 1) * 0.05;
     }
     
     return hslColor.toString();
@@ -172,6 +172,7 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
                               stroke="hsl(var(--card))"
                               strokeWidth={1}
                               className="transition-opacity hover:opacity-80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
+                              onClick={() => d.depth > 0 && onNodeClick(d.data)}
                           />
                       </TooltipTrigger>
                        {d.depth > 0 && (

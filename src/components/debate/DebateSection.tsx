@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import type { Argument, SimArgument, Topic } from '@/lib/types';
 import { ArgumentCard } from './ArgumentCard';
 import { Button } from '../ui/button';
@@ -61,6 +61,7 @@ const translations = {
 }
 
 type SortByType = 'votes' | 'newest';
+type ActiveTab = 'arguments' | 'visualization';
 
 // Skeleton component for loading state
 DebateSection.Skeleton = function DebateSectionSkeleton() {
@@ -88,6 +89,8 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
   const [sortBy, setSortBy] = useState<SortByType>('votes');
   const [rebuttalHint, setRebuttalHint] = useState<string | null>(null);
   const [isHintLoading, setIsHintLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<ActiveTab>('arguments');
+  const argumentRefs = useRef<Map<string, HTMLElement | null>>(new Map());
   const { toast } = useToast();
 
   const t = translations[lang];
@@ -164,6 +167,22 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
     return grouped;
   }, [debateArgs]);
   
+  const handleArgumentNodeClick = (argument: Argument) => {
+    setActiveTab('arguments');
+    // Allow React to re-render and switch tabs before we scroll
+    setTimeout(() => {
+        const element = argumentRefs.current.get(argument.id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Highlight the card briefly
+            element.classList.add('ring-2', 'ring-primary', 'transition-all', 'duration-1000');
+            setTimeout(() => {
+                 element.classList.remove('ring-2', 'ring-primary', 'transition-all', 'duration-1000');
+            }, 2000);
+        }
+    }, 100);
+  };
+
 
   const handleAddArgument = (side: 'for' | 'against') => {
     setRebuttalHint(null);
@@ -255,7 +274,7 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
     const showReplyComposer = replyingToId === arg.id;
 
     return (
-        <div key={arg.id} className="space-y-4">
+        <div key={arg.id} className="space-y-4" ref={node => argumentRefs.current.set(arg.id, node)}>
             <ArgumentCard argument={arg} onCounter={() => handleCounter(arg)} />
             {showReplyComposer && (
                  <div className="ml-6 pl-4 border-l-2">
@@ -296,7 +315,7 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
   }
 
   return (
-    <Tabs defaultValue="arguments" className="w-full">
+    <Tabs defaultValue="arguments" value={activeTab} onValueChange={(value) => setActiveTab(value as ActiveTab)} className="w-full">
         <div className="flex justify-between items-center mb-6 pb-4 border-b">
             <TabsList>
                 <TabsTrigger value="arguments">{t.arguments}</TabsTrigger>
@@ -367,7 +386,12 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
             </div>
         </TabsContent>
         <TabsContent value="visualization">
-            <DebateTree args={debateArgs} topicQuestion={topicQuestion} lang={lang} />
+            <DebateTree 
+                args={debateArgs} 
+                topicQuestion={topicQuestion} 
+                lang={lang}
+                onNodeClick={handleArgumentNodeClick}
+            />
         </TabsContent>
     </Tabs>
   );

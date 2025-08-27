@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import type { Argument } from '@/lib/types';
@@ -77,7 +78,7 @@ export function ArgumentCard({ argument, onCounter }: ArgumentCardProps) {
   const sideColorClass = argument.side === 'for' ? 'border-l-[hsl(var(--chart-2))]' : 'border-l-destructive';
 
   return (
-    <Card className={cn("border border-l-4", sideColorClass)}>
+    <Card className={cn("border border-l-4", sideColorClass)} id={`arg-${argument.id}`}>
       <CardHeader className="flex flex-row items-center gap-3 p-4">
         <Avatar className="h-8 w-8">
           <AvatarImage src={argument.author.avatarUrl} alt={argument.author.name} />
