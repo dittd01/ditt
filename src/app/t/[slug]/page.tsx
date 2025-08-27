@@ -36,6 +36,7 @@ import { LiveResults } from '@/components/LiveResults';
 import { castVoteAction } from './actions';
 import { useToast } from '@/hooks/use-toast';
 import { trackEvent } from '@/lib/analytics';
+import { useFlags } from '@/lib/flags/provider';
 
 // Translations object for multilingual support.
 const translations = {
@@ -220,6 +221,7 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
+  const flags = useFlags();
   
   const [currentTopic, setCurrentTopic] = useState<Topic>(topic);
   const [votedOn, setVotedOn] = useState<string | null>(null);
@@ -367,24 +369,26 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
           <section>
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold font-headline">{t.structuredDebate}</h2>
-                <div className="flex justify-center border bg-card rounded-md p-1">
-                    <Button
-                        variant={vizType === 'radial' ? 'secondary' : 'ghost'}
-                        size="icon"
-                        onClick={() => setVizType('radial')}
-                        aria-label="Radial View"
-                    >
-                        <Donut />
-                    </Button>
-                    <Button
-                        variant={vizType === 'tree' ? 'secondary' : 'ghost'}
-                        size="icon"
-                        onClick={() => setVizType('tree')}
-                        aria-label="Tree View"
-                    >
-                        <Network />
-                    </Button>
-                </div>
+                {flags.debateVisualization && (
+                  <div className="flex justify-center border bg-card rounded-md p-1">
+                      <Button
+                          variant={vizType === 'radial' ? 'secondary' : 'ghost'}
+                          size="icon"
+                          onClick={() => setVizType('radial')}
+                          aria-label="Radial View"
+                      >
+                          <Donut />
+                      </Button>
+                      <Button
+                          variant={vizType === 'tree' ? 'secondary' : 'ghost'}
+                          size="icon"
+                          onClick={() => setVizType('tree')}
+                          aria-label="Tree View"
+                      >
+                          <Network />
+                      </Button>
+                  </div>
+                )}
             </div>
             <Suspense fallback={<DebateSection.Skeleton />}>
               <DebateSection 

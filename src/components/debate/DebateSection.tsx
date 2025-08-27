@@ -17,6 +17,7 @@ import { DebateTree } from './DebateTree';
 import { DebateHierarchy } from './DebateHierarchy';
 import { cn } from '@/lib/utils';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
+import { useFlags } from '@/lib/flags/provider';
 
 
 interface DebateSectionProps {
@@ -94,6 +95,7 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
   const [isHintLoading, setIsHintLoading] = useState(false);
   const argumentRefs = useRef<Map<string, HTMLElement | null>>(new Map());
   const { toast } = useToast();
+  const flags = useFlags();
 
   const t = translations[lang];
 
@@ -314,22 +316,27 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
 
   return (
     <div className="space-y-8">
-        <div className={cn(vizType === 'radial' ? 'block' : 'hidden')}>
-            <DebateTree 
-                args={debateArgs} 
-                topicQuestion={topicQuestion} 
-                lang={lang}
-                onNodeClick={handleArgumentNodeClick}
-            />
-        </div>
-        <div className={cn(vizType === 'tree' ? 'block' : 'hidden')}>
-            <DebateHierarchy
-                args={debateArgs}
-                topicQuestion={topicQuestion}
-                lang={lang}
-                onNodeClick={handleArgumentNodeClick}
-            />
-        </div>
+        {flags.debateVisualization && (
+            <>
+                <div className={cn(vizType === 'radial' ? 'block' : 'hidden')}>
+                    <DebateTree 
+                        args={debateArgs} 
+                        topicQuestion={topicQuestion} 
+                        lang={lang}
+                        onNodeClick={handleArgumentNodeClick}
+                    />
+                </div>
+                <div className={cn(vizType === 'tree' ? 'block' : 'hidden')}>
+                    <DebateHierarchy
+                        args={debateArgs}
+                        topicQuestion={topicQuestion}
+                        lang={lang}
+                        onNodeClick={handleArgumentNodeClick}
+                    />
+                </div>
+            </>
+        )}
+
 
        <div className="flex justify-end items-center mb-6">
             <Tabs defaultValue="votes" onValueChange={(value) => setSortBy(value as SortByType)}>

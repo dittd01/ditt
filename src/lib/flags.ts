@@ -1,4 +1,5 @@
 
+
 /**
  * @fileoverview This file defines the core data structures and default values for the feature flag system.
  * It serves as the single source of truth for what flags exist and their default characteristics.
@@ -43,6 +44,7 @@ export const FlagKeySchema = z.enum([
     'ops.disablePayments',
     'exp.navV2',
     'perm.betaArea',
+    'feature.debateVisualization',
 ]);
 export type FlagKey = z.infer<typeof FlagKeySchema>;
 
@@ -73,5 +75,10 @@ export const FLAG_DEFAULTS: FlagDefaults = {
         value: false,
         type: 'permission',
         description: 'Grants access to the beta features section for users with the "beta" role.',
+    },
+    'feature.debateVisualization': {
+        value: true,
+        type: 'feature',
+        description: 'Enables the D3-based radial and tree visualizations for debates.',
     },
 };

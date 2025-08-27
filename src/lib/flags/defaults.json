@@ -1,5 +1,6 @@
 
 {
   "webVitals": true,
-  "newHeader": false
+  "newHeader": false,
+  "debateVisualization": true
 }
