@@ -66,6 +66,7 @@ import { populatePollAction } from '@/app/actions';
 import { Label } from '@/components/ui/label';
 import type { Topic } from '@/lib/types';
 import { currentUser } from '@/lib/user-data';
+import Link from 'next/link';
 
 const pollFormSchema = z.object({
   title: z.string().min(12, 'Title must be at least 12 characters.').max(120, 'Title must be 120 characters or less.'),
@@ -414,7 +415,11 @@ export default function EditPollPage() {
           <div className="flex items-center gap-2">
             <Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Back</Button>
             {isNew && <Button variant="outline" type="button" onClick={handleClearForm}><XCircle className="mr-2 h-4 w-4" />Clear form</Button>}
-            <Button variant="outline"><Eye className="mr-2 h-4 w-4" /> Preview</Button>
+            <Button asChild variant="outline" disabled={isNew}>
+              <Link href={`/t/${form.getValues('slug')}`} target="_blank">
+                <Eye className="mr-2 h-4 w-4" /> Preview
+              </Link>
+            </Button>
             {isNew ? (
               <>
                 <Button variant="secondary" onClick={() => handleFormSubmit('review')}>
