@@ -154,13 +154,15 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
             <p className="text-muted-foreground">Not enough data to display chart.</p>
           </div>
         ) : (
-          <svg ref={svgRef} width="100%" height="100%" />
+          <>
+            <svg ref={svgRef} width="100%" height="100%" />
+            <div 
+              ref={tooltipRef} 
+              className="fixed rounded-lg border bg-popover p-2 shadow-sm text-sm transition-opacity opacity-0 pointer-events-none max-w-xs z-50"
+            />
+          </>
         )}
       </CardContent>
-       <div 
-        ref={tooltipRef} 
-        className="fixed rounded-lg border bg-popover p-2 shadow-sm text-sm transition-opacity opacity-0 pointer-events-none max-w-xs z-50"
-       />
     </Card>
   );
 }
