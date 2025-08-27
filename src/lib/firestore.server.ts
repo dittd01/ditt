@@ -1,6 +1,4 @@
 
-'use server';
-
 import admin from 'firebase-admin';
 import { App, getApp, getApps, initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
@@ -61,6 +59,6 @@ function getCredentials() {
 export const adminApp = getFirebaseAdminApp();
 export const db = getFirestore(adminApp);
 
-export async function isFirestoreMock(): Promise<boolean> {
+export function isFirestoreMock(): boolean {
     return isMock;
 }

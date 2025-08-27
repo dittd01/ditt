@@ -71,7 +71,7 @@ export async function listFlags(): Promise<FlagDoc[]> {
     // Why: If Firestore is in mock mode, we don't even attempt a network call.
     // We immediately return the default values, ensuring the app remains responsive
     // during local development without a database connection.
-    if (await isFirestoreMock()) {
+    if (isFirestoreMock()) {
         return getOfflineFlags('MOCK');
     }
 
@@ -112,7 +112,7 @@ export async function listFlags(): Promise<FlagDoc[]> {
  * @returns {Promise<{success: boolean, error?: string}>} An object indicating the outcome.
  */
 export async function setFlag(key: FlagKey, newValue: boolean, actor: User): Promise<{success: boolean, error?: string}> {
-    if (await isFirestoreMock()) {
+    if (isFirestoreMock()) {
         console.warn(`[FlagStore] MOCK MODE: Not setting flag '${key}'.`);
         return { success: false, error: 'Cannot set flag in mock mode.' };
     }
@@ -161,7 +161,7 @@ export async function setFlag(key: FlagKey, newValue: boolean, actor: User): Pro
  * @returns {Promise<AuditDoc[]>} A promise that resolves to an array of audit documents.
  */
 export async function listAudits(limit = 50): Promise<AuditDoc[]> {
-     if (await isFirestoreMock()) {
+     if (isFirestoreMock()) {
         return [];
     }
     try {
