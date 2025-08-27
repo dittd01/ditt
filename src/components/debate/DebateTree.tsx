@@ -72,34 +72,35 @@ export function DebateTree({ args, topicQuestion, lang }: DebateTreeProps) {
     if (!args || args.length === 0 || dimensions.width === 0) {
         return null;
     }
-    
-    // 1. Create a synthetic root node for the entire topic.
-    // D3's stratify function identifies the root as the node whose parentId does not
-    // correspond to any id in the dataset. Using `''` as parentId is a standard way to define the root.
-    const topicRoot: Argument = {
-        id: 'root',
-        topicId: args[0]?.topicId || '',
-        parentId: '', // This correctly makes it the root for d3.stratify.
-        side: 'for', 
-        author: { name: 'Topic' },
-        text: topicQuestion,
-        upvotes: 0, downvotes: 0, replyCount: 0, createdAt: new Date().toISOString()
-    };
-    
-    // 2. Create a set of all valid IDs that can be parents.
-    const allValidParentIds = new Set(args.map(a => a.id));
-    allValidParentIds.add('root');
-
-    // 3. Sanitize argument data to ensure all arguments have a valid parent.
-    // Any argument with a missing or invalid parentId will be re-parented to the topic root.
-    const sanitizedArgs = args.map(arg => ({
-        ...arg,
-        parentId: allValidParentIds.has(arg.parentId) ? arg.parentId : 'root'
-    }));
-
-    const dataForStratify = [topicRoot, ...sanitizedArgs];
 
     try {
+        // Step 1: Create a Set of all valid IDs for quick lookup.
+        const allIds = new Set(args.map(a => a.id));
+        allIds.add('root');
+
+        // Step 2: Create a synthetic root node for the topic.
+        const topicRoot: Argument = {
+            id: 'root',
+            topicId: args[0]?.topicId || '',
+            parentId: '', // Key for d3.stratify: the node with a non-existent parentId is the root.
+            side: 'for', 
+            author: { name: 'Topic' },
+            text: topicQuestion,
+            upvotes: 0, downvotes: 0, replyCount: 0, createdAt: new Date().toISOString()
+        };
+
+        // Step 3: Sanitize the arguments. Any argument with a non-existent parent
+        // will be re-parented to the synthetic root node.
+        const sanitizedArgs = args.map(arg => ({
+            ...arg,
+            // Why: This check ensures every argument has a valid parent. If its `parentId`
+            // is not in the `allIds` set, it's considered an "orphan" and is attached
+            // to the main 'root' of the debate. This prevents d3.stratify from failing.
+            parentId: allIds.has(arg.parentId) ? arg.parentId : 'root'
+        }));
+
+        const dataForStratify = [topicRoot, ...sanitizedArgs];
+
         const root = d3.stratify<Argument>()
             .id(d => d.id)
             .parentId(d => d.parentId)(dataForStratify);
