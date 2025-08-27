@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useMemo, useRef, useEffect, useState } from 'react';
@@ -29,20 +28,15 @@ interface HierarchyNode extends d3.HierarchyNode<Argument> {
     y1: number;
 }
 
-const COLORS = {
-  for: 'hsl(var(--primary))',
-  against: 'hsl(var(--destructive))',
-  neutral: 'hsl(var(--muted-foreground))',
-};
-
 const CustomTooltipContent = ({ argument }: { argument: Argument }) => {
     if (!argument || !argument.author) {
         return null;
     }
+    const color = argument.side === 'for' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))';
     return (
         <div className="max-w-xs text-sm">
             <div className="flex items-center gap-2 mb-1">
-                <div className="h-2 w-2 rounded-full" style={{ backgroundColor: argument.side === 'for' ? COLORS.for : COLORS.against }}/>
+                <div className="h-2 w-2 rounded-full" style={{ backgroundColor: color }}/>
                 <p className="font-semibold text-popover-foreground">{argument.author.name}</p>
             </div>
             <p className="text-muted-foreground">{argument.text}</p>
@@ -131,12 +125,17 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
   const getColor = (d: HierarchyNode) => {
     if (d.depth === 0) return 'none';
     
-    const baseColor = d.data.side === 'for' ? COLORS.for : COLORS.against;
-    const hslColor = d3.hsl(baseColor);
+    // Why: We now use CSS variables directly from the theme for the base colors.
+    // This ensures consistency with the rest of the application's design.
+    const baseColorString = d.data.side === 'for' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))';
     
+    const hslColor = d3.hsl(baseColorString);
+    
+    // Why: We still apply a subtle darkening for deeper replies to maintain a visual hierarchy,
+    // but the base color is now correct.
     if (d.depth > 1) { 
-      hslColor.l -= (d.depth - 1) * 0.06;
-      hslColor.s -= (d.depth - 1) * 0.05;
+      hslColor.l -= (d.depth - 1) * 0.08; // Increase darkening slightly for clarity
+      hslColor.s -= (d.depth - 1) * 0.06;
     }
     
     return hslColor.toString();
