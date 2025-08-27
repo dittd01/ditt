@@ -28,6 +28,11 @@ interface HierarchyNode extends d3.HierarchyNode<Argument> {
     y1: number;
 }
 
+// Why: The HSL values are taken directly from globals.css to ensure consistency
+// and work around the issue of D3 not being able to parse CSS variables.
+const HSL_FOR = { h: 103, s: 0.31, l: 0.25 }; // Corresponds to --primary: 103 31% 25%
+const HSL_AGAINST = { h: 0, s: 0.78, l: 0.34 }; // Corresponds to --destructive: 0 78% 34%
+
 const CustomTooltipContent = ({ argument }: { argument: Argument }) => {
     if (!argument || !argument.author) {
         return null;
@@ -125,16 +130,11 @@ export function DebateTree({ args, topicQuestion, lang, onNodeClick }: DebateTre
   const getColor = (d: HierarchyNode) => {
     if (d.depth === 0) return 'none';
     
-    // Why: We now use CSS variables directly from the theme for the base colors.
-    // This ensures consistency with the rest of the application's design.
-    const baseColorString = d.data.side === 'for' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))';
+    const baseColor = d.data.side === 'for' ? HSL_FOR : HSL_AGAINST;
+    const hslColor = d3.hsl(baseColor.h, baseColor.s, baseColor.l);
     
-    const hslColor = d3.hsl(baseColorString);
-    
-    // Why: We still apply a subtle darkening for deeper replies to maintain a visual hierarchy,
-    // but the base color is now correct.
     if (d.depth > 1) { 
-      hslColor.l -= (d.depth - 1) * 0.08; // Increase darkening slightly for clarity
+      hslColor.l -= (d.depth - 1) * 0.08;
       hslColor.s -= (d.depth - 1) * 0.06;
     }
     
