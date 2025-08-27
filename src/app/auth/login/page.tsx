@@ -72,6 +72,20 @@ export default function LoginPage() {
   };
   
   const handlePasskeyLogin = async (isFollowUp = false) => {
+    // Development backdoor for instant test user login
+    if (process.env.NODE_ENV !== 'production') {
+      toast({
+        title: 'Dev Login Successful',
+        description: 'Logged in as testuser.',
+      });
+      localStorage.setItem('anonymousVoterId', currentUser.uid);
+      localStorage.removeItem('lastSeenTimestamp');
+      window.dispatchEvent(new Event('authChange'));
+      router.push('/');
+      router.refresh();
+      return;
+    }
+
     setLoading(true);
     setError(null);
     
