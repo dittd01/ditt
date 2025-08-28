@@ -9,18 +9,16 @@ import { generateSpeechAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { currentUser } from '@/lib/user-data';
 import { cn } from '@/lib/utils';
-import { createHash } from 'crypto';
 
 interface AIAvatarProps {
   textToSpeak: string;
 }
 
-// Why: A stable key is needed for localStorage. We create a short hash of the
-// text content to use as a key. This is more reliable than using the raw text.
+// Why: A stable key is needed for localStorage. This client-safe function creates a
+// unique key from the text content without using Node.js crypto.
 function createCacheKey(text: string): string {
-    const hash = createHash('sha256');
-    hash.update(text);
-    return `audio_cache_${hash.digest('hex').substring(0, 16)}`;
+  const textSample = text.substring(0, 100);
+  return `audio_cache_${text.length}_${textSample}`;
 }
 
 export function AIAvatar({ textToSpeak }: AIAvatarProps) {
@@ -34,7 +32,7 @@ export function AIAvatar({ textToSpeak }: AIAvatarProps) {
   const [cacheKey, setCacheKey] = useState('');
 
   useEffect(() => {
-    // Why: We set the cache key on the client-side only to avoid SSR issues with crypto.
+    // Why: We set the cache key on the client-side only to avoid SSR issues.
     setCacheKey(createCacheKey(textToSpeak));
   }, [textToSpeak]);
   
@@ -52,8 +50,7 @@ export function AIAvatar({ textToSpeak }: AIAvatarProps) {
   const handlePlayAudio = async () => {
     if (isPlaying && audioRef.current) {
       audioRef.current.pause();
-      setIsPlaying(false);
-      return;
+      return; // The onpause event will set isPlaying to false
     }
 
     if (!isPlaying && audioRef.current) {
@@ -79,7 +76,11 @@ export function AIAvatar({ textToSpeak }: AIAvatarProps) {
         // Why: After successful generation, we immediately store the result in
         // localStorage. This ensures the next time the user clicks, it will be cached.
         if (cacheKey) {
-            localStorage.setItem(cacheKey, result.data.audioUrl);
+            try {
+              localStorage.setItem(cacheKey, result.data.audioUrl);
+            } catch (e) {
+              console.warn("Could not cache audio, localStorage might be full.", e);
+            }
         }
         playAudioFromUrl(result.data.audioUrl);
       } else {
@@ -97,6 +98,9 @@ export function AIAvatar({ textToSpeak }: AIAvatarProps) {
   };
 
   const playAudioFromUrl = (url: string) => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
       const newAudio = new Audio(url);
       audioRef.current = newAudio;
       
