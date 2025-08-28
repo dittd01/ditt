@@ -6,9 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Vote } from 'lucide-react';
 import Link from 'next/link';
+import { AIAvatar } from '@/components/AIAvatar';
 
 export default function AboutPage() {
   const router = useRouter();
+
+  const aboutText = `Welcome to Ditt Demokrati (“Your Democracy”), a conceptual platform created to rethink how democracy works. Our mission is to expose the limits of the party system and explore how direct, anonymous participation can better capture the real voice of the people.`;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -27,9 +30,10 @@ export default function AboutPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6 text-muted-foreground">
-          <p>
-            Welcome to <strong>Ditt Demokrati</strong> (“Your Democracy”), a conceptual platform created to rethink how democracy works. Our mission is to expose the limits of the party system and explore how direct, anonymous participation can better capture the real voice of the people.
-          </p>
+          <div className="space-y-4">
+             <AIAvatar textToSpeak={aboutText} />
+             <p>{aboutText}</p>
+          </div>
 
           <div className="space-y-4">
             <h3 className="text-xl font-semibold text-foreground">The Flaws of Party Democracy</h3>

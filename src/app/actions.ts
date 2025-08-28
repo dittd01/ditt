@@ -7,6 +7,7 @@ import { generateMockUser, type GenerateMockUserOutput } from '@/ai/flows/genera
 import { populatePoll, type PopulatePollOutput } from '@/ai/flows/populate-poll-flow';
 import { curateArgument, type CurateArgumentInput, type CurateArgumentOutput } from '@/ai/flows/curate-argument';
 import { generateRebuttal, type GenerateRebuttalInput, type GenerateRebuttalOutput } from '@/ai/flows/generate-rebuttal';
+import { generateSpeech, type GenerateSpeechOutput } from '@/ai/flows/generate-speech';
 import { categories, allTopics } from '@/lib/data';
 import { calculateQVCost } from '@/lib/qv';
 import type { Topic, FinanceData, Device } from '@/lib/types';
@@ -176,6 +177,17 @@ export async function generateRebuttalAction(input: GenerateRebuttalInput): Prom
         return { success: true, data: result };
     } catch (error) {
         console.error('Error generating rebuttal:', error);
+        const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+        return { success: false, message };
+    }
+}
+
+export async function generateSpeechAction(text: string): Promise<{ success: true, data: GenerateSpeechOutput } | { success: false, message: string }> {
+    try {
+        const result = await generateSpeech({ text });
+        return { success: true, data: result };
+    } catch (error) {
+        console.error('Error generating speech:', error);
         const message = error instanceof Error ? error.message : 'An unknown error occurred.';
         return { success: false, message };
     }
