@@ -11,7 +11,20 @@ import { AIAvatar } from '@/components/AIAvatar';
 export default function AboutPage() {
   const router = useRouter();
 
-  const aboutText = `Welcome to Ditt Demokrati (“Your Democracy”), a conceptual platform created to rethink how democracy works. Our mission is to expose the limits of the party system and explore how direct, anonymous participation can better capture the real voice of the people.`;
+  const aboutText = `Welcome to Ditt Demokrati (“Your Democracy”), a conceptual platform created to rethink how democracy works. Our mission is to expose the limits of the party system and explore how direct, anonymous participation can better capture the real voice of the people.
+
+The Flaws of Party Democracy. Modern representative democracy forces citizens into false choices. At the ballot box, you don’t get to vote on the issues you care about — you vote for a package deal. That package, wrapped up in a party program, often contains positions you strongly oppose. This creates three deep flaws in the system: One-Size-Fits-All Politics: No party fully reflects the diversity of individual opinions. Supporting a party’s tax policy might mean also endorsing their immigration stance — even if you strongly disagree with it. Compromised Representation: Election results suggest broad support for entire party platforms, but in reality voters are picking the “least bad option.” This distorts what citizens actually want. Coalition Bargaining: After elections, parties negotiate and dilute their promises. The result is often a government program that nobody truly voted for, but everyone is expected to accept. The outcome? Millions of voters feel unheard, misrepresented, and locked into compromises that don’t reflect their real preferences.
+
+Why Direct Democracy Is Different. Direct democracy cuts through the party filter. Instead of voting for bundles of policies, citizens vote directly on each issue. This approach: Restores Accuracy — showing where the public really stands on individual topics. Ends False Mandates — preventing parties from claiming support for policies voters never wanted. Empowers Citizens — letting people express their views without compromise or political trade-offs. Strengthens Democracy — by making decision-making more transparent and accountable. Switzerland’s experience with referendums proves this isn’t utopian theory — it works. And with digital platforms, it can work faster, more transparently, and on a larger scale than ever before.
+
+How It Works on Ditt Demokrati. We believe democracy should reflect both what people think and how strongly they think it. That’s why we use a hybrid voting system designed for nuance, legitimacy, and engagement: Likert Scale: Most questions are statements answered on a 5- or 7-point scale. Ranked-Choice: When there are multiple alternatives, you can rank them in order of preference. Yes/No: Used only for strictly constitutional or all-or-nothing issues. Quadratic Voting: Each citizen receives a recurring budget of “voice credits.” Casting extra votes on an issue costs quadratically. This balances majority rule with minority passion. Abstention: You can always choose to abstain.
+
+Safeguards and Trust. BankID Verification: Every participant is verified through BankID, ensuring one person = one account, while keeping ballots fully anonymous. Security Against Manipulation: Bot detection, CAPTCHA, rate limiting, and anomaly detection protect against abuse. Transparency in Results: We display both raw totals and QV-weighted outcomes. Full Likert distributions make minority voices visible. AI Moderation: Suggested poll topics are screened by AI to prevent duplicates and ensure constructive debate.
+
+Data & Retention Policy. Anonymous by Design: Your BankID is used only for a one-time verification to generate a persistent, anonymous Voter ID. This ID is not linked to your personal identity on our servers. Local Storage: Your anonymous Voter ID and your individual votes are stored only in your browser's local storage. Clearing your browser data will remove them. Aggregate Tallies: When you vote, the public tally for that poll is incremented. This is a one-way operation; your individual vote is not stored on our servers and cannot be traced back to you. Data Deletion: You can permanently delete your anonymous Voter ID and all associated vote records from your browser at any time by visiting our Privacy page. This action cannot be undone. Session Timeout: For your security, you are automatically logged out after 30 minutes of inactivity.
+
+Our Vision. Ditt Demokrati is not just a prototype — it’s a proof of concept for a more legitimate, more engaging, and more democratic future. By combining secure digital identity, nuanced voting methods, and transparent technology, we can build a system where every citizen’s voice is heard in full, not lost in party compromises.
+`;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -32,7 +45,7 @@ export default function AboutPage() {
         <CardContent className="space-y-6 text-muted-foreground">
           <div className="space-y-4">
              <AIAvatar textToSpeak={aboutText} />
-             <p>{aboutText}</p>
+             <p>Welcome to Ditt Demokrati (“Your Democracy”), a conceptual platform created to rethink how democracy works. Our mission is to expose the limits of the party system and explore how direct, anonymous participation can better capture the real voice of the people.</p>
           </div>
 
           <div className="space-y-4">
