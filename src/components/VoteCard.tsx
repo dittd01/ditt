@@ -265,12 +265,14 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
         </div>
         <CardFooter className="pt-0 p-4 border-t flex flex-col items-center justify-center gap-3">
             <div className="flex w-full items-center justify-center gap-2">
-                 <Button
+                  <Button
                     variant={votedOn === 'yes' ? 'default' : 'outline'}
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('yes'); }}
                     className={cn(
                         'flex-1 h-9 rounded-md flex items-center justify-center p-0 overflow-hidden transition-all duration-200 group',
-                        votedOn === 'yes' ? 'bg-[#28a745] hover:bg-[#218838] text-white' : 'bg-white hover:bg-gray-100 text-[#28a745] border-gray-200'
+                        'border-chart-2 bg-chart-2/10 text-chart-2',
+                        'hover:bg-chart-2 hover:text-white',
+                        votedOn === 'yes' && 'bg-chart-2 text-white'
                     )}
                     >
                     <span className="px-3 text-sm font-semibold">{yesText}</span>
@@ -280,7 +282,9 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('no'); }}
                     className={cn(
                         'flex-1 h-9 rounded-md flex items-center justify-center p-0 overflow-hidden transition-all duration-200 group',
-                        votedOn === 'no' ? 'bg-[#dc3545] hover:bg-[#c82333] text-white' : 'bg-[#f8d7da] hover:bg-[#f4c6c9] text-[#dc3545] border-transparent'
+                        'border-destructive bg-destructive/10 text-destructive',
+                        'hover:bg-destructive hover:text-destructive-foreground',
+                        votedOn === 'no' && 'bg-destructive text-destructive-foreground'
                     )}
                     >
                      <span className="px-3 text-sm font-semibold">{noText}</span>

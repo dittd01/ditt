@@ -146,12 +146,14 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                     <CardHeader><CardTitle>{t.castVote}</CardTitle></CardHeader>
                     <CardContent className="flex flex-col items-center justify-center gap-3">
                         <div className="flex w-full items-center justify-center gap-2">
-                            <Button
+                             <Button
                                 variant={votedOn === 'yes' ? 'default' : 'outline'}
                                 size="lg"
                                 className={cn(
                                     'h-14 text-xl flex-1 group',
-                                    votedOn === 'yes' ? 'bg-[#28a745] hover:bg-[#218838] text-white' : 'bg-white hover:bg-gray-100 text-[#28a745] border-[#28a745]/50'
+                                    'text-[hsl(var(--chart-2))] border-[hsl(var(--chart-2))]',
+                                    'hover:bg-[hsl(var(--chart-2))] hover:text-white',
+                                    votedOn === 'yes' && 'bg-[hsl(var(--chart-2))] text-white'
                                 )}
                                 onClick={() => onVote('yes')}
                                 >
@@ -163,7 +165,9 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                                 size="lg"
                                 className={cn(
                                     'h-14 text-xl flex-1 group',
-                                    votedOn === 'no' ? 'bg-[#dc3545] hover:bg-[#c82333] text-white' : 'bg-[#f8d7da] hover:bg-[#f4c6c9] text-[#dc3545] border-[#f5c6cb]/50'
+                                    'text-destructive border-destructive',
+                                    'hover:bg-destructive hover:text-destructive-foreground',
+                                     votedOn === 'no' && 'bg-destructive text-destructive-foreground'
                                 )}
                                 onClick={() => onVote('no')}
                                 >
