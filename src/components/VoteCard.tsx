@@ -269,25 +269,25 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                   size="sm"
                   className={cn(
                     'h-9 flex-1 group',
-                    'text-green-600 border-green-600/20 bg-green-500/10 hover:bg-green-500/20 dark:text-green-400 dark:border-green-400/20 dark:bg-green-500/10 dark:hover:bg-green-500/20',
-                    votedOn === 'yes' && 'bg-green-600 text-white hover:bg-green-600/90 dark:bg-green-500 dark:text-white dark:hover:bg-green-500/90'
+                    'text-green-600 border-green-600/50 dark:text-green-400 dark:border-green-400/50 hover:bg-green-500/10 hover:text-green-500 dark:hover:text-green-300',
+                    votedOn === 'yes' && 'bg-green-600 text-white hover:bg-green-700 dark:bg-green-500 dark:text-white dark:hover:bg-green-600'
                   )}
                   onClick={() => handleVote('yes')}
                 >
-                    <ThumbsUp className={cn('h-4 w-4', votedOn === 'yes' ? 'text-white' : 'text-green-600 dark:text-green-400')} />
+                    <ThumbsUp className={cn('h-4 w-4', votedOn !== 'yes' && 'text-green-600 dark:text-green-400')} />
                     <span className="ml-2">{yesText}</span>
                 </Button>
-                <Button
+                 <Button
                   variant="outline"
                   size="sm"
                   className={cn(
                     'h-9 flex-1 group',
-                    'text-destructive border-destructive/20 bg-red-500/10 hover:bg-red-500/20 dark:border-destructive/30 dark:bg-destructive/10 dark:hover:bg-destructive/20',
-                    votedOn === 'no' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''
+                    'text-red-600 border-red-600/50 dark:text-red-400 dark:border-red-400/50 hover:bg-red-500/10 hover:text-red-500 dark:hover:text-red-300',
+                    votedOn === 'no' && 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:text-white dark:hover:bg-red-600'
                   )}
                   onClick={() => handleVote('no')}
                 >
-                     <ThumbsDown className={cn('h-4 w-4 text-destructive', votedOn === 'no' && 'text-destructive-foreground')} />
+                     <ThumbsDown className={cn('h-4 w-4', votedOn !== 'no' && 'text-red-600 dark:text-red-400')} />
                      <span className="ml-2">{noText}</span>
                 </Button>
             </div>
