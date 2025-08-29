@@ -266,30 +266,24 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
         <CardFooter className="pt-0 p-4 border-t flex flex-col items-center justify-center gap-3">
             <div className="flex w-full items-center justify-center gap-2">
                  <Button
-                    variant="outline"
+                    variant={votedOn === 'yes' ? 'default' : 'outline'}
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('yes'); }}
                     className={cn(
-                        'flex-1 h-9 rounded-md flex items-center justify-between p-0 overflow-hidden transition-all duration-200 group',
-                        votedOn === 'yes' ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-background' : 'border-green-600/30'
+                        'flex-1 h-9 rounded-md flex items-center justify-center p-0 overflow-hidden transition-all duration-200 group',
+                        votedOn === 'yes' ? 'bg-[#28a745] hover:bg-[#218838] text-white' : 'bg-white hover:bg-gray-100 text-[#28a745] border-gray-200'
                     )}
                     >
-                    <span className="px-3 text-sm font-semibold text-green-600 dark:text-green-400">{yesText}</span>
-                    <span className="h-full bg-green-600/20 p-2 flex items-center">
-                        <ThumbsUp className="h-4 w-4 text-green-600 dark:text-green-400" />
-                    </span>
+                    <span className="px-3 text-sm font-semibold">{yesText}</span>
                 </Button>
                  <Button
-                    variant="outline"
+                    variant={votedOn === 'no' ? 'destructive' : 'outline'}
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('no'); }}
                     className={cn(
-                        'flex-1 h-9 rounded-md flex items-center justify-between p-0 overflow-hidden transition-all duration-200 group',
-                        votedOn === 'no' ? 'ring-2 ring-red-500 ring-offset-2 ring-offset-background' : 'border-red-600/30'
+                        'flex-1 h-9 rounded-md flex items-center justify-center p-0 overflow-hidden transition-all duration-200 group',
+                        votedOn === 'no' ? 'bg-[#dc3545] hover:bg-[#c82333] text-white' : 'bg-[#f8d7da] hover:bg-[#f4c6c9] text-[#dc3545] border-transparent'
                     )}
                     >
-                     <span className="px-3 text-sm font-semibold text-red-600 dark:text-red-500">{noText}</span>
-                     <span className="h-full bg-red-600/20 p-2 flex items-center">
-                        <ThumbsDown className="h-4 w-4 text-red-600 dark:text-red-500" />
-                     </span>
+                     <span className="px-3 text-sm font-semibold">{noText}</span>
                 </Button>
             </div>
             <div className="w-full flex justify-between items-center mt-2">
