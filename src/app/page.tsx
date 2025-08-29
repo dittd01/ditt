@@ -234,7 +234,6 @@ function HomePageContent() {
                   variant={timeframe === tf ? 'default' : 'ghost'}
                   onClick={() => setTimeframe(tf)}
                   className="px-3 h-8 flex-1 sm:flex-initial"
-                  disabled={sortBy === 'importance'}
                 >
                   {tf}
                 </Button>
