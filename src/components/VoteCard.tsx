@@ -267,33 +267,29 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
             <div className="flex w-full items-center justify-center gap-2">
                  <Button
                     variant="outline"
-                    onClick={() => handleVote('yes')}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('yes'); }}
                     className={cn(
-                        'flex-1 h-9 rounded-md flex items-center justify-center p-1 transition-all duration-200 group',
-                        votedOn === 'yes'
-                          ? 'border-green-500/80 bg-green-500/20'
-                          : 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-600/20 hover:bg-green-500/20'
+                        'flex-1 h-9 rounded-md flex items-center justify-between p-0 overflow-hidden transition-all duration-200 group',
+                        votedOn === 'yes' ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-background' : 'border-green-600/30'
                     )}
                     >
-                    <ThumbsUp className={cn('h-4 w-4 mr-2', votedOn === 'yes' ? 'text-green-500' : 'text-green-600 dark:text-green-400')} />
-                    <span className={cn('text-sm font-semibold', votedOn === 'yes' ? 'text-green-500' : '')}>
-                        {yesText}
+                    <span className="px-3 text-sm font-semibold text-green-600 dark:text-green-400">{yesText}</span>
+                    <span className="h-full bg-green-600/20 p-2 flex items-center">
+                        <ThumbsUp className="h-4 w-4 text-green-600 dark:text-green-400" />
                     </span>
                 </Button>
                  <Button
                     variant="outline"
-                    onClick={() => handleVote('no')}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('no'); }}
                     className={cn(
-                        'flex-1 h-9 rounded-md flex items-center justify-center p-1 transition-all duration-200 group',
-                        votedOn === 'no'
-                          ? 'border-red-500/80 bg-red-500/20'
-                          : 'bg-red-500/10 text-red-600 dark:text-red-500 border-red-600/20 hover:bg-red-500/20'
+                        'flex-1 h-9 rounded-md flex items-center justify-between p-0 overflow-hidden transition-all duration-200 group',
+                        votedOn === 'no' ? 'ring-2 ring-red-500 ring-offset-2 ring-offset-background' : 'border-red-600/30'
                     )}
                     >
-                    <ThumbsDown className={cn('h-4 w-4 mr-2', votedOn === 'no' ? 'text-red-500' : 'text-red-600 dark:text-red-500')} />
-                     <span className={cn('text-sm font-semibold', votedOn === 'no' ? 'text-red-500' : '')}>
-                        {noText}
-                    </span>
+                     <span className="px-3 text-sm font-semibold text-red-600 dark:text-red-500">{noText}</span>
+                     <span className="h-full bg-red-600/20 p-2 flex items-center">
+                        <ThumbsDown className="h-4 w-4 text-red-600 dark:text-red-500" />
+                     </span>
                 </Button>
             </div>
             <div className="w-full flex justify-between items-center mt-2">

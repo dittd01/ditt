@@ -147,29 +147,36 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                     <CardContent className="flex flex-col items-center justify-center gap-3">
                         <div className="flex w-full items-center justify-center gap-2">
                             <Button
-                              variant={votedOn === 'yes' ? 'default' : 'outline'}
+                              variant="outline"
                               size="lg"
                               className={cn(
-                                'h-14 text-xl flex-1 group',
-                                votedOn !== 'yes' && 'text-green-600 border-green-600 bg-green-500/10 hover:bg-green-500/20 dark:text-green-400 dark:border-green-400/80 dark:bg-green-900/20 dark:hover:bg-green-900/40',
-                                votedOn === 'yes' && 'bg-green-600 hover:bg-green-600/90 dark:bg-green-500 dark:hover:bg-green-500/90 text-white dark:text-white'
+                                'h-14 text-xl flex-1 group p-0 overflow-hidden',
+                                votedOn === 'yes' ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-background' : 'border-green-600/30'
                               )}
                               onClick={() => onVote('yes')}
                             >
-                                <ThumbsUp className={cn('h-6 w-6', votedOn !== 'yes' && 'text-green-600 dark:text-green-400')} />
-                                <span className="ml-2">{t.yes}</span>
+                                <div className="flex w-full items-center justify-between">
+                                  <span className="px-6 text-green-600 dark:text-green-400 font-semibold">{t.yes}</span>
+                                  <div className="h-full bg-green-600/20 p-4">
+                                      <ThumbsUp className="h-6 w-6 text-green-600 dark:text-green-400" />
+                                  </div>
+                                </div>
                             </Button>
                             <Button
-                              variant={votedOn === 'no' ? 'destructive' : 'outline'}
+                              variant="outline"
                               size="lg"
                               className={cn(
-                                'h-14 text-xl flex-1 group',
-                                 votedOn !== 'no' && 'text-destructive border-destructive bg-destructive/10 hover:bg-destructive/20 dark:border-destructive/80 dark:bg-destructive/20 dark:hover:bg-destructive/30'
+                                'h-14 text-xl flex-1 group p-0 overflow-hidden',
+                                votedOn === 'no' ? 'ring-2 ring-red-500 ring-offset-2 ring-offset-background' : 'border-red-600/30'
                               )}
                               onClick={() => onVote('no')}
                             >
-                                 <ThumbsDown className={cn('h-6 w-6', votedOn !== 'no' && 'text-destructive')} />
-                                 <span className="ml-2">{t.no}</span>
+                                <div className="flex w-full items-center justify-between">
+                                  <span className="px-6 text-red-600 dark:text-red-500 font-semibold">{t.no}</span>
+                                  <div className="h-full bg-red-600/20 p-4">
+                                      <ThumbsDown className="h-6 w-6 text-red-600 dark:text-red-500" />
+                                  </div>
+                                </div>
                             </Button>
                         </div>
                         {votedOn && votedOn !== 'abstain' && (
