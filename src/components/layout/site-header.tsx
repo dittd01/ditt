@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { MainNav } from '@/components/layout/main-nav';
 import { MobileNav } from '@/components/layout/mobile-nav';
@@ -9,6 +10,7 @@ import { UserNav } from './user-nav';
 import { ThemeToggle } from './theme-toggle';
 import { LanguageToggle } from './language-toggle';
 import { ShareButton } from '../share/ShareButton';
+import { CheckSquare } from 'lucide-react';
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -38,7 +40,12 @@ export function SiteHeader() {
       <div className="container flex h-14 items-center">
         <MainNav />
         <MobileNav />
-        <div className="flex flex-1 items-center justify-end space-x-2">
+        <div className="flex flex-1 items-center justify-between md:justify-end">
+          <Link href="/" className="flex items-center space-x-2 md:hidden">
+            <CheckSquare className="h-6 w-6 text-primary" />
+            <span className="font-bold">Ditt Demokrati</span>
+          </Link>
+          <div className="flex items-center space-x-2">
             <ShareButton
               payload={{
                 url: siteUrl,
@@ -49,6 +56,7 @@ export function SiteHeader() {
             <LanguageToggle />
             <ThemeToggle />
             <UserNav />
+          </div>
         </div>
       </div>
     </header>
