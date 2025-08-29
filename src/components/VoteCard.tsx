@@ -266,44 +266,34 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
         <CardFooter className="pt-0 p-4 border-t flex flex-col items-center justify-center gap-3">
             <div className="flex w-full items-center justify-center gap-2">
                  <Button
+                    variant="outline"
                     onClick={() => handleVote('yes')}
                     className={cn(
-                        'flex-1 h-9 rounded-md flex items-center justify-between p-1 transition-all duration-200',
-                        votedOn === 'yes' ? 'bg-green-500 shadow-md' : 'bg-green-500/10 hover:bg-green-500/20'
+                        'flex-1 h-9 rounded-md flex items-center justify-center p-1 transition-all duration-200 group',
+                        votedOn === 'yes'
+                          ? 'bg-green-500/20 border-green-500/50'
+                          : 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-600/20 hover:bg-green-500/20'
                     )}
                     >
-                    <span className={cn(
-                        "flex-1 text-sm font-semibold",
-                        votedOn === 'yes' ? 'text-white' : 'text-green-600 dark:text-green-400'
-                    )}>
+                    <ThumbsUp className={cn('h-4 w-4 mr-2', votedOn === 'yes' ? 'text-green-500' : 'text-green-600 dark:text-green-400')} />
+                    <span className={cn('text-sm font-semibold', votedOn === 'yes' ? 'text-green-500' : '')}>
                         {yesText}
                     </span>
-                    <div className={cn(
-                        "h-full aspect-square rounded-sm flex items-center justify-center transition-all",
-                        votedOn === 'yes' ? 'bg-white/20' : 'bg-green-500/10'
-                    )}>
-                        <ThumbsUp className={cn('h-4 w-4',  votedOn === 'yes' ? 'text-white' : 'text-green-600 dark:text-green-400')} />
-                    </div>
                 </Button>
                  <Button
+                    variant="outline"
                     onClick={() => handleVote('no')}
                     className={cn(
-                        'flex-1 h-9 rounded-md flex items-center justify-between p-1 transition-all duration-200',
-                        votedOn === 'no' ? 'bg-red-600 shadow-md' : 'bg-red-600/10 hover:bg-red-600/20'
+                        'flex-1 h-9 rounded-md flex items-center justify-center p-1 transition-all duration-200 group',
+                        votedOn === 'no'
+                          ? 'bg-red-500/20 border-red-500/50'
+                          : 'bg-red-500/10 text-red-600 dark:text-red-500 border-red-600/20 hover:bg-red-500/20'
                     )}
                     >
-                    <span className={cn(
-                        "flex-1 text-sm font-semibold",
-                        votedOn === 'no' ? 'text-white' : 'text-red-600 dark:text-red-500'
-                    )}>
+                    <ThumbsDown className={cn('h-4 w-4 mr-2', votedOn === 'no' ? 'text-red-500' : 'text-red-600 dark:text-red-500')} />
+                     <span className={cn('text-sm font-semibold', votedOn === 'no' ? 'text-red-500' : '')}>
                         {noText}
                     </span>
-                    <div className={cn(
-                        "h-full aspect-square rounded-sm flex items-center justify-center transition-all",
-                        votedOn === 'no' ? 'bg-white/20' : 'bg-red-600/10'
-                    )}>
-                        <ThumbsDown className={cn('h-4 w-4', votedOn === 'no' ? 'text-white' : 'text-red-600 dark:text-red-500')} />
-                    </div>
                 </Button>
             </div>
             <div className="w-full flex justify-between items-center mt-2">
