@@ -50,6 +50,10 @@ const valueFormatter = (value: number) => {
     return formatNumber(value);
 }
 
+// Define the two new green colors here to isolate the change
+const DARK_GREEN = '#004D40'; // The darker green
+const LIGHT_GREEN = '#4CAF50'; // The lighter green
+
 export function StateBudgetChart({ data }: StateBudgetChartProps) {
   const [lang, setLang] = useState('en');
 
@@ -101,16 +105,16 @@ export function StateBudgetChart({ data }: StateBudgetChartProps) {
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
                 <Legend wrapperStyle={{ fontSize: '12px' }} />
-                <Bar dataKey="Non-Petroleum Revenue" name={nonPetroleumRevenueText} stackId="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]}>
+                <Bar dataKey="Non-Petroleum Revenue" name={nonPetroleumRevenueText} stackId="revenue" fill={DARK_GREEN} radius={[4, 4, 0, 0]}>
                     <LabelList dataKey="Non-Petroleum Revenue" position="center" className="fill-primary-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
                 </Bar>
-                <Bar dataKey="Petroleum Revenue" name={petroleumRevenueText} stackId="revenue" fill="hsl(120, 40%, 60%)" >
+                <Bar dataKey="Petroleum Revenue" name={petroleumRevenueText} stackId="revenue" fill={LIGHT_GREEN} >
                     <LabelList dataKey="Petroleum Revenue" position="center" className="fill-primary-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
                 </Bar>
-                <Bar dataKey="Non-Petroleum Expenditure" name={nonPetroleumExpenditureText} stackId="expenditure" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]}>
+                <Bar dataKey="Non-Petroleum Expenditure" name={nonPetroleumExpenditureText} stackId="expenditure" fill={DARK_GREEN} radius={[4, 4, 0, 0]}>
                     <LabelList dataKey="Non-Petroleum Expenditure" position="center" className="fill-destructive-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
                 </Bar>
-                <Bar dataKey="Petroleum Expenditure" name={petroleumExpenditureText} stackId="expenditure" fill="hsl(0, 85%, 65%)" >
+                <Bar dataKey="Petroleum Expenditure" name={petroleumExpenditureText} stackId="expenditure" fill={LIGHT_GREEN} >
                     <LabelList dataKey="Petroleum Expenditure" position="center" className="fill-destructive-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
                 </Bar>
             </BarChart>
