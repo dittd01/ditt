@@ -367,27 +367,9 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
               onRevote={handleRevote}
             />
           </Suspense>
-          
-          {votedOn && <LiveResults topic={currentTopic} />}
 
-          <VoteChart topic={currentTopic} />
-
-          <Accordion type="single" collapsible className="w-full space-y-8">
-             {topic.background_md && (
-              <AccordionItem value="background" className="border rounded-lg bg-card text-card-foreground shadow-sm">
-                <AccordionTrigger className="flex justify-start items-center gap-2 p-4 text-base font-semibold hover:no-underline">
-                  <History className="h-5 w-5" />
-                  {t.background}
-                </AccordionTrigger>
-                <AccordionContent className="p-6 pt-0 space-y-6">
-                  <div className="prose prose-sm dark:prose-invert max-w-none pt-4 border-t">
-                     <p>{topic.background_md}</p>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-
-            {hasProsCons && (
+           {hasProsCons && (
+             <Accordion type="single" collapsible defaultValue="pros-cons" className="w-full space-y-8">
                 <AccordionItem value="pros-cons" className="border rounded-lg bg-card text-card-foreground shadow-sm">
                     <AccordionTrigger className="flex justify-start items-center gap-2 p-4 text-base font-semibold hover:no-underline">
                         <Scale className="h-5 w-5" />
@@ -414,6 +396,26 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
                         </div>
                     </AccordionContent>
                 </AccordionItem>
+             </Accordion>
+            )}
+          
+          {votedOn && <LiveResults topic={currentTopic} />}
+
+          <VoteChart topic={currentTopic} />
+
+          <Accordion type="single" collapsible className="w-full space-y-8">
+             {topic.background_md && (
+              <AccordionItem value="background" className="border rounded-lg bg-card text-card-foreground shadow-sm">
+                <AccordionTrigger className="flex justify-start items-center gap-2 p-4 text-base font-semibold hover:no-underline">
+                  <History className="h-5 w-5" />
+                  {t.background}
+                </AccordionTrigger>
+                <AccordionContent className="p-6 pt-0 space-y-6">
+                  <div className="prose prose-sm dark:prose-invert max-w-none pt-4 border-t">
+                     <p>{topic.background_md}</p>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
             )}
 
             {(topic.sources && topic.sources.length > 0) && (
