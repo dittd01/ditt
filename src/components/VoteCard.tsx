@@ -269,12 +269,12 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                   size="sm"
                   className={cn(
                     'h-9 flex-1 group',
-                    'text-primary border-primary/20 hover:bg-primary/10',
-                    votedOn === 'yes' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''
+                    'text-green-600 border-green-600/20 hover:bg-green-600/10 dark:text-green-400 dark:border-green-400/20 dark:hover:bg-green-400/10',
+                    votedOn === 'yes' ? 'bg-green-600 text-white hover:bg-green-600/90 dark:bg-green-500 dark:text-white dark:hover:bg-green-500/90' : ''
                   )}
                   onClick={() => handleVote('yes')}
                 >
-                    <ThumbsUp className={cn('h-4 w-4 text-primary', votedOn === 'yes' ? 'text-primary-foreground' : 'group-hover:text-primary')} />
+                    <ThumbsUp className={cn('h-4 w-4', votedOn === 'yes' ? 'text-white' : 'text-green-600 dark:text-green-400')} />
                     <span className="ml-2">{yesText}</span>
                 </Button>
                 <Button

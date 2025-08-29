@@ -151,11 +151,12 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                               size="lg"
                               className={cn(
                                 'h-14 text-xl flex-1 group',
-                                votedOn !== 'yes' && 'text-primary border-primary/20 hover:bg-primary/10',
+                                votedOn !== 'yes' && 'text-green-600 border-green-600/20 hover:bg-green-600/10 dark:text-green-400 dark:border-green-400/20 dark:hover:bg-green-400/10',
+                                votedOn === 'yes' && 'bg-green-600 hover:bg-green-600/90 dark:bg-green-500 dark:hover:bg-green-500/90 text-white dark:text-white'
                               )}
                               onClick={() => onVote('yes')}
                             >
-                                <ThumbsUp className="h-6 w-6" />
+                                <ThumbsUp className={cn('h-6 w-6', votedOn === 'yes' ? 'text-white' : 'text-green-600 dark:text-green-400')} />
                                 <span className="ml-2">{t.yes}</span>
                             </Button>
                             <Button
@@ -167,7 +168,7 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                               )}
                               onClick={() => onVote('no')}
                             >
-                                 <ThumbsDown className="h-6 w-6" />
+                                 <ThumbsDown className={cn('h-6 w-6', votedOn !== 'no' && 'text-destructive')} />
                                  <span className="ml-2">{t.no}</span>
                             </Button>
                         </div>
