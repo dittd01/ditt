@@ -398,47 +398,47 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
                 </AccordionItem>
              </Accordion>
             )}
+
+            <Accordion type="single" collapsible className="w-full space-y-8">
+                {topic.background_md && (
+                <AccordionItem value="background" className="border rounded-lg bg-card text-card-foreground shadow-sm">
+                    <AccordionTrigger className="flex justify-start items-center gap-2 p-4 text-base font-semibold hover:no-underline">
+                    <History className="h-5 w-5" />
+                    {t.background}
+                    </AccordionTrigger>
+                    <AccordionContent className="p-6 pt-0 space-y-6">
+                    <div className="prose prose-sm dark:prose-invert max-w-none pt-4 border-t">
+                        <p>{topic.background_md}</p>
+                    </div>
+                    </AccordionContent>
+                </AccordionItem>
+                )}
+
+                {(topic.sources && topic.sources.length > 0) && (
+                <AccordionItem value="sources" className="border rounded-lg bg-card text-card-foreground shadow-sm">
+                    <AccordionTrigger className="flex justify-start items-center gap-2 p-4 text-base font-semibold hover:no-underline">
+                    <FileText className="h-5 w-5" />
+                    {t.sources}
+                    </AccordionTrigger>
+                    <AccordionContent className="p-6 pt-0 space-y-6">
+                    <ul className="space-y-2 pt-4 border-t">
+                        {topic.sources.map((source, index) => (
+                        <li key={index}>
+                            <a href={source.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                            <LinkIcon className="h-4 w-4 shrink-0" />
+                            <span className="truncate">{source.title}</span>
+                            </a>
+                        </li>
+                        ))}
+                    </ul>
+                    </AccordionContent>
+                </AccordionItem>
+                )}
+            </Accordion>
           
           {votedOn && <LiveResults topic={currentTopic} />}
 
           <VoteChart topic={currentTopic} />
-
-          <Accordion type="single" collapsible className="w-full space-y-8">
-             {topic.background_md && (
-              <AccordionItem value="background" className="border rounded-lg bg-card text-card-foreground shadow-sm">
-                <AccordionTrigger className="flex justify-start items-center gap-2 p-4 text-base font-semibold hover:no-underline">
-                  <History className="h-5 w-5" />
-                  {t.background}
-                </AccordionTrigger>
-                <AccordionContent className="p-6 pt-0 space-y-6">
-                  <div className="prose prose-sm dark:prose-invert max-w-none pt-4 border-t">
-                     <p>{topic.background_md}</p>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-
-            {(topic.sources && topic.sources.length > 0) && (
-              <AccordionItem value="sources" className="border rounded-lg bg-card text-card-foreground shadow-sm">
-                <AccordionTrigger className="flex justify-start items-center gap-2 p-4 text-base font-semibold hover:no-underline">
-                  <FileText className="h-5 w-5" />
-                  {t.sources}
-                </AccordionTrigger>
-                <AccordionContent className="p-6 pt-0 space-y-6">
-                  <ul className="space-y-2 pt-4 border-t">
-                    {topic.sources.map((source, index) => (
-                      <li key={index}>
-                        <a href={source.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
-                          <LinkIcon className="h-4 w-4 shrink-0" />
-                          <span className="truncate">{source.title}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-          </Accordion>
 
           <Separator className="my-12" />
           
