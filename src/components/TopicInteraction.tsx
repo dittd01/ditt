@@ -146,7 +146,7 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                     <CardHeader><CardTitle>{t.castVote}</CardTitle></CardHeader>
                     <CardContent className="flex flex-col items-center justify-center gap-3">
                         <div className="flex w-full items-center justify-center gap-2">
-                            <button
+                            <Button
                               onClick={() => onVote('yes')}
                               className={cn(
                                 'flex-1 h-14 rounded-lg flex items-center justify-between p-1.5 transition-all duration-200',
@@ -165,8 +165,8 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                                 )}>
                                     <ThumbsUp className={cn('h-6 w-6',  votedOn === 'yes' ? 'text-white' : 'text-green-600 dark:text-green-400')} />
                                 </div>
-                            </button>
-                             <button
+                            </Button>
+                             <Button
                               onClick={() => onVote('no')}
                               className={cn(
                                 'flex-1 h-14 rounded-lg flex items-center justify-between p-1.5 transition-all duration-200',
@@ -185,7 +185,7 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                                 )}>
                                      <ThumbsDown className={cn('h-6 w-6', votedOn === 'no' ? 'text-white' : 'text-red-600 dark:text-red-500')} />
                                 </div>
-                            </button>
+                            </Button>
                         </div>
                         {votedOn && votedOn !== 'abstain' && (
                             <p className="text-sm text-muted-foreground pt-2">

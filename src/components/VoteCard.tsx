@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -264,10 +265,10 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
         </div>
         <CardFooter className="pt-0 p-4 border-t flex flex-col items-center justify-center gap-3">
             <div className="flex w-full items-center justify-center gap-2">
-                 <button
+                 <Button
                     onClick={() => handleVote('yes')}
                     className={cn(
-                        'flex-1 h-9 rounded-md flex items-center justify-between px-1 transition-all duration-200',
+                        'flex-1 h-9 rounded-md flex items-center justify-between p-1 transition-all duration-200',
                         votedOn === 'yes' ? 'bg-green-500 shadow-md' : 'bg-green-500/10 hover:bg-green-500/20'
                     )}
                     >
@@ -283,11 +284,11 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                     )}>
                         <ThumbsUp className={cn('h-4 w-4',  votedOn === 'yes' ? 'text-white' : 'text-green-600 dark:text-green-400')} />
                     </div>
-                </button>
-                 <button
+                </Button>
+                 <Button
                     onClick={() => handleVote('no')}
                     className={cn(
-                        'flex-1 h-9 rounded-md flex items-center justify-between px-1 transition-all duration-200',
+                        'flex-1 h-9 rounded-md flex items-center justify-between p-1 transition-all duration-200',
                         votedOn === 'no' ? 'bg-red-600 shadow-md' : 'bg-red-600/10 hover:bg-red-600/20'
                     )}
                     >
@@ -303,7 +304,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                     )}>
                         <ThumbsDown className={cn('h-4 w-4', votedOn === 'no' ? 'text-white' : 'text-red-600 dark:text-red-500')} />
                     </div>
-                </button>
+                </Button>
             </div>
             <div className="w-full flex justify-between items-center mt-2">
                 <Button asChild size="sm" className="h-8 text-sm px-4 hover:bg-accent/50" onClick={handleCardClick} variant="ghost">
