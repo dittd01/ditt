@@ -75,7 +75,7 @@ export function ArgumentCard({ argument, onCounter }: ArgumentCardProps) {
     // In a real app, you'd also call a server action here to record the vote.
   };
 
-  const sideColorClass = argument.side === 'for' ? 'border-l-[hsl(var(--chart-2))]' : 'border-l-destructive';
+  const sideColorClass = argument.side === 'for' ? 'border-chart-2' : 'border-destructive';
 
   return (
     <Card className={cn("border", sideColorClass)} id={`arg-${argument.id}`}>
