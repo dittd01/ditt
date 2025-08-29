@@ -264,32 +264,46 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
         </div>
         <CardFooter className="pt-0 p-4 border-t flex flex-col items-center justify-center gap-3">
             <div className="flex w-full items-center justify-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    'h-9 flex-1 group',
-                    'text-green-600 border-green-600/50 dark:text-green-400 dark:border-green-400/50 hover:bg-green-500/10 hover:text-green-500 dark:hover:text-green-300',
-                    votedOn === 'yes' && 'bg-green-600 text-white hover:bg-green-700 dark:bg-green-500 dark:text-white dark:hover:bg-green-600'
-                  )}
-                  onClick={() => handleVote('yes')}
-                >
-                    <ThumbsUp className={cn('h-4 w-4', votedOn !== 'yes' && 'text-green-600 dark:text-green-400')} />
-                    <span className="ml-2">{yesText}</span>
-                </Button>
-                 <Button
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    'h-9 flex-1 group',
-                    'text-red-600 border-red-600/50 dark:text-red-400 dark:border-red-400/50 hover:bg-red-500/10 hover:text-red-500 dark:hover:text-red-300',
-                    votedOn === 'no' && 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:text-white dark:hover:bg-red-600'
-                  )}
-                  onClick={() => handleVote('no')}
-                >
-                     <ThumbsDown className={cn('h-4 w-4', votedOn !== 'no' && 'text-red-600 dark:text-red-400')} />
-                     <span className="ml-2">{noText}</span>
-                </Button>
+                 <button
+                    onClick={() => handleVote('yes')}
+                    className={cn(
+                        'flex-1 h-9 rounded-md flex items-center justify-between px-1 transition-all duration-200',
+                        votedOn === 'yes' ? 'bg-green-500 shadow-md' : 'bg-green-500/10 hover:bg-green-500/20'
+                    )}
+                    >
+                    <span className={cn(
+                        "flex-1 text-sm font-semibold",
+                        votedOn === 'yes' ? 'text-white' : 'text-green-600 dark:text-green-400'
+                    )}>
+                        {yesText}
+                    </span>
+                    <div className={cn(
+                        "h-full aspect-square rounded-sm flex items-center justify-center transition-all",
+                        votedOn === 'yes' ? 'bg-white/20' : 'bg-green-500/10'
+                    )}>
+                        <ThumbsUp className={cn('h-4 w-4',  votedOn === 'yes' ? 'text-white' : 'text-green-600 dark:text-green-400')} />
+                    </div>
+                </button>
+                 <button
+                    onClick={() => handleVote('no')}
+                    className={cn(
+                        'flex-1 h-9 rounded-md flex items-center justify-between px-1 transition-all duration-200',
+                        votedOn === 'no' ? 'bg-red-600 shadow-md' : 'bg-red-600/10 hover:bg-red-600/20'
+                    )}
+                    >
+                    <span className={cn(
+                        "flex-1 text-sm font-semibold",
+                        votedOn === 'no' ? 'text-white' : 'text-red-600 dark:text-red-500'
+                    )}>
+                        {noText}
+                    </span>
+                    <div className={cn(
+                        "h-full aspect-square rounded-sm flex items-center justify-center transition-all",
+                        votedOn === 'no' ? 'bg-white/20' : 'bg-red-600/10'
+                    )}>
+                        <ThumbsDown className={cn('h-4 w-4', votedOn === 'no' ? 'text-white' : 'text-red-600 dark:text-red-500')} />
+                    </div>
+                </button>
             </div>
             <div className="w-full flex justify-between items-center mt-2">
                 <Button asChild size="sm" className="h-8 text-sm px-4 hover:bg-accent/50" onClick={handleCardClick} variant="ghost">

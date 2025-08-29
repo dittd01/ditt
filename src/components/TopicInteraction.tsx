@@ -146,32 +146,46 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                     <CardHeader><CardTitle>{t.castVote}</CardTitle></CardHeader>
                     <CardContent className="flex flex-col items-center justify-center gap-3">
                         <div className="flex w-full items-center justify-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="lg"
-                              className={cn(
-                                'h-14 text-xl flex-1 group',
-                                'text-green-600 border-green-600/50 dark:text-green-400 dark:border-green-400/50 hover:bg-green-500/10 hover:text-green-500 dark:hover:text-green-300',
-                                votedOn === 'yes' && 'bg-green-600 text-white hover:bg-green-700 dark:bg-green-500 dark:text-white dark:hover:bg-green-600 shadow-lg shadow-green-500/20'
-                              )}
+                            <button
                               onClick={() => onVote('yes')}
-                            >
-                                <ThumbsUp className={cn('h-6 w-6', votedOn !== 'yes' && 'text-green-600 dark:text-green-400')} />
-                                <span className="ml-2">{t.yes}</span>
-                            </Button>
-                             <Button
-                              variant="outline"
-                              size="lg"
                               className={cn(
-                                'h-14 text-xl flex-1 group',
-                                'text-red-600 border-red-600/50 dark:text-red-400 dark:border-red-400/50 hover:bg-red-500/10 hover:text-red-500 dark:hover:text-red-300',
-                                votedOn === 'no' && 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:text-white dark:hover:bg-red-600 shadow-lg shadow-red-500/20'
+                                'flex-1 h-14 rounded-lg flex items-center justify-between p-1.5 transition-all duration-200',
+                                votedOn === 'yes' ? 'bg-green-500 shadow-lg' : 'bg-green-500/10 hover:bg-green-500/20'
                               )}
-                              onClick={() => onVote('no')}
                             >
-                                 <ThumbsDown className={cn('h-6 w-6', votedOn !== 'no' && 'text-red-600 dark:text-red-400')} />
-                                 <span className="ml-2">{t.no}</span>
-                            </Button>
+                                <span className={cn(
+                                    "flex-1 text-xl font-semibold",
+                                    votedOn === 'yes' ? 'text-white' : 'text-green-600 dark:text-green-400'
+                                )}>
+                                    {t.yes}
+                                </span>
+                                <div className={cn(
+                                    "h-full aspect-square rounded-md flex items-center justify-center transition-all",
+                                    votedOn === 'yes' ? 'bg-white/20' : 'bg-green-500/10'
+                                )}>
+                                    <ThumbsUp className={cn('h-6 w-6',  votedOn === 'yes' ? 'text-white' : 'text-green-600 dark:text-green-400')} />
+                                </div>
+                            </button>
+                             <button
+                              onClick={() => onVote('no')}
+                              className={cn(
+                                'flex-1 h-14 rounded-lg flex items-center justify-between p-1.5 transition-all duration-200',
+                                votedOn === 'no' ? 'bg-red-600 shadow-lg' : 'bg-red-600/10 hover:bg-red-600/20'
+                              )}
+                            >
+                                <span className={cn(
+                                    "flex-1 text-xl font-semibold",
+                                    votedOn === 'no' ? 'text-white' : 'text-red-600 dark:text-red-500'
+                                )}>
+                                    {t.no}
+                                </span>
+                                <div className={cn(
+                                    "h-full aspect-square rounded-md flex items-center justify-center transition-all",
+                                    votedOn === 'no' ? 'bg-white/20' : 'bg-red-600/10'
+                                )}>
+                                     <ThumbsDown className={cn('h-6 w-6', votedOn === 'no' ? 'text-white' : 'text-red-600 dark:text-red-500')} />
+                                </div>
+                            </button>
                         </div>
                         {votedOn && votedOn !== 'abstain' && (
                             <p className="text-sm text-muted-foreground pt-2">
