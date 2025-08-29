@@ -147,32 +147,29 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                     <CardContent className="flex flex-col items-center justify-center gap-3">
                         <div className="flex w-full items-center justify-center gap-2">
                             <Button
-                              variant="outline"
+                              variant={votedOn === 'yes' ? 'default' : 'outline'}
                               size="lg"
                               className={cn(
                                 'h-14 text-xl flex-1 group',
-                                votedOn === 'yes'
-                                  ? 'bg-green-500/20 border-green-500/50'
-                                  : 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-600/20 hover:bg-green-500/20'
+                                votedOn !== 'yes' && 'text-green-600 border-green-600 bg-green-500/10 hover:bg-green-500/20 dark:text-green-400 dark:border-green-400/80 dark:bg-green-900/20 dark:hover:bg-green-900/40',
+                                votedOn === 'yes' && 'bg-green-600 hover:bg-green-600/90 dark:bg-green-500 dark:hover:bg-green-500/90 text-white dark:text-white'
                               )}
                               onClick={() => onVote('yes')}
                             >
-                                <ThumbsUp className={cn('mr-2 h-6 w-6', votedOn === 'yes' ? 'text-green-500' : 'text-green-600 dark:text-green-400')} />
-                                <span className={votedOn === 'yes' ? 'text-green-500 font-bold' : ''}>{t.yes}</span>
+                                <ThumbsUp className={cn('h-6 w-6', votedOn !== 'yes' && 'text-green-600 dark:text-green-400')} />
+                                <span className="ml-2">{t.yes}</span>
                             </Button>
                             <Button
-                              variant="outline"
+                              variant={votedOn === 'no' ? 'destructive' : 'outline'}
                               size="lg"
                               className={cn(
                                 'h-14 text-xl flex-1 group',
-                                votedOn === 'no'
-                                  ? 'bg-red-500/20 border-red-500/50'
-                                  : 'bg-red-500/10 text-red-600 dark:text-red-500 border-red-600/20 hover:bg-red-500/20'
+                                 votedOn !== 'no' && 'text-destructive border-destructive bg-destructive/10 hover:bg-destructive/20 dark:border-destructive/80 dark:bg-destructive/20 dark:hover:bg-destructive/30'
                               )}
                               onClick={() => onVote('no')}
                             >
-                                 <ThumbsDown className={cn('mr-2 h-6 w-6', votedOn === 'no' ? 'text-red-500' : 'text-red-600 dark:text-red-500')} />
-                                 <span className={votedOn === 'no' ? 'text-red-500 font-bold' : ''}>{t.no}</span>
+                                 <ThumbsDown className={cn('h-6 w-6', votedOn !== 'no' && 'text-destructive')} />
+                                 <span className="ml-2">{t.no}</span>
                             </Button>
                         </div>
                         {votedOn && votedOn !== 'abstain' && (

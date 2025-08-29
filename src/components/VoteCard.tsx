@@ -271,7 +271,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                     className={cn(
                         'flex-1 h-9 rounded-md flex items-center justify-center p-1 transition-all duration-200 group',
                         votedOn === 'yes'
-                          ? 'bg-green-500/20 border-green-500/50'
+                          ? 'border-green-500/80 bg-green-500/20'
                           : 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-600/20 hover:bg-green-500/20'
                     )}
                     >
@@ -286,7 +286,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                     className={cn(
                         'flex-1 h-9 rounded-md flex items-center justify-center p-1 transition-all duration-200 group',
                         votedOn === 'no'
-                          ? 'bg-red-500/20 border-red-500/50'
+                          ? 'border-red-500/80 bg-red-500/20'
                           : 'bg-red-500/10 text-red-600 dark:text-red-500 border-red-600/20 hover:bg-red-500/20'
                     )}
                     >
