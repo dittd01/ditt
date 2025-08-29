@@ -151,13 +151,12 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                                 size="lg"
                                 className={cn(
                                     'h-14 text-xl flex-1 group',
-                                    'text-[hsl(var(--chart-2))] border-[hsl(var(--chart-2))]',
-                                    'hover:bg-[hsl(var(--chart-2))] hover:text-white',
-                                    votedOn === 'yes' && 'bg-[hsl(var(--chart-2))] text-white'
+                                    votedOn !== 'yes' && 'text-[hsl(var(--chart-2))] border-[hsl(var(--chart-2))] bg-[hsl(var(--chart-2))] bg-opacity-10 hover:bg-opacity-20',
+                                    votedOn === 'yes' && 'bg-[hsl(var(--chart-2))] hover:bg-[hsl(var(--chart-2))] hover:opacity-90 text-white'
                                 )}
                                 onClick={() => onVote('yes')}
                                 >
-                                <ThumbsUp className="mr-2 h-5 w-5" />
+                                <ThumbsUp className={cn('h-6 w-6', votedOn !== 'yes' && 'text-[hsl(var(--chart-2))]')} />
                                 <span className="ml-2">{t.yes}</span>
                             </Button>
                             <Button
@@ -165,14 +164,12 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                                 size="lg"
                                 className={cn(
                                     'h-14 text-xl flex-1 group',
-                                    'text-destructive border-destructive',
-                                    'hover:bg-destructive hover:text-destructive-foreground',
-                                     votedOn === 'no' && 'bg-destructive text-destructive-foreground'
+                                    votedOn !== 'no' && 'text-destructive border-destructive bg-destructive bg-opacity-10 hover:bg-opacity-20'
                                 )}
                                 onClick={() => onVote('no')}
                                 >
-                                <ThumbsDown className="mr-2 h-5 w-5" />
-                                <span className="ml-2">{t.no}</span>
+                                 <ThumbsDown className={cn('h-6 w-6', votedOn !== 'no' && 'text-destructive')} />
+                                 <span className="ml-2">{t.no}</span>
                             </Button>
                         </div>
                         {votedOn && votedOn !== 'abstain' && (
