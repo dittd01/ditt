@@ -151,7 +151,7 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                               size="lg"
                               className={cn(
                                 'h-14 text-xl flex-1 group',
-                                votedOn !== 'yes' && 'text-green-600 border-green-600/20 hover:bg-green-600/10 dark:text-green-400 dark:border-green-400/20 dark:hover:bg-green-400/10',
+                                votedOn !== 'yes' && 'text-green-600 border-green-600/20 bg-green-500/10 hover:bg-green-500/20 dark:text-green-400 dark:border-green-400/20 dark:bg-green-500/10 dark:hover:bg-green-500/20',
                                 votedOn === 'yes' && 'bg-green-600 hover:bg-green-600/90 dark:bg-green-500 dark:hover:bg-green-500/90 text-white dark:text-white'
                               )}
                               onClick={() => onVote('yes')}
@@ -164,7 +164,7 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                               size="lg"
                               className={cn(
                                 'h-14 text-xl flex-1 group',
-                                 votedOn !== 'no' && 'text-destructive border-destructive/20 hover:bg-destructive/10'
+                                 votedOn !== 'no' && 'text-destructive border-destructive/20 bg-red-500/10 hover:bg-red-500/20 dark:border-destructive/30 dark:bg-destructive/10 dark:hover:bg-destructive/20'
                               )}
                               onClick={() => onVote('no')}
                             >

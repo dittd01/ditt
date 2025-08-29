@@ -269,8 +269,8 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                   size="sm"
                   className={cn(
                     'h-9 flex-1 group',
-                    'text-green-600 border-green-600/20 hover:bg-green-600/10 dark:text-green-400 dark:border-green-400/20 dark:hover:bg-green-400/10',
-                    votedOn === 'yes' ? 'bg-green-600 text-white hover:bg-green-600/90 dark:bg-green-500 dark:text-white dark:hover:bg-green-500/90' : ''
+                    'text-green-600 border-green-600/20 bg-green-500/10 hover:bg-green-500/20 dark:text-green-400 dark:border-green-400/20 dark:bg-green-500/10 dark:hover:bg-green-500/20',
+                    votedOn === 'yes' && 'bg-green-600 text-white hover:bg-green-600/90 dark:bg-green-500 dark:text-white dark:hover:bg-green-500/90'
                   )}
                   onClick={() => handleVote('yes')}
                 >
@@ -282,7 +282,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                   size="sm"
                   className={cn(
                     'h-9 flex-1 group',
-                    'text-destructive border-destructive/20 hover:bg-destructive/10',
+                    'text-destructive border-destructive/20 bg-red-500/10 hover:bg-red-500/20 dark:border-destructive/30 dark:bg-destructive/10 dark:hover:bg-destructive/20',
                     votedOn === 'no' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''
                   )}
                   onClick={() => handleVote('no')}
