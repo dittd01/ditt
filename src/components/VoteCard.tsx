@@ -263,21 +263,26 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
 
         </div>
         <CardFooter className="pt-0 p-4 border-t flex flex-col items-center justify-center gap-3">
-            <div className="flex w-full items-center justify-center gap-2">
+             <div className="flex w-full items-center justify-center gap-2">
                 <Button
-                    variant={votedOn === 'yes' ? 'default' : 'outline'}
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('yes'); }}
                     className={cn(
-                        "flex-1 px-4 py-3 text-base font-semibold",
-                        votedOn === 'yes' && "bg-[hsl(var(--chart-2))] hover:bg-[hsl(var(--chart-2))]/90"
+                        "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-lg transition-all duration-300 ease-in-out active:translate-y-px",
+                        votedOn === 'yes' 
+                            ? "bg-[hsl(var(--chart-2))] text-white shadow-lg hover:shadow-xl hover:bg-[hsl(var(--chart-2))] hover:-translate-y-1"
+                            : "bg-background text-foreground hover:bg-[hsl(var(--chart-2))] hover:text-white hover:shadow-xl hover:-translate-y-1"
                     )}
                 >
                     {yesText}
                 </Button>
                  <Button
-                    variant={votedOn === 'no' ? 'destructive' : 'outline'}
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('no'); }}
-                    className="flex-1 px-4 py-3 text-base font-semibold"
+                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('no'); }}
+                    className={cn(
+                        "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-lg transition-all duration-300 ease-in-out active:translate-y-px",
+                        votedOn === 'no'
+                            ? "bg-destructive text-destructive-foreground shadow-lg hover:shadow-xl hover:bg-destructive/90 hover:-translate-y-1"
+                            : "bg-background text-foreground hover:bg-destructive hover:text-destructive-foreground hover:shadow-xl hover:-translate-y-1"
+                    )}
                  >
                     {noText}
                 </Button>
@@ -358,5 +363,3 @@ VoteCard.Skeleton = function VoteCardSkeleton() {
         </Card>
     )
 }
-
-    
