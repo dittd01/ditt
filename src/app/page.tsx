@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from 'use-debounce';
 import { Search } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 type TimeFrame = 'W' | '1M' | '1Y' | 'All';
 type SortByType = 'votes' | 'importance';
@@ -211,17 +212,23 @@ function HomePageContent() {
              <div className="flex gap-1 bg-muted p-1 rounded-md w-full sm:w-auto">
                 <Button
                     size="sm"
-                    variant={sortBy === 'votes' ? 'default' : 'ghost'}
+                    variant="ghost"
                     onClick={() => setSortBy('votes')}
-                    className="px-3 h-8 flex-1 sm:flex-initial"
+                    className={cn(
+                        "px-3 h-8 flex-1 sm:flex-initial",
+                        sortBy === 'votes' && "bg-[#03354c] text-white hover:bg-[#03354c]/90"
+                    )}
                 >
                     {sortByVotesText}
                 </Button>
                  <Button
                     size="sm"
-                    variant={sortBy === 'importance' ? 'default' : 'ghost'}
+                    variant="ghost"
                     onClick={() => setSortBy('importance')}
-                    className="px-3 h-8 flex-1 sm:flex-initial"
+                    className={cn(
+                        "px-3 h-8 flex-1 sm:flex-initial",
+                        sortBy === 'importance' && "bg-[#03354c] text-white hover:bg-[#03354c]/90"
+                    )}
                 >
                     {sortByImportanceText}
                 </Button>
