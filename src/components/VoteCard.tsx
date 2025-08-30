@@ -268,7 +268,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                     variant={votedOn === 'yes' ? 'default' : 'outline'}
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('yes'); }}
                     className={cn(
-                        "flex-1 px-3 py-2 text-sm font-semibold",
+                        "flex-1 px-4 py-3 text-base font-semibold",
                         votedOn === 'yes' && "bg-[hsl(var(--chart-2))] hover:bg-[hsl(var(--chart-2))]/90"
                     )}
                 >
@@ -277,7 +277,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                  <Button
                     variant={votedOn === 'no' ? 'destructive' : 'outline'}
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('no'); }}
-                    className="flex-1 px-3 py-2 text-sm font-semibold"
+                    className="flex-1 px-4 py-3 text-base font-semibold"
                  >
                     {noText}
                 </Button>
