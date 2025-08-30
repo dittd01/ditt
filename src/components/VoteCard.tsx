@@ -269,8 +269,8 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                     className={cn(
                         "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-lg transition-all duration-300 ease-in-out active:translate-y-px",
                         votedOn === 'yes' 
-                            ? "bg-[hsl(var(--chart-2))] text-white shadow-lg hover:shadow-xl hover:bg-[hsl(var(--chart-2))] hover:-translate-y-1"
-                            : "bg-background text-foreground hover:bg-[hsl(var(--chart-2))] hover:text-white hover:shadow-xl hover:-translate-y-1"
+                            ? "bg-[hsl(var(--chart-2))] text-white shadow-lg hover:shadow-xl hover:bg-[hsl(var(--chart-2))] hover:-translate-y-1 border border-transparent"
+                            : "bg-background text-foreground hover:bg-[hsl(var(--chart-2))] hover:text-white hover:shadow-xl hover:-translate-y-1 border"
                     )}
                 >
                     {yesText}
@@ -280,8 +280,8 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                     className={cn(
                         "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-lg transition-all duration-300 ease-in-out active:translate-y-px",
                         votedOn === 'no'
-                            ? "bg-destructive text-destructive-foreground shadow-lg hover:shadow-xl hover:bg-destructive/90 hover:-translate-y-1"
-                            : "bg-background text-foreground hover:bg-destructive hover:text-destructive-foreground hover:shadow-xl hover:-translate-y-1"
+                            ? "bg-destructive text-destructive-foreground shadow-lg hover:shadow-xl hover:bg-destructive/90 hover:-translate-y-1 border border-transparent"
+                            : "bg-background text-foreground hover:bg-destructive hover:text-destructive-foreground hover:shadow-xl hover:-translate-y-1 border"
                     )}
                  >
                     {noText}
