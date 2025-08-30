@@ -268,22 +268,22 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('yes'); }}
                     className={cn(
                         "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-lg transition-all duration-300 ease-in-out active:translate-y-px",
-                        votedOn === 'yes' 
-                            ? "bg-[hsl(var(--chart-2))] text-white hover:shadow-xl hover:bg-[hsl(var(--chart-2))] hover:-translate-y-1 border border-transparent"
-                            : "bg-background text-foreground hover:bg-green-100 dark:hover:bg-green-900/50 hover:shadow-xl hover:-translate-y-1 border border-border/40 dark:border-border"
+                        votedOn === 'yes'
+                            ? "bg-[hsl(var(--chart-2))] text-white hover:shadow-xl hover:bg-[hsl(var(--chart-2))] hover:-translate-y-1 border-transparent"
+                            : "bg-background text-foreground hover:bg-[hsl(var(--chart-2))] hover:text-white hover:shadow-xl hover:-translate-y-1 border border-border/40"
                     )}
                 >
                     {yesText}
                 </Button>
-                 <Button
-                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('no'); }}
+                <Button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('no'); }}
                     className={cn(
                         "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-lg transition-all duration-300 ease-in-out active:translate-y-px",
                         votedOn === 'no'
-                            ? "bg-destructive text-destructive-foreground hover:shadow-xl hover:bg-destructive/90 hover:-translate-y-1 border border-transparent"
-                            : "bg-background text-foreground hover:bg-red-100 dark:hover:bg-red-900/50 hover:shadow-xl hover:-translate-y-1 border border-border/40 dark:border-border"
+                            ? "bg-destructive text-destructive-foreground hover:shadow-xl hover:bg-destructive/90 hover:-translate-y-1 border-transparent"
+                            : "bg-background text-foreground hover:bg-destructive hover:text-destructive-foreground hover:shadow-xl hover:-translate-y-1 border border-border/40"
                     )}
-                 >
+                >
                     {noText}
                 </Button>
             </div>
