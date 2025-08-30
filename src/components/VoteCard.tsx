@@ -250,10 +250,10 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                 <div className="space-y-6 mt-4">
                     <div className="w-full h-10 rounded-full overflow-hidden flex">
                         <div className="flex items-center justify-center bg-[hsl(var(--chart-2))]" style={{ width: `${yesPercentage}%`}}>
-                           <span className="text-[10px] font-bold text-white mix-blend-plus-lighter">{yesPercentage > 5 && yesPercentage.toFixed(0) + '%'}</span>
+                           <span className="text-[10px] text-white mix-blend-plus-lighter">{yesPercentage > 5 && yesPercentage.toFixed(0) + '%'}</span>
                         </div>
                         <div className="flex items-center justify-center bg-[hsl(var(--chart-1))]" style={{ width: `${noPercentage}%`}}>
-                           <span className="text-[10px] font-bold text-white mix-blend-plus-lighter">{noPercentage > 5 && noPercentage.toFixed(0) + '%'}</span>
+                           <span className="text-[10px] text-white mix-blend-plus-lighter">{noPercentage > 5 && noPercentage.toFixed(0) + '%'}</span>
                         </div>
                     </div>
                      <div className="h-24 w-full">
@@ -265,29 +265,23 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
         </div>
         <CardFooter className="pt-0 p-4 border-t flex flex-col items-center justify-center gap-3">
             <div className="flex w-full items-center justify-center gap-2">
-                  <Button
+                <Button
                     variant={votedOn === 'yes' ? 'default' : 'outline'}
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('yes'); }}
-                    className={cn(
-                        'flex-1 h-9 rounded-md flex items-center justify-center p-0 overflow-hidden transition-all duration-200 group',
-                        'border-chart-2 bg-chart-2/10 text-chart-2',
-                        'hover:bg-chart-2 hover:text-white',
-                        votedOn === 'yes' && 'bg-chart-2 text-white'
-                    )}
-                    >
-                    <span className="px-3 text-sm font-semibold">{yesText}</span>
+                    className="flex-1"
+                >
+                    <div className="flex w-full items-center justify-center overflow-hidden rounded-md">
+                        <span className="px-3 text-sm font-semibold">{yesText}</span>
+                    </div>
                 </Button>
                  <Button
                     variant={votedOn === 'no' ? 'destructive' : 'outline'}
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('no'); }}
-                    className={cn(
-                        'flex-1 h-9 rounded-md flex items-center justify-center p-0 overflow-hidden transition-all duration-200 group',
-                        'border-destructive bg-destructive/10 text-destructive',
-                        'hover:bg-destructive hover:text-destructive-foreground',
-                        votedOn === 'no' && 'bg-destructive text-destructive-foreground'
-                    )}
-                    >
-                     <span className="px-3 text-sm font-semibold">{noText}</span>
+                    className="flex-1"
+                 >
+                    <div className="flex w-full items-center justify-center overflow-hidden rounded-md">
+                        <span className="px-3 text-sm font-semibold">{noText}</span>
+                    </div>
                 </Button>
             </div>
             <div className="w-full flex justify-between items-center mt-2">
