@@ -147,29 +147,26 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                     <CardContent className="flex flex-col items-center justify-center gap-3">
                         <div className="flex w-full items-center justify-center gap-2">
                             <Button
-                              variant={votedOn === 'yes' ? 'default' : 'outline'}
-                              size="lg"
-                              className={cn(
-                                'h-14 text-xl flex-1 group',
-                                votedOn !== 'yes' && 'text-green-600 border-green-600/20 bg-green-500/10 hover:bg-green-500/20 dark:text-green-400 dark:border-green-400/20 dark:bg-green-500/10 dark:hover:bg-green-500/20',
-                                votedOn === 'yes' && 'bg-green-600 hover:bg-green-600/90 dark:bg-green-500 dark:hover:bg-green-500/90 text-white dark:text-white'
-                              )}
-                              onClick={() => onVote('yes')}
+                                onClick={() => onVote('yes')}
+                                className={cn(
+                                    "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-md transition-all duration-300 ease-in-out active:translate-y-px hover:-translate-y-[5px] hover:shadow-xl",
+                                    votedOn === 'yes'
+                                        ? "bg-[hsl(var(--chart-2))] text-white border-transparent"
+                                        : "bg-background text-[hsl(var(--chart-2))] border border-[hsl(var(--chart-2))]"
+                                )}
                             >
-                                <ThumbsUp className={cn('h-6 w-6', votedOn === 'yes' ? 'text-white' : 'text-green-600 dark:text-green-400')} />
-                                <span className="ml-2">{t.yes}</span>
+                                {t.yes}
                             </Button>
                             <Button
-                              variant={votedOn === 'no' ? 'destructive' : 'outline'}
-                              size="lg"
-                              className={cn(
-                                'h-14 text-xl flex-1 group',
-                                 votedOn !== 'no' && 'text-destructive border-destructive/20 bg-red-500/10 hover:bg-red-500/20 dark:border-destructive/30 dark:bg-destructive/10 dark:hover:bg-destructive/20'
-                              )}
-                              onClick={() => onVote('no')}
+                                onClick={() => onVote('no')}
+                                className={cn(
+                                    "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-md transition-all duration-300 ease-in-out active:translate-y-px hover:-translate-y-[5px] hover:shadow-xl",
+                                    votedOn === 'no'
+                                        ? "bg-destructive text-destructive-foreground border-transparent"
+                                        : "bg-background text-destructive border border-destructive"
+                                )}
                             >
-                                 <ThumbsDown className={cn('h-6 w-6', votedOn !== 'no' && 'text-destructive')} />
-                                 <span className="ml-2">{t.no}</span>
+                                {t.no}
                             </Button>
                         </div>
                         {votedOn && votedOn !== 'abstain' && (
