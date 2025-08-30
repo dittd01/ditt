@@ -53,12 +53,12 @@
     --muted-foreground: 215 20% 65%;
     --accent: 217 33% 17%;
     --accent-foreground: 210 40% 98%;
-    --destructive: 0 72% 58%;
+    --destructive: 0 100% 50%;
     --destructive-foreground: 210 40% 98%;
     --border: 217 33% 22%;
     --input: 217 33% 17%;
     --ring: 217 91% 60%;
-    --chart-1: 0 72% 58%;
+    --chart-1: 0 100% 50%;
     --chart-2: 121 100% 25%;
     --chart-3: 221 83% 63%;
     --chart-4: 48 96% 60%;
