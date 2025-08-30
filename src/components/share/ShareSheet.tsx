@@ -148,8 +148,6 @@ export function ShareSheet({ open, onOpenChange, payload }: ShareSheetProps) {
       {showQr && payload && <QrCard url={payload.url} />}
       {showEmbed && payload && <EmbedCard url={payload.url} />}
 
-      <Separator />
-
       <div className="grid grid-cols-4 gap-y-4 pt-2">
         {primaryTargets.map((target) => (
             <button

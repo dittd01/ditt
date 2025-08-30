@@ -10,7 +10,6 @@ export const PRIMARY_TARGETS_NB_NO: TargetId[] = [
 
 export const PRIMARY_TARGETS_EN: TargetId[] = [
   'whatsapp',
-  'sms',
   'x',
   'linkedin',
   'reddit',
