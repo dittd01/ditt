@@ -152,11 +152,11 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                                 className={cn(
                                     'h-14 text-xl flex-1 group',
                                     votedOn !== 'yes' && 'text-[hsl(var(--chart-2))] border-[hsl(var(--chart-2))] bg-transparent hover:bg-[hsl(var(--chart-2))] hover:bg-opacity-10',
-                                    votedOn === 'yes' && 'bg-[hsl(var(--chart-2))] hover:bg-opacity-90 text-white'
+                                    votedOn === 'yes' && 'bg-[hsl(var(--chart-2))] hover:bg-[hsl(var(--chart-2))] text-white'
                                 )}
                                 onClick={() => onVote('yes')}
                                 >
-                                <ThumbsUp className={cn('h-6 w-6', votedOn !== 'yes' && 'text-[hsl(var(--chart-2))]')} />
+                                <ThumbsUp className={cn('h-6 w-6', votedOn === 'yes' ? 'text-white' : 'text-[hsl(var(--chart-2))]')} />
                                 <span className="ml-2">{t.yes}</span>
                             </Button>
                             <Button
