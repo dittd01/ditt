@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/components/layout/theme-provider';
 import { ShareProvider } from '@/components/share/ShareProvider';
 import { FlagProvider } from '@/lib/flags/provider';
 import { Vitals } from '@/lib/vitals/client';
+import { SiteFooter } from '@/components/layout/site-footer';
 
 export const metadata: Metadata = {
   title: 'Ditt Demokrati - Anonymous Voting',
@@ -70,6 +71,7 @@ export default function RootLayout({
               <div className="relative flex min-h-screen flex-col">
                 <SiteHeader />
                 <div className="flex-1">{children}</div>
+                <SiteFooter />
               </div>
               <Toaster />
             </ShareProvider>
