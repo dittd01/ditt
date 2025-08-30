@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Link from 'next/link';
@@ -250,10 +249,10 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                 <div className="space-y-6 mt-4">
                     <div className="w-full h-10 rounded-full overflow-hidden flex">
                         <div className="flex items-center justify-center bg-[hsl(var(--chart-2))]" style={{ width: `${yesPercentage}%`}}>
-                           <span className="text-[10px] text-white mix-blend-plus-lighter">{yesPercentage > 5 && yesPercentage.toFixed(0) + '%'}</span>
+                           <span className="text-xs text-white mix-blend-plus-lighter">{yesPercentage > 5 && yesPercentage.toFixed(0) + '%'}</span>
                         </div>
                         <div className="flex items-center justify-center bg-[hsl(var(--chart-1))]" style={{ width: `${noPercentage}%`}}>
-                           <span className="text-[10px] text-white mix-blend-plus-lighter">{noPercentage > 5 && noPercentage.toFixed(0) + '%'}</span>
+                           <span className="text-xs text-white mix-blend-plus-lighter">{noPercentage > 5 && noPercentage.toFixed(0) + '%'}</span>
                         </div>
                     </div>
                      <div className="h-24 w-full">
@@ -268,7 +267,10 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                 <Button
                     variant={votedOn === 'yes' ? 'default' : 'outline'}
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('yes'); }}
-                    className="flex-1"
+                    className={cn(
+                        "flex-1",
+                        votedOn === 'yes' && "bg-[hsl(var(--chart-2))] hover:bg-[hsl(var(--chart-2))]/90"
+                    )}
                 >
                     <div className="flex w-full items-center justify-center overflow-hidden rounded-md">
                         <span className="px-3 text-sm font-semibold">{yesText}</span>
@@ -360,3 +362,5 @@ VoteCard.Skeleton = function VoteCardSkeleton() {
         </Card>
     )
 }
+
+    
