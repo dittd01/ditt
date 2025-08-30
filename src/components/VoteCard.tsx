@@ -248,10 +248,10 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
              {topic.voteType === 'yesno' && (
                 <div className="space-y-6 mt-4">
                     <div className="w-full h-10 rounded-full overflow-hidden flex">
-                        <div className="flex items-center justify-center bg-[hsl(var(--chart-2))]" style={{ width: `${yesPercentage}%`}}>
+                        <div className="flex items-center justify-center bg-destructive" style={{ width: `${yesPercentage}%`}}>
                            <span className="text-xs text-white mix-blend-plus-lighter">{yesPercentage > 5 && yesPercentage.toFixed(0) + '%'}</span>
                         </div>
-                        <div className="flex items-center justify-center bg-[hsl(var(--chart-1))]" style={{ width: `${noPercentage}%`}}>
+                        <div className="flex items-center justify-center bg-[hsl(var(--chart-2))]" style={{ width: `${noPercentage}%`}}>
                            <span className="text-xs text-white mix-blend-plus-lighter">{noPercentage > 5 && noPercentage.toFixed(0) + '%'}</span>
                         </div>
                     </div>
@@ -269,8 +269,8 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                     className={cn(
                         "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-md transition-all duration-300 ease-in-out active:translate-y-px hover:-translate-y-[5px] hover:shadow-xl",
                         votedOn === 'yes'
-                            ? "bg-[hsl(var(--chart-2))] text-white border-transparent"
-                            : "bg-background text-[hsl(var(--chart-2))] border border-[hsl(var(--chart-2))] hover:bg-[hsl(var(--chart-2))] hover:text-white"
+                            ? "bg-destructive text-destructive-foreground border-transparent hover:bg-destructive hover:text-destructive-foreground"
+                            : "bg-background text-destructive border border-destructive hover:bg-destructive hover:text-destructive-foreground"
                     )}
                 >
                     {yesText}
@@ -280,8 +280,8 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                     className={cn(
                         "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-md transition-all duration-300 ease-in-out active:translate-y-px hover:-translate-y-[5px] hover:shadow-xl",
                         votedOn === 'no'
-                            ? "bg-destructive text-destructive-foreground border-transparent"
-                            : "bg-background text-destructive border border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            ? "bg-[hsl(var(--chart-2))] text-white border-transparent hover:bg-[hsl(var(--chart-2))] hover:text-white"
+                            : "bg-background text-[hsl(var(--chart-2))] border border-[hsl(var(--chart-2))] hover:bg-[hsl(var(--chart-2))] hover:text-white"
                     )}
                 >
                     {noText}
