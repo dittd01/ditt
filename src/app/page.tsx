@@ -238,9 +238,12 @@ function HomePageContent() {
                 <Button
                   key={tf}
                   size="sm"
-                  variant={timeframe === tf ? 'default' : 'ghost'}
+                  variant={'ghost'}
                   onClick={() => setTimeframe(tf)}
-                  className="px-3 h-8 flex-1 sm:flex-initial"
+                  className={cn(
+                    "px-3 h-8 flex-1 sm:flex-initial",
+                    timeframe === tf && "bg-[#03354c] text-white hover:bg-[#03354c]/90"
+                  )}
                 >
                   {tf}
                 </Button>
