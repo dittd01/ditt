@@ -156,7 +156,6 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                                 )}
                                 onClick={() => onVote('yes')}
                                 >
-                                <ThumbsUp className={cn('h-6 w-6', votedOn === 'yes' ? 'text-white' : 'text-[hsl(var(--chart-2))]')} />
                                 <span className="ml-2">{t.yes}</span>
                             </Button>
                             <Button
@@ -168,7 +167,6 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                                 )}
                                 onClick={() => onVote('no')}
                                 >
-                                 <ThumbsDown className={cn('h-6 w-6', votedOn !== 'no' && 'text-destructive')} />
                                  <span className="ml-2">{t.no}</span>
                             </Button>
                         </div>
