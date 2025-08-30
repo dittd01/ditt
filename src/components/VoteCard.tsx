@@ -267,7 +267,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                 <Button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('yes'); }}
                     className={cn(
-                        "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-md transition-all duration-300 ease-in-out active:translate-y-px",
+                        "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-md transition-all duration-300 ease-in-out active:translate-y-px hover:-translate-y-[5px]",
                         votedOn === 'yes'
                             ? "bg-[hsl(var(--chart-2))] text-white border-transparent"
                             : "bg-background text-[hsl(var(--chart-2))] border border-[hsl(var(--chart-2))] hover:bg-[hsl(var(--chart-2))] hover:text-white"
@@ -278,7 +278,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                 <Button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('no'); }}
                     className={cn(
-                        "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-md transition-all duration-300 ease-in-out active:translate-y-px",
+                        "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-md transition-all duration-300 ease-in-out active:translate-y-px hover:-translate-y-[5px]",
                         votedOn === 'no'
                             ? "bg-destructive text-destructive-foreground border-transparent"
                             : "bg-background text-destructive border border-destructive hover:bg-destructive hover:text-destructive-foreground"
@@ -363,4 +363,3 @@ VoteCard.Skeleton = function VoteCardSkeleton() {
         </Card>
     )
 }
-
