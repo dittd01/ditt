@@ -268,22 +268,18 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
                     variant={votedOn === 'yes' ? 'default' : 'outline'}
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('yes'); }}
                     className={cn(
-                        "flex-1",
+                        "flex-1 px-3 py-2 text-sm font-semibold",
                         votedOn === 'yes' && "bg-[hsl(var(--chart-2))] hover:bg-[hsl(var(--chart-2))]/90"
                     )}
                 >
-                    <div className="flex w-full items-center justify-center overflow-hidden rounded-md">
-                        <span className="px-3 text-sm font-semibold">{yesText}</span>
-                    </div>
+                    {yesText}
                 </Button>
                  <Button
                     variant={votedOn === 'no' ? 'destructive' : 'outline'}
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVote('no'); }}
-                    className="flex-1"
+                    className="flex-1 px-3 py-2 text-sm font-semibold"
                  >
-                    <div className="flex w-full items-center justify-center overflow-hidden rounded-md">
-                        <span className="px-3 text-sm font-semibold">{noText}</span>
-                    </div>
+                    {noText}
                 </Button>
             </div>
             <div className="w-full flex justify-between items-center mt-2">
