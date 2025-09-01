@@ -51,8 +51,8 @@ const valueFormatter = (value: number) => {
 }
 
 // Define the two new green colors here to isolate the change
-const DARK_GREEN = '#004D40'; // The darker green
-const LIGHT_GREEN = '#4CAF50'; // The lighter green
+const DARK_GREEN = 'hsl(var(--chart-2))'; 
+const LIGHT_GREEN = 'hsl(var(--chart-3))'; 
 
 export function StateBudgetChart({ data }: StateBudgetChartProps) {
   const [lang, setLang] = useState('en');
@@ -111,10 +111,10 @@ export function StateBudgetChart({ data }: StateBudgetChartProps) {
                 <Bar dataKey="Petroleum Revenue" name={petroleumRevenueText} stackId="revenue" fill={LIGHT_GREEN} >
                     <LabelList dataKey="Petroleum Revenue" position="center" className="fill-primary-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
                 </Bar>
-                <Bar dataKey="Non-Petroleum Expenditure" name={nonPetroleumExpenditureText} stackId="expenditure" fill={DARK_GREEN} radius={[4, 4, 0, 0]}>
+                <Bar dataKey="Non-Petroleum Expenditure" name={nonPetroleumExpenditureText} stackId="expenditure" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]}>
                     <LabelList dataKey="Non-Petroleum Expenditure" position="center" className="fill-destructive-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
                 </Bar>
-                <Bar dataKey="Petroleum Expenditure" name={petroleumExpenditureText} stackId="expenditure" fill={LIGHT_GREEN} >
+                <Bar dataKey="Petroleum Expenditure" name={petroleumExpenditureText} stackId="expenditure" fill="hsl(var(--chart-4))" >
                     <LabelList dataKey="Petroleum Expenditure" position="center" className="fill-destructive-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
                 </Bar>
             </BarChart>
