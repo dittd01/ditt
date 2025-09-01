@@ -6,7 +6,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { FinanceHeader } from '@/components/finances/FinanceHeader';
 import { KpiCards } from '@/components/finances/KpiCards';
 import { ExpenditureBarChart } from '@/components/finances/ExpenditureBarChart';
-import { GeneralGovernmentTotals } from '@/components/finances/GeneralGovernmentTotals';
 import { Sources } from '@/components/finances/Sources';
 import { allFinanceData } from '@/lib/finance-data';
 import type { ExpenditureByFunction, FinanceData } from '@/lib/types';
@@ -96,7 +95,6 @@ export default function FinancesPage() {
       />
       <KpiCards data={countryData} />
       <div className="space-y-8">
-        <GeneralGovernmentTotals />
         <DetailedFinanceChart />
       </div>
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

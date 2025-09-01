@@ -29,20 +29,22 @@ export function KpiCards({ data }: KpiCardsProps) {
     setLang(selectedLang);
   }, []);
 
-  const l4q = data.totals.find(t => t.periodType === 'last4q');
+  const budget2024 = data.stateBudget.find(b => b.year === 2024);
   
-  if (!l4q) return null;
+  if (!budget2024) return null;
 
-  const revenue = l4q.totalRevenue * 1000000;
-  const expenditure = l4q.totalExpenditure * 1000000;
-  const surplus = l4q.surplusDeficit * 1000000;
+  const revenue = budget2024.totalRevenue;
+  const expenditure = budget2024.totalExpenditure;
+  const oilCorrectedSurplus = budget2024.oilCorrectedSurplus;
 
-  const totalRevenueText = lang === 'nb' ? 'Totale inntekter (siste 4 kvartal)' : 'Total Revenue (L4Q)';
-  const totalExpenditureText = lang === 'nb' ? 'Totale utgifter (siste 4 kvartal)' : 'Total Expenditure (L4Q)';
-  const surplusDeficitText = lang === 'nb' ? 'Overskudd / Underskudd (siste 4 kvartal)' : 'Surplus / Deficit (L4Q)';
-  const lastFourQuartersText = lang === 'nb' ? 'Siste fire kvartaler' : 'Last Four Quarters';
+  const totalRevenueText = lang === 'nb' ? 'Totale inntekter (Statsbudsjett 2024)' : 'Total Revenue (State Budget 2024)';
+  const totalExpenditureText = lang === 'nb' ? 'Totale utgifter (Statsbudsjett 2024)' : 'Total Expenditure (State Budget 2024)';
+  const surplusDeficitText = lang === 'nb' ? 'Oljekorrigert overskudd (Statsbudsjett 2024)' : 'Oil-Corrected Surplus (State Budget 2024)';
+  const sourceText = lang === 'nb' ? 'Kilde: Regjeringen.no' : 'Source: Regjeringen.no';
   const surplusText = lang === 'nb' ? 'Overskudd' : 'Surplus';
   const deficitText = lang === 'nb' ? 'Underskudd' : 'Deficit';
+
+  const formatBn = (value: number) => `${value.toLocaleString('nb-NO', {minimumFractionDigits: 1, maximumFractionDigits: 1})} mrd. kr`;
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -52,8 +54,8 @@ export function KpiCards({ data }: KpiCardsProps) {
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{new Intl.NumberFormat('nb-NO', { notation: 'compact', compactDisplay: 'short' }).format(revenue)} kr</div>
-          <p className="text-xs text-muted-foreground">{lastFourQuartersText}</p>
+          <div className="text-2xl font-bold">{formatBn(revenue)}</div>
+          <p className="text-xs text-muted-foreground">{sourceText}</p>
         </CardContent>
       </Card>
       <Card>
@@ -62,8 +64,8 @@ export function KpiCards({ data }: KpiCardsProps) {
           <TrendingDown className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{new Intl.NumberFormat('nb-NO', { notation: 'compact', compactDisplay: 'short' }).format(expenditure)} kr</div>
-          <p className="text-xs text-muted-foreground">{l4q.notes}</p>
+          <div className="text-2xl font-bold">{formatBn(expenditure)}</div>
+          <p className="text-xs text-muted-foreground">{sourceText}</p>
         </CardContent>
       </Card>
       <Card>
@@ -72,9 +74,9 @@ export function KpiCards({ data }: KpiCardsProps) {
           <Coins className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{new Intl.NumberFormat('nb-NO', { notation: 'compact', compactDisplay: 'short' }).format(surplus)} kr</div>
-          <Badge variant={surplus > 0 ? 'default' : 'destructive'}>
-            {surplus > 0 ? surplusText : deficitText}
+          <div className="text-2xl font-bold">{formatBn(oilCorrectedSurplus)}</div>
+          <Badge variant={oilCorrectedSurplus > 0 ? 'default' : 'destructive'}>
+            {oilCorrectedSurplus > 0 ? surplusText : deficitText}
           </Badge>
         </CardContent>
       </Card>
