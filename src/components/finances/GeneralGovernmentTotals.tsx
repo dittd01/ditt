@@ -5,7 +5,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList, Label, ReferenceLine } from 'recharts';
-import { generalGovAnnual } from '@/lib/finance-data';
+import { generalGovAnnual, generalGovRevenueBreakdown } from '@/lib/finance-data';
 import { Badge } from '@/components/ui/badge';
 import { trackEvent } from '@/lib/analytics';
 
@@ -18,15 +18,23 @@ const formatBnNOK = (value: number) => {
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
-    const revenue = payload.find(p => p.dataKey === 'revenueBn');
+    const oilRevenue = payload.find(p => p.dataKey === 'oilRevenueBn');
+    const otherRevenue = payload.find(p => p.dataKey === 'otherRevenueBn');
     const expenditure = payload.find(p => p.dataKey === 'expenditureBn');
-    const surplus = revenue && expenditure ? revenue.value - expenditure.value : 0;
+    
+    const totalRevenue = (oilRevenue?.value || 0) + (otherRevenue?.value || 0);
+    const totalExpenditure = expenditure?.value || 0;
+    const surplus = totalRevenue - totalExpenditure;
 
     return (
       <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
         <p className="font-bold mb-2">{label}</p>
         <div className="space-y-1">
-            {revenue && <p>Revenue: {formatBnNOK(revenue.value)} bn NOK</p>}
+            {oilRevenue && otherRevenue && <p>Total Revenue: {formatBnNOK(totalRevenue)} bn NOK</p>}
+            <div className="pl-2">
+                {oilRevenue && <p className="text-xs">Oil: {formatBnNOK(oilRevenue.value)} bn NOK</p>}
+                {otherRevenue && <p className="text-xs">Other: {formatBnNOK(otherRevenue.value)} bn NOK</p>}
+            </div>
             {expenditure && <p>Expenditure: {formatBnNOK(expenditure.value)} bn NOK</p>}
             <p className="font-semibold pt-1 mt-1 border-t">Surplus: {formatBnNOK(surplus)} bn NOK</p>
         </div>
@@ -46,12 +54,18 @@ export function GeneralGovernmentTotals() {
     }, []);
 
     const chartData = useMemo(() => {
-        return generalGovAnnual.map(item => ({
-            name: item.year.toString(),
-            revenueBn: item.revenueBn,
-            expenditureBn: item.expenditureBn,
-            surplusBn: item.surplusBn,
-        })).sort((a,b) => parseInt(a.name) - parseInt(b.name));
+        const revenueBreakdownMap = new Map(generalGovRevenueBreakdown.map(item => [item.year, item]));
+
+        return generalGovAnnual.map(item => {
+            const breakdown = revenueBreakdownMap.get(item.year);
+            return {
+                name: item.year.toString(),
+                oilRevenueBn: breakdown?.oilRevenueBn || 0,
+                otherRevenueBn: breakdown?.otherRevenueBn || 0,
+                expenditureBn: item.expenditureBn,
+                surplusBn: item.surplusBn,
+            };
+        }).sort((a,b) => parseInt(a.name) - parseInt(b.name));
     }, []);
 
     const title = lang === 'nb' ? 'Inntekter vs. Utgifter (Alle Offentlige Nivåer)' : 'General Government Revenue vs. Expenditure (All Levels)';
@@ -68,7 +82,6 @@ export function GeneralGovernmentTotals() {
                     <BarChart
                         data={chartData}
                         margin={{ top: 20, right: 10, left: 10, bottom: 5 }}
-                        barGap={8}
                     >
                         <CartesianGrid strokeDasharray="3 3" vertical={false} />
                         <XAxis
@@ -89,7 +102,10 @@ export function GeneralGovernmentTotals() {
                         />
                         <Legend wrapperStyle={{fontSize: "12px"}}/>
                         <ReferenceLine y={0} stroke="hsl(var(--border))" strokeWidth={1} />
-                        <Bar dataKey="revenueBn" name="Revenue" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                        
+                        <Bar dataKey="otherRevenueBn" name="Other Revenue" stackId="revenue" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="oilRevenueBn" name="Oil Revenue" stackId="revenue" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
+                        
                         <Bar dataKey="expenditureBn" name="Expenditure" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
                          {chartData.map((entry, index) => (
                              <LabelList
@@ -97,9 +113,12 @@ export function GeneralGovernmentTotals() {
                                 dataKey="surplusBn"
                                 position="top"
                                 offset={10}
-                                content={({ x, y, width, value }) => (
-                                    (x && y && width && value === entry.surplusBn) && (
-                                        <g transform={`translate(${x + width / 2}, ${y})`}>
+                                content={({ x, y, width, value }) => {
+                                    // Find the corresponding expenditure bar to position the label correctly
+                                    const expenditureBarX = x;
+                                    if (expenditureBarX && y && width && value === entry.surplusBn) {
+                                       return (
+                                        <g transform={`translate(${expenditureBarX + width * 1.5}, ${y})`}>
                                             <foreignObject x={-50} y={-22} width={100} height={20}>
                                                 <div style={{ display: 'inline-block', textAlign: 'center', fontSize: '11px' }}>
                                                     <Badge variant="secondary" className="px-1.5 py-0.5">
@@ -108,8 +127,10 @@ export function GeneralGovernmentTotals() {
                                                 </div>
                                             </foreignObject>
                                         </g>
-                                    )
-                                )}
+                                       )
+                                    }
+                                    return null;
+                                }}
                                 data={ [chartData[index]] }
                             />
                          ))}
