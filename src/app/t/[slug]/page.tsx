@@ -244,10 +244,10 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
     const currentVoterId = localStorage.getItem('anonymousVoterId');
     setVoterId(currentVoterId);
 
-    if (currentVoterId) {
-      const previousVote = localStorage.getItem(`voted_on_${topic.id}`);
-      setVotedOn(previousVote);
-    }
+    // This part is now handled by the server action and parent component state
+    // We get the initial `votedOn` state as a prop
+    setVotedOn(null); // This will be updated by a fetch in a real app
+
   }, [topic.id]);
 
   const handleVote = async (voteData: string | string[]) => {
@@ -268,8 +268,7 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
     const previouslyVotedOn = votedOn;
     
     setVotedOn(currentVote);
-    localStorage.setItem(`voted_on_${topic.id}`, currentVote);
-
+    // OPTIMISTIC UI UPDATE
     setCurrentTopic(ct => {
         const newVotes = { ...ct.votes };
         if (previouslyVotedOn) {
@@ -299,6 +298,7 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
       });
 
     } catch (error: any) {
+      // REVERT OPTIMISTIC UPDATE ON ERROR
       toast({
         variant: 'destructive',
         title: 'Vote Failed',
@@ -306,12 +306,6 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
       });
 
       setVotedOn(previouslyVotedOn);
-      if (previouslyVotedOn) {
-        localStorage.setItem(`voted_on_${topic.id}`, previouslyVotedOn);
-      } else {
-        localStorage.removeItem(`voted_on_${topic.id}`);
-      }
-
       setCurrentTopic(ct => {
           const newVotes = { ...ct.votes };
           newVotes[currentVote] = Math.max(0, (newVotes[currentVote] || 1) - 1);

@@ -36,7 +36,10 @@ function HomePageContent() {
     const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
     setLang(selectedLang);
     
-    const syncTopicsWithLocalStorage = () => {
+    // In a real app with server-side votes, you'd fetch both topic and vote data.
+    // For this prototype, we'll continue to simulate with local storage for voted state
+    // but treat topic data as coming from a server.
+    const syncTopicsAndVotes = () => {
       // Get custom topics from local storage
       const customTopics: Topic[] = JSON.parse(localStorage.getItem('custom_topics') || '[]');
 
@@ -48,44 +51,35 @@ function HomePageContent() {
           combinedTopics.push(customTopic);
         }
       });
+      setTopics(combinedTopics);
 
-      const updatedTopics = combinedTopics.map(topic => {
-        if (topic.voteType === 'election') {
-          return topic;
-        }
-        const newVotes: Record<string, number> = {};
-        let newTotalVotes = 0;
-        
-        topic.options.forEach(option => {
-          const storedVotes = localStorage.getItem(`votes_for_${topic.id}_${option.id}`);
-          const currentVotes = storedVotes ? parseInt(storedVotes, 10) : topic.votes[option.id] || 0;
-          newVotes[option.id] = currentVotes;
-          newTotalVotes += currentVotes;
-        });
-        
-        return { ...topic, votes: newVotes, totalVotes: newTotalVotes };
-      });
-      setTopics(updatedTopics);
-
+      // We still need to check local storage for which topics the user has voted on
+      // to update the UI correctly (e.g., showing checkmarks).
+      // In a full server-side implementation, this would be part of the initial data fetch.
       const votedIds = new Set<string>();
-      updatedTopics.forEach(topic => {
-        if (localStorage.getItem(`voted_on_${topic.id}`)) {
-          votedIds.add(topic.id);
-        }
-      });
+      const voterId = localStorage.getItem('anonymousVoterId');
+      if (voterId) {
+        // In a real app, we'd fetch this from a `user_votes` collection.
+        // Here we simulate by checking localStorage.
+        combinedTopics.forEach(topic => {
+          if (localStorage.getItem(`voted_on_${topic.id}`)) { // This part remains for UI state
+            votedIds.add(topic.id);
+          }
+        });
+      }
       setVotedTopicIds(votedIds);
       setIsLoading(false);
     };
     
-    syncTopicsWithLocalStorage();
+    syncTopicsAndVotes();
     
     const handleStorageChange = () => {
-        syncTopicsWithLocalStorage();
+        syncTopicsAndVotes();
     };
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        syncTopicsWithLocalStorage();
+        syncTopicsAndVotes();
       }
     };
     

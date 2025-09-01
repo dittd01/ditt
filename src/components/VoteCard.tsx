@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -17,6 +18,7 @@ import { MiniTrendChart } from './MiniTrendChart';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, usePathname } from 'next/navigation';
+import { castVoteAction } from '@/app/t/[slug]/actions';
 
 
 interface VoteCardProps {
@@ -44,6 +46,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
   const pathname = usePathname();
   const [topic, setTopic] = useState(initialTopic);
   const [votedOn, setVotedOn] = useState<string | null>(null);
+  const [voterId, setVoterId] = useState<string | null>(null);
   
   const iconName = getCategoryIconName(topic.categoryId);
   const link = topic.voteType === 'election' ? '/election-2025' : `/t/${topic.slug}`;
@@ -57,40 +60,33 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
 
    useEffect(() => {
     const checkStates = () => {
+        const currentVoterId = localStorage.getItem('anonymousVoterId');
+        setVoterId(currentVoterId);
+        
         const bookmarkedTopics = JSON.parse(localStorage.getItem('bookmarked_topics') || '[]');
         setIsBookmarked(bookmarkedTopics.includes(topic.id));
 
-        const currentVote = localStorage.getItem(`voted_on_${topic.id}`);
-        setVotedOn(currentVote);
-        
         const savedImportance = localStorage.getItem(`importance_for_${topic.id}`);
         if (savedImportance) {
             setImportance(parseInt(savedImportance, 10));
         } else {
             setImportance(null);
         }
+        
+        // In a real app, this would be a fetch to the server
+        const currentVote = localStorage.getItem(`voted_on_${topic.id}`);
+        setVotedOn(currentVote);
     };
     
     checkStates();
 
     const handleStorageChange = (event: StorageEvent) => {
-        if (event.key === 'selectedLanguage') {
-            setLang(event.newValue || 'en');
-        }
+        if (event.key === 'selectedLanguage') setLang(event.newValue || 'en');
         if (event.key === `voted_on_${topic.id}` || event.key === `importance_for_${topic.id}` || event.key === 'bookmarked_topics') {
             checkStates();
         }
-        if (event.key === `votes_for_${topic.id}_yes` || event.key === `votes_for_${topic.id}_no`) {
-            setTopic(prevTopic => {
-                const newVotes = {...prevTopic.votes};
-                if(event.key === `votes_for_${topic.id}_yes`) newVotes.yes = parseInt(event.newValue || '0', 10);
-                if(event.key === `votes_for_${topic.id}_no`) newVotes.no = parseInt(event.newValue || '0', 10);
-                
-                const newPrimaryVotes = (newVotes.yes || 0) + (newVotes.no || 0);
-                const totalVotes = Object.values(newVotes).reduce((sum, v) => sum + v, 0);
-
-                return {...prevTopic, votes: newVotes, totalVotes: totalVotes};
-            });
+        if (event.key === 'anonymousVoterId') {
+            setVoterId(event.newValue);
         }
     };
     
@@ -145,8 +141,7 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
     trackEvent('open_card', { topicId: topic.id, from: 'homepage' });
   };
   
-  const handleVote = (voteOption: 'yes' | 'no') => {
-    const voterId = localStorage.getItem('anonymousVoterId');
+  const handleVote = async (voteOption: 'yes' | 'no') => {
     if (!voterId) {
         toast({
             variant: 'destructive',
@@ -157,53 +152,45 @@ export function VoteCard({ topic: initialTopic, hasVoted: initialHasVoted }: Vot
         return;
     }
 
-    const previouslyVotedOn = localStorage.getItem(`voted_on_${topic.id}`);
-    if (previouslyVotedOn === voteOption) {
-        return;
-    }
+    if (votedOn === voteOption) return;
 
-    if (previouslyVotedOn) {
-        trackEvent('vote_changed', { topicId: topic.id, from: previouslyVotedOn, to: voteOption });
-    } else {
-        trackEvent('vote_cast', { topicId: topic.id, choice: voteOption });
-    }
+    const previouslyVotedOn = votedOn;
+    setVotedOn(voteOption); // Optimistic UI update for the voted state
 
     setTopic(currentTopic => {
-        if (!currentTopic) return currentTopic;
-
         const newVotes = { ...currentTopic.votes };
-        let newTotalVotes = currentTopic.totalVotes;
-
-        if (previouslyVotedOn && newVotes[previouslyVotedOn] !== undefined) {
-            newVotes[previouslyVotedOn] = Math.max(0, newVotes[previouslyVotedOn] - 1);
-        } else {
-            newTotalVotes += 1;
-        }
-
-        newVotes[voteOption] = (newVotes[voteOption] || 0) + 1;
-        
-        localStorage.setItem(`votes_for_${topic.id}_${voteOption}`, newVotes[voteOption].toString());
         if (previouslyVotedOn) {
-             localStorage.setItem(`votes_for_${topic.id}_${previouslyVotedOn}`, newVotes[previouslyVotedOn].toString());
+            newVotes[previouslyVotedOn] = Math.max(0, newVotes[previouslyVotedOn] - 1);
         }
-
+        newVotes[voteOption] = (newVotes[voteOption] || 0) + 1;
+        const newTotalVotes = Object.values(newVotes).reduce((sum, v) => sum + v, 0);
         return { ...currentTopic, votes: newVotes, totalVotes: newTotalVotes };
     });
 
-    localStorage.setItem(`voted_on_${topic.id}`, voteOption);
-    setVotedOn(voteOption);
+    try {
+        trackEvent(previouslyVotedOn ? 'vote_changed' : 'vote_cast', { topicId: topic.id, from: previouslyVotedOn, to: voteOption });
+        const result = await castVoteAction({ topicId: topic.id, voteOption, voterId });
+        
+        if (!result.success) {
+            throw new Error(result.message);
+        }
 
-    const voteLabel = voteOption === 'yes' ? (lang === 'nb' ? 'Ja' : 'Yes') : (lang === 'nb' ? 'Nei' : 'No');
+        const voteLabel = voteOption === 'yes' ? (lang === 'nb' ? 'Ja' : 'Yes') : (lang === 'nb' ? 'Nei' : 'No');
+        toast({
+            title: previouslyVotedOn ? 'Vote Changed!' : 'Vote Cast!',
+            description: `Your anonymous vote for "${voteLabel}" has been recorded.`,
+        });
 
-    toast({
-        title: previouslyVotedOn ? 'Vote Changed!' : 'Vote Cast!',
-        description: `Your anonymous vote for "${voteLabel}" has been recorded.`,
-    });
-    
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: `voted_on_${topic.id}`,
-      newValue: voteOption,
-    }));
+    } catch (error: any) {
+        // Revert optimistic update on error
+        setVotedOn(previouslyVotedOn);
+        setTopic(initialTopic); // Revert to initial server state
+        toast({
+            variant: 'destructive',
+            title: 'Vote Failed',
+            description: error.message || 'Could not record your vote. Please try again.',
+        });
+    }
   };
 
   

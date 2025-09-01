@@ -4,25 +4,23 @@
 import { z } from 'zod';
 import { simulateDebate } from '@/ai/flows/simulate-debate-flow';
 import type { SimulateDebateInput, SimulateDebateOutput } from '@/lib/types';
+import { db } from '@/lib/firestore.server';
+import { FieldValue } from 'firebase-admin/firestore';
 
 const voteSchema = z.object({
   topicId: z.string(),
   voteOption: z.string(),
-  voterId: z.string(),
+  voterId: z.string(), // This is the person_hash
 });
 
 /**
- * Server Action to record a user's vote.
- * In a real application, this function would perform the following:
- * 1. Validate the user's session and permissions.
- * 2. Perform a transactional database write to:
- *    - Update the user's vote record for this topic.
- *    - Increment the vote count on the topic document.
- *    - Decrement the count for the user's previous vote, if applicable.
- * 3. Revalidate the path or tag for the topic page to update cached data.
+ * Server Action to record a user's vote in Firestore.
+ * This function is now the single source of truth for casting and changing votes.
  *
- * For this prototype, we simulate the action by logging it and returning a success message.
- * This establishes the client-server communication pattern.
+ * It performs a transaction to ensure data integrity:
+ * 1. Reads the user's previous vote for this topic, if any.
+ * 2. Writes the new vote to a `user_votes` collection.
+ * 3. Atomically increments/decrements the vote counts on the main topic document.
  */
 export async function castVoteAction(input: {
   topicId: string;
@@ -32,20 +30,55 @@ export async function castVoteAction(input: {
   try {
     const { topicId, voteOption, voterId } = voteSchema.parse(input);
 
-    console.log('[SERVER ACTION] castVoteAction triggered:');
-    console.log({ topicId, voteOption, voterId });
+    if (!voterId) {
+        return { success: false, message: 'Authentication is required to vote.'};
+    }
     
-    // --- DATABASE LOGIC SIMULATION ---
-    // 1. Find user, find topic
-    // 2. Start transaction
-    // 3. Update vote counts
-    // 4. Commit transaction
-    await new Promise(resolve => setTimeout(resolve, 300)); // Simulate network latency
+    const userVoteRef = db.collection('user_votes').doc(`${voterId}_${topicId}`);
+    const topicRef = db.collection('topics').doc(topicId);
+
+    await db.runTransaction(async (transaction) => {
+        const userVoteDoc = await transaction.get(userVoteRef);
+        const topicDoc = await transaction.get(topicRef);
+
+        if (!topicDoc.exists) {
+            throw new Error(`Topic with ID ${topicId} not found.`);
+        }
+
+        const previousVote = userVoteDoc.exists ? userVoteDoc.data()?.voteOption : null;
+
+        // If the user is casting the same vote again, do nothing.
+        if (previousVote === voteOption) {
+            return;
+        }
+
+        const topicUpdate: { [key: string]: FieldValue } = {};
+
+        // Decrement the count for the previous vote, if one existed.
+        if (previousVote) {
+            topicUpdate[`votes.${previousVote}`] = FieldValue.increment(-1);
+        }
+
+        // Increment the count for the new vote.
+        topicUpdate[`votes.${voteOption}`] = FieldValue.increment(1);
+
+        // Atomically update the topic's vote counts.
+        transaction.update(topicRef, topicUpdate);
+        
+        // Set or update the user's vote record.
+        transaction.set(userVoteRef, {
+            person_hash: voterId,
+            topic_id: topicId,
+            voteOption: voteOption,
+            votedAt: FieldValue.serverTimestamp(),
+        });
+    });
 
     return {
       success: true,
       message: `Server successfully recorded vote for "${voteOption}".`,
     };
+
   } catch (error) {
     console.error('Error in castVoteAction:', error);
     const errorMessage = error instanceof z.ZodError ? error.errors[0].message : 'An unexpected error occurred.';
