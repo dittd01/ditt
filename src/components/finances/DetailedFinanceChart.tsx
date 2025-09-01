@@ -12,7 +12,6 @@ import {
   Legend,
   ResponsiveContainer,
   LabelList,
-  LabelProps,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import financeDetails from '@/lib/db/gov-finance-detail.json';
@@ -20,6 +19,7 @@ import { useTheme } from 'next-themes';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { trackEvent } from '@/lib/analytics';
+import { LabelProps } from 'recharts';
 
 const revenueKeys = [
   'taxes_on_income_wealth',
@@ -54,10 +54,13 @@ const generateShades = (h: number, s: number, isDark: boolean) => {
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
-    const revenueItems = payload.filter(p => revenueKeys.includes(p.dataKey));
-    const expenseItems = payload.filter(p => expenseKeys.includes(p.dataKey));
-    const totalRevenue = revenueItems.reduce((sum, item) => sum + item.value, 0);
-    const totalExpense = expenseItems.reduce((sum, item) => sum + item.value, 0);
+    const revenueItems = payload.filter((p: any) => revenueKeys.includes(p.dataKey.replace('_pct', '')));
+    const expenseItems = payload.filter((p: any) => expenseKeys.includes(p.dataKey.replace('_pct', '')));
+    
+    // Calculate totals from the original data payload for the hovered year
+    const yearData = payload[0].payload;
+    const totalRevenue = yearData.totalRevenue;
+    const totalExpense = yearData.totalExpenditure;
 
     const formatBn = (value: number) => `${(value / 1000).toLocaleString(undefined, { maximumFractionDigits: 1, minimumFractionDigits: 1 })} bn NOK`;
 
@@ -65,22 +68,26 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <div className="rounded-lg border bg-background p-3 shadow-sm text-sm max-w-sm">
         <p className="font-bold mb-2 text-lg">{label}</p>
         <div className="space-y-2">
-            <div>
-                 <p className="font-semibold text-green-600">Revenue: {formatBn(totalRevenue)}</p>
-                 <div className="pl-2 border-l-2 border-green-200 ml-1 space-y-1 py-1">
-                    {revenueItems.map((item: any) => (
-                        <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {formatBn(item.value)}</p>
-                    ))}
-                 </div>
-            </div>
-            <div>
-                 <p className="font-semibold text-red-600">Expenditure: {formatBn(totalExpense)}</p>
-                 <div className="pl-2 border-l-2 border-red-200 ml-1 space-y-1 py-1">
-                    {expenseItems.map((item: any) => (
-                         <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {formatBn(item.value)}</p>
-                    ))}
-                 </div>
-            </div>
+            {revenueItems.length > 0 && (
+                <div>
+                     <p className="font-semibold text-green-600">Revenue: {formatBn(totalRevenue)}</p>
+                     <div className="pl-2 border-l-2 border-green-200 ml-1 space-y-1 py-1">
+                        {revenueItems.sort((a,b) => b.payload[a.dataKey.replace('_pct','')] - a.payload[b.dataKey.replace('_pct','')]).map((item: any) => (
+                            <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {formatBn(item.payload[item.dataKey.replace('_pct','')])}</p>
+                        ))}
+                     </div>
+                </div>
+            )}
+            {expenseItems.length > 0 && (
+                <div>
+                     <p className="font-semibold text-red-600">Expenditure: {formatBn(totalExpense)}</p>
+                     <div className="pl-2 border-l-2 border-red-200 ml-1 space-y-1 py-1">
+                        {expenseItems.sort((a,b) => b.payload[a.dataKey.replace('_pct','')] - a.payload[b.dataKey.replace('_pct','')]).map((item: any) => (
+                             <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {formatBn(item.payload[item.dataKey.replace('_pct','')])}</p>
+                        ))}
+                     </div>
+                </div>
+            )}
         </div>
         <p className="font-bold pt-2 mt-2 border-t">Surplus: {formatBn(totalRevenue - totalExpense)}</p>
       </div>
@@ -155,7 +162,8 @@ export function DetailedFinanceChart() {
     const labels = financeDetails.labels;
 
     const valueFormatter = (value: number) => {
-        if (value < 200000) return '';
+        const threshold = view === 'amount' ? 200000 : 10;
+        if (value < threshold) return '';
         return view === 'amount'
             ? new Intl.NumberFormat('nb-NO').format(Math.round(value))
             : `${value.toFixed(0)}%`;
