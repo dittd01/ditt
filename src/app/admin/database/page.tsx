@@ -19,7 +19,7 @@ graph TD
 
     subgraph "Voting Data (Public & Aggregated)"
         T1[topics/topic_abc]
-        V1[votes/topic_abc_person_hash_123] -->|Increment| T1;
+        V1[votes/person_hash_123_topic_abc] -->|Increment| T1;
     end
     
     subgraph "Device Management"
@@ -57,9 +57,9 @@ const dataPoints = [
     },
     {
         icon: Vote,
-        title: "votes/{composite_id}",
-        description: "A record that a specific person has voted on a specific topic. This is used to prevent a user from voting more than once on the same poll.",
-        explanation: "When you vote, we create a simple ticket that says 'person_hash_123 voted on topic_abc'. This lets us check if you've already voted. This record is private and not directly linked to the public vote counts, which are updated separately and anonymously."
+        title: "user_votes/{person_hash}_{topic_id}",
+        description: "Securely records that a specific person has voted on a specific topic, enabling a persistent, multi-device experience. This record is private and separate from the public aggregate counts.",
+        explanation: "When you vote, we create a private record linking your anonymous ID to the topic and your chosen option. This prevents you from voting twice and ensures your voting history follows you across devices. This information is firewalled and not exposed publicly."
     },
     {
         icon: Link2,
@@ -142,4 +142,3 @@ export default function DatabasePage() {
         </div>
     );
 }
-
