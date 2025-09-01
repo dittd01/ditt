@@ -91,11 +91,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 const TotalLabel = (props: LabelProps & { total: number }) => {
     const { x, y, width, height, value, total } = props;
     
-    if (typeof x !== 'number' || typeof y !== 'number' || typeof height !== 'number') {
+    if (typeof x !== 'number' || typeof y !== 'number' || typeof height !== 'number' || total === 0) {
         return null;
     }
 
-    const formattedTotal = new Intl.NumberFormat('nb-NO').format(Math.round(total));
+    const formattedTotal = new Intl.NumberFormat('nb-NO').format(Math.round(total / 1000));
     
     return (
         <text 
@@ -174,7 +174,7 @@ export function DetailedFinanceChart() {
             </CardHeader>
             <CardContent className="h-[500px] w-full">
                 <ResponsiveContainer>
-                    <BarChart data={chartData} margin={{ top: 30, right: 30, left: 20, bottom: 5 }} barGap={-10}>
+                    <BarChart data={chartData} margin={{ top: 30, right: 30, left: 20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false}/>
                         <XAxis dataKey="year" tick={{ fontSize: 12 }} />
                         <YAxis 
