@@ -6,7 +6,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { FinanceHeader } from '@/components/finances/FinanceHeader';
 import { KpiCards } from '@/components/finances/KpiCards';
 import { ExpenditureBarChart } from '@/components/finances/ExpenditureBarChart';
-import { ExpenditureChart } from '@/components/finances/ExpenditureChart';
 import { GeneralGovernmentTotals } from '@/components/finances/GeneralGovernmentTotals';
 import { RevenueBySourceChart } from '@/components/finances/RevenueBySourceChart';
 import { Sources } from '@/components/finances/Sources';
