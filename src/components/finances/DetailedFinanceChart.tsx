@@ -57,12 +57,14 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     const totalRevenue = revenueItems.reduce((sum, item) => sum + item.value, 0);
     const totalExpense = expenseItems.reduce((sum, item) => sum + item.value, 0);
 
+    const formatBn = (value: number) => `${(value / 1000).toLocaleString(undefined, { maximumFractionDigits: 1, minimumFractionDigits: 1 })} bn NOK`;
+
     return (
       <div className="rounded-lg border bg-background p-3 shadow-sm text-sm max-w-sm">
         <p className="font-bold mb-2 text-lg">{label}</p>
         <div className="space-y-2">
             <div>
-                 <p className="font-semibold text-green-600">Revenue: {totalRevenue.toLocaleString()} MNOK</p>
+                 <p className="font-semibold text-green-600">Revenue: {formatBn(totalRevenue)}</p>
                  <div className="pl-2 border-l-2 border-green-200 ml-1 space-y-1 py-1">
                     {revenueItems.map((item: any) => (
                         <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {item.value.toLocaleString()}</p>
@@ -70,7 +72,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                  </div>
             </div>
             <div>
-                 <p className="font-semibold text-red-600">Expenditure: {totalExpense.toLocaleString()} MNOK</p>
+                 <p className="font-semibold text-red-600">Expenditure: {formatBn(totalExpense)}</p>
                  <div className="pl-2 border-l-2 border-red-200 ml-1 space-y-1 py-1">
                     {expenseItems.map((item: any) => (
                          <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {item.value.toLocaleString()}</p>
@@ -78,7 +80,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                  </div>
             </div>
         </div>
-        <p className="font-bold pt-2 mt-2 border-t">Surplus: {(totalRevenue - totalExpense).toLocaleString()} MNOK</p>
+        <p className="font-bold pt-2 mt-2 border-t">Surplus: {formatBn(totalRevenue - totalExpense)}</p>
       </div>
     );
   }
@@ -183,7 +185,7 @@ export function DetailedFinanceChart() {
                                 dataKey="revenue_total" 
                                 position="top" 
                                 className="text-xs" 
-                                formatter={(value: number) => `${(value / 1000000).toFixed(1)}M`}
+                                formatter={(value: number) => `${(value / 1000000).toFixed(1)}T`}
                               />
                             </Bar>
                             <Bar dataKey="expenditure_total" stackId="expense" fill="transparent">
@@ -191,7 +193,7 @@ export function DetailedFinanceChart() {
                                 dataKey="expenditure_total" 
                                 position="top" 
                                 className="text-xs"
-                                formatter={(value: number) => `${(value / 1000000).toFixed(1)}M`}
+                                formatter={(value: number) => `${(value / 1000000).toFixed(1)}T`}
                               />
                             </Bar>
                           </>
