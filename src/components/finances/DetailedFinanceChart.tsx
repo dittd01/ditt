@@ -146,7 +146,10 @@ export function DetailedFinanceChart() {
                     <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false}/>
                         <XAxis dataKey="year" tick={{ fontSize: 12 }} />
-                        <YAxis tick={{ fontSize: 12 }} tickFormatter={(value) => view === 'amount' ? `${value / 1000000}M` : `${value}%`} />
+                        <YAxis 
+                            tick={{ fontSize: 12 }} 
+                            tickFormatter={(value) => view === 'amount' ? `${new Intl.NumberFormat('en-US').format(value / 1000)} bn` : `${value}%`}
+                        />
                         <Tooltip content={<CustomTooltip />}/>
                         <Legend wrapperStyle={{ fontSize: isMobile ? '10px' : '12px' }}/>
                         
