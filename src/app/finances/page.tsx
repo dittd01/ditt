@@ -7,11 +7,11 @@ import { FinanceHeader } from '@/components/finances/FinanceHeader';
 import { KpiCards } from '@/components/finances/KpiCards';
 import { ExpenditureBarChart } from '@/components/finances/ExpenditureBarChart';
 import { GeneralGovernmentTotals } from '@/components/finances/GeneralGovernmentTotals';
-import { RevenueBySourceChart } from '@/components/finances/RevenueBySourceChart';
 import { Sources } from '@/components/finances/Sources';
 import { allFinanceData } from '@/lib/finance-data';
 import type { ExpenditureByFunction, FinanceData } from '@/lib/types';
 import { getFinanceDataForCountry } from '@/app/actions';
+import { DetailedFinanceChart } from '@/components/finances/DetailedFinanceChart';
 
 
 export default function FinancesPage() {
@@ -95,9 +95,9 @@ export default function FinancesPage() {
         selectedYear={year}
       />
       <KpiCards data={countryData} />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="space-y-8">
         <GeneralGovernmentTotals />
-        <RevenueBySourceChart data={countryData.generalGovernmentRevenueBreakdown} />
+        <DetailedFinanceChart />
       </div>
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <ExpenditureBarChart 

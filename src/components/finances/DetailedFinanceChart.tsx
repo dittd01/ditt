@@ -1,0 +1,180 @@
+
+'use client';
+
+import * as React from 'react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LabelList,
+} from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { financeDetails } from '@/lib/db/gov-finance-detail.json';
+import { useTheme } from 'next-themes';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { trackEvent } from '@/lib/analytics';
+
+const revenueKeys = [
+  'taxes_on_income_wealth',
+  'taxes_on_goods_services',
+  'capital_taxes',
+  'social_security_contributions',
+  'property_income_revenue',
+  'admin_fees_sales',
+  'current_transfers_revenue',
+];
+
+const expenseKeys = [
+  'compensation_of_employees',
+  'use_of_goods_services',
+  'consumption_of_fixed_capital',
+  'property_expense',
+  'social_benefits_in_kind',
+  'social_benefits_in_cash',
+  'subsidies',
+  'current_transfers_expense',
+  'capital_transfers',
+  'net_acquisitions_non_financial_assets',
+];
+
+const generateShades = (h: number, s: number, isDark: boolean) => {
+  const baseL = isDark ? 60 : 30;
+  const step = isDark ? -4 : 6;
+  return Array.from({ length: 12 }, (_, i) => `hsl(${h}, ${s}%, ${baseL + i * step}%)`);
+};
+
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    const revenueItems = payload.filter(p => revenueKeys.includes(p.dataKey));
+    const expenseItems = payload.filter(p => expenseKeys.includes(p.dataKey));
+    const totalRevenue = revenueItems.reduce((sum, item) => sum + item.value, 0);
+    const totalExpense = expenseItems.reduce((sum, item) => sum + item.value, 0);
+
+    return (
+      <div className="rounded-lg border bg-background p-3 shadow-sm text-sm max-w-sm">
+        <p className="font-bold mb-2 text-lg">{label}</p>
+        <div className="space-y-2">
+            <div>
+                 <p className="font-semibold text-green-600">Revenue: {totalRevenue.toLocaleString()} MNOK</p>
+                 <div className="pl-2 border-l-2 border-green-200 ml-1 space-y-1 py-1">
+                    {revenueItems.map((item: any) => (
+                        <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {item.value.toLocaleString()}</p>
+                    ))}
+                 </div>
+            </div>
+            <div>
+                 <p className="font-semibold text-red-600">Expenditure: {totalExpense.toLocaleString()} MNOK</p>
+                 <div className="pl-2 border-l-2 border-red-200 ml-1 space-y-1 py-1">
+                    {expenseItems.map((item: any) => (
+                         <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {item.value.toLocaleString()}</p>
+                    ))}
+                 </div>
+            </div>
+        </div>
+        <p className="font-bold pt-2 mt-2 border-t">Surplus: {(totalRevenue - totalExpense).toLocaleString()} MNOK</p>
+      </div>
+    );
+  }
+  return null;
+};
+
+export function DetailedFinanceChart() {
+    const { resolvedTheme } = useTheme();
+    const isMobile = useIsMobile();
+    const [view, setView] = React.useState<'amount' | 'percentage'>('amount');
+    const [lang, setLang] = React.useState('en');
+    
+    React.useEffect(() => {
+        setLang(localStorage.getItem('selectedLanguage') || 'en');
+        trackEvent('fiscal_chart_view', { chart: 'detailed_finance_chart' });
+    }, []);
+
+    const chartData = React.useMemo(() => {
+        return financeDetails.years.map(yearData => {
+            const totalRevenue = yearData.revenue_total;
+            const totalExpenditure = yearData.expenditure_total;
+
+            const revenuePercentages = Object.fromEntries(
+                revenueKeys.map(key => [`${key}_pct`, totalRevenue > 0 ? (yearData[key as keyof typeof yearData] as number / totalRevenue) * 100 : 0])
+            );
+            const expensePercentages = Object.fromEntries(
+                expenseKeys.map(key => [`${key}_pct`, totalExpenditure > 0 ? (yearData[key as keyof typeof yearData] as number / totalExpenditure) * 100 : 0])
+            );
+            
+            return {
+                year: yearData.year,
+                ...yearData,
+                ...revenuePercentages,
+                ...expensePercentages,
+            };
+        });
+    }, []);
+
+    const greenShades = generateShades(142, 71, resolvedTheme === 'dark');
+    const redShades = generateShades(0, 84, resolvedTheme === 'dark');
+
+    const labels = financeDetails.labels;
+
+    return (
+        <Card>
+            <CardHeader>
+                <div className="flex flex-wrap justify-between items-center gap-4">
+                    <div>
+                        <CardTitle>{lang === 'nb' ? 'Detaljert oversikt over offentlige finanser' : 'Detailed General Government Finances'}</CardTitle>
+                        <CardDescription>{lang === 'nb' ? 'Årlig inntekt og utgift brutt ned etter type. Tall i millioner NOK.' : 'Annual revenue and expenditure by type. Figures in NOK million.'}</CardDescription>
+                    </div>
+                    <Select value={view} onValueChange={(v) => setView(v as any)}>
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="amount">Show Amounts</SelectItem>
+                            <SelectItem value="percentage">Show Percentage</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </CardHeader>
+            <CardContent className="h-[500px] w-full">
+                <ResponsiveContainer>
+                    <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false}/>
+                        <XAxis dataKey="year" tick={{ fontSize: 12 }} />
+                        <YAxis tick={{ fontSize: 12 }} tickFormatter={(value) => view === 'amount' ? `${value / 1000000}M` : `${value}%`} />
+                        <Tooltip content={<CustomTooltip />}/>
+                        <Legend wrapperStyle={{ fontSize: isMobile ? '10px' : '12px' }}/>
+                        
+                        {/* Revenue Bars */}
+                        {revenueKeys.map((key, index) => (
+                            <Bar 
+                                key={key} 
+                                dataKey={view === 'amount' ? key : `${key}_pct`} 
+                                stackId="revenue" 
+                                name={labels[key as keyof typeof labels][lang as 'en' | 'nb']}
+                                fill={greenShades[index]} 
+                            />
+                        ))}
+                        
+                        {/* Expense Bars */}
+                        {expenseKeys.map((key, index) => (
+                             <Bar 
+                                key={key} 
+                                dataKey={view === 'amount' ? key : `${key}_pct`} 
+                                stackId="expense"
+                                name={labels[key as keyof typeof labels][lang as 'en' | 'nb']}
+                                fill={redShades[index]} 
+                            />
+                        ))}
+                    </BarChart>
+                </ResponsiveContainer>
+            </CardContent>
+        </Card>
+    );
+}
+
