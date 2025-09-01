@@ -70,7 +70,8 @@ export function GeneralGovernmentTotals() {
     
     const valueFormatter = (value: number) => {
         if (value < 200) return ''; // Don't show labels for very small segments
-        return new Intl.NumberFormat('nb-NO').format(value);
+        // Round to nearest integer before formatting
+        return new Intl.NumberFormat('nb-NO').format(Math.round(value));
     }
 
 
@@ -97,7 +98,7 @@ export function GeneralGovernmentTotals() {
                             tickLine={false}
                         />
                         <YAxis
-                            tickFormatter={(value) => new Intl.NumberFormat('nb-NO').format(value)}
+                            tickFormatter={(value) => new Intl.NumberFormat('nb-NO', { minimumFractionDigits: 0 }).format(value)}
                             tick={{ fontSize: 12 }}
                             axisLine={false}
                             tickLine={false}
