@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -7,6 +8,7 @@ import { KpiCards } from '@/components/finances/KpiCards';
 import { ExpenditureBarChart } from '@/components/finances/ExpenditureBarChart';
 import { ExpenditureChart } from '@/components/finances/ExpenditureChart';
 import { GeneralGovernmentTotals } from '@/components/finances/GeneralGovernmentTotals';
+import { RevenueBySourceChart } from '@/components/finances/RevenueBySourceChart';
 import { Sources } from '@/components/finances/Sources';
 import { allFinanceData } from '@/lib/finance-data';
 import type { ExpenditureByFunction, FinanceData } from '@/lib/types';
@@ -96,7 +98,7 @@ export default function FinancesPage() {
       <KpiCards data={countryData} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <GeneralGovernmentTotals />
-        <ExpenditureChart data={countryData} />
+        <RevenueBySourceChart data={countryData.generalGovernmentRevenueBreakdown} />
       </div>
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <ExpenditureBarChart 

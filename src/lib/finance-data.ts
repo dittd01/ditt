@@ -1,6 +1,6 @@
 
 
-import type { Country, FiscalYear, FinanceTotal, CofogFunction, ExpenditureByFunction, DataSource, FinanceData, StateBudgetRow, GeneralGovernmentAnnual } from './types';
+import type { Country, FiscalYear, FinanceTotal, CofogFunction, ExpenditureByFunction, DataSource, FinanceData, StateBudgetRow, GeneralGovernmentAnnual, GeneralGovernmentRevenueBreakdown } from './types';
 
 const countries: Country[] = [
   { iso3: 'NOR', name: 'Norway', currency: 'NOK', decimals: 0, defaultYear: 2024, cofogVersion: 'UN-COFOG-2019' }
@@ -44,6 +44,26 @@ export const generalGovAnnual: GeneralGovernmentAnnual[] = [
   { year: 2023, revenueBn: 3188.374, expenditureBn: 2347.156, surplusBn: 841.219 },
   { year: 2022, revenueBn: 3615.516, expenditureBn: 2151.437, surplusBn: 1464.078 },
 ];
+
+/**
+ * Source for 2023: SSB “petroleum revenues 829 bn NOK, other revenues 2,359 bn NOK”.
+ * Source for 2024: SSB rolling revenue 3,294 bn NOK, net petroleum cash flow 680 bn NOK (Regjeringen.no).
+ */
+export const generalGovRevenueBreakdown: GeneralGovernmentRevenueBreakdown[] = [
+  {
+    year: 2023,
+    oilRevenueBn: 829,
+    otherRevenueBn: 2359,
+    totalRevenueBn: 3188,
+  },
+  {
+    year: 2024,
+    oilRevenueBn: 680,
+    otherRevenueBn: 2614,
+    totalRevenueBn: 3294,
+  },
+];
+
 
 const expenditureLevel1: ExpenditureByFunction[] = [
     { countryIso3: 'NOR', year: 2024, cofogL1: '10', name_no: 'Pensjon og sosiale ytelser', name_en: 'Social protection', amountBnNOK: 962 },
@@ -157,6 +177,7 @@ const norway2024Data: FinanceData = {
     expenditure: expenditureLevel1,
     expenditureL2: expenditureLevel2,
     generalGovernmentAnnual: generalGovAnnual,
+    generalGovernmentRevenueBreakdown: generalGovRevenueBreakdown,
 };
 
 // Main export structure

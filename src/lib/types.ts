@@ -262,6 +262,13 @@ export type GeneralGovernmentAnnual = {
     surplusBn: number;
 };
 
+export type GeneralGovernmentRevenueBreakdown = {
+    year: number;
+    oilRevenueBn: number;
+    otherRevenueBn: number;
+    totalRevenueBn: number;
+};
+
 export type FinanceData = {
     countryIso3: string;
     year: number;
@@ -272,4 +279,5 @@ export type FinanceData = {
     cofog: CofogFunction[];
     stateBudget: StateBudgetRow[];
     generalGovernmentAnnual: GeneralGovernmentAnnual[];
+    generalGovernmentRevenueBreakdown: GeneralGovernmentRevenueBreakdown[];
 };
