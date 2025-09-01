@@ -145,7 +145,7 @@ export function DetailedFinanceChart() {
             </CardHeader>
             <CardContent className="h-[500px] w-full">
                 <ResponsiveContainer>
-                    <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} barGap={20}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false}/>
                         <XAxis dataKey="year" tick={{ fontSize: 12 }} />
                         <YAxis 
@@ -163,6 +163,7 @@ export function DetailedFinanceChart() {
                                 stackId="revenue" 
                                 name={labels[key as keyof typeof labels][lang as 'en' | 'nb']}
                                 fill={greenShades[index]} 
+                                radius={[index === revenueKeys.length -1 ? 4 : 0, index === revenueKeys.length-1 ? 4 : 0, 0, 0]}
                             />
                         ))}
                         
@@ -174,6 +175,7 @@ export function DetailedFinanceChart() {
                                 stackId="expense"
                                 name={labels[key as keyof typeof labels][lang as 'en' | 'nb']}
                                 fill={redShades[index]} 
+                                radius={[index === expenseKeys.length -1 ? 4 : 0, index === expenseKeys.length-1 ? 4 : 0, 0, 0]}
                             />
                         ))}
                     </BarChart>
