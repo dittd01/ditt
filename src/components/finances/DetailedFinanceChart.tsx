@@ -95,15 +95,16 @@ const TotalLabel = (props: LabelProps & { total: number }) => {
         return null;
     }
 
-    const formattedTotal = new Intl.NumberFormat('nb-NO').format(Math.round(total / 1000));
+    const formattedTotal = new Intl.NumberFormat('nb-NO').format(Math.round(total));
     
     return (
         <text 
             x={x + width! / 2} 
-            y={y - 4} 
+            y={y} 
             fill="hsl(var(--foreground))" 
             textAnchor="middle"
-            dominantBaseline="bottom"
+            dominantBaseline="text-after-edge"
+            dy={-4}
             fontSize={12}
             fontWeight="600"
         >
@@ -178,7 +179,7 @@ export function DetailedFinanceChart() {
                         <XAxis dataKey="year" tick={{ fontSize: 12 }} />
                         <YAxis 
                             tick={{ fontSize: 12 }} 
-                            tickFormatter={(value) => view === 'amount' ? `${new Intl.NumberFormat('nb-NO').format(value / 1000)}` : `${value}%`}
+                            tickFormatter={(value) => view === 'amount' ? `${new Intl.NumberFormat('nb-NO').format(value / 1000)} bn` : `${value}%`}
                         />
                         <Tooltip content={<CustomTooltip />}/>
                         <Legend wrapperStyle={{ fontSize: isMobile ? '10px' : '12px' }}/>
@@ -208,18 +209,22 @@ export function DetailedFinanceChart() {
                         ))}
                         
                         {/* Transparent bars for total labels */}
-                        <Bar dataKey="totalRevenue" stackId="revenue" fill="transparent">
-                            <LabelList
-                                dataKey="totalRevenue"
-                                content={(props) => <TotalLabel {...props} total={props.value as number} />}
-                            />
-                        </Bar>
-                         <Bar dataKey="totalExpenditure" stackId="expense" fill="transparent">
-                            <LabelList
-                                dataKey="totalExpenditure"
-                                content={(props) => <TotalLabel {...props} total={props.value as number} />}
-                            />
-                        </Bar>
+                        {view === 'amount' && (
+                            <>
+                                <Bar dataKey="totalRevenue" stackId="revenue" fill="transparent">
+                                    <LabelList
+                                        dataKey="totalRevenue"
+                                        content={(props) => <TotalLabel {...props} total={props.value as number} />}
+                                    />
+                                </Bar>
+                                 <Bar dataKey="totalExpenditure" stackId="expense" fill="transparent">
+                                    <LabelList
+                                        dataKey="totalExpenditure"
+                                        content={(props) => <TotalLabel {...props} total={props.value as number} />}
+                                    />
+                                </Bar>
+                            </>
+                        )}
 
                     </BarChart>
                 </ResponsiveContainer>
