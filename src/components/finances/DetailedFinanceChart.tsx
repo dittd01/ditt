@@ -14,7 +14,7 @@ import {
   LabelList,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { financeDetails } from '@/lib/db/gov-finance-detail.json';
+import financeDetails from '@/lib/db/gov-finance-detail.json';
 import { useTheme } from 'next-themes';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -177,4 +177,3 @@ export function DetailedFinanceChart() {
         </Card>
     );
 }
-
