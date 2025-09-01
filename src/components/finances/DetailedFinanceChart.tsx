@@ -171,6 +171,28 @@ export function DetailedFinanceChart() {
                                 fill={redShades[index]} 
                             />
                         ))}
+
+                        {/* Total Labels */}
+                        {view === 'amount' && (
+                          <>
+                            <Bar dataKey="revenue_total" stackId="revenue" fill="transparent">
+                              <LabelList 
+                                dataKey="revenue_total" 
+                                position="top" 
+                                className="text-xs" 
+                                formatter={(value: number) => `${(value / 1000000).toFixed(1)}M`}
+                              />
+                            </Bar>
+                            <Bar dataKey="expenditure_total" stackId="expense" fill="transparent">
+                              <LabelList 
+                                dataKey="expenditure_total" 
+                                position="top" 
+                                className="text-xs"
+                                formatter={(value: number) => `${(value / 1000000).toFixed(1)}M`}
+                              />
+                            </Bar>
+                          </>
+                        )}
                     </BarChart>
                 </ResponsiveContainer>
             </CardContent>
