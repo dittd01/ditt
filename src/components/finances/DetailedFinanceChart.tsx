@@ -165,7 +165,7 @@ export function DetailedFinanceChart() {
         const threshold = view === 'amount' ? 200000 : 10;
         if (value < threshold) return '';
         return view === 'amount'
-            ? new Intl.NumberFormat('nb-NO').format(Math.round(value))
+            ? new Intl.NumberFormat('nb-NO', { maximumFractionDigits: 0 }).format(Math.round(value / 1000))
             : `${value.toFixed(0)}%`;
     }
 
