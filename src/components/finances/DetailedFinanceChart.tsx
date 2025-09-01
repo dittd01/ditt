@@ -12,6 +12,7 @@ import {
   Legend,
   ResponsiveContainer,
   LabelList,
+  LabelProps,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import financeDetails from '@/lib/db/gov-finance-detail.json';
@@ -87,6 +88,31 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
+const TotalLabel = (props: LabelProps & { total: number }) => {
+    const { x, y, width, height, value, total } = props;
+    
+    if (typeof x !== 'number' || typeof y !== 'number' || typeof height !== 'number') {
+        return null;
+    }
+
+    const formattedTotal = new Intl.NumberFormat('nb-NO').format(Math.round(total / 1000));
+    
+    return (
+        <text 
+            x={x + width! / 2} 
+            y={y - 4} 
+            fill="hsl(var(--foreground))" 
+            textAnchor="middle"
+            dominantBaseline="bottom"
+            fontSize={12}
+            fontWeight="600"
+        >
+            {formattedTotal}
+        </text>
+    );
+};
+
+
 export function DetailedFinanceChart() {
     const { resolvedTheme } = useTheme();
     const isMobile = useIsMobile();
@@ -100,8 +126,8 @@ export function DetailedFinanceChart() {
 
     const chartData = React.useMemo(() => {
         return financeDetails.years.map(yearData => {
-            const totalRevenue = yearData.revenue_total;
-            const totalExpenditure = yearData.expenditure_total;
+            const totalRevenue = revenueKeys.reduce((sum, key) => sum + (yearData[key as keyof typeof yearData] as number), 0);
+            const totalExpenditure = expenseKeys.reduce((sum, key) => sum + (yearData[key as keyof typeof yearData] as number), 0);
 
             const revenuePercentages = Object.fromEntries(
                 revenueKeys.map(key => [`${key}_pct`, totalRevenue > 0 ? (yearData[key as keyof typeof yearData] as number / totalRevenue) * 100 : 0])
@@ -112,6 +138,8 @@ export function DetailedFinanceChart() {
             
             return {
                 year: yearData.year,
+                totalRevenue,
+                totalExpenditure,
                 ...yearData,
                 ...revenuePercentages,
                 ...expensePercentages,
@@ -145,12 +173,12 @@ export function DetailedFinanceChart() {
             </CardHeader>
             <CardContent className="h-[500px] w-full">
                 <ResponsiveContainer>
-                    <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} barGap={20}>
+                    <BarChart data={chartData} margin={{ top: 30, right: 30, left: 20, bottom: 5 }} barGap={-10}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false}/>
                         <XAxis dataKey="year" tick={{ fontSize: 12 }} />
                         <YAxis 
                             tick={{ fontSize: 12 }} 
-                            tickFormatter={(value) => view === 'amount' ? `${new Intl.NumberFormat('nb-NO').format(value / 1000)} bn` : `${value}%`}
+                            tickFormatter={(value) => view === 'amount' ? `${new Intl.NumberFormat('nb-NO').format(value / 1000)}` : `${value}%`}
                         />
                         <Tooltip content={<CustomTooltip />}/>
                         <Legend wrapperStyle={{ fontSize: isMobile ? '10px' : '12px' }}/>
@@ -163,7 +191,7 @@ export function DetailedFinanceChart() {
                                 stackId="revenue" 
                                 name={labels[key as keyof typeof labels][lang as 'en' | 'nb']}
                                 fill={greenShades[index]} 
-                                radius={[index === revenueKeys.length -1 ? 4 : 0, index === revenueKeys.length-1 ? 4 : 0, 0, 0]}
+                                radius={index === revenueKeys.length - 1 ? [4, 4, 0, 0] : [0,0,0,0]}
                             />
                         ))}
                         
@@ -175,9 +203,24 @@ export function DetailedFinanceChart() {
                                 stackId="expense"
                                 name={labels[key as keyof typeof labels][lang as 'en' | 'nb']}
                                 fill={redShades[index]} 
-                                radius={[index === expenseKeys.length -1 ? 4 : 0, index === expenseKeys.length-1 ? 4 : 0, 0, 0]}
+                                radius={index === expenseKeys.length -1 ? [4, 4, 0, 0] : [0,0,0,0]}
                             />
                         ))}
+                        
+                        {/* Transparent bars for total labels */}
+                        <Bar dataKey="totalRevenue" stackId="revenue" fill="transparent">
+                            <LabelList
+                                dataKey="totalRevenue"
+                                content={(props) => <TotalLabel {...props} total={props.value as number} />}
+                            />
+                        </Bar>
+                         <Bar dataKey="totalExpenditure" stackId="expense" fill="transparent">
+                            <LabelList
+                                dataKey="totalExpenditure"
+                                content={(props) => <TotalLabel {...props} total={props.value as number} />}
+                            />
+                        </Bar>
+
                     </BarChart>
                 </ResponsiveContainer>
             </CardContent>
