@@ -150,9 +150,10 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                                 onClick={() => onVote('yes')}
                                 className={cn(
                                     "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-md transition-all duration-300 ease-in-out active:translate-y-px hover:-translate-y-[5px] hover:shadow-xl",
+                                    "dark:text-white dark:active:bg-red-700",
                                     votedOn === 'yes'
-                                        ? "bg-destructive text-destructive-foreground border-transparent hover:bg-destructive hover:text-destructive-foreground"
-                                        : "bg-background text-destructive border border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                        ? "bg-destructive text-destructive-foreground border-transparent dark:bg-red-500 dark:hover:bg-red-600"
+                                        : "bg-background text-destructive border border-destructive dark:bg-transparent dark:hover:bg-red-500"
                                 )}
                             >
                                 {t.yes}
@@ -161,9 +162,10 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                                 onClick={() => onVote('no')}
                                 className={cn(
                                     "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-md transition-all duration-300 ease-in-out active:translate-y-px hover:-translate-y-[5px] hover:shadow-xl",
+                                    "dark:text-white dark:active:bg-green-700",
                                     votedOn === 'no'
-                                        ? "bg-[hsl(var(--chart-2))] text-white border-transparent hover:bg-[hsl(var(--chart-2))] hover:text-white"
-                                        : "bg-background text-[hsl(var(--chart-2))] border border-[hsl(var(--chart-2))] hover:bg-[hsl(var(--chart-2))] hover:text-white"
+                                        ? "bg-[hsl(var(--chart-2))] text-white border-transparent dark:bg-green-500 dark:hover:bg-green-600"
+                                        : "bg-background text-[hsl(var(--chart-2))] border border-[hsl(var(--chart-2))] dark:bg-transparent dark:hover:bg-green-500"
                                 )}
                             >
                                 {t.no}
