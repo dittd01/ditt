@@ -67,6 +67,12 @@ export function GeneralGovernmentTotals() {
             };
         }).sort((a,b) => parseInt(a.name) - parseInt(b.name));
     }, []);
+    
+    const valueFormatter = (value: number) => {
+        if (value < 200) return ''; // Don't show labels for very small segments
+        return new Intl.NumberFormat('nb-NO').format(value);
+    }
+
 
     const title = lang === 'nb' ? 'Inntekter vs. Utgifter (Alle Offentlige Nivåer)' : 'General Government Revenue vs. Expenditure (All Levels)';
     const description = lang === 'nb' ? 'Inkluderer stat, kommuner og trygdefond. Kilde: SSB. Tall i milliarder kroner.' : 'Includes state, municipalities, and social security funds. Source: SSB. Figures in billions of NOK.';
@@ -91,7 +97,7 @@ export function GeneralGovernmentTotals() {
                             tickLine={false}
                         />
                         <YAxis
-                            tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                            tickFormatter={(value) => new Intl.NumberFormat('nb-NO').format(value)}
                             tick={{ fontSize: 12 }}
                             axisLine={false}
                             tickLine={false}
@@ -103,10 +109,16 @@ export function GeneralGovernmentTotals() {
                         <Legend wrapperStyle={{fontSize: "12px"}}/>
                         <ReferenceLine y={0} stroke="hsl(var(--border))" strokeWidth={1} />
                         
-                        <Bar dataKey="otherRevenueBn" name="Other Revenue" stackId="revenue" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="oilRevenueBn" name="Oil Revenue" stackId="revenue" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="otherRevenueBn" name="Other Revenue" stackId="revenue" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]}>
+                            <LabelList dataKey="otherRevenueBn" position="center" className="fill-primary-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
+                        </Bar>
+                        <Bar dataKey="oilRevenueBn" name="Oil Revenue" stackId="revenue" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]}>
+                             <LabelList dataKey="oilRevenueBn" position="center" className="fill-primary-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
+                        </Bar>
                         
-                        <Bar dataKey="expenditureBn" name="Expenditure" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="expenditureBn" name="Expenditure" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]}>
+                             <LabelList dataKey="expenditureBn" position="center" className="fill-destructive-foreground font-semibold" style={{ fontSize: 12 }} formatter={valueFormatter} />
+                        </Bar>
                          {chartData.map((entry, index) => (
                              <LabelList
                                 key={index}
