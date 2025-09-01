@@ -67,7 +67,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                  <p className="font-semibold text-green-600">Revenue: {formatBn(totalRevenue)}</p>
                  <div className="pl-2 border-l-2 border-green-200 ml-1 space-y-1 py-1">
                     {revenueItems.map((item: any) => (
-                        <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {item.value.toLocaleString()}</p>
+                        <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {(item.value / 1000).toLocaleString(undefined, { maximumFractionDigits: 1, minimumFractionDigits: 1 })} bn</p>
                     ))}
                  </div>
             </div>
@@ -75,7 +75,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                  <p className="font-semibold text-red-600">Expenditure: {formatBn(totalExpense)}</p>
                  <div className="pl-2 border-l-2 border-red-200 ml-1 space-y-1 py-1">
                     {expenseItems.map((item: any) => (
-                         <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {item.value.toLocaleString()}</p>
+                         <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {(item.value / 1000).toLocaleString(undefined, { maximumFractionDigits: 1, minimumFractionDigits: 1 })} bn</p>
                     ))}
                  </div>
             </div>
@@ -130,7 +130,7 @@ export function DetailedFinanceChart() {
                 <div className="flex flex-wrap justify-between items-center gap-4">
                     <div>
                         <CardTitle>{lang === 'nb' ? 'Detaljert oversikt over offentlige finanser' : 'Detailed General Government Finances'}</CardTitle>
-                        <CardDescription>{lang === 'nb' ? 'Årlig inntekt og utgift brutt ned etter type. Tall i millioner NOK.' : 'Annual revenue and expenditure by type. Figures in NOK million.'}</CardDescription>
+                        <CardDescription>{lang === 'nb' ? 'Årlig inntekt og utgift brutt ned etter type. Tall i milliarder NOK.' : 'Annual revenue and expenditure by type. Figures in NOK billion.'}</CardDescription>
                     </div>
                     <Select value={view} onValueChange={(v) => setView(v as any)}>
                         <SelectTrigger className="w-[180px]">
@@ -150,7 +150,7 @@ export function DetailedFinanceChart() {
                         <XAxis dataKey="year" tick={{ fontSize: 12 }} />
                         <YAxis 
                             tick={{ fontSize: 12 }} 
-                            tickFormatter={(value) => view === 'amount' ? `${new Intl.NumberFormat('en-US').format(value / 1000)} bn` : `${value}%`}
+                            tickFormatter={(value) => view === 'amount' ? `${new Intl.NumberFormat('nb-NO').format(value / 1000)} bn` : `${value}%`}
                         />
                         <Tooltip content={<CustomTooltip />}/>
                         <Legend wrapperStyle={{ fontSize: isMobile ? '10px' : '12px' }}/>
@@ -184,16 +184,16 @@ export function DetailedFinanceChart() {
                               <LabelList 
                                 dataKey="revenue_total" 
                                 position="top" 
-                                className="text-xs" 
-                                formatter={(value: number) => `${(value / 1000000).toFixed(1)}T`}
+                                className="text-xs font-semibold" 
+                                formatter={(value: number) => `${Math.round(value / 1000).toLocaleString('nb-NO')} bn`}
                               />
                             </Bar>
                             <Bar dataKey="expenditure_total" stackId="expense" fill="transparent">
                               <LabelList 
                                 dataKey="expenditure_total" 
                                 position="top" 
-                                className="text-xs"
-                                formatter={(value: number) => `${(value / 1000000).toFixed(1)}T`}
+                                className="text-xs font-semibold"
+                                formatter={(value: number) => `${Math.round(value / 1000).toLocaleString('nb-NO')} bn`}
                               />
                             </Bar>
                           </>
