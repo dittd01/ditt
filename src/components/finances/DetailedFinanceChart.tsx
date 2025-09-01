@@ -67,7 +67,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                  <p className="font-semibold text-green-600">Revenue: {formatBn(totalRevenue)}</p>
                  <div className="pl-2 border-l-2 border-green-200 ml-1 space-y-1 py-1">
                     {revenueItems.map((item: any) => (
-                        <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {(item.value / 1000).toLocaleString(undefined, { maximumFractionDigits: 1, minimumFractionDigits: 1 })} bn</p>
+                        <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {formatBn(item.value)}</p>
                     ))}
                  </div>
             </div>
@@ -75,7 +75,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                  <p className="font-semibold text-red-600">Expenditure: {formatBn(totalExpense)}</p>
                  <div className="pl-2 border-l-2 border-red-200 ml-1 space-y-1 py-1">
                     {expenseItems.map((item: any) => (
-                         <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {(item.value / 1000).toLocaleString(undefined, { maximumFractionDigits: 1, minimumFractionDigits: 1 })} bn</p>
+                         <p key={item.dataKey} className="text-xs text-muted-foreground">{item.name}: {formatBn(item.value)}</p>
                     ))}
                  </div>
             </div>
@@ -176,28 +176,6 @@ export function DetailedFinanceChart() {
                                 fill={redShades[index]} 
                             />
                         ))}
-
-                        {/* Total Labels */}
-                        {view === 'amount' && (
-                          <>
-                            <Bar dataKey="revenue_total" stackId="revenue" fill="transparent">
-                              <LabelList 
-                                dataKey="revenue_total" 
-                                position="top" 
-                                className="text-xs font-semibold" 
-                                formatter={(value: number) => `${Math.round(value / 1000).toLocaleString('nb-NO')} bn`}
-                              />
-                            </Bar>
-                            <Bar dataKey="expenditure_total" stackId="expense" fill="transparent">
-                              <LabelList 
-                                dataKey="expenditure_total" 
-                                position="top" 
-                                className="text-xs font-semibold"
-                                formatter={(value: number) => `${Math.round(value / 1000).toLocaleString('nb-NO')} bn`}
-                              />
-                            </Bar>
-                          </>
-                        )}
                     </BarChart>
                 </ResponsiveContainer>
             </CardContent>
