@@ -1,4 +1,8 @@
-
+/**
+ * @deprecated This chart shows central government budget figures only. It has been replaced
+ * by the GeneralGovernmentTotals component which shows a more complete picture of public finances
+ * including municipal and social security funds, based on authoritative SSB data.
+ */
 'use client';
 import { useMemo, useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';

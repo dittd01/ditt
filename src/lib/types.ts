@@ -255,6 +255,13 @@ export type StateBudgetRow = {
     totalSurplus: number;
 };
 
+export type GeneralGovernmentAnnual = {
+    year: number;
+    revenueBn: number;
+    expenditureBn: number;
+    surplusBn: number;
+};
+
 export type FinanceData = {
     countryIso3: string;
     year: number;
@@ -264,4 +271,5 @@ export type FinanceData = {
     sources: DataSource[];
     cofog: CofogFunction[];
     stateBudget: StateBudgetRow[];
+    generalGovernmentAnnual: GeneralGovernmentAnnual[];
 };

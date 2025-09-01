@@ -1,6 +1,6 @@
 
 
-import type { Country, FiscalYear, FinanceTotal, CofogFunction, ExpenditureByFunction, DataSource, FinanceData, StateBudgetRow } from './types';
+import type { Country, FiscalYear, FinanceTotal, CofogFunction, ExpenditureByFunction, DataSource, FinanceData, StateBudgetRow, GeneralGovernmentAnnual } from './types';
 
 const countries: Country[] = [
   { iso3: 'NOR', name: 'Norway', currency: 'NOK', decimals: 0, defaultYear: 2024, cofogVersion: 'UN-COFOG-2019' }
@@ -35,6 +35,14 @@ const stateBudget: StateBudgetRow[] = [
     { year: 2023, totalRevenue: 2494.4, petroleumRevenue: 1008.5, nonPetroleumRevenue: 1485.9, totalExpenditure: 1806.8, petroleumExpenditure: 30.4, nonPetroleumExpenditure: 1776.4, budgetSurplus: 687.6, oilCorrectedSurplus: -290.5, transferFromGPF: 286.2, totalSurplus: -4.2 },
     { year: 2024, totalRevenue: 2259.0, petroleumRevenue: 710.5, nonPetroleumRevenue: 1548.5, totalExpenditure: 1926.4, petroleumExpenditure: 30.1, nonPetroleumExpenditure: 1896.3, budgetSurplus: 332.6, oilCorrectedSurplus: -347.8, transferFromGPF: 347.8, totalSurplus: 0.0 },
     { year: 2025, totalRevenue: 2250.0, petroleumRevenue: 672.4, nonPetroleumRevenue: 1577.6, totalExpenditure: 2020.8, petroleumExpenditure: 29.6, nonPetroleumExpenditure: 1991.2, budgetSurplus: 229.1, oilCorrectedSurplus: -413.6, transferFromGPF: 413.6, totalSurplus: 0.0 }
+];
+
+// Source: SSB page “General government revenue and expenditure” -> Table 3 (Annual).
+// Values converted from millions to billions NOK.
+export const generalGovAnnual: GeneralGovernmentAnnual[] = [
+  { year: 2024, revenueBn: 3203.407, expenditureBn: 2524.615, surplusBn: 678.792 },
+  { year: 2023, revenueBn: 3188.374, expenditureBn: 2347.156, surplusBn: 841.219 },
+  { year: 2022, revenueBn: 3615.516, expenditureBn: 2151.437, surplusBn: 1464.078 },
 ];
 
 const expenditureLevel1: ExpenditureByFunction[] = [
@@ -148,6 +156,7 @@ const norway2024Data: FinanceData = {
     ],
     expenditure: expenditureLevel1,
     expenditureL2: expenditureLevel2,
+    generalGovernmentAnnual: generalGovAnnual,
 };
 
 // Main export structure
