@@ -24,25 +24,26 @@ import { trackEvent } from '@/lib/analytics';
 const revenueKeys = [
   'taxes_on_income_wealth',
   'taxes_on_goods_services',
-  'capital_taxes',
-  'social_security_contributions',
   'property_income_revenue',
+  'social_security_contributions',
   'admin_fees_sales',
   'current_transfers_revenue',
+  'capital_taxes',
 ];
 
 const expenseKeys = [
+  'social_benefits_in_cash',
   'compensation_of_employees',
   'use_of_goods_services',
   'consumption_of_fixed_capital',
-  'property_expense',
-  'social_benefits_in_kind',
-  'social_benefits_in_cash',
-  'subsidies',
   'current_transfers_expense',
-  'capital_transfers',
+  'subsidies',
+  'social_benefits_in_kind',
   'net_acquisitions_non_financial_assets',
+  'property_expense',
+  'capital_transfers',
 ];
+
 
 const generateShades = (h: number, s: number, isDark: boolean) => {
   const baseL = isDark ? 60 : 30;
@@ -89,17 +90,17 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const TotalLabel = (props: LabelProps & { total: number }) => {
-    const { x, y, width, height, value, total } = props;
+    const { x, y, width, value, total } = props;
     
-    if (typeof x !== 'number' || typeof y !== 'number' || typeof height !== 'number' || total === 0) {
+    if (typeof x !== 'number' || typeof y !== 'number' || typeof width !== 'number' || total === 0) {
         return null;
     }
 
-    const formattedTotal = new Intl.NumberFormat('nb-NO').format(Math.round(total / 1000));
+    const formattedTotal = `${new Intl.NumberFormat('nb-NO').format(Math.round(total / 1000))} bn`;
     
     return (
         <text 
-            x={x + width! / 2} 
+            x={x + width / 2} 
             y={y} 
             fill="hsl(var(--foreground))" 
             textAnchor="middle"
@@ -153,6 +154,13 @@ export function DetailedFinanceChart() {
 
     const labels = financeDetails.labels;
 
+    const valueFormatter = (value: number) => {
+        if (value < 200000) return '';
+        return view === 'amount'
+            ? new Intl.NumberFormat('nb-NO').format(Math.round(value))
+            : `${value.toFixed(0)}%`;
+    }
+
     return (
         <Card>
             <CardHeader>
@@ -174,7 +182,7 @@ export function DetailedFinanceChart() {
             </CardHeader>
             <CardContent className="h-[500px] w-full">
                 <ResponsiveContainer>
-                    <BarChart data={chartData} margin={{ top: 30, right: 30, left: 20, bottom: 5 }}>
+                    <BarChart data={chartData} margin={{ top: 30, right: 30, left: 20, bottom: 5 }} barGap={20}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false}/>
                         <XAxis dataKey="year" tick={{ fontSize: 12 }} />
                         <YAxis 
@@ -193,7 +201,15 @@ export function DetailedFinanceChart() {
                                 name={labels[key as keyof typeof labels][lang as 'en' | 'nb']}
                                 fill={greenShades[index]} 
                                 radius={index === revenueKeys.length - 1 ? [4, 4, 0, 0] : [0,0,0,0]}
-                            />
+                            >
+                                <LabelList 
+                                    dataKey={view === 'amount' ? key : `${key}_pct`} 
+                                    position="center" 
+                                    className="fill-primary-foreground font-semibold"
+                                    style={{ fontSize: 10 }}
+                                    formatter={valueFormatter}
+                                />
+                            </Bar>
                         ))}
                         
                         {/* Expense Bars */}
@@ -205,19 +221,27 @@ export function DetailedFinanceChart() {
                                 name={labels[key as keyof typeof labels][lang as 'en' | 'nb']}
                                 fill={redShades[index]} 
                                 radius={index === expenseKeys.length -1 ? [4, 4, 0, 0] : [0,0,0,0]}
-                            />
+                            >
+                                <LabelList 
+                                    dataKey={view === 'amount' ? key : `${key}_pct`} 
+                                    position="center" 
+                                    className="fill-destructive-foreground font-semibold"
+                                    style={{ fontSize: 10 }}
+                                    formatter={valueFormatter}
+                                />
+                            </Bar>
                         ))}
                         
                         {/* Transparent bars for total labels */}
                         {view === 'amount' && (
                             <>
-                                <Bar dataKey="totalRevenue" stackId="revenue" fill="transparent">
+                                <Bar dataKey="totalRevenue" stackId="revenue" fill="transparent" isAnimationActive={false}>
                                     <LabelList
                                         dataKey="totalRevenue"
                                         content={(props) => <TotalLabel {...props} total={props.value as number} />}
                                     />
                                 </Bar>
-                                 <Bar dataKey="totalExpenditure" stackId="expense" fill="transparent">
+                                 <Bar dataKey="totalExpenditure" stackId="expense" fill="transparent" isAnimationActive={false}>
                                     <LabelList
                                         dataKey="totalExpenditure"
                                         content={(props) => <TotalLabel {...props} total={props.value as number} />}
