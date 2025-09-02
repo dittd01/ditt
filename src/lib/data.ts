@@ -46,17 +46,6 @@ const subCategoryData = [
     { id: "direct_democracy", label: "Direct Democracy", label_nb: "Direkte demokrati", categoryId: "elections-governance", topic: "Innføre nasjonalt innbyggerinitiativ (50k signaturer)?", topic_en: "Introduce a national citizens' initiative (50k signatures)?", imageUrl: 'https://placehold.co/600x400.png', aiHint: 'people meeting', voteType: 'yesno' },
     { id: "party_finance", label: "Party Finance", label_nb: "Partifinansiering", categoryId: "elections-governance", topic: "Forby private donasjoner over 100k NOK?", topic_en: "Ban private donations over 100k NOK?", imageUrl: 'https://placehold.co/600x400.png', aiHint: 'money cash', voteType: 'yesno' },
     { id: "municipal_reform", label: "Municipal Reform", label_nb: "Kommunereform", categoryId: "elections-governance", topic: "Slå sammen kommuner med <5k innbyggere?", topic_en: "Merge municipalities with <5k inhabitants?", imageUrl: 'https://placehold.co/600x400.png', aiHint: 'norway map', voteType: 'yesno' },
-    { 
-        id: "electoral_reform", 
-        label: "Electoral Reform", 
-        label_nb: "Valgreform", 
-        categoryId: "elections-governance", 
-        topic: "Bør Norge avskaffe den nasjonale sperregrensen på 4 % ved stortingsvalg?", 
-        topic_en: "Should Norway abolish the national 4% election threshold?", 
-        imageUrl: 'https://images.unsplash.com/photo-1541870729283-11ee07844a4b?q=80&w=600&auto=format&fit=crop', 
-        aiHint: 'parliament building', 
-        voteType: 'yesno' 
-    },
     // Taxation
     { id: "wealth_tax", label: "Wealth Tax", label_nb: "Formuesskatt", categoryId: "taxation", topic: "Heve terskelen for formuesskatt til 10m NOK?", topic_en: "Raise the threshold for wealth tax to 10M NOK?", imageUrl: 'https://placehold.co/600x400.png', aiHint: 'luxury yacht', voteType: 'likert' },
     { id: "inheritance_tax", label: "Inheritance Tax", label_nb: "Arveavgift", categoryId: "taxation", topic: "Gjeninnføre arveavgift over 5m NOK på 10%?", topic_en: "Reintroduce inheritance tax over 5M NOK at 10%?", imageUrl: 'https://placehold.co/600x400.png', aiHint: 'family hands', voteType: 'yesno' },
@@ -194,6 +183,47 @@ export const mockUserNames = [
     'Knut Lien', 'Astrid Moen', 'Jan Eriksen', 'Berit Andreassen', 'Arne Solberg'
 ];
 
+const electoralReformTopic: Topic = {
+    id: 'electoral-reform-topic',
+    slug: 'should-norway-abolish-the-national-4-election-threshold',
+    question: "Bør Norge avskaffe den nasjonale sperregrensen på 4 % ved stortingsvalg?",
+    question_en: "Should Norway abolish the 4% national electoral threshold (sperregrense) for Storting elections?",
+    description: "Norge bruker forholdstallsvalg med partilister ved stortingsvalg. En nasjonal sperregrense på 4 % avgjør om partier får tilgang til utjevningsmandater, som skal gjøre forholdet mellom stemmer og mandater mer proporsjonalt. Å avskaffe sperregrensen vil endre hvilke partier som kan få slike mandater og kan påvirke regjeringsdannelsen.",
+    description_en: "Norway’s parliamentary elections use proportional representation with party lists. A national 4% electoral threshold determines whether parties are eligible for leveling seats (utjevningsmandater), which help align seat shares with national vote shares. Abolishing the threshold would change which parties can gain representation via these seats and could affect government formation.",
+    background_md: "Stortingsvalget i Norge er et forholdstallsvalg basert på partilister, innført for å omsette stemmer til mandater mer proporsjonalt enn enmannskretser. Utjevningsmandater brukes for å redusere skjevheter mellom stemmeandel og mandatsammensetning på tvers av valgdistrikter. Tilgang til disse mandatene forutsetter i dag en nasjonal sperregrense på 4 %, en regel som skal balansere hensynet til representativitet mot styringsdyktighet. Spørsmålet om sperregrensen behandles jevnlig i gjennomganger av valgloven og henger sammen med andre temaer som distriktsinndeling, mandatfordeling og i hvilken grad velgerne bør kunne påvirke personvalg på listene. Kommunestyre- og fylkestingsvalg har ordninger for personstemmer, mens stortingsvalget i hovedsak er partibasert. Å avskaffe sperregrensen vil ikke fjerne distriktsmandatene, men endrer kriteriene for utjevningsmandater og dermed partienes strategier og velgernes insentiver. Eventuelle reformer må veie gevinster i representativitet opp mot risiko for fragmentering og mer krevende regjeringsdannelser.",
+    pros: [
+        "Øker proporsjonaliteten ved å gi små partier bedre mulighet til representasjon, slik at velgerpreferanser speiles mer presist.",
+        "Reduserer insentiver til taktisk stemming rundt sperregrensen og lar velgere stemme på partiet de faktisk foretrekker.",
+        "Fremmer idé-mangfold og konkurranse i Stortinget, som kan øke responsen på nye eller smale samfunnstemaer."
+    ],
+    cons: [
+        "Kan gi flere partier i Stortinget og dermed mer fragmentering, som kan gjøre koalisjonsarbeid og styring vanskeligere.",
+        "Kan gi uforholdsmessig innflytelse til svært små eller enkeltsakspartier, noe som kan komplisere langsiktig budsjett- og reformarbeid.",
+        "Kan svekke tydelig ansvarliggjøring dersom regjeringer blir avhengige av mange små partier for å få vedtak gjennom."
+    ],
+    sources: [
+        { "title": "Regjeringen – NOU 2020: 6 Ny valglov", "url": "https://www.regjeringen.no/no/dokumenter/nou-2020-6/id2703131/" },
+        { "title": "Regjeringen – Ot.prp. nr. 45 (2001–2002) Om lov om valg til Stortinget, fylkesting og kommunestyrer", "url": "https://www.regjeringen.no/no/dokumenter/otprp-nr-45-2001-2002-/id167521/" },
+        { "title": "SSB – Stortingsvalg (statistikk og bakgrunn)", "url": "https://www.ssb.no/valg/stortingsvalg" }
+    ],
+    imageUrl: 'https://images.unsplash.com/photo-1541870729283-11ee07844a4b?q=80&w=600&auto=format&fit=crop',
+    aiHint: 'parliament building',
+    options: topicOptions['yesno'],
+    votes: { yes: 12345, no: 8765, abstain: 1200 },
+    totalVotes: 22310,
+    votesLastWeek: 1500,
+    votesLastMonth: 6000,
+    votesLastYear: 22310,
+    history: generateVoteHistory(topicOptions['yesno'], 365),
+    categoryId: 'elections-governance',
+    subcategoryId: 'electoral_reform',
+    status: 'live',
+    voteType: 'yesno',
+    averageImportance: 3.8,
+    author: currentUser.displayName,
+};
+
+
 const standardTopics: Topic[] = subCategoryData.map((sub, index): Topic => {
     const voteType = (sub.voteType || 'yesno') as Topic['voteType'];
     const options = topicOptions[voteType === 'multi' || voteType === 'ranked' ? 'ranked' : voteType === 'likert' ? 'likert' : voteType === 'quadratic' ? 'quadratic' : 'yesno'];
@@ -256,7 +286,19 @@ const electionTopic: Topic = {
     author: 'System',
 }
 
-export const allTopics: Topic[] = [electionTopic, ...standardTopics];
+subCategoryData.unshift({
+    id: "electoral_reform",
+    label: "Electoral Reform",
+    label_nb: "Valgreform",
+    categoryId: "elections-governance",
+    topic: electoralReformTopic.question,
+    topic_en: electoralReformTopic.question_en,
+    imageUrl: electoralReformTopic.imageUrl,
+    aiHint: electoralReformTopic.aiHint,
+    voteType: electoralReformTopic.voteType,
+});
+
+export const allTopics: Topic[] = [electionTopic, electoralReformTopic, ...standardTopics];
 
 
 export const categories: Category[] = [
