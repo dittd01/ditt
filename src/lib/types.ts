@@ -281,3 +281,11 @@ export type FinanceData = {
     generalGovernmentAnnual: GeneralGovernmentAnnual[];
     generalGovernmentRevenueBreakdown: GeneralGovernmentRevenueBreakdown[];
 };
+
+// Add the new TopicWithDetails type which will include all the fields
+export type TopicWithDetails = Topic & {
+  background_md: string;
+  pros: string[];
+  cons: string[];
+  sources: { title: string; url: string }[];
+};

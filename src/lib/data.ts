@@ -46,6 +46,17 @@ const subCategoryData = [
     { id: "direct_democracy", label: "Direct Democracy", label_nb: "Direkte demokrati", categoryId: "elections-governance", topic: "Innføre nasjonalt innbyggerinitiativ (50k signaturer)?", topic_en: "Introduce a national citizens' initiative (50k signatures)?", imageUrl: 'https://placehold.co/600x400.png', aiHint: 'people meeting', voteType: 'yesno' },
     { id: "party_finance", label: "Party Finance", label_nb: "Partifinansiering", categoryId: "elections-governance", topic: "Forby private donasjoner over 100k NOK?", topic_en: "Ban private donations over 100k NOK?", imageUrl: 'https://placehold.co/600x400.png', aiHint: 'money cash', voteType: 'yesno' },
     { id: "municipal_reform", label: "Municipal Reform", label_nb: "Kommunereform", categoryId: "elections-governance", topic: "Slå sammen kommuner med <5k innbyggere?", topic_en: "Merge municipalities with <5k inhabitants?", imageUrl: 'https://placehold.co/600x400.png', aiHint: 'norway map', voteType: 'yesno' },
+    { 
+        id: "electoral_reform", 
+        label: "Electoral Reform", 
+        label_nb: "Valgreform", 
+        categoryId: "elections-governance", 
+        topic: "Bør Norge avskaffe den nasjonale sperregrensen på 4 % ved stortingsvalg?", 
+        topic_en: "Should Norway abolish the national 4% election threshold?", 
+        imageUrl: 'https://images.unsplash.com/photo-1541870729283-11ee07844a4b?q=80&w=600&auto=format&fit=crop', 
+        aiHint: 'parliament building', 
+        voteType: 'yesno' 
+    },
     // Taxation
     { id: "wealth_tax", label: "Wealth Tax", label_nb: "Formuesskatt", categoryId: "taxation", topic: "Heve terskelen for formuesskatt til 10m NOK?", topic_en: "Raise the threshold for wealth tax to 10M NOK?", imageUrl: 'https://placehold.co/600x400.png', aiHint: 'luxury yacht', voteType: 'likert' },
     { id: "inheritance_tax", label: "Inheritance Tax", label_nb: "Arveavgift", categoryId: "taxation", topic: "Gjeninnføre arveavgift over 5m NOK på 10%?", topic_en: "Reintroduce inheritance tax over 5M NOK at 10%?", imageUrl: 'https://placehold.co/600x400.png', aiHint: 'family hands', voteType: 'yesno' },
