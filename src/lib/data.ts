@@ -191,20 +191,15 @@ const electoralReformTopic: Topic = {
     description: "Norge bruker forholdstallsvalg med partilister ved stortingsvalg. En nasjonal sperregrense på 4 % avgjør om partier får tilgang til utjevningsmandater, som bidrar til at forholdet mellom stemmer og mandater blir mer proporsjonalt. Å avskaffe sperregrensen kan endre representasjonen og påvirke regjeringsdannelsen.",
     description_en: "Norway’s parliamentary elections use proportional representation with party lists. A national 4% electoral threshold determines whether parties are eligible for leveling seats (utjevningsmandater), which help align seat shares with national vote shares. Abolishing the threshold would change which parties can gain representation via these seats and could affect government formation.",
     background_md: "Stortingsvalget er et forholdstallsvalg med distriktsmandater og nasjonale utjevningsmandater. Tilgang til utjevningsmandater forutsetter i dag 4 % nasjonal oppslutning, en terskel som ble innført for å balansere representativitet mot styringsdyktighet. Ordningen er jevnlig vurdert i offentlige utredninger, blant annet NOU 2020: 6, som diskuterer hvordan sperregrensen påvirker forholdet mellom stemmeandel og mandater og hvilke alternativer som finnes. I kommunestyre- og fylkestingsvalg kan velgere påvirke personrekkefølgen, mens stortingsvalget i hovedsak er partilistebasert; debatten om sperregrensen henger derfor også sammen med spørsmål om personvalg, distriktsinndeling og utjevningsmekanismer. En avvikling av sperregrensen vil ikke fjerne distriktsmandatene, men kan endre hvordan små partier oppnår representasjon og påvirke strategiene til både velgere og partier. Argumentene for vektlegger bedre speiling av velgerpreferanser, mens argumentene mot fremhever risiko for mer fragmentert parlamentarisme og svakere styring. Eventuelle endringer krever lovreform og grundig vurdering av konsekvenser for stabilitet, budsjetter og regjeringsdannelse.",
-    pros: [
-        "Øker proporsjonaliteten ved å gi små partier bedre mulighet til representasjon.",
-        "Reduserer taktisk stemming rundt sperregrensen og lar velgere stemme mer ærlig.",
-        "Fremmer idé-mangfold og konkurranse i Stortinget."
-    ],
-    cons: [
-        "Kan gi økt fragmentering og vanskeligere koalisjonsforhandlinger.",
-        "Kan gi uforholdsmessig innflytelse til svært små eller enkeltsakspartier.",
-        "Kan svekke tydelig ansvarliggjøring hvis regjeringer blir avhengige av mange små partier."
-    ],
-    sources: [
-        { "title": "Regjeringen – NOU 2020: 6 Ny valglov", "url": "https://www.regjeringen.no/no/dokumenter/nou-2020-6/id2703131/" },
-        { "title": "SSB – Stortingsvalg (statistikk og bakgrunn)", "url": "https://www.ssb.no/valg/stortingsvalg" }
-    ],
+    pros: ["Øker proporsjonaliteten ved å gi små partier bedre mulighet til representasjon.", "Reduserer taktisk stemming rundt sperregrensen og lar velgere stemme mer ærlig.", "Fremmer idé-mangfold og konkurranse i Stortinget."],
+    cons: ["Kan gi økt fragmentering og vanskeligere koalisjonsforhandlinger.", "Kan gi uforholdsmessig innflytelse til svært små eller enkeltsakspartier.", "Kan svekke tydelig ansvarliggjøring hvis regjeringer blir avhengige av mange små partier."],
+    sources: [{
+        "title": "Regjeringen – NOU 2020: 6 Ny valglov",
+        "url": "https://www.regjeringen.no/no/dokumenter/nou-2020-6/id2703131/"
+    }, {
+        "title": "SSB – Stortingsvalg (statistikk og bakgrunn)",
+        "url": "https://www.ssb.no/valg/stortingsvalg"
+    }],
     imageUrl: 'https://images.unsplash.com/photo-1541870729283-11ee07844a4b?q=80&w=600&auto=format&fit=crop',
     aiHint: 'parliament building',
     options: topicOptions['yesno'],
@@ -219,6 +214,43 @@ const electoralReformTopic: Topic = {
     status: 'live',
     voteType: 'yesno',
     averageImportance: 3.8,
+    author: currentUser.displayName,
+};
+
+const termLimitsTopic: Topic = {
+    id: 'term-limits-topic',
+    slug: 'should-mps-have-a-two-term-limit',
+    question: "Bør stortingsrepresentanter ha en tidsbegrensning på to perioder?",
+    question_en: "Should members of parliament have a two-term limit?",
+    description: "Forslaget innebærer å innføre en øvre grense på to valgperioder for stortingsrepresentanter. Hensikten er å motvirke fremveksten av «karrierepolitikere», styrke rotasjon og sikre fornyelse, samtidig som man balanserer behovet for erfaring og kontinuitet. En slik endring vil kreve lovarbeid og tydelige overgangsregler.",
+    description_en: "This proposal involves introducing an upper limit of two electoral terms for members of parliament. The aim is to counteract the emergence of 'career politicians,' enhance rotation, and ensure renewal, while balancing the need for experience and continuity. Such a change would require legislative work and clear transitional rules.",
+    background_md: "Termbegrensning (maks antall perioder) er et virkemiddel som brukes i noen land og institusjoner for å balansere fornyelse og kontinuitet. I norsk sammenheng må en slik ordning avklares innen rammene av valgloven og det konstitusjonelle systemet, herunder hvordan mandatperioder fastsettes og hvilke kvalifikasjonskrav som gjelder. Offentlige utredninger om valgsystemet, som NOU 2020: 6, drøfter sentrale elementer i valgordningen (bl.a. distrikt, utjevningsmandater og personvalg) og belyser hensyn som også er relevante for en diskusjon om termbegrensning: representativitet, styringsdyktighet og velgernes innflytelse. En eventuell reform må avklare overgangsregler (om perioden skal telle fra vedtakstidspunktet eller inkludere tidligere perioder), hvordan permisjoner og vararepresentasjon teller, samt om lederverv i Stortinget skal omfattes. Videre bør man vurdere om begrensningen skal gjelde sammenhengende perioder eller samlet levetid, og hvilke konsekvenser det får for rekruttering, komitésammensetning og budsjetthåndtering. Klare regler og god informasjon til velgerne vil være nødvendig for å sikre forutsigbarhet og legitimitet.",
+    pros: ["Fremmer fornyelse ved jevnlig rotasjon av folkevalgte.", "Kan redusere maktkonsentrasjon og øke tillit til politiske institusjoner.", "Skaper flere innganger for nye stemmer og perspektiver i Stortinget."],
+    cons: ["Begrenser velgernes frihet til å gjenvelge erfarne representanter.", "Kan svekke institusjonell hukommelse og langsiktig kompetansebygging.", "Risikerer å flytte innflytelse til politiske rådgivere og partiapparat med lengre kontinuitet."],
+    sources: [{
+        "title": "Regjeringen – NOU 2020: 6 Ny valglov",
+        "url": "https://www.regjeringen.no/no/dokumenter/nou-2020-6/id2703131/"
+    }, {
+        "title": "Regjeringen – Prop. 45 L (2022–2023) Ny valglov",
+        "url": "https://www.regjeringen.no/no/dokumenter/prop.-45-l-20222023/id2964473/"
+    }, {
+        "title": "SSB – Stortingsvalg (statistikk og bakgrunn)",
+        "url": "https://www.ssb.no/valg/stortingsvalg"
+    }],
+    imageUrl: 'https://images.unsplash.com/photo-1541870729283-11ee07844a4b?q=80&w=600&auto=format&fit=crop',
+    aiHint: 'politician speech',
+    options: topicOptions['yesno'],
+    votes: { yes: 9876, no: 11234, abstain: 950 },
+    totalVotes: 22060,
+    votesLastWeek: 1200,
+    votesLastMonth: 5500,
+    votesLastYear: 22060,
+    history: generateVoteHistory(topicOptions['yesno'], 365),
+    categoryId: 'elections-governance',
+    subcategoryId: 'electoral_reform',
+    status: 'live',
+    voteType: 'yesno',
+    averageImportance: 3.5,
     author: currentUser.displayName,
 };
 
@@ -297,7 +329,7 @@ subCategoryData.unshift({
     voteType: electoralReformTopic.voteType,
 });
 
-export const allTopics: Topic[] = [electionTopic, electoralReformTopic, ...standardTopics];
+export const allTopics: Topic[] = [electionTopic, electoralReformTopic, termLimitsTopic, ...standardTopics];
 
 
 export const categories: Category[] = [
