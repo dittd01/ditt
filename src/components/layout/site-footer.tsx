@@ -3,10 +3,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Youtube, Linkedin, Facebook } from 'lucide-react';
+import { Youtube, Linkedin, Facebook, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ShareButton } from '../share/ShareButton';
 import { Separator } from '../ui/separator';
+import { SHARE_TARGETS } from '@/lib/share/targets';
 
 // Why: Using inline SVGs is the most efficient way to add a few custom brand icons
 // without adding a heavy new dependency like a full icon library.
@@ -42,18 +42,34 @@ export function SiteFooter() {
   const privacyText = lang === 'nb' ? 'Personvern' : 'Privacy';
   const shareText = lang === 'nb' ? 'Del siden' : 'Share this page';
 
+  const sharePayload = {
+    url: siteUrl,
+    title: "Ditt Demokrati",
+    text: "Explore direct democracy on a modern, anonymous voting platform.",
+  };
+
+  const shareTargets = [
+    SHARE_TARGETS.x,
+    SHARE_TARGETS.facebook,
+    SHARE_TARGETS.linkedin,
+    SHARE_TARGETS.reddit,
+    SHARE_TARGETS.email,
+  ];
+
   return (
     <footer className="border-t">
       <div className="container py-8 space-y-8">
         <div className="flex items-center gap-4">
             <span className="font-semibold text-muted-foreground">{shareText}</span>
-             <ShareButton
-                payload={{
-                    url: siteUrl,
-                    title: "Ditt Demokrati",
-                    text: "Explore direct democracy on a modern, anonymous voting platform.",
-                }}
-            />
+            <div className="flex items-center gap-2">
+                {shareTargets.map((target) => (
+                <Button key={target.id} asChild variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                    <a href={target.buildUrl(sharePayload)} target="_blank" rel="noopener noreferrer" aria-label={`Share on ${target.name}`}>
+                      {target.icon && <target.icon className="h-5 w-5" />}
+                    </a>
+                </Button>
+                ))}
+            </div>
         </div>
         <Separator />
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
