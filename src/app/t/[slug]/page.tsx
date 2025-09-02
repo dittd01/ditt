@@ -151,7 +151,7 @@ function TopicCarousel({ topics, initialSlug }: { topics: Topic[], initialSlug: 
       if (newTopic) {
         const currentParams = new URLSearchParams(window.location.search);
         const newUrl = `/t/${newTopic.slug}?${currentParams.toString()}`;
-        router.replace(newUrl);
+        router.replace(newUrl, { scroll: false });
         // Why: Explicitly scroll to the top. `router.replace` without `scroll: false`
         // should handle this, but this is a more robust way to guarantee it,
         // preventing inconsistent browser behavior.
@@ -238,6 +238,7 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
   const [vizType, setVizType] = useState<'radial' | 'tree'>('radial');
   
   useEffect(() => {
+    setCurrentTopic(topic);
     const selectedLang = (localStorage.getItem('selectedLanguage') || 'en') as 'en' | 'nb';
     setLang(selectedLang);
     
@@ -248,7 +249,7 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
     // We get the initial `votedOn` state as a prop
     setVotedOn(null); // This will be updated by a fetch in a real app
 
-  }, [topic.id]);
+  }, [topic]);
 
   const handleVote = async (voteData: string | string[]) => {
     const t = translations[lang];
