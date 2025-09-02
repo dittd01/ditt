@@ -15,7 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, PlusCircle, ArrowUpDown } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, ArrowUpDown, Trash2, Archive } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -29,6 +29,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { Subcategory } from '@/lib/types';
 import Link from 'next/link';
 import { useDebounce } from 'use-debounce';
+import { Checkbox } from '@/components/ui/checkbox';
 
 type SortDescriptor = {
     key: keyof Omit<PollRowData, 'id' | 'categoryId' | 'subcategoryId'>;
@@ -44,6 +45,7 @@ export default function PollsPage() {
   const [polls, setPolls] = useState<PollRowData[]>([]);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({ key: 'votes', direction: 'descending' });
   const [lang, setLang] = useState('en');
+  const [selectedPollIds, setSelectedPollIds] = useState<string[]>([]);
 
   // Filters from URL
   const searchTerm = searchParams.get('q') || '';
@@ -150,6 +152,32 @@ export default function PollsPage() {
     </TableHead>
   );
 
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedPollIds(sortedAndFilteredPolls.map(p => p.id));
+    } else {
+      setSelectedPollIds([]);
+    }
+  };
+
+  const handleRowSelect = (pollId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedPollIds(prev => [...prev, pollId]);
+    } else {
+      setSelectedPollIds(prev => prev.filter(id => id !== pollId));
+    }
+  };
+  
+  const numSelected = selectedPollIds.length;
+
+  const handleBulkAction = (action: 'archive' | 'delete') => {
+    toast({
+        title: 'Action Triggered',
+        description: `Would ${action} ${numSelected} polls. (This is a mock action)`
+    });
+    setSelectedPollIds([]);
+  }
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -206,10 +234,30 @@ export default function PollsPage() {
           </Select>
       </div>
 
+       {numSelected > 0 && (
+            <div className="flex items-center gap-4 rounded-lg border bg-card p-2">
+                <span className="text-sm font-medium pl-2">{numSelected} selected</span>
+                <div className="ml-auto flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleBulkAction('archive')}>
+                        <Archive className="mr-2"/> Archive
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleBulkAction('delete')}>
+                        <Trash2 className="mr-2"/> Delete
+                    </Button>
+                </div>
+            </div>
+        )}
 
       <Table>
         <TableHeader>
             <TableRow>
+                <TableHead className="w-[50px]">
+                    <Checkbox
+                        checked={numSelected > 0 && numSelected === sortedAndFilteredPolls.length}
+                        onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
+                        aria-label="Select all"
+                    />
+                </TableHead>
                 <SortableHeader sortKey="title" className="w-[40%]">Title</SortableHeader>
                 <SortableHeader sortKey="author">Author</SortableHeader>
                 <SortableHeader sortKey="category">Category</SortableHeader>
@@ -221,7 +269,14 @@ export default function PollsPage() {
         </TableHeader>
         <TableBody>
             {sortedAndFilteredPolls.map((poll) => (
-                 <TableRow key={poll.id}>
+                 <TableRow key={poll.id} data-state={selectedPollIds.includes(poll.id) && 'selected'}>
+                    <TableCell>
+                         <Checkbox
+                            checked={selectedPollIds.includes(poll.id)}
+                            onCheckedChange={(checked) => handleRowSelect(poll.id, Boolean(checked))}
+                            aria-label={`Select poll "${poll.title}"`}
+                        />
+                    </TableCell>
                     <TableCell className="font-medium">{poll.title}</TableCell>
                     <TableCell>{poll.author}</TableCell>
                     <TableCell>{poll.category}</TableCell>
@@ -251,5 +306,3 @@ export default function PollsPage() {
     </div>
   );
 }
-
-    
