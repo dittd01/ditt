@@ -303,7 +303,7 @@ function TopicPageContent({ topic, isSimMode }: { topic: Topic, isSimMode: boole
       toast({
         variant: 'destructive',
         title: 'Vote Failed',
-        description: error.message || 'Could not record your vote. Please try again.',
+        description: error.message || 'An unexpected response was received from the server.',
       });
 
       setVotedOn(previouslyVotedOn);
