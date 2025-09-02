@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { ReactNode } from 'react';
@@ -30,6 +31,7 @@ import {
   Cpu,
   Server,
   Database,
+  FlaskConical,
 } from 'lucide-react';
 import Link from 'next/link';
 import { AdminHeader } from '@/components/admin/AdminHeader';
@@ -50,6 +52,10 @@ const navItems = [
   { href: '/admin/tech-stack', icon: Cpu, label: 'Tech Stack', roles: ['Admin', 'Owner'] },
   { href: '/admin/exports', icon: Download, label: 'Exports', roles: ['Analyst', 'Admin', 'Owner'] },
 ];
+
+const devNavItems = [
+    { href: '/admin/dev/data-gen', icon: FlaskConical, label: 'Data Generator', roles: ['Admin', 'Owner'] },
+]
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -82,6 +88,26 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+            {process.env.NODE_ENV === 'development' && (
+                <div className="mt-4 pt-4 border-t">
+                    <h3 className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Developer Tools</h3>
+                    <SidebarMenu>
+                         {devNavItems.map((item) => (
+                            <SidebarMenuItem key={item.label}>
+                            <Link href={item.href}>
+                                <SidebarMenuButton
+                                tooltip={item.label}
+                                isActive={pathname === item.href}
+                                >
+                                <item.icon />
+                                <span>{item.label}</span>
+                                </SidebarMenuButton>
+                            </Link>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </div>
+            )}
           </SidebarContent>
           <SidebarFooter>
             <SidebarMenu>

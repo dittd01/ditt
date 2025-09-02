@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { moderateVotingSuggestion } from '@/ai/flows/moderate-voting-suggestions';
@@ -8,9 +9,10 @@ import { populatePoll, type PopulatePollOutput } from '@/ai/flows/populate-poll-
 import { curateArgument, type CurateArgumentInput, type CurateArgumentOutput } from '@/ai/flows/curate-argument';
 import { generateRebuttal, type GenerateRebuttalInput, type GenerateRebuttalOutput } from '@/ai/flows/generate-rebuttal';
 import { generateSpeech, type GenerateSpeechOutput } from '@/ai/flows/generate-speech';
+import { simulateDebate } from '@/ai/flows/simulate-debate-flow';
 import { categories, allTopics } from '@/lib/data';
 import { calculateQVCost } from '@/lib/qv';
-import type { Topic, FinanceData, Device } from '@/lib/types';
+import type { Topic, FinanceData, Device, SimulateDebateInput, SimulateDebateOutput } from '@/lib/types';
 import { 
     generateRegistrationChallenge, 
     verifyRegistration,
@@ -191,6 +193,28 @@ export async function generateSpeechAction(text: string): Promise<{ success: tru
         const message = error instanceof Error ? error.message : 'An unknown error occurred.';
         return { success: false, message };
     }
+}
+
+/**
+ * Server Action to trigger the synthetic debate generation flow.
+ * This is a developer-only feature and should be guarded by environment checks.
+ */
+export async function simulateDebateAction(
+  input: SimulateDebateInput
+): Promise<{ success: boolean; data?: SimulateDebateOutput; message?: string }> {
+  // Why: A hardcoded check on the server-side ensures this can never be
+  // accidentally run in a production environment, even if client-side checks fail.
+  if (process.env.NODE_ENV === 'production') {
+    return { success: false, message: 'This action is disabled in production.' };
+  }
+  
+  try {
+    const result = await simulateDebate(input);
+    return { success: true, data: result };
+  } catch (error: any) {
+    console.error('[simulateDebateAction] Error:', error);
+    return { success: false, message: error.message || 'An unknown error occurred during simulation.' };
+  }
 }
 
 
