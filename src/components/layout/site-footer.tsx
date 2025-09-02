@@ -5,6 +5,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Youtube, Linkedin, Facebook } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ShareButton } from '../share/ShareButton';
+import { Separator } from '../ui/separator';
 
 // Why: Using inline SVGs is the most efficient way to add a few custom brand icons
 // without adding a heavy new dependency like a full icon library.
@@ -27,35 +29,51 @@ const socialLinks = [
 
 export function SiteFooter() {
   const [lang, setLang] = useState('en');
+  const [siteUrl, setSiteUrl] = useState('');
 
   useEffect(() => {
     const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
     setLang(selectedLang);
+    setSiteUrl(window.location.origin);
   }, []);
 
   const followUsText = lang === 'nb' ? 'Følg oss' : 'Follow us';
   const aboutText = lang === 'nb' ? 'Om oss' : 'About';
   const privacyText = lang === 'nb' ? 'Personvern' : 'Privacy';
+  const shareText = lang === 'nb' ? 'Del siden' : 'Share this page';
 
   return (
     <footer className="border-t">
-      <div className="container py-8 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="container py-8 space-y-8">
         <div className="flex items-center gap-4">
-          <span className="font-semibold text-muted-foreground">{followUsText}</span>
-          <div className="flex items-center gap-2">
-            {socialLinks.map(({ href, icon: Icon }) => (
-              <Button key={href} asChild variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                <a href={href} target="_blank" rel="noopener noreferrer">
-                  <Icon className="h-5 w-5" />
-                </a>
-              </Button>
-            ))}
-          </div>
+            <span className="font-semibold text-muted-foreground">{shareText}</span>
+             <ShareButton
+                payload={{
+                    url: siteUrl,
+                    title: "Ditt Demokrati",
+                    text: "Explore direct democracy on a modern, anonymous voting platform.",
+                }}
+            />
         </div>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} Ditt Demokrati</p>
-            <Link href="/about" className="hover:text-foreground">{aboutText}</Link>
-            <Link href="/privacy" className="hover:text-foreground">{privacyText}</Link>
+        <Separator />
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+            <span className="font-semibold text-muted-foreground">{followUsText}</span>
+            <div className="flex items-center gap-2">
+                {socialLinks.map(({ href, icon: Icon }) => (
+                <Button key={href} asChild variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                    <a href={href} target="_blank" rel="noopener noreferrer">
+                    <Icon className="h-5 w-5" />
+                    </a>
+                </Button>
+                ))}
+            </div>
+            </div>
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <p>&copy; {new Date().getFullYear()} Ditt Demokrati</p>
+                <Link href="/about" className="hover:text-foreground">{aboutText}</Link>
+                <Link href="/privacy" className="hover:text-foreground">{privacyText}</Link>
+            </div>
         </div>
       </div>
     </footer>
