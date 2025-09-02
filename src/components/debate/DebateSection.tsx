@@ -6,7 +6,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import type { Argument, SimArgument, Topic } from '@/lib/types';
 import { ArgumentCard } from './ArgumentCard';
 import { Button } from '../ui/button';
-import { PlusCircle, Lightbulb, Loader2, Donut, Network } from 'lucide-react';
+import { PlusCircle, Lightbulb, Loader2, Donut, Network, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { ArgumentComposer } from './ArgumentComposer';
 import { currentUser } from '@/lib/user-data';
@@ -51,8 +51,8 @@ const translations = {
     nb: {
         arguments: 'Argumenter',
         visualization: 'Visualisering',
-        for: 'Argumenter for',
-        against: 'Argumenter mot',
+        for: 'Argumenter For',
+        against: 'Argumenter Mot',
         addArgument: 'Legg til argument',
         noArguments: 'Ingen argumenter for denne siden enda.',
         argumentAdded: 'Argument publisert',
@@ -351,7 +351,8 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
             {/* Arguments For Column */}
             <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                    <h3 className="text-xl font-semibold text-[hsl(var(--chart-2))]">
+                    <h3 className="text-xl font-semibold text-[hsl(var(--chart-2))] flex items-center gap-2">
+                        <ThumbsUp className="h-5 w-5" />
                         {t.for}
                     </h3>
                     <Button variant="ghost" size="icon" onClick={() => handleAddArgument('for')} className="text-[hsl(var(--chart-2))] hover:text-[hsl(var(--chart-2))] hover:bg-green-500/10">
@@ -379,7 +380,8 @@ export function DebateSection({ topicId, topicQuestion, initialArgs, lang, synth
             {/* Arguments Against Column */}
             <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                    <h3 className="text-xl font-semibold text-destructive">
+                    <h3 className="text-xl font-semibold text-destructive flex items-center gap-2">
+                        <ThumbsDown className="h-5 w-5" />
                         {t.against}
                     </h3>
                     <Button variant="ghost" size="icon" onClick={() => handleAddArgument('against')} className="text-destructive hover:text-destructive hover:bg-red-500/10">
