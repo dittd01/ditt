@@ -277,7 +277,9 @@ export default function PollsPage() {
                             aria-label={`Select poll "${poll.title}"`}
                         />
                     </TableCell>
-                    <TableCell className="font-medium">{poll.title}</TableCell>
+                    <TableCell className="font-medium">
+                        <Link href={`/admin/polls/${poll.id}`} className="hover:underline">{poll.title}</Link>
+                    </TableCell>
                     <TableCell>{poll.author}</TableCell>
                     <TableCell>{poll.category}</TableCell>
                     <TableCell><Badge variant={poll.status === 'Live' ? 'default' : 'secondary'}>{poll.status}</Badge></TableCell>

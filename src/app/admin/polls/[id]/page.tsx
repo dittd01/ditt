@@ -52,12 +52,14 @@ import {
   XCircle,
   Send,
   Upload,
+  AlertTriangle,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Combobox } from '@/components/ui/combobox';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
@@ -437,6 +439,16 @@ export default function EditPollPage() {
           </div>
         </PageHeader>
         
+        {!isNew && watchStatus === 'live' && (
+            <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>This Poll is Live</AlertTitle>
+                <AlertDescription>
+                    Editing a live poll can impact voting data and user experience. Please proceed with caution.
+                </AlertDescription>
+            </Alert>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             {/* Core Details Card */}
