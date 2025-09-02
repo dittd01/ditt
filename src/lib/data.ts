@@ -188,22 +188,21 @@ const electoralReformTopic: Topic = {
     slug: 'should-norway-abolish-the-national-4-election-threshold',
     question: "Bør Norge avskaffe den nasjonale sperregrensen på 4 % ved stortingsvalg?",
     question_en: "Should Norway abolish the 4% national electoral threshold (sperregrense) for Storting elections?",
-    description: "Norge bruker forholdstallsvalg med partilister ved stortingsvalg. En nasjonal sperregrense på 4 % avgjør om partier får tilgang til utjevningsmandater, som skal gjøre forholdet mellom stemmer og mandater mer proporsjonalt. Å avskaffe sperregrensen vil endre hvilke partier som kan få slike mandater og kan påvirke regjeringsdannelsen.",
+    description: "Norge bruker forholdstallsvalg med partilister ved stortingsvalg. En nasjonal sperregrense på 4 % avgjør om partier får tilgang til utjevningsmandater, som bidrar til at forholdet mellom stemmer og mandater blir mer proporsjonalt. Å avskaffe sperregrensen kan endre representasjonen og påvirke regjeringsdannelsen.",
     description_en: "Norway’s parliamentary elections use proportional representation with party lists. A national 4% electoral threshold determines whether parties are eligible for leveling seats (utjevningsmandater), which help align seat shares with national vote shares. Abolishing the threshold would change which parties can gain representation via these seats and could affect government formation.",
-    background_md: "Stortingsvalget i Norge er et forholdstallsvalg basert på partilister, innført for å omsette stemmer til mandater mer proporsjonalt enn enmannskretser. Utjevningsmandater brukes for å redusere skjevheter mellom stemmeandel og mandatsammensetning på tvers av valgdistrikter. Tilgang til disse mandatene forutsetter i dag en nasjonal sperregrense på 4 %, en regel som skal balansere hensynet til representativitet mot styringsdyktighet. Spørsmålet om sperregrensen behandles jevnlig i gjennomganger av valgloven og henger sammen med andre temaer som distriktsinndeling, mandatfordeling og i hvilken grad velgerne bør kunne påvirke personvalg på listene. Kommunestyre- og fylkestingsvalg har ordninger for personstemmer, mens stortingsvalget i hovedsak er partibasert. Å avskaffe sperregrensen vil ikke fjerne distriktsmandatene, men endrer kriteriene for utjevningsmandater og dermed partienes strategier og velgernes insentiver. Eventuelle reformer må veie gevinster i representativitet opp mot risiko for fragmentering og mer krevende regjeringsdannelser.",
+    background_md: "Stortingsvalget er et forholdstallsvalg med distriktsmandater og nasjonale utjevningsmandater. Tilgang til utjevningsmandater forutsetter i dag 4 % nasjonal oppslutning, en terskel som ble innført for å balansere representativitet mot styringsdyktighet. Ordningen er jevnlig vurdert i offentlige utredninger, blant annet NOU 2020: 6, som diskuterer hvordan sperregrensen påvirker forholdet mellom stemmeandel og mandater og hvilke alternativer som finnes. I kommunestyre- og fylkestingsvalg kan velgere påvirke personrekkefølgen, mens stortingsvalget i hovedsak er partilistebasert; debatten om sperregrensen henger derfor også sammen med spørsmål om personvalg, distriktsinndeling og utjevningsmekanismer. En avvikling av sperregrensen vil ikke fjerne distriktsmandatene, men kan endre hvordan små partier oppnår representasjon og påvirke strategiene til både velgere og partier. Argumentene for vektlegger bedre speiling av velgerpreferanser, mens argumentene mot fremhever risiko for mer fragmentert parlamentarisme og svakere styring. Eventuelle endringer krever lovreform og grundig vurdering av konsekvenser for stabilitet, budsjetter og regjeringsdannelse.",
     pros: [
-        "Øker proporsjonaliteten ved å gi små partier bedre mulighet til representasjon, slik at velgerpreferanser speiles mer presist.",
-        "Reduserer insentiver til taktisk stemming rundt sperregrensen og lar velgere stemme på partiet de faktisk foretrekker.",
-        "Fremmer idé-mangfold og konkurranse i Stortinget, som kan øke responsen på nye eller smale samfunnstemaer."
+        "Øker proporsjonaliteten ved å gi små partier bedre mulighet til representasjon.",
+        "Reduserer taktisk stemming rundt sperregrensen og lar velgere stemme mer ærlig.",
+        "Fremmer idé-mangfold og konkurranse i Stortinget."
     ],
     cons: [
-        "Kan gi flere partier i Stortinget og dermed mer fragmentering, som kan gjøre koalisjonsarbeid og styring vanskeligere.",
-        "Kan gi uforholdsmessig innflytelse til svært små eller enkeltsakspartier, noe som kan komplisere langsiktig budsjett- og reformarbeid.",
-        "Kan svekke tydelig ansvarliggjøring dersom regjeringer blir avhengige av mange små partier for å få vedtak gjennom."
+        "Kan gi økt fragmentering og vanskeligere koalisjonsforhandlinger.",
+        "Kan gi uforholdsmessig innflytelse til svært små eller enkeltsakspartier.",
+        "Kan svekke tydelig ansvarliggjøring hvis regjeringer blir avhengige av mange små partier."
     ],
     sources: [
         { "title": "Regjeringen – NOU 2020: 6 Ny valglov", "url": "https://www.regjeringen.no/no/dokumenter/nou-2020-6/id2703131/" },
-        { "title": "Regjeringen – Ot.prp. nr. 45 (2001–2002) Om lov om valg til Stortinget, fylkesting og kommunestyrer", "url": "https://www.regjeringen.no/no/dokumenter/otprp-nr-45-2001-2002-/id167521/" },
         { "title": "SSB – Stortingsvalg (statistikk og bakgrunn)", "url": "https://www.ssb.no/valg/stortingsvalg" }
     ],
     imageUrl: 'https://images.unsplash.com/photo-1541870729283-11ee07844a4b?q=80&w=600&auto=format&fit=crop',
