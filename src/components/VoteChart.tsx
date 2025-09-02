@@ -179,7 +179,7 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
                     formatter={(value: number) => [`${value.toFixed(1)}%`, 'Percentage']}
                 />
                 <Legend />
-                <Bar dataKey="yes_percent" stackId="a" fill="hsl(var(--chart-2))" name="Yes">
+                <Bar dataKey="yes_percent" stackId="a" fill="#008000" name="Yes">
                     <LabelList 
                         dataKey="yes_percent" 
                         position="center" 
@@ -187,7 +187,7 @@ export function VoteChart({ topic, showControls = true }: VoteChartProps) {
                         formatter={(value: number) => value > 5 ? `${value.toFixed(0)}%` : ''} 
                     />
                 </Bar>
-                <Bar dataKey="no_percent" stackId="a" fill="hsl(var(--chart-1))" name="No">
+                <Bar dataKey="no_percent" stackId="a" fill="#d93737" name="No">
                      <LabelList 
                         dataKey="no_percent" 
                         position="center" 
