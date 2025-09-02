@@ -147,27 +147,28 @@ export function TopicInteraction({ topic, votedOn, onVote, onRevote }: TopicInte
                     <CardContent className="flex flex-col items-center justify-center gap-3">
                         <div className="flex w-full items-center justify-center gap-2">
                              <Button
-                                variant={votedOn === 'yes' ? 'default' : 'outline'}
-                                size="lg"
-                                className={cn(
-                                    'h-14 text-xl flex-1 group',
-                                    votedOn !== 'yes' && 'text-[hsl(var(--chart-2))] border-[hsl(var(--chart-2))] bg-transparent hover:bg-[hsl(var(--chart-2))] hover:bg-opacity-10',
-                                    votedOn === 'yes' && 'bg-[hsl(var(--chart-2))] hover:bg-[hsl(var(--chart-2))] text-white'
-                                )}
                                 onClick={() => onVote('yes')}
-                                >
-                                <span className="ml-2">{t.yes}</span>
+                                className={cn(
+                                    "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-md transition-all duration-300 ease-in-out active:translate-y-px hover:-translate-y-[5px] hover:shadow-xl",
+                                    "dark:text-white dark:active:bg-red-700",
+                                    votedOn === 'yes'
+                                        ? "bg-destructive text-destructive-foreground border-transparent hover:bg-destructive"
+                                        : "bg-background text-destructive border border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                )}
+                            >
+                                {t.yes}
                             </Button>
                             <Button
-                                variant={votedOn === 'no' ? 'destructive' : 'outline'}
-                                size="lg"
-                                className={cn(
-                                    'h-14 text-xl flex-1 group',
-                                     votedOn !== 'no' && 'text-destructive border-destructive bg-destructive bg-opacity-10 hover:bg-opacity-20'
-                                )}
                                 onClick={() => onVote('no')}
-                                >
-                                 <span className="ml-2">{t.no}</span>
+                                className={cn(
+                                    "flex-1 py-3 px-6 text-xs uppercase tracking-[2.5px] font-medium rounded-full shadow-md transition-all duration-300 ease-in-out active:translate-y-px hover:-translate-y-[5px] hover:shadow-xl",
+                                    "dark:text-white dark:active:bg-green-700",
+                                     votedOn === 'no'
+                                        ? "bg-[hsl(var(--chart-2))] text-white border-transparent hover:bg-[hsl(var(--chart-2))]"
+                                        : "bg-background text-[hsl(var(--chart-2))] border border-[hsl(var(--chart-2))] hover:bg-[hsl(var(--chart-2))] hover:text-white"
+                                )}
+                            >
+                                {t.no}
                             </Button>
                         </div>
                         {votedOn && votedOn !== 'abstain' && (
