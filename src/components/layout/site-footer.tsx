@@ -7,6 +7,7 @@ import { Youtube, Linkedin, Facebook, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '../ui/separator';
 import { SHARE_TARGETS } from '@/lib/share/targets';
+import { SharePayload } from '@/lib/share/schema';
 
 // Why: Using inline SVGs is the most efficient way to add a few custom brand icons
 // without adding a heavy new dependency like a full icon library.
@@ -42,7 +43,7 @@ export function SiteFooter() {
   const privacyText = lang === 'nb' ? 'Personvern' : 'Privacy';
   const shareText = lang === 'nb' ? 'Del siden' : 'Share this page';
 
-  const sharePayload = {
+  const sharePayload: SharePayload = {
     url: siteUrl,
     title: "Ditt Demokrati",
     text: "Explore direct democracy on a modern, anonymous voting platform.",
